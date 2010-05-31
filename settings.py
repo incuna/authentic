@@ -3,6 +3,7 @@
 import os
 
 DEBUG = True
+USE_DEBUG_TOOLBAR = True
 TEMPLATE_DEBUG = DEBUG
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -93,3 +94,9 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'authentic.idp'
 )
+
+INTERNAL_IPS = ('127.0.0.1',)
+
+if USE_DEBUG_TOOLBAR:
+    MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+    INSTALLED_APPS += ('debug_toolbar',)
