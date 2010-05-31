@@ -1,0 +1,22 @@
+How to start using authentic ?
+==============================
+
+Eventually modify the settings.py file if you want to use another database
+backend than sqlite3.
+
+Then launch the following commands:
+
+	python manage.py syncdb
+	python manage.py createsuperuser
+	python manage.py runserver
+
+You should see the following output:
+
+	Validating models...
+	0 errors found
+
+	Django version 1.2, using settings 'authentic.settings'
+	Development server is running at http://127.0.0.1:8000/
+	Quit the server with CONTROL-C.
+
+You can access the running application on http://127.0.0.1:8000/
