@@ -92,11 +92,17 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.admin',
-    'authentic.idp'
+    'authentic.idp',
+    'registration'
 )
 
-INTERNAL_IPS = ('127.0.0.1',)
+# Registration settings
+ACCOUNT_ACTIVATION_DAYS = 2
+EMAIL_HOST = 'localhost'
+DEFAULT_FROM_EMAIL = 'webmaster@entrouvert.com'
+LOGIN_REDIRECT_URL = '/'
 
+INTERNAL_IPS = ('127.0.0.1',)
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
@@ -108,3 +114,5 @@ except ImportError:
 if USE_DEBUG_TOOLBAR:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     INSTALLED_APPS += ('debug_toolbar',)
+
+
