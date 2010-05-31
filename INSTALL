@@ -7,7 +7,6 @@ backend than sqlite3.
 Then launch the following commands:
 
 	python manage.py syncdb
-	python manage.py createsuperuser
 	python manage.py runserver
 
 You should see the following output:
