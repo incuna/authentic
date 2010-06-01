@@ -19,9 +19,18 @@ div#header {
 	padding: 2ex;
 }
 
+div#header h1 {
+	font-weight: normal;
+}
+
 div#content {
 	margin: 1em 1ex;
 	padding: 1ex;
+}
+
+div#content h2 {
+	margin-top: 0;
+	font-weight: normal;
 }
 
 div#footer {
