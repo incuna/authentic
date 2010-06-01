@@ -1,0 +1,17 @@
+Setting up an Authentic server
+==============================
+
+On installation the package will have created an empty database, you should add
+a super user, using the following command::
+
+  su authentic -p -c "python /usr/shareyshared/authentic/manage.py createsuperuser"
+
+The package doesn't ship a startup script, that would start Authentic
+automatically, that is because running an identity server on the builtin HTTP
+server (not HTTPS!) is definitely not a good idea.
+
+Even though, if you want a quick look, before configuring properly a real HTTP
+server, you can use this command::
+
+  su authentic -p -c "python /usr/share/pyshared/authentic/manage.py runserver"
+

@@ -1,0 +1,6 @@
+This package uses quilt to patch the upstream source.
+
+You can find some info on how to generate the patched source, add a new
+modification, and remove an existing modification on:
+        /usr/share/doc/quilt/README.source
+

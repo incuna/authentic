@@ -1,0 +1,5 @@
+authentic (1.9.0-0) unstable; urgency=low
+
+  * Initial packaging.
+
+ -- Frederic Peters <fpeters@debian.org>  Tue, 01 Jun 2010 14:28:56 +0200

@@ -1,0 +1,15 @@
+diff --git a/settings.py b/settings.py
+index e65f7ae..cb8faec 100644
+--- a/settings.py
++++ b/settings.py
+@@ -4,8 +4,8 @@ import os
+ 
+ gettext_noop = lambda s: s
+ 
+-DEBUG = True
+-USE_DEBUG_TOOLBAR = True
++DEBUG = False
++USE_DEBUG_TOOLBAR = False
+ STATIC_SERVE = True
+ TEMPLATE_DEBUG = DEBUG
+ PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
