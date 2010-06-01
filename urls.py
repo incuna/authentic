@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 from django.views.generic.simple import direct_to_template
 
 import settings
@@ -9,7 +10,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^accounts/', include('registration.urls')),
-    (r'^$', direct_to_template,
+    (r'^$', login_required(direct_to_template),
         { 'template': 'index.html' }, 'index'),
 )
 
