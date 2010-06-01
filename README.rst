@@ -1,8 +1,17 @@
-How to start using authentic ?
-==============================
+=====================================
+Authentic - Versatile Identity Server
+=====================================
 
-Eventually create a local_settings.py if you want to modify things like
-the database to use.
+Authentic is a versatile identity provider aiming to address a broad
+range of needs, from simple to complex setups; it has support for many
+protocols and can bridge between them.
+
+It has support for ID-FF and SAMLv2 thanks to Lasso, a free (GNU GPL)
+implementation of the Liberty Alliance specifications.
+
+
+Quick Start
+-----------
 
 Then launch the following commands::
 
@@ -24,8 +33,8 @@ You should see the following output::
 Specifying a different database
 -------------------------------
 
-This is done by modifying the DATABASES dictionary in your local_settings.py file;
-for example::
+This is done by modifying the DATABASES dictionary in your local_settings.py file
+(create it in Authentic project directory); for example::
 
   DATABASES['default'] = {
     'ENGINE': 'django.db.backends.postgresql',
@@ -39,3 +48,11 @@ for example::
 You should refer to the Django documentation on databases settings at
 http://docs.djangoproject.com/en/dev/ref/settings/#databases for all
 the details.
+
+Copyright
+---------
+
+Authentic is copyrighted by Entr'ouvert and is licensed through the GNU General
+Public Licence, version 2 or later. A copy of the whole license text is
+available in the COPYING file.
+
