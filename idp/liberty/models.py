@@ -104,4 +104,7 @@ class LibertyAssertions(models.Model):
     assertion = models.TextField(editable = False)
     emission_time = models.DateTimeField(auto_now = True, editable = False)
 
-
+class LibertyArtifact(models.Model):
+    """Store an artifact"""
+    artifact = models.CharField(max_length = 40, editable = False)
+    content = models.TextField(editable = False)
