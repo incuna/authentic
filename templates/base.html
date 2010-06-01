@@ -10,7 +10,8 @@
 <body>
     <div id="auth-header">
         {% block auth_header %}
-        <a href="{% url index %}">{% trans "Home" %}</a> | 
+        <a href="{% url index %}">{% trans "Home" %}</a>
+        <span id="auth-user-actions">
         {% if user.is_authenticated %}
           {% trans "Logged in" %}: {{ user.username }} | 
           (<a href="{% url auth_logout %}">{% trans "Log out" %}</a> | 
@@ -18,6 +19,7 @@
         {% else %}
           <a href="{% url auth_login %}">{% trans "Log in" %}</a>
         {% endif %}
+        </span>
         {% endblock %}
     </div>
 
