@@ -2,3 +2,4 @@
 *.pyo
 *.db
 dist/
+authentic.egg-info
