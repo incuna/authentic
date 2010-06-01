@@ -60,6 +60,7 @@ form ul.errorlist {
 	padding: 0;
 	color: red;
 	font-weight: bold;
+	list-style: none;
 }
 
 input {
