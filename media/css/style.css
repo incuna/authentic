@@ -25,3 +25,53 @@ div#content {
 span#auth-user-actions {
 	float: right;
 }
+
+form p {
+	margin: 0 0 1em 0;
+}
+
+form p label {
+	display: block;
+}
+
+form p input,
+form p textarea {
+	margin-left: 10px;
+}
+
+form ul.errorlist {
+	margin: 0;
+	padding: 0;
+	color: red;
+	font-weight: bold;
+}
+
+input {
+	padding: 5px;
+	border: 1px solid #cccccc;
+	color:#666666;
+}
+
+textarea {
+	font: 120% Arial, Helvetica, sans-serif;
+	border: solid 1px #cccccc;
+	padding: 5px;
+	color:#666666;
+}
+
+textarea:focus, input[type="text"]:focus, input[type="password"]:focus {
+	border: 1px solid #4690d6;
+	color:#333333;
+}
+
+input[type=submit] {
+	color: #ffffff;
+	background:#4690d6;
+	border: 1px solid #4690d6;
+	font-weight: bold;
+	height: 25px;
+	padding: 2px 8px 2px 8px;
+	margin:10px;
+	cursor: pointer;
+}
+
