@@ -2,6 +2,8 @@
 
 import os
 
+gettext_noop = lambda s: s
+
 DEBUG = True
 USE_DEBUG_TOOLBAR = True
 STATIC_SERVE = True
@@ -40,6 +42,11 @@ SITE_ID = 1
 # to load the internationalization machinery.
 USE_I18N = True
 
+LANGUAGES = (
+    ('en', gettext_noop('English')),
+    ('fr', gettext_noop('French')),
+)
+
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale
 USE_L10N = True
@@ -72,6 +79,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.csrf.middleware.CsrfMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
