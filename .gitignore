@@ -3,3 +3,4 @@
 *.db
 dist/
 authentic.egg-info
+local_settings.py
