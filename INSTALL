@@ -4,21 +4,21 @@ How to start using authentic ?
 Eventually create a local_settings.py if you want to modify things like
 the database to use.
 
-Then launch the following commands:
+Then launch the following commands::
 
-	python manage.py syncdb
-	python manage.py runserver
+  python manage.py syncdb
+  python manage.py runserver
 
-You should see the following output:
+You should see the following output::
 
-	Validating models...
-	0 errors found
+  Validating models...
+  0 errors found
 
-	Django version 1.2, using settings 'authentic.settings'
-	Development server is running at http://127.0.0.1:8000/
-	Quit the server with CONTROL-C.
+  Django version 1.2, using settings 'authentic.settings'
+  Development server is running at http://127.0.0.1:8000/
+  Quit the server with CONTROL-C.
 
-You can access the running application on http://127.0.0.1:8000/
+  You can access the running application on http://127.0.0.1:8000/
 
 
 Specifying a different database
