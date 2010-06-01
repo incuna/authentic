@@ -1,5 +1,7 @@
 html, body {
 	margin: 0;
+	background: white;
+	color: black;
 }
 
 div#auth-header {
@@ -18,12 +20,21 @@ div#auth-header a:hover {
 	text-decoration: underline;
 }
 
+span#auth-user-actions {
+	float: right;
+}
+
 div#content {
 	margin: 1em 1ex;
 }
 
-span#auth-user-actions {
-	float: right;
+div#footer {
+	text-align: center;
+	margin-top: 3em;
+	font-size: 50%;
+	color: #333;
+	background: #eee;
+	padding: 3em;
 }
 
 form p {
