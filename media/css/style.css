@@ -4,8 +4,24 @@ html, body {
 	color: black;
 }
 
+div#wrap {
+	width: 40em;
+	margin: 5em auto;
+	-moz-border-radius: 6px;
+	-webkit-border-radius:6px;
+	-moz-box-shadow: 0 0 4px rgba(0,0,0,0.75);
+	-webkit-box-shadow: 0 0 4px rgba(0,0,0,0.75);
+}
+
+div#header {
+	background: #eee;
+	text-align: center;
+	padding: 2ex;
+}
+
 div#content {
 	margin: 1em 1ex;
+	padding: 1ex;
 }
 
 div#footer {
