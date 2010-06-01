@@ -1,0 +1,6 @@
+recursive-include authentic/locale *
+recursive-include authentic/templates *.html *.txt *.js
+recursive-include authentic/media *.css *.js
+include ez_setup.py
+include COPYING
+include README.rst
