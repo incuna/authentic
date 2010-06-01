@@ -4,26 +4,6 @@ html, body {
 	color: black;
 }
 
-div#auth-header {
-	background: black;
-	color: #eee;
-	padding: 1px 5px 2px 5px;
-	border-bottom: 1px solid #888;
-}
-
-div#auth-header a {
-	color: white;
-	text-decoration: none;
-}
-
-div#auth-header a:hover {
-	text-decoration: underline;
-}
-
-span#auth-user-actions {
-	float: right;
-}
-
 div#content {
 	margin: 1em 1ex;
 }
