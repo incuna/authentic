@@ -25,6 +25,9 @@ class LibertyAttributeMap(models.Model):
     mappings = models.ManyToManyField(LibertyAttributeMapping,
             related_name = "maps")
 
+    def __unicode__(self):
+        return self.name
+
 class LibertyProvider(models.Model):
     name = models.CharField(max_length = 40, unique = True,
             help_text = "Internal nickname for the service provider")
@@ -33,6 +36,9 @@ class LibertyProvider(models.Model):
     public_key = models.FileField(upload_to = FilenameGenerator("public_key"))
     ssl_certificate = models.FileField(
             upload_to = FilenameGenerator("ssl_certificate"))
+
+    def __unicode__(self):
+        return self.name
 
 class LibertyServiceProvider(LibertyProvider):
     encrypt_nameid = models.BooleanField(verbose_name = "Encrypt NameID")
