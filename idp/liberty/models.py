@@ -28,7 +28,7 @@ class LibertyAttributeMap(models.Model):
 class LibertyProvider(models.Model):
     name = models.CharField(max_length = 40, unique = True,
             help_text = "Internal nickname for the service provider")
-    metadata_url = models.URLField(verify_exists = True)
+    entity_id = models.URLField()
     metadata = models.FileField(upload_to = FilenameGenerator("metadata"))
     public_key = models.FileField(upload_to = FilenameGenerator("public_key"))
     ssl_certificate = models.FileField(
