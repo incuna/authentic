@@ -1,8 +1,8 @@
 How to start using authentic ?
 ==============================
 
-Eventually modify the settings.py file if you want to use another database
-backend than sqlite3.
+Eventually create a local_settings.py if you want to modify things like
+the database to use.
 
 Then launch the following commands:
 
@@ -19,3 +19,23 @@ You should see the following output:
 	Quit the server with CONTROL-C.
 
 You can access the running application on http://127.0.0.1:8000/
+
+
+Specifying a different database
+-------------------------------
+
+This is done by modifying the DATABASES dictionary in your local_settings.py file;
+for example::
+
+  DATABASES['default'] = {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': 'authentic',
+    'USER': 'admindb',
+    'PASSWORD': 'foobar',
+    'HOST': 'db.example.com',
+    'PORT': '', # empty string means default value
+  }
+
+You should refer to the Django documentation on databases settings at
+http://docs.djangoproject.com/en/dev/ref/settings/#databases for all
+the details.
