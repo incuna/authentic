@@ -77,7 +77,7 @@ def finish_sso(request, login):
     return get_saml2_response(login)
 
 urlpatterns = patterns('',
-    (r'^metadata/', metadata),
-    (r'^sso/', sso),
+    (r'^metadata$', metadata),
+    (r'^sso', sso),
 )
 

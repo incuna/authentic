@@ -33,6 +33,6 @@ def sso(request):
     # POST
 
 urlpatterns = patterns('',
-    (r'^metadata/', metadata),
-    (r'^sso/', sso),
+    (r'^metadata$', metadata),
+    (r'^sso$', sso),
 )
