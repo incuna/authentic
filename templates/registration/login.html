@@ -13,6 +13,8 @@
   <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
+
+<p><a href="{% url user_signin_ssl %}">{% trans "Login with SSL" %}</a></p>
 {% if HAS_AUTH_OPENID %}
 <p><a href="{% url user_signin %}">{% trans "Login with OpenID" %}</a></p>
 {% endif %}

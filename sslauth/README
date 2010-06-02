@@ -1,0 +1,59 @@
+================================
+Enable SSL Client authentication
+================================
+
+Intro
+=====
+Tested with Apache and mod_ssl.
+Django over mod_wsgi. From http://docs.djangoproject.com/en/dev/howto/deployment/modwsgi/
+"Deploying Django with Apache and mod_wsgi is the recommended way to get Django into production."
+
+Generate Keys
+=============
+* Create a CA (passphrase)
+openssl genrsa -des3 -out ca.key 2048
+openssl req -new -x509 -days 3650 -key ca.key -out ca.crt
+openssl x509 -in ca.crt -text -noout
+* Server key material (challenge)
+openssl genrsa -des3 -out server.key 1024
+openssl req -new -key server.key -out server.csr
+openssl x509 -req -in server.csr -out server.crt -sha1 -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650
+openssl x509 -in server.crt -text -noout
+* User Key material (challenge/password)
+openssl genrsa -des3 -out c.key 1024
+openssl req -new -key c.key -out c.csr
+openssl x509 -req -in c.csr -out c.crt -sha1 -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650
+openssl pkcs12 -export -in c.crt -inkey c.key -name "Mikael Ates" -out c.p12
+openssl pkcs12 -in c.p12 -clcerts -nokeys -info
+
+Configure Apache and WSGI
+=========================
+Add a file django.wsgi, e.g.:
+"""
+import os
+sys.path.append('/Donnees/devs/Authentic/')
+os.environ['DJANGO_SETTINGS_MODULE'] = 'authentic.settings'
+import django.core.handlers.wsgi
+application = django.core.handlers.wsgi.WSGIHandler()
+"""
+Add a Apache vhost for SSL. The "Login with SSL" redirects to the location "/sslauth/" containing the instruction "SSLVerifyClient require".
+Add instruction WSGIScriptAlias / /path-to/django.wsgi
+For a quick start, set path in authentic_ssl.vhost and run it.
+Give rights to Apache on your Authentic directory
+
+Configure Authentic
+===================
+in authentic/settings.py:
+Set AUTH_SSL = True
+To create a user with the mail adress as identifier:
+SSLAUTH_CREATE_USER = True
+To use another identifier:
+def myusernamegen(ssl_info):
+    import re
+    if(ssl_info.subject_cn):
+        return return re.sub('[^a-zA-Z0-9]', '_', ssl_info.subject_cn)
+    else:
+        return return re.sub('[^a-zA-Z0-9]', '_', ssl_info.serial)
+SSLAUTH_CREATE_USERNAME_CALLBACK = myusernamegen
+
+

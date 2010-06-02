@@ -1,0 +1,52 @@
+<IfModule mod_ssl.c>
+<VirtualHost *:443>
+
+LimitInternalRecursion 1000
+ServerAdmin webmaster@entrouvert.org
+ServerName localhost
+
+#Alias /media/ /Donnees/devs/Authentic/authentic/media/
+Alias /media/admin/ /usr/local/lib/python2.6/dist-packages/django/contrib/admin/media/
+
+WSGIScriptAlias / /Donnees/devs/Authentic/authentic/apache/django.wsgi
+
+<Location />
+
+Options Indexes MultiViews FollowSymLinks
+AllowOverride None
+Order deny,allow
+Allow from all
+
+</Location>
+
+<Location /sslauth/>
+
+SSLVerifyClient require
+
+Options Indexes MultiViews FollowSymLinks
+AllowOverride None
+Order deny,allow
+Allow from all
+
+</Location>
+
+SSLEngine on
+SSLCipherSuite HIGH:MEDIUM
+SSLProtocol all -SSLv2
+
+SSLCertificateFile /Donnees/devs/Authentic/authentic/apache/key_mat/server.crt
+SSLCertificateKeyFile /Donnees/devs/Authentic/authentic/apache/key_mat/server.key
+
+SSLCertificateChainFile /Donnees/devs/Authentic/authentic/apache/key_mat/ca.crt
+SSLCACertificateFile /Donnees/devs/Authentic/authentic/apache/key_mat/ca.crt
+
+SSLOptions +StdEnvVars +ExportCertData
+#SSLProtocol all
+
+	BrowserMatch "MSIE [2-6]" \
+		nokeepalive ssl-unclean-shutdown \
+		downgrade-1.0 force-response-1.0
+	BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
+
+</VirtualHost>
+</IfModule>

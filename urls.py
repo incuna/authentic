@@ -17,7 +17,13 @@ urlpatterns = patterns('',
 
 if settings.AUTH_OPENID:
     urlpatterns += patterns('',
-            (r'^account/', include('django_authopenid.urls')),)
+            (r'^accounts/', include('django_authopenid.urls')),)
+
+if settings.AUTH_SSL:
+    urlpatterns += patterns('',
+                url(r'^sslauth/$',
+                'authentic.sslauth.login_ssl.process_request',
+                name='user_signin_ssl'),)
 
 if settings.STATIC_SERVE:
     urlpatterns += patterns('',

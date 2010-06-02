@@ -113,7 +113,8 @@ INSTALLED_APPS = (
     'registration',
     'authentic.idp.liberty',
     'authentic.admin_log_view',
-    'django_authopenid'
+    'django_authopenid',
+    'authentic.sslauth',
 )
 
 # Registration settings
@@ -145,6 +146,14 @@ pkkt86tIOLEtaNO97CcF/t+Un5QAh9MqLmQv5pwUDo4Lqo7qo1bAfyHjOlr5kdaP
 8eM47A92x9uplD/sN550pTKM7XLhHBvEfLujUoGHpWQxGA==
 -----END RSA PRIVATE KEY-----'''
 
+# SSL settings
+AUTH_SSL = True
+SSLAUTH_CREATE_USER = True
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'authentic.sslauth.backends.SSLAuthBackend',
+)
+
 # OpenID settings
 AUTH_OPENID = True
 IDP_OPENID = True
@@ -159,4 +168,3 @@ except ImportError:
 if USE_DEBUG_TOOLBAR:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     INSTALLED_APPS += ('debug_toolbar',)
-
