@@ -17,15 +17,17 @@ urlpatterns = patterns('',
 
 if settings.AUTH_OPENID:
     urlpatterns += patterns('',
-            (r'^openid/', include('django_authopenid.urls')),)
+            (r'^openid/', include('django_authopenid.urls')),
+    )
 
 if settings.AUTH_SSL:
     urlpatterns += patterns('',
-                url(r'^sslauth/$',
-                    'authentic.sslauth.login_ssl.process_request',
-                    name='user_signin_ssl'),
-                url(r'^error_ssl/$',direct_to_template,
-                    {'template': 'error_ssl.html'}, 'error_ssl'),)
+        url(r'^sslauth/$',
+            'authentic.sslauth.login_ssl.process_request',
+            name='user_signin_ssl'),
+        url(r'^error_ssl/$', direct_to_template,
+            {'template': 'error_ssl.html'}, 'error_ssl'),
+    )
 
 if settings.STATIC_SERVE:
     urlpatterns += patterns('',
