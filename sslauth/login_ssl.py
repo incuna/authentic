@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 
 from django.contrib.auth import authenticate, login, get_user
@@ -24,7 +23,6 @@ def process_request(request):
         return HttpResponseRedirect("/")
 
     else:
-        html = "<html><body>SSL Login Error.</body></html>"
-        return HttpResponse(html)
+        return HttpResponseRedirect("/sslauth/error.html")
 
 
