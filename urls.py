@@ -17,7 +17,7 @@ urlpatterns = patterns('',
 
 if settings.AUTH_OPENID:
     urlpatterns += patterns('',
-            (r'^accounts/', include('django_authopenid.urls')),)
+            (r'^openid/', include('django_authopenid.urls')),)
 
 if settings.AUTH_SSL:
     urlpatterns += patterns('',
