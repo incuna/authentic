@@ -112,7 +112,6 @@ INSTALLED_APPS = (
     'authentic.idp.saml',
     'registration',
     'authentic.idp.saml',
-    'authentic.admin_log_view',
     'django_authopenid',
     'authentic.sslauth',
 )
