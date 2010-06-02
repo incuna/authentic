@@ -10,6 +10,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^accounts/', include('registration.urls')),
+    (r'^account/', include('django_authopenid.urls')),
     (r'^$', login_required(direct_to_template),
         { 'template': 'index.html' }, 'index'),
 )
