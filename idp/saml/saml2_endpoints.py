@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.conf.urls.defaults import *
-from django.http import HttpResponse
+from django.http import *
 import lasso
 from models import *
 from authentic.saml.common import *
@@ -38,6 +38,8 @@ def sso(request):
     login = lasso.Login(server)
     try:
         login.processAuthnRequestMsg(message)
+    except lasso.ProfileInvalidMsgError:
+        return HttpResponseBadRequest('The SAML AuthnRequest is invalid: "%s"' % message)
     except lasso.ServerProviderNotFoundError:
         # Lookup the provider
         q=LibertyProvider.objects.filter(entity_id=login.remoteProviderId)
