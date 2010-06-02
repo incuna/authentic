@@ -69,7 +69,7 @@ class Saml2Metadata(NamespacedTreeBuilder):
         '''Add a role descriptor, map is a sequence of tuples formatted as
 
               (endpoint_type, (bindings, ..) , url [, return_url])
-           
+
            endpoint_type is a string among:
 
               - SingleSignOnService
@@ -198,9 +198,17 @@ class Saml2Metadata(NamespacedTreeBuilder):
 if __name__ == '__main__':
     pkey, _ = x509utils.generate_rsa_keypair()
     meta = Saml2Metadata('http://example.com/saml', 'http://example.com/saml/prefix/')
+    bindings2 = [ lasso.SAML2_METADATA_BINDING_SOAP,
+            lasso.SAML2_METADATA_BINDING_REDIRECT,
+            lasso.SAML2_METADATA_BINDING_POST ]
+    options = { 'signing_key': pkey }
     meta.add_sp_descriptor((
-        ('SingleLogoutService', lasso.SAML2_METADATA_BINDING_SOAP, 'logout', 'logoutReturn' ),
-        ('ManageNameIDService', [ lasso.SAML2_METADATA_BINDING_SOAP, lasso.SAML2_METADATA_BINDING_REDIRECT, lasso.SAML2_METADATA_BINDING_POST ], 'manageNameID', 'manageNameIDReturn' ), 
-        ('AssertionConsumerService', [ lasso.SAML2_METADATA_BINDING_POST ], 'acs'),), {'signing_key': pkey})
+        ('SingleLogoutService',
+            lasso.SAML2_METADATA_BINDING_SOAP, 'logout', 'logoutReturn' ),
+        ('ManageNameIDService',
+            bindings2, 'manageNameID', 'manageNameIDReturn' ),
+        ('AssertionConsumerService',
+            [ lasso.SAML2_METADATA_BINDING_POST ], 'acs'),),
+        options)
     root = meta.root_element()
     print etree.tostring(root)

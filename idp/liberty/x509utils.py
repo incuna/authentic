@@ -185,7 +185,7 @@ if __name__ == '__main__':
     assert(get_xmldsig_rsa_key_value(publickey) is not None)
     assert(get_rsa_public_key_modulus(publickey) is not None)
     assert(get_rsa_public_key_exponent(publickey) is not None)
-    # Certificate/key generated using 
+    # Certificate/key generated using
     # openssl req -x509 -newkey rsa:1024 -keyout key.pem -out req.pem
     cert = '''-----BEGIN CERTIFICATE-----
 MIICHjCCAYegAwIBAgIJALgmNSS3spUaMA0GCSqGSIb3DQEBBQUAMBUxEzARBgNV
