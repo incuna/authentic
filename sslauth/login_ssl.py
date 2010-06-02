@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout, get_user
 from django.contrib.auth.models import AnonymousUser
 
-# Use of application sslauth
+# Use of existing application sslauth
 from util import SSLInfo, settings_get
 
 def process_request(request):
@@ -32,8 +32,11 @@ def process_request(request):
     #        return return re.sub('[^a-zA-Z0-9]', '_', ssl_info.subject_cn)
     #    else:
     #        return return re.sub('[^a-zA-Z0-9]', '_', ssl_info.serial)
-    #TODO: With admin associate a certificate with a user
+    # TODO: With admin associate a certificate with a user
     # else unusable without SSLAUTH_CREATE_USER
+    # SSLAUTH_STRICT_MATCH to match a user with all the certificate content which matches
+    # if SSLAUTH_SUBJECT_MATCH_KEYS
+    # else 'subject_email', 'subject_cn', 'subject_o'
     if not user.is_authenticated():
         if settings_get('SSLAUTH_CREATE_USER'):
             from backends import SSLAuthBackend
