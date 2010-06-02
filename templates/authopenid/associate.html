@@ -7,7 +7,7 @@
 {% endif %}
 
 {% if form.errors %}
-    <div class="errors"><p>Openid url : {{ form.openid_url.errors|join:', ' }}</p></div>
+    <div class="errors"><p>{% trans "OpenID URL:" %} {{ form.openid_url.errors|join:', ' }}</p></div>
 {% endif %}
 
 <div class="login">
@@ -18,7 +18,7 @@
 	<fieldset>
 		<legend>{% trans "Add a new OpenID URL" %}</legend>
 		<div id="openid_choice">
-    		<p>Please click your account provider:</p>
+    		<p>{% trans "Please click your account provider:" %}</p>
     		<div id="openid_btns"></div>
     	</div>
     	<div id="openid_input_area">
