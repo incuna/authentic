@@ -9,6 +9,30 @@ protocols and can bridge between them.
 It has support for ID-FF and SAMLv2 thanks to Lasso, a free (GNU GPL)
 implementation of the Liberty Alliance specifications.
 
+Dependencies
+------------
+
+You must install the following packages to use Authentic
+ 
+ * Python Lasso binding::
+
+   From sources: http://lasso.entrouvert.org/download
+   Debian based distribution: apt-get install python-lasso
+
+ * Django-registration::
+
+    From sources: http://bitbucket.org/ubernostrum/django-registration/downloads
+    Debian based distribution: apt-get install python-django-registration
+
+ * Django-debug-toolbar::
+
+    From sources: http://github.com/robhudson/django-debug-toolbar/downloads
+    Debian based distribution: apt-get install python-django-registration
+
+ * Django-authopenid::
+
+   From sources: http://bitbucket.org/benoitc/django-authopenid/downloads
+
 
 Quick Start
 -----------
