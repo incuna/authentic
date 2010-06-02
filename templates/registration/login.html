@@ -13,7 +13,9 @@
   <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
+{% if HAS_AUTH_OPENID %}
 <p><a href="{% url user_signin %}">{% trans "Login with OpenID" %}</a></p>
+{% endif %}
 <p>{% trans "Forgot password?" %} <a href="{% url auth_password_reset %}">{% trans "Reset it!" %}</a></p>
 <p>{% trans "Not a member?" %} <a href="{% url registration_register %}">{% trans "Register!" %}</a></p>
 
