@@ -66,3 +66,16 @@ def get_saml2_response(profile):
         return TypeError('profile do not contain a response')
 
 # ID-FF 1.2 methods
+def get_idff12_post_request(request):
+    '''Return a SAML 1.1 request transmitted through a POST request'''
+    return request.POST.get('LAREQ')
+
+get_idff12_query_request = get_saml2_query_request
+
+def get_idff12_request_message(request):
+    binding = get_http_binding(request)
+    if binding == 'GET':
+        return get_idff12_query_request(request)
+    elif binding == 'POST':
+        return get_idff12_post_request(request)
+
