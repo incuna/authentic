@@ -7,7 +7,7 @@
     <title>{% block title %}User test{% endblock %}</title>
 </head>
 
-<body>
+<body {% block bodyargs %}{% endblock %} >
   <div id="wrap">
     <div id="header">
       {% block header %}

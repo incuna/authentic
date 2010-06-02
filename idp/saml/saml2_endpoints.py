@@ -1,10 +1,13 @@
-from django.contrib.auth.decorators import login_required
-from django.conf.urls.defaults import *
-from django.http import *
-import lasso
-from models import *
-from authentic.saml.common import *
 import datetime
+import lasso
+
+from authentic.saml.common import *
+from django.conf.urls.defaults import *
+from django.contrib.auth.decorators import login_required
+from django.http import *
+from django.shortcuts import render_to_response
+from django.utils.translation import ugettext as _
+from models import *
 
 '''SAMLv2 IdP implementation
 
@@ -60,8 +63,14 @@ def sso(request):
     # Use assertion ID as session index
     assertion.authnStatement[0].sessionIndex = assertion.iD
     # Save assertion with the current session
-    # XXX: finish me
-    return HttpResponse('Ok for processAuthnRequest')
+    # XXX: add support of artifact and split this function
+    if login.msgBody:
+        return render_to_response('saml/post_form.html',{
+            'title': _("Authentication Request"),
+            'url': login.msgUrl,
+            'fieldname': 'SAMLResponse',
+            'body': login.msgBody,
+            'relay_state': login.msgRelayState })
 
 def finish_sso(request, login):
     login.buildResponseMsg(login)

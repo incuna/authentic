@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %} {{ title }} {% endblock %}
+{% block bodyargs %}document.forms[0].submit(){% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<form action="{{url}}" method="post">
+   <p>{% trans "You should be automaticaly redirected to the identity provider." %}</p>
+   <p>{% trans "If this page is still visible after a few seconds, press the" %} <em>{% trans "Send" %}</em> {% trans "button below." %}</p>
+   <input type="hidden" name="{{ fieldname }}" value="{{ body }}" />
+   {{ relay_state }}
+   <div class="buttons-bar">
+    <input type="submit" name="sendButton" value="Send" />
+   </div>
+  </form>
+{% endblock %}
