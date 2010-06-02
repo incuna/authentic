@@ -124,6 +124,8 @@ if USE_DEBUG_TOOLBAR:
 
 # SAML settings
 # Only RSA private keys are currently supported
+IDP_SAML2 = True
+IDP_IDFF12 = True
 SAML_PRIVATE_KEY = '''-----BEGIN RSA PRIVATE KEY-----
 MIICXgIBAAKBgQCtTbDTe/LrD+gvK0Sgf/rnvAg4zcc/vJcEdsiGsJ3shTse7OPf
 5fIaD7lry+jmtFX61n8Rn1d1iw+whuYbrG6R3OhDw50vufb2RrRSHBOA7CcfiKQD
@@ -140,3 +142,6 @@ pkkt86tIOLEtaNO97CcF/t+Un5QAh9MqLmQv5pwUDo4Lqo7qo1bAfyHjOlr5kdaP
 8eM47A92x9uplD/sN550pTKM7XLhHBvEfLujUoGHpWQxGA==
 -----END RSA PRIVATE KEY-----'''
 
+# OpenID settings
+AUTH_OPENID = True
+IDP_OPENID = True

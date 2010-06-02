@@ -9,12 +9,15 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
-    (r'^idp/', include('idp.urls')),
+    (r'^idp/', include('authentic.idp.urls')),
     (r'^accounts/', include('registration.urls')),
-    (r'^account/', include('django_authopenid.urls')),
     (r'^$', login_required(direct_to_template),
         { 'template': 'index.html' }, 'index'),
 )
+
+if settings.AUTH_OPENID:
+    urlpatterns += patterns('',
+            (r'^account/', include('django_authopenid.urls')),)
 
 if settings.STATIC_SERVE:
     urlpatterns += patterns('',
