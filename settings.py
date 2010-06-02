@@ -111,17 +111,6 @@ LOGIN_REDIRECT_URL = '/'
 INTERNAL_IPS = ('127.0.0.1',)
 DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
 
-# local_settings.py can be used to override environment-specific settings
-# like database and email that differ between development and production.
-try:
-    from local_settings import *
-except ImportError:
-    pass
-
-if USE_DEBUG_TOOLBAR:
-    MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
-    INSTALLED_APPS += ('debug_toolbar',)
-
 # SAML settings
 # Only RSA private keys are currently supported
 IDP_SAML2 = True
@@ -145,3 +134,15 @@ pkkt86tIOLEtaNO97CcF/t+Un5QAh9MqLmQv5pwUDo4Lqo7qo1bAfyHjOlr5kdaP
 # OpenID settings
 AUTH_OPENID = True
 IDP_OPENID = True
+
+# local_settings.py can be used to override environment-specific settings
+# like database and email that differ between development and production.
+try:
+    from local_settings import *
+except ImportError:
+    pass
+
+if USE_DEBUG_TOOLBAR:
+    MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+    INSTALLED_APPS += ('debug_toolbar',)
+
