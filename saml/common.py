@@ -1,6 +1,10 @@
 import lasso
+import saml2utils
 from django.conf import settings
 from django.http import HttpResponseRedirect
+
+
+SAML_PRIVATE_KEY = settings.SAML_PRIVATE_KEY
 
 def get_http_binding(request):
     if request.method == 'GET':
@@ -21,13 +25,14 @@ def get_saml2_metadata(request):
     synchronous_bindings = [ lasso.SAML2_METADATA_BINDING_REDIRECT,
                     lasso.SAML2_METADATA_BINDING_POST ]
     map = (('SingleSignOnService', synchronous_bindings , '/sso'),)
-    options = { 'signing_key': private_key }
+    options = { 'signing_key': SAML_PRIVATE_KEY }
     metagen.add_idp_descriptor(map, options)
     return str(metagen)
 
 def create_saml2_server(request):
     '''Create a lasso Server object for using with a profile'''
-    return lasso.Server.newFromBuffers(get_saml2_metadata(request), private_key)
+    return lasso.Server.newFromBuffers(get_saml2_metadata(request),
+            SAML_PRIVATE_KEY)
 
 def get_saml2_post_request(request):
     '''Extract the SAMLRequest field from the POST'''
@@ -52,7 +57,8 @@ def get_saml2_request_message(request):
 def get_saml2_response(profile):
     if profile.msgBody:
         if profile.msgUrl:
-            return NotImplementedError('SAML POST response binding not implemented')
+            message = 'SAML POST response binding not implemented'
+            return NotImplementedError(message)
         return HttpResponse(profile.msgBody, mimetype = 'text/xml')
     elif profile.msgUrl:
         return HttpResponseRedirect(profile.msgUrl)

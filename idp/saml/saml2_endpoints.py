@@ -1,6 +1,5 @@
 from django.contrib.auth.decorators import login_required
 from django.conf.urls.defaults import *
-import saml2utils
 from django.http import HttpResponse
 import lasso
 from models import *
@@ -35,7 +34,7 @@ def sso(request):
        For SOAP a session must be established previously through the login page. No authentication through the SOAP request is supported.
     """
     message = get_saml2_request_message(request)
-    server = create_server(request)
+    server = create_saml2_server(request)
     login = lasso.Login(server)
     try:
         login.processAuthnRequestMsg(message)
