@@ -16,7 +16,7 @@ def get_http_binding(request):
 
 def get_saml2_metadata(request):
     # FIXME: find the base URL with a better method than that
-    base = 'http://' + request.get_host() + '/idp/saml'
+    base = 'http://' + request.get_host() + '/idp/saml2'
     metagen = saml2utils.Saml2Metadata(base + '/metadata', url_prefix = base)
     synchronous_bindings = [ lasso.SAML2_METADATA_BINDING_REDIRECT,
                     lasso.SAML2_METADATA_BINDING_POST ]
