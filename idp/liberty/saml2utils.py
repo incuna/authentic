@@ -34,6 +34,7 @@ class NamespacedTreeBuilder(etree.TreeBuilder):
 class Saml2Metadata(NamespacedTreeBuilder):
     ENTITY_DESCRIPTOR = 'EntityDescriptor'
     SP_SSO_DESCRIPTOR = 'SPSSODescriptor'
+    IDP_SSO_DESCRIPTOR = 'IDPSSODescriptor'
     ARTIFACT_RESOLUTION_SERVICE = 'ArtifactResolutionService'
     SINGLE_LOGOUT_SERVICE = 'SingleLogoutService'
     MANAGE_NAME_ID_SERVICE = 'ManageNameIDService'
@@ -183,16 +184,16 @@ class Saml2Metadata(NamespacedTreeBuilder):
             self.generate_services(map, {}, self.sp_services)
             self.tb.end(self.SP_SSO_DESCRIPTOR)
         if self.role_descriptors.get('idp'):
-            map, options = self.role_descriptors['idp'][0]
-            self.sp_descriptor = self.tb.start(self.SP_SSO_DESCRIPTOR, attrib)
+            map, options = self.role_descriptors['idp']
+            self.sp_descriptor = self.tb.start(self.IDP_SSO_DESCRIPTOR, attrib)
             self.generate_services(map, options, self.sso_services)
             self.generate_services(map, {}, self.idp_services)
-            self.tb.end(self.SP_SSO_DESCRIPTOR)
+            self.tb.end(self.IDP_SSO_DESCRIPTOR)
         self.tb.end(self.ENTITY_DESCRIPTOR)
         return self.tb.close()
 
     def __str__(self):
-        return '<?xml version="1.0"?>\n' + etree.tostring(self.root_element(self))
+        return '<?xml version="1.0"?>\n' + etree.tostring(self.root_element())
 
 if __name__ == '__main__':
     pkey, _ = x509utils.generate_rsa_keypair()
