@@ -12,10 +12,41 @@ def bool2xs(boolean):
         return 'false'
     raise TypeError()
 
+def int_to_b64(i):
+    h = hex(i)[2:].strip('L')
+    if len(h) % 2 == 1:
+        h = '0' + h
+    return base64.b64encode(binascii.unhexlify(h))
+
+def keyinfo(tb, key):
+    tb.pushNamespace(lasso.DS_HREF)
+    tb.start('KeyInfo', {})
+    if 'CERTIF' in key:
+        naked = x509utils.decapsulate_pem_file(key)
+        tb.start('X509Data', {})
+        tb.start('X509Certificate', {})
+        tb.data(naked)
+        tb.end('X509Certificate')
+        tb.end('X509Data')
+    else:
+        tb.start('KeyValue', {})
+        tb.start('RSAKeyValue', {})
+        tb.start('Modulus', {})
+        tb.data(int_to_b64(x509utils.get_rsa_public_key_modulus(key)))
+        tb.end('Modulus')
+        tb.start('Exponent', {})
+        tb.data(int_to_b64(x509utils.get_rsa_public_key_exponent(key)))
+        tb.end('Exponent')
+        tb.end('RSAKeyValue')
+        tb.end('KeyValue')
+    tb.end('KeyInfo')
+    tb.popNamespace()
+
 class NamespacedTreeBuilder(etree.TreeBuilder):
     def __init__(self, *args, **kwargs):
         self.__old_ns = []
         self.__ns = None
+        self.__opened = []
         return etree.TreeBuilder.__init__(self, *args, **kwargs)
 
     def pushNamespace(self, ns):
@@ -26,12 +57,24 @@ class NamespacedTreeBuilder(etree.TreeBuilder):
         self.__ns = self.__old_ns.pop()
 
     def start(self, tag, attrib):
-        return etree.TreeBuilder.start(self, '{%s}%s' % (self.__ns, tag), attrib)
+        tag = '{%s}%s' % (self.__ns, tag)
+        self.__opened.append(tag)
+        return etree.TreeBuilder.start(self, tag, attrib)
 
-    def end(self, tag):
-        return etree.TreeBuilder.end(self, '{%s}%s' % (self.__ns, tag))
+    def simple_content(self, tag, data):
+        self.start(tag, {})
+        self.data(data)
+        self.end()
 
-class Saml2Metadata(NamespacedTreeBuilder):
+    def end(self, tag = None):
+        if tag:
+            self.__opened.pop()
+            tag = '{%s}%s' % (self.__ns, tag)
+        else:
+            tag = self.__opened.pop()
+        return etree.TreeBuilder.end(self, tag)
+
+class Saml2Metadata(object):
     ENTITY_DESCRIPTOR = 'EntityDescriptor'
     SP_SSO_DESCRIPTOR = 'SPSSODescriptor'
     IDP_SSO_DESCRIPTOR = 'IDPSSODescriptor'
@@ -110,7 +153,7 @@ class Saml2Metadata(NamespacedTreeBuilder):
             if 'signing_key' in options:
                 self.add_keyinfo(options['signing_key'], 'signing')
             if 'encryption_key' in options:
-                self.add_keyinfo(options['encryption_key'], 'signing')
+                self.add_keyinfo(options['encryption_key'], 'encryption')
             if 'key' in options:
                 self.add_keyinfo(options['key'], 'signing encryption')
         assertion_consumer_idx = 1
@@ -132,39 +175,12 @@ class Saml2Metadata(NamespacedTreeBuilder):
                     self.tb.start(service, attribs)
                     self.tb.end(service)
 
-
     def add_keyinfo(self, key, use):
-        def int_to_b64(i):
-            h = hex(i)[2:].strip('L')
-            if len(h) % 2 == 1:
-                h = '0' + h
-            return base64.b64encode(binascii.unhexlify(h))
         attrib = {}
         if use:
             attrib = { 'use': use }
         self.tb.start(self.KEY_DESCRIPTOR, attrib)
-        self.tb.pushNamespace(lasso.DS_HREF)
-        self.tb.start('KeyInfo', {})
-        if 'CERTIF' in key:
-            naked = x509utils.decapsulate_pem_file(key)
-            self.tb.start('X509Data', {})
-            self.tb.start('X509Certificate', {})
-            self.tb.data(naked)
-            self.tb.end('X509Certificate', {})
-            self.tb.end('X509Data', {})
-        else:
-            self.tb.start('KeyValue', {})
-            self.tb.start('RSAKeyValue', {})
-            self.tb.start('Modulus', {})
-            self.tb.data(int_to_b64(x509utils.get_rsa_public_key_modulus(key)))
-            self.tb.end('Modulus')
-            self.tb.start('Exponent', {})
-            self.tb.data(int_to_b64(x509utils.get_rsa_public_key_exponent(key)))
-            self.tb.end('Exponent')
-            self.tb.end('RSAKeyValue')
-            self.tb.end('KeyValue')
-        self.tb.end('KeyInfo')
-        self.tb.popNamespace()
+        keyinfo(self.tb, key)
         self.tb.end(self.KEY_DESCRIPTOR)
 
     def root_element(self):
