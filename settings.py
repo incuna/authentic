@@ -98,7 +98,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'authentic.idp',
-    'authentic.idp.liberty',
+    'authentic.idp.saml',
     'registration'
 )
 
