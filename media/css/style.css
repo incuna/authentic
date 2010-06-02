@@ -87,3 +87,44 @@ input[type=submit] {
 	cursor: pointer;
 }
 
+/* OpenID Stuff */
+
+#openid_btns, #openid_btns br {
+	clear: both;
+}
+
+#openid_highlight {
+	padding: 3px;
+	background-color: #FFFCC9;
+	float: left;
+}
+
+
+.openid_large_btn {
+	width: 100px;
+	height: 60px;
+	border: 1px solid #DDD;
+	margin: 3px;
+	float: left;
+}
+.openid_small_btn {
+	width: 24px;
+	height: 24px;
+	border: 1px solid #DDD;
+	margin: 3px;
+	float: left;
+}
+a.openid_large_btn:focus {
+	outline: none;
+}
+a.openid_large_btn:focus {
+	-moz-outline-style: none;
+}
+.openid_selected {
+	border: 4px solid #DDD;
+}
+
+#openid_input_area {
+	clear: both;
+	padding-top: 2.5em;
+}
