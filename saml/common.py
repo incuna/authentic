@@ -1,5 +1,6 @@
 import lasso
 import saml2utils
+import saml11utils
 from django.conf import settings
 from django.http import HttpResponseRedirect
 
@@ -66,6 +67,26 @@ def get_saml2_response(profile):
         return TypeError('profile do not contain a response')
 
 # ID-FF 1.2 methods
+def get_idff12_metadata(request):
+    # FIXME: find the base URL with a better method than that
+    base = 'http://' + request.get_host() + '/idp/idff12'
+    metagen = saml11utils.Saml11Metadata(base + '/metadata', url_prefix = base, protocol_support_enumeration = [ lasso.LIB_HREF ])
+    sso_protocol_profiles = [
+        lasso.LIB_PROTOCOL_PROFILE_BRWS_ART,
+        lasso.LIB_PROTOCOL_PROFILE_BRWS_POST,
+        lasso.LIB_PROTOCOL_PROFILE_BRWS_LECP ]
+    map = {
+            'SoapEndpoint': '/soap',
+            'SingleSignOn': (('/sso',), sso_protocol_profiles)
+          }
+    options = { 'signing_key': SAML_PRIVATE_KEY }
+    metagen.add_idp_descriptor(map, options)
+    return str(metagen)
+
+def create_idff12_server(request):
+    return lasso.Server.newFromBuffers(get_idff12_metadata(request),
+            SAML_PRIVATE_KEY)
+
 def get_idff12_post_request(request):
     '''Return a SAML 1.1 request transmitted through a POST request'''
     return request.POST.get('LAREQ')
