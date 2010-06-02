@@ -93,7 +93,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django_authopenid.middleware.OpenIDMiddleware',
 )
 
 ROOT_URLCONF = 'authentic.urls'
@@ -112,7 +111,6 @@ INSTALLED_APPS = (
     'authentic.idp.saml',
     'registration',
     'authentic.idp.saml',
-    'django_authopenid',
     'authentic.sslauth',
 )
 
@@ -167,3 +165,8 @@ except ImportError:
 if USE_DEBUG_TOOLBAR:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     INSTALLED_APPS += ('debug_toolbar',)
+
+if AUTH_OPENID:
+    MIDDLEWARE_CLASSES += ('django_authopenid.middleware.OpenIDMiddleware',)
+    INSTALLED_APPS += ('django_authopenid',)
+
