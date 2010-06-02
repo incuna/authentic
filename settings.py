@@ -109,6 +109,7 @@ DEFAULT_FROM_EMAIL = 'webmaster@entrouvert.com'
 LOGIN_REDIRECT_URL = '/'
 
 INTERNAL_IPS = ('127.0.0.1',)
+DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
@@ -138,3 +139,4 @@ pkkt86tIOLEtaNO97CcF/t+Un5QAh9MqLmQv5pwUDo4Lqo7qo1bAfyHjOlr5kdaP
 17qqWRjf82jT6jzu5nddywJAVQpxlZ8fIZUzTD2mRQeLf5O+rXmtH1LlwRRGCNaa
 8eM47A92x9uplD/sN550pTKM7XLhHBvEfLujUoGHpWQxGA==
 -----END RSA PRIVATE KEY-----'''
+
