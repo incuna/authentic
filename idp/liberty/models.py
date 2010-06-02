@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 import lasso
 
 # Configuration models
@@ -28,17 +29,32 @@ class LibertyAttributeMap(models.Model):
     def __unicode__(self):
         return self.name
 
+def validate_metadata(value):
+    value.open()
+    meta=value.read()
+    provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_NONE, meta)
+    if not provider:
+        raise ValidationError('Bad metadata file')
+
 class LibertyProvider(models.Model):
     name = models.CharField(max_length = 40, unique = True,
             help_text = "Internal nickname for the service provider")
-    entity_id = models.URLField()
-    metadata = models.FileField(upload_to = FilenameGenerator("metadata"))
-    public_key = models.FileField(upload_to = FilenameGenerator("public_key"))
+    entity_id = models.URLField(editable = False)
+    metadata = models.FileField(upload_to = "metadata", validators = [ validate_metadata ])
+    public_key = models.FileField(upload_to = FilenameGenerator("public_key"), blank = True)
     ssl_certificate = models.FileField(
-            upload_to = FilenameGenerator("ssl_certificate"))
+            upload_to = FilenameGenerator("ssl_certificate"), blank = True)
 
     def __unicode__(self):
         return self.name
+
+    def clean(self):
+        models.Model.clean(self)
+        self.metadata.open()
+        meta=self.metadata.read()
+        provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_NONE, meta)
+        if provider:
+            self.entity_id = provider.providerId
 
 class LibertyServiceProvider(LibertyProvider):
     encrypt_nameid = models.BooleanField(verbose_name = "Encrypt NameID")
@@ -84,8 +100,8 @@ class LibertyFederation(models.Model):
             verbose_name = "SPNameQualifier")
 
     class Meta:
-        verbose_name = "federation"
-        verbose_name_plural = "federations"
+        verbose_name = "Liberty federation"
+        verbose_name_plural = "Liberty federations"
         # XXX: To allow shared-federation (multiple-user with the same
         # federation), add user to this list
         unique_together = (("name_id_qualifier", "name_id_format",
