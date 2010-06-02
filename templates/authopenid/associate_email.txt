@@ -1,1 +1,1 @@
-Thank you to join {{ site }}.
+{% load i18n %}{% trans "Thank you to join" %}{{ site }}.
