@@ -22,8 +22,10 @@ if settings.AUTH_OPENID:
 if settings.AUTH_SSL:
     urlpatterns += patterns('',
                 url(r'^sslauth/$',
-                'authentic.sslauth.login_ssl.process_request',
-                name='user_signin_ssl'),)
+                    'authentic.sslauth.login_ssl.process_request',
+                    name='user_signin_ssl'),
+                url(r'^error_ssl/$',direct_to_template,
+                    {'template': 'error_ssl.html'}, 'error_ssl'),)
 
 if settings.STATIC_SERVE:
     urlpatterns += patterns('',

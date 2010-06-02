@@ -23,6 +23,6 @@ def process_request(request):
         return HttpResponseRedirect("/")
 
     else:
-        return HttpResponseRedirect("/sslauth/error.html")
+        return HttpResponseRedirect("/error_ssl/")
 
 
