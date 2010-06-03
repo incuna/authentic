@@ -118,7 +118,6 @@ def sso(request):
             break
         except lasso.DsInvalidSignatureError:
             message = _('Invalid signature on SAML 1.1 AuthnRequest: %r') % message
-            print >>sys.stderr, message
             logging.error(message)
             return HttpResponseForbidden()
         except lasso.ProfileInvalidMsgError:
@@ -159,7 +158,6 @@ def sso(request):
         #  login event
         # Work around lack of informations returned by mustAuthenticate()
         if login.request.forceAuthn or request.user.is_anonymous():
-            print >>sys.stderr, login.request.dump()
             return redirect_to_login(request.build_absolute_uri())
         else:
             user_authenticated = True
@@ -180,9 +178,7 @@ def sso(request):
                             urllib.quote(request.build_absolute_uri())) )
     # 4. Validate the request, passing authentication and consent status
     try:
-        print >>sys.stderr, 'coin'
         login.validateRequestMsg(user_authenticated, consent_obtained)
-        print >>sys.stderr, 'coin'
     except:
         raise
         do_federation = False
@@ -196,7 +192,6 @@ def sso(request):
         build_assertion(request, login)
     # 4. build response
     if login.protocolProfile == lasso.LOGIN_PROTOCOL_PROFILE_BRWS_ART:
-        print >>sys.stderr, 'coincoin'
         login.buildArtifactMsg(lasso.HTTP_METHOD_REDIRECT)
         save_artifact(request, login)
     elif login.protocolProfile == lasso.LOGIN_PROTOCOL_PROFILE_BRWS_POST:
