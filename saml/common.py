@@ -1,8 +1,11 @@
+import urlparse
+import os.path
 import lasso
 import saml2utils
 import saml11utils
 from django.conf import settings
 from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response
 
 
 SAML_PRIVATE_KEY = settings.SAML_PRIVATE_KEY
@@ -19,10 +22,20 @@ def get_http_binding(request):
 
 # SAMLv2 methods
 
-def get_saml2_metadata(request):
+def get_base_path(request):
+    full_path = request.get_full_path()
+    path = urlparse.urlparse(full_path).path
+    return request.build_absolute_uri(os.path.dirname(path))
+
+def get_entity_id(request):
+    '''Return the EntityID, request must points to an endpoint handler'''
     # FIXME: find the base URL with a better method than that
-    base = 'http://' + request.get_host() + '/idp/saml2'
-    metagen = saml2utils.Saml2Metadata(base + '/metadata', url_prefix = base)
+    path = get_base_path(request)
+    return path + '/metadata'
+
+def get_saml2_metadata(request):
+    metagen = saml2utils.Saml2Metadata(get_entity_id(request),
+            url_prefix = get_base_path(request))
     synchronous_bindings = [ lasso.SAML2_METADATA_BINDING_REDIRECT,
                     lasso.SAML2_METADATA_BINDING_POST ]
     map = (('SingleSignOnService', synchronous_bindings , '/sso'),)
@@ -55,11 +68,26 @@ def get_saml2_request_message(request):
     elif binding == 'SOAP':
         return get_saml2_soap_request(request)
 
-def get_saml2_response(profile):
+def return_saml2_response(profile, title = ''):
+    '''Finish your SAMLv2 views with this method to return a SAML
+    response'''
+    return return_saml2(profile, lasso.SAML2_FIELD_RESPONSE, title)
+
+def return_saml2_request(profile, title = ''):
+    '''Finish your SAMLv2 views with this method to return a SAML
+    request'''
+    return return_saml2(profile, lasso.SAML2_FIELD_REQUEST, title)
+
+def return_saml2(profile, field_name, title = ''):
+    '''Helper to handle SAMLv2 bindings to emit request and responses'''
     if profile.msgBody:
         if profile.msgUrl:
-            message = 'SAML POST response binding not implemented'
-            return NotImplementedError(message)
+            render_to_response('saml/post_form.html',{
+                        'title': title,
+                        'url': profile.msgUrl,
+                        'fieldname': field_name,
+                        'body': profile.msgBody,
+                        'relay_state': profile.msgRelayState })
         return HttpResponse(profile.msgBody, mimetype = 'text/xml')
     elif profile.msgUrl:
         return HttpResponseRedirect(profile.msgUrl)
@@ -68,9 +96,12 @@ def get_saml2_response(profile):
 
 # ID-FF 1.2 methods
 def get_idff12_metadata(request):
-    # FIXME: find the base URL with a better method than that
-    base = 'http://' + request.get_host() + '/idp/idff12'
-    metagen = saml11utils.Saml11Metadata(base + '/metadata', url_prefix = base, protocol_support_enumeration = [ lasso.LIB_HREF ])
+    '''Produce SAMLv1.1 metadata for our ID-FF 1.2 IdP
+
+      This method only works with request pointing to an endpoint'''
+    metagen = saml11utils.Saml11Metadata(get_entity_id(request),
+            url_prefix = get_base_path(request),
+            protocol_support_enumeration = [ lasso.LIB_HREF ])
     sso_protocol_profiles = [
         lasso.LIB_PROTOCOL_PROFILE_BRWS_ART,
         lasso.LIB_PROTOCOL_PROFILE_BRWS_POST,
@@ -100,3 +131,28 @@ def get_idff12_request_message(request):
     elif binding == 'POST':
         return get_idff12_post_request(request)
 
+def return_idff12_response(profile, title = ''):
+    '''Finish your ID-FFv1.2 views with this method to return a SAML
+    response'''
+    return return_saml2(profile, lasso.SAML2_FIELD_RESPONSE, title)
+
+def return_idff12_request(profile, title = ''):
+    '''Finish your SAMLv2 views with this method to return a SAML
+    request'''
+    return return_saml2(profile, lasso.SAML2_FIELD_REQUEST, title)
+
+def return_idff12(profile, field_name, title = ''):
+    '''Helper to handle SAMLv2 bindings to emit request and responses'''
+    if profile.msgBody:
+        if profile.msgUrl:
+            render_to_response('saml/post_form.html',{
+                        'title': title,
+                        'url': profile.msgUrl,
+                        'fieldname': field_name,
+                        'body': profile.msgBody,
+                        'relay_state': profile.msgRelayState })
+        return HttpResponse(profile.msgBody, mimetype = 'text/xml')
+    elif profile.msgUrl:
+        return HttpResponseRedirect(profile.msgUrl)
+    else:
+        return TypeError('profile do not contain a response')
