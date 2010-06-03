@@ -39,7 +39,7 @@ def validate_metadata(value):
 class LibertyProvider(models.Model):
     name = models.CharField(max_length = 40, unique = True,
             help_text = "Internal nickname for the service provider")
-    entity_id = models.URLField()
+    entity_id = models.URLField(unique = True)
     metadata = models.FileField(upload_to = "metadata", validators = [ validate_metadata ])
     public_key = models.FileField(upload_to = FilenameGenerator("public_key"), blank = True)
     ssl_certificate = models.FileField(
