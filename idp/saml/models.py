@@ -130,5 +130,7 @@ class LibertyAssertions(models.Model):
 
 class LibertyArtifact(models.Model):
     """Store an artifact"""
-    artifact = models.CharField(max_length = 40, editable = False)
+    artifact = models.CharField(max_length = 40, editable = False, primary_key = True)
     content = models.TextField(editable = False)
+    django_session_key = models.CharField(max_length = 40, editable = False)
+    provider_id = models.CharField(max_length = 80)
