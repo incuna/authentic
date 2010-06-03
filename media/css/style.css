@@ -172,12 +172,15 @@ input[type=submit] {
 	clear: both;
 }
 
-#openid_highlight {
-	padding: 3px;
-	background-color: #FFFCC9;
-	float: left;
+#openid_highlight a {
+	border: 1px solid #888;
 }
 
+#openid_input_area input[type=submit] {
+	padding-top: 0;
+	margin-top: 0;
+	margin-left: 1em;
+}
 
 .openid_large_btn {
 	width: 100px;
@@ -193,6 +196,7 @@ input[type=submit] {
 	margin: 3px;
 	float: left;
 }
+
 a.openid_large_btn:focus {
 	outline: none;
 }
