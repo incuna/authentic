@@ -4,7 +4,7 @@ import lasso
 import saml2utils
 import saml11utils
 from django.conf import settings
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
 
