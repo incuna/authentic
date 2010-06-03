@@ -7,6 +7,17 @@
 
 {% block content %}
 <form id="login-form" method="post" action=".">
+  <ul class="errorlist">
+    {% for error in form.non_field_errors %}
+      <li>{{ error|escape }}</li>
+    {% endfor %}
+    {% for error in form.username.errors %}
+      <li>{% trans "Username:" %} {{ error|escape }}</li>
+    {% endfor %}
+    {% for error in form.password.errors %}
+      <li>{% trans "Password:" %} {{ error|escape }}</li>
+    {% endfor %}
+  </ul>
   <p>
     <label for="id_username">{% trans "Username:" %}</label>
     <input id="id_username" type="text" name="username" maxlength="30" />

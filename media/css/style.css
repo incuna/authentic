@@ -138,8 +138,7 @@ form p textarea {
 form ul.errorlist {
 	margin: 0;
 	padding: 0;
-	color: red;
-	font-weight: bold;
+	color: #e80404;
 	list-style: none;
 }
 
@@ -164,6 +163,13 @@ input[type=submit] {
 	padding: 2px 8px 2px 8px;
 	margin: 30px 0 0 0;
 	cursor: pointer;
+}
+
+
+form#login-form ul.errorlist {
+	margin-bottom: 1em;
+	width: 80%;
+	font-weight: normal;
 }
 
 /* OpenID Stuff */
