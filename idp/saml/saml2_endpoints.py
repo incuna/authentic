@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import *
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
-from models import *
+from authentic.saml.models import *
 
 '''SAMLv2 IdP implementation
 

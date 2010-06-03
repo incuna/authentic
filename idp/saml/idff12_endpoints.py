@@ -8,7 +8,7 @@ from django.conf.urls.defaults import *
 from django.http import *
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
-from models import *
+from authentic.saml.models import *
 from authentic.saml.common import *
 
 def fill_assertion(request, saml_request, assertion, provider_id):

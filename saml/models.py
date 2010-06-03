@@ -1,20 +1,27 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+import os.path
+import time
 import lasso
 
-# Configuration models
 def fix_name(name):
     return name.replace(' ', '_').replace('/', '_')
 
 class FilenameGenerator(object):
-    def __init__(self, infix):
-        self.prefix = infix
+    def __init__(self, prefix = '', suffix = ''):
+        self.prefix = prefix
+        self.suffix = suffix
 
     def __call__(self, instance, filename):
-        return os.path.join(self.prefix,
-                "%s_%s_%s" % (fix_name(instance.name), filename,
-                    time.strftime("%Y%m%dT%H:%M:%SZ", time.gmtime())))
+        path = "metadata/%s_%s_%s%s" % (self.prefix,
+                    fix_name(instance.entity_id),
+                    time.strftime("%Y%m%dT%H:%M:%SZ", time.gmtime()),
+                    self.suffix)
+        import sys
+        print >>sys.stderr, 'path', path
+        return path
 
 class LibertyAttributeMapping(models.Model):
     source_attribute_name = models.CharField(max_length = 40)
@@ -36,14 +43,26 @@ def validate_metadata(value):
     if not provider:
         raise ValidationError('Bad metadata file')
 
+
 class LibertyProvider(models.Model):
+    entity_id = models.URLField(unique = True, editable = False)
     name = models.CharField(max_length = 40, unique = True,
             help_text = "Internal nickname for the service provider")
-    entity_id = models.URLField(unique = True)
-    metadata = models.FileField(upload_to = "metadata", validators = [ validate_metadata ])
-    public_key = models.FileField(upload_to = FilenameGenerator("public_key"), blank = True)
+    protocol_conformance = models.IntegerField(max_length = 10,
+            choices = ((0, 'SAML10'),
+                       (1, 'SAML11'),
+                       (2, 'SAML12'),
+                       (3, 'SAML20')), editable = False)
+    metadata = models.FileField(upload_to = FilenameGenerator("metadata", '.xml'),
+            validators = [ validate_metadata ])
+    public_key = models.FileField(upload_to = FilenameGenerator("public_key", '.pem'),
+            blank = True)
     ssl_certificate = models.FileField(
-            upload_to = FilenameGenerator("ssl_certificate"), blank = True)
+            upload_to = FilenameGenerator("ssl_certificate", '.pem'),
+            blank = True)
+    ca_cert_chain = models.FileField(
+            upload_to = FilenameGenerator('ca_cert_chain', '.pem'),
+            blank = True)
 
     def __unicode__(self):
         return self.name
@@ -55,6 +74,7 @@ class LibertyProvider(models.Model):
         provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_NONE, meta)
         if provider:
             self.entity_id = provider.providerId
+            self.protocol_conformance = provider.protocolConformance
 
 class LibertyServiceProvider(LibertyProvider):
     encrypt_nameid = models.BooleanField(verbose_name = "Encrypt NameID")
@@ -84,6 +104,7 @@ class LibertyIdentityProvider(LibertyProvider):
     attribute_map = models.ForeignKey(LibertyAttributeMap,
             related_name = "identity_providers")
 
+
 # Transactional models
 class LibertyIdentityDump(models.Model):
     user = models.ForeignKey(User, unique = True)
@@ -93,6 +114,27 @@ class LibertySessionDump(models.Model):
     django_session_key = models.CharField(max_length = 40,
             editable = False)
     session_dump = models.TextField(blank = True)
+
+class LibertyArtifact(models.Model):
+    """Store an artifact"""
+    artifact = models.CharField(max_length = 40, editable = False, primary_key = True)
+    content = models.TextField(editable = False)
+    django_session_key = models.CharField(max_length = 40, editable = False)
+    provider_id = models.CharField(max_length = 80)
+
+class LibertySession(models.Model):
+    """Store the link between a Django session and a Liberty session"""
+    django_session_key = models.CharField(max_length = 40, editable = False)
+
+# When we receive a logout request, we lookup the LibertyAssertions, then the
+# LibertySession and the the real DjangoSession
+class LibertyAssertions(models.Model):
+    assertion_id = models.CharField(max_length = 50, unique = True)
+    liberty_session = models.ForeignKey(LibertySession, editable = False,
+            related_name = "assertions")
+    session_index = models.CharField(max_length = 80, editable = False)
+    assertion = models.TextField(editable = False)
+    emission_time = models.DateTimeField(auto_now = True, editable = False)
 
 class LibertyFederation(models.Model):
     """Store a federation, i.e. an identifier shared with another provider, be
@@ -115,22 +157,3 @@ class LibertyFederation(models.Model):
         unique_together = (("name_id_qualifier", "name_id_format",
             "name_id_content", "name_id_sp_name_qualifier"))
 
-class LibertySession(models.Model):
-    """Store the link between a Django session and a Liberty session"""
-    django_session_key = models.CharField(max_length = 40, editable = False)
-
-# When we receive a logout request, we lookup the LibertyAssertions, then the LibertySession and the the real DjangoSession
-
-class LibertyAssertions(models.Model):
-    liberty_session = models.ForeignKey(LibertySession, editable = False,
-            related_name = "assertions")
-    session_index = models.CharField(max_length = 80, editable = False)
-    assertion = models.TextField(editable = False)
-    emission_time = models.DateTimeField(auto_now = True, editable = False)
-
-class LibertyArtifact(models.Model):
-    """Store an artifact"""
-    artifact = models.CharField(max_length = 40, editable = False, primary_key = True)
-    content = models.TextField(editable = False)
-    django_session_key = models.CharField(max_length = 40, editable = False)
-    provider_id = models.CharField(max_length = 80)
