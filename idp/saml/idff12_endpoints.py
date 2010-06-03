@@ -210,8 +210,24 @@ def sso(request):
     save_session(request, login)
     return return_idff12_response(login, title = _('Authentication response'))
 
+def artifact_resolve(request, soap_message):
+    pass
+
 def soap(request):
-    raise NotImplementedError('Implement soap endpoint')
+    '''SAMLv1.1 soap endpoint implementation.
+
+       It should handle request for:
+        - artifact resolution
+        - logout
+        - and federation termination'''
+    soap_message = get_soap_message(request)
+    request_type = lasso.getRequestTypeFromSoapMsg(soap_message)
+    if request_type == lasso.REQUEST_TYPE_LOGIN:
+        return artifact_resolve(request, soap_message)
+    else:
+        message = _('ID-FFv1.2: soap request type %r is currently not supported') % request_type
+        logging.warning(message)
+        return NotImplementedError(message)
 
 def finish_sso(request, login):
     pass
@@ -222,4 +238,5 @@ def finish_failed_sso(request, login):
 urlpatterns = patterns('',
     (r'^metadata$', metadata),
     (r'^sso$', sso),
+    (r'^soap$', soap),
 )
