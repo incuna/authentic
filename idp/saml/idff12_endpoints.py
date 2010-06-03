@@ -139,7 +139,7 @@ def sso(request):
         except lasso.ProfileInvalidMsgError:
             message = _('Invalid SAML 1.1 AuthnRequest: %r') % message
             logging.error(message)
-            return HttpResponseForbidden()
+            return HttpResponseForbidden(message)
         except lasso.ServerProviderNotFoundError:
             # This path is not exceptionnal it should be normal since we did
             # not load any provider in the Server object
