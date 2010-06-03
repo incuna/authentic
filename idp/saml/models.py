@@ -85,6 +85,14 @@ class LibertyIdentityProvider(LibertyProvider):
             related_name = "identity_providers")
 
 # Transactional models
+class LibertyIdentityDump(models.Model):
+    user = models.ForeignKey(User, unique = True)
+    identity_dump = models.TextField(blank = True)
+
+class LibertySessionDump(models.Model):
+    django_session_key = models.CharField(max_length = 40,
+            editable = False)
+    session_dump = models.TextField(blank = True)
 
 class LibertyFederation(models.Model):
     """Store a federation, i.e. an identifier shared with another provider, be
