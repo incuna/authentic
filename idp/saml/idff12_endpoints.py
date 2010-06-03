@@ -230,7 +230,8 @@ def artifact_resolve(request, soap_message):
     except:
         raise
     logging.debug(_('ID-FFv1.2 artifact resolve %r') % soap_message)
-    liberty_artifact = LibertyArtifact.objects.get(login.assertionArtifact)
+    liberty_artifact = LibertyArtifact.objects.get(
+            artifact = login.assertionArtifact)
     if liberty_artifact:
         liberty_artifact.delete()
         provider_id = liberty_artifact.provider_id
