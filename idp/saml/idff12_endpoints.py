@@ -101,12 +101,11 @@ def save_session(request, login, session_key = None):
 
 # TODO: handle autoloading of metadatas
 def load_provider(request, login, provider_id):
-    q = LibertyProvider.objects.filter(
-            entity_id = provider_id)
-    if not q:
+    liberty_provider = LibertyProvider.objects.get(entity_id = provider_id)
+    if not liberty_provider:
         return False
     login.server.addProviderFromBuffer(lasso.PROVIDER_ROLE_SP,
-            providers[0].metadata.read())
+            liberty_provider.metadata.read())
     return True
 
 def save_artifact(request, login):
