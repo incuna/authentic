@@ -160,13 +160,17 @@ textarea:focus, input[type="text"]:focus, input[type="password"]:focus {
 input[type=submit] {
 	color: #ffffff;
 	background:#4690d6;
-	border: 1px solid #4690d6;
+	border: 1px solid #2a567f;
 	font-weight: bold;
 	padding: 2px 8px 2px 8px;
 	margin: 0;
 	cursor: pointer;
 }
 
+
+input[type=submit]:hover {
+	border-color: #0e1d2b;
+}
 
 form#login-form ul.errorlist {
 	margin-bottom: 1em;
