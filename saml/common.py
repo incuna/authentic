@@ -55,8 +55,11 @@ def get_saml2_metadata(request):
 
 def create_saml2_server(request):
     '''Create a lasso Server object for using with a profile'''
-    return lasso.Server.newFromBuffers(get_saml2_metadata(request),
+    server = lasso.Server.newFromBuffers(get_saml2_metadata(request),
             SAML_PRIVATE_KEY)
+    if not server:
+        raise Exception('Cannot create LassoServer object')
+    return server
 
 def get_saml2_post_request(request):
     '''Extract the SAMLRequest field from the POST'''
@@ -125,8 +128,11 @@ def get_idff12_metadata(request):
     return str(metagen)
 
 def create_idff12_server(request):
-    return lasso.Server.newFromBuffers(get_idff12_metadata(request),
+    server = lasso.Server.newFromBuffers(get_idff12_metadata(request),
             SAML_PRIVATE_KEY)
+    if not server:
+        raise Exception('Cannot create LassoServer object')
+    return server
 
 def get_idff12_post_request(request):
     '''Return a SAML 1.1 request transmitted through a POST request'''
