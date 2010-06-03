@@ -237,6 +237,7 @@ def artifact_resolve(request, soap_message):
         load_provider(request, login, provider_id)
         load_session(request, login,
                 session_key = liberty_artifact.django_session_key)
+        logging.info(_('ID-FFv1.2 artifact resolve from %r for artifact %r') % (provider_id, login.assertionArtifact))
     else:
          logging.warning(_('ID-FFv1.2 no artifact found for %r') % login.assertionArtifact)
          provider_id = None
