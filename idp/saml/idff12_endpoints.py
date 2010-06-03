@@ -127,6 +127,7 @@ def sso(request):
     login = lasso.Login(server)
     while True:
         try:
+            logging.debug(_('ID-FFv1.2: processing sso request %r') % message)
             login.processAuthnRequestMsg(message)
             break
         except lasso.DsInvalidSignatureError:
