@@ -133,7 +133,9 @@ def sso(request):
         except lasso.DsInvalidSignatureError:
             message = _('Invalid signature on SAML 1.1 AuthnRequest: %r') % message
             logging.error(message)
-            return HttpResponseForbidden()
+            # This error is handled through SAML status codes, so return a
+            # response
+            return finish_sso(request, login)
         except lasso.ProfileInvalidMsgError:
             message = _('Invalid SAML 1.1 AuthnRequest: %r') % message
             logging.error(message)
