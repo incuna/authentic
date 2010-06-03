@@ -234,6 +234,7 @@ def artifact_resolve(request, soap_message):
     if liberty_artifact:
         liberty_artifact.delete()
         provider_id = liberty_artifact.provider_id
+        load_provider(request, login, provider_id)
         load_session(request, login,
                 session_key = liberty_artifact.django_session_key)
     else:
