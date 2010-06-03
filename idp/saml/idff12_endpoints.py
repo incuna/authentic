@@ -226,7 +226,7 @@ def artifact_resolve(request, soap_message):
     server = create_idff12_server(request)
     login = lasso.Login(server)
     try:
-        lasso.processRequestMsg(soap_message)
+        login.processRequestMsg(soap_message)
     except:
         raise
     logging.debug(_('ID-FFv1.2 artifact resolve %r') % soap_message)
