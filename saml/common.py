@@ -141,6 +141,9 @@ def get_idff12_request_message(request):
     elif binding == 'POST':
         return get_idff12_post_request(request)
 
+def return_saml_soap_response(profile):
+    return HttpResponse(profile.msgBody, mimetype = 'text/xml')
+
 def return_idff12_response(profile, title = ''):
     '''Finish your ID-FFv1.2 views with this method to return a SAML
     response'''
@@ -161,7 +164,7 @@ def return_idff12(profile, field_name, title = ''):
                         'fieldname': field_name,
                         'body': profile.msgBody,
                         'relay_state': profile.msgRelayState })
-        return HttpResponse(profile.msgBody, mimetype = 'text/xml')
+        return return_saml_soap_response(profile)
     elif profile.msgUrl:
         return HttpResponseRedirect(profile.msgUrl)
     else:
