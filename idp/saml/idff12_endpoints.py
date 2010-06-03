@@ -242,13 +242,17 @@ def artifact_resolve(request, soap_message):
     else:
          logging.warning(_('ID-FFv1.2 no artifact found for %r') % login.assertionArtifact)
          provider_id = None
+    return finish_artifact_resolve(request, login, provider_id,
+            session_key = liberty_artifact.django_session_key)
 
+def finish_artifact_resolve(request, login, provider_id, session_key = None):
     try:
         login.buildResponseMsg(provider_id)
     except:
         raise
-    save_session(request, login,
-            session_key = liberty_artifact.django_session_key)
+    if session_key:
+        save_session(request, login,
+                session_key = session_key)
     return return_saml_soap_response(login)
 
 @csrf_exempt
