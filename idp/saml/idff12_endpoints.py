@@ -141,18 +141,16 @@ def sso(request):
             # 2. Lookup the ProviderID
             logging.info(_('ID-FFv1.2: AuthnRequest from %r')
                     % provider_id)
-            providers = LibertyProvider.objects.filter(
-                    entity_id = login.remoteProviderId)
-            if not providers:
-                # TODO: handle autoloading of metadatas
+            provider_loaded = load_provider(request, login, provider_id)
+            if not provider_loaded:
                 consent_obtained = False
                 message = _('ID-FFv1.2: provider %r unknown') % provider_id
                 logging.warning(message)
                 return HttpResponseForbidden(message)
-            # XXX: does consent be always automatic for known providers ? Maybe
-            # add a configuration key on the provider.
-            consent_obtained = True
-            server.addProviderFromBuffer(lasso.PROVIDER_ROLE_SP, providers[0].metadata.read())
+            else:
+                # XXX: does consent be always automatic for known providers ? Maybe
+                # add a configuration key on the provider.
+                consent_obtained = True
     # Flags possible:
     # - consent
     # - isPassive
