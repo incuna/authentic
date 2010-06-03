@@ -9,7 +9,9 @@
 
 {% block content %}
 {% if msg %}
-	<p class="warning">{{ msg }}</p>
+	<ul class="errorlist">
+	  <li>{{ msg }}</li>
+	</ul>
 {% endif %}
 
 <div class="login">

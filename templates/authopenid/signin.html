@@ -7,8 +7,9 @@
 
 {% block content %}
 {% if msg %}
-<br />
-	<p class="warning">{{ msg }}</p>
+	<ul class="errorlist">
+	  <li>{{ msg }}</li>
+	</ul>
 {% endif %}
 {% if form2.errors %}
 <div class="errors"><p>{% trans "Please correct errors below:" %}<br />

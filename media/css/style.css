@@ -136,7 +136,7 @@ form p textarea {
 	margin-left: 10px;
 }
 
-form ul.errorlist {
+ul.errorlist {
 	margin: 0;
 	padding: 0;
 	color: #e80404;
