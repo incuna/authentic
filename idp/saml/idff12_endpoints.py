@@ -202,7 +202,10 @@ def sso(request):
         load_session(request, login)
         # 3. Build and assertion, fill attributes
         build_assertion(request, login)
-    # 4. build response
+    return finish_sso(request, login)
+
+def finish_sso(request, login):
+    '''Return the response to an AuthnRequest'''
     if login.protocolProfile == lasso.LOGIN_PROTOCOL_PROFILE_BRWS_ART:
         login.buildArtifactMsg(lasso.HTTP_METHOD_REDIRECT)
         save_artifact(request, login)
