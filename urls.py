@@ -10,15 +10,18 @@ admin.autodiscover()
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^idp/', include('authentic.idp.urls')),
-    (r'^accounts/', include('registration.urls')),
     (r'^$', login_required(direct_to_template),
         { 'template': 'index.html' }, 'index'),
 )
 
 if settings.AUTH_OPENID:
     urlpatterns += patterns('',
-            (r'^openid/', include('django_authopenid.urls')),
+            (r'^accounts/openid/', include('django_authopenid.urls')),
     )
+
+urlpatterns += patterns('',
+    (r'^accounts/', include('registration.urls')),
+)
 
 if settings.AUTH_SSL:
     urlpatterns += patterns('',
