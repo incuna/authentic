@@ -95,6 +95,16 @@ def save_session(request, login):
             LibertySessionDump(django_session_key = request.session.session_key,
                     session_dump = login.session.dump()).save()
 
+# TODO: handle autoloading of metadatas
+def load_provider(request, login, provider_id):
+    q = LibertyProvider.objects.filter(
+            entity_id = provider_id)
+    if not q:
+        return False
+    login.server.addProviderFromBuffer(lasso.PROVIDER_ROLE_SP,
+            providers[0].metadata.read())
+    return True
+
 def save_artifact(request, login):
     LibertyArtifact(artifact = login.assertionArtifact,
             django_session_key = request.session.session_key,
