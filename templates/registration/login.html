@@ -6,22 +6,33 @@
 {% endblock %}
 
 {% block content %}
-<form method="post" action=".">
-  {{ form.as_p }}
+<form id="login-form" method="post" action=".">
+  <p>
+    <label for="id_username">{% trans "Username:" %}</label>
+    <input id="id_username" type="text" name="username" maxlength="30" />
+  </p>
+  <p>
+    <label for="id_password">{% trans "Password:" %}</label>
+    <input type="password" name="password" id="id_password" />
+  </p>
 
-  <input type="submit" value="{% trans 'Log in' %}" />
+  <input type="submit" value="{% trans 'Log in' %}" class="submit" />
   <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
+<div id="login-actions">
+<p>→ {% trans "Forgot password?" %} <a href="{% url auth_password_reset %}">{% trans "Reset it!" %}</a></p>
+<p>→ {% trans "Not a member?" %} <a href="{% url registration_register %}">{% trans "Register!" %}</a></p>
+</div>
 
+<div id="alt-methods">
 {% if HAS_AUTH_SSL %}
 <p><a href="{% url user_signin_ssl %}">{% trans "Login with SSL" %}</a></p>
 {% endif %}
 {% if HAS_AUTH_OPENID %}
 <p><a href="{% url user_signin %}">{% trans "Login with OpenID" %}</a></p>
 {% endif %}
-<p>{% trans "Forgot password?" %} <a href="{% url auth_password_reset %}">{% trans "Reset it!" %}</a></p>
-<p>{% trans "Not a member?" %} <a href="{% url registration_register %}">{% trans "Register!" %}</a></p>
+</div>
 
 
 <script type="text/javascript">

@@ -1,30 +1,77 @@
 html, body {
 	margin: 0;
-	background: white;
-	color: black;
 }
 
+html {
+	background: #F9F9F7 url(../images/a1.gif) repeat-x;
+}
+
+a
+{
+	color: #FF7800;
+	text-decoration: underline;
+}
+
+a:hover
+{
+	text-decoration: none;
+}
+
+
 div#wrap {
-	width: 40em;
+	background: white;
+	width: 640px;
 	margin: 5em auto;
+	padding: 15px;
 	-moz-border-radius: 6px;
 	-webkit-border-radius:6px;
 	-moz-box-shadow: 0 0 4px rgba(0,0,0,0.75);
 	-webkit-box-shadow: 0 0 4px rgba(0,0,0,0.75);
+	position: relative;
 }
 
-div#header {
-	background: #eee;
-	text-align: center;
-	padding: 2ex;
+#header
+{
+	position: absolute;
+	background: #FF7800 url(../images/a8.gif) repeat-x;
+	-moz-border-radius: 6px 0 0 6px;
+	-webkit-border-radius: 6px 0 0 6px;
+	width: 202px;
+	height: 92px;
+	color: #fff;
+	padding-left: 20px;
 }
 
-div#header h1 {
+#header h1
+{
+	font-size: 23px;
+	letter-spacing: -1px;
+	padding-top: 30px;
+	margin: 0;
+}
+
+#header h2
+{
+	margin: 0;
+	font-size: 10px;
 	font-weight: normal;
+	color: #FCE2CA;
+}
+
+#splash
+{
+	position: absolute;
+	right: 15px;
+	background: #EAEAE2 url(../images/a10.jpg) no-repeat;
+	width: 410px;
+	height: 92px;
+	-moz-border-radius: 0 6px 6px 0;
+	-webkit-border-radius: 0 6px 6px 0;
 }
 
 div#content {
 	margin: 1em 1ex;
+	margin-top: 110px;
 	padding: 1ex;
 }
 
@@ -33,13 +80,42 @@ div#content h2 {
 	font-weight: normal;
 }
 
-div#footer {
+#footer
+{
+	font-size: 70%;
+	position: relative;
+	clear: both;
+	height: 66px;
 	text-align: center;
-	margin-top: 3em;
-	font-size: 50%;
-	color: #333;
-	background: #eee;
-	padding: 3em;
+	line-height: 66px;
+	background-image: url(../images/a50.gif);
+	color: #A8A88D;
+}
+
+#footer a
+{
+	color: #8C8C73;
+}
+
+
+form#login-form p {
+	float: left;
+	width: 40%;
+}
+
+form#login-form input.submit {
+	float: right;
+	width: 18%;
+}
+
+div#login-actions {
+	clear: both;
+	padding-top: 1em;
+	border-top: 1px dotted #d5d5d5;
+}
+
+div#login-actions p {
+	margin: 0;
 }
 
 form p {
@@ -81,9 +157,8 @@ input[type=submit] {
 	background:#4690d6;
 	border: 1px solid #4690d6;
 	font-weight: bold;
-	height: 25px;
 	padding: 2px 8px 2px 8px;
-	margin:10px;
+	margin: 30px 0 0 0;
 	cursor: pointer;
 }
 
