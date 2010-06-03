@@ -222,7 +222,31 @@ def finish_sso(request, login):
     return return_idff12_response(login, title = _('Authentication response'))
 
 def artifact_resolve(request, soap_message):
-    pass
+    '''Resolve a SAMLv1.1 ArtifactResolve request'''
+    server = create_idff12_server(request)
+    login = lasso.Login(server)
+    try:
+        lasso.processRequestMsg(soap_message)
+    except:
+        raise
+    logging.debug(_('ID-FFv1.2 artifact resolve %r') % soap_message)
+    liberty_artifact = LibertyArtifact.objects.get(login.assertionArtifact)
+    if liberty_artifact:
+        liberty_artifact.delete()
+        provider_id = liberty_artifact.provider_id
+        load_session(request, login,
+                session_key = liberty_artifact.django_session_key)
+    else:
+         logging.warning(_('ID-FFv1.2 no artifact found for %r') % login.assertionArtifact)
+         provider_id = None
+
+    try:
+        login.buildResponseMsg(provider_id)
+    except:
+        raise
+    save_session(request, login,
+            session_key = liberty_artifact.django_session_key)
+    return return_saml_soap_response(login)
 
 @csrf_exempt
 def soap(request):
@@ -232,17 +256,17 @@ def soap(request):
         - artifact resolution
         - logout
         - and federation termination'''
+    print >>sys.stderr, 'zoob'
     soap_message = get_soap_message(request)
     request_type = lasso.getRequestTypeFromSoapMsg(soap_message)
     if request_type == lasso.REQUEST_TYPE_LOGIN:
+        print >>sys.stderr, 'coin'
         return artifact_resolve(request, soap_message)
     else:
+        print >>sys.stderr, 'toto'
         message = _('ID-FFv1.2: soap request type %r is currently not supported') % request_type
         logging.warning(message)
         return NotImplementedError(message)
-
-def finish_sso(request, login):
-    pass
 
 def finish_failed_sso(request, login):
     pass
@@ -250,5 +274,5 @@ def finish_failed_sso(request, login):
 urlpatterns = patterns('',
     (r'^metadata$', metadata),
     (r'^sso$', sso),
-    (r'^soap$', soap),
+    (r'^soap', soap),
 )
