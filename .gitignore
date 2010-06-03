@@ -1,6 +1,7 @@
 *.pyc
 *.pyo
 *.db
+.*.swp
 dist/
 authentic.egg-info
 local_settings.py
