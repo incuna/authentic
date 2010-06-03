@@ -16,10 +16,12 @@ urlpatterns = patterns('',
 
 if settings.AUTH_OPENID:
     urlpatterns += patterns('',
+            (r'^accounts/openid/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
             (r'^accounts/openid/', include('django_authopenid.urls')),
     )
 
 urlpatterns += patterns('',
+    (r'^accounts/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
     (r'^accounts/', include('registration.urls')),
 )
 
