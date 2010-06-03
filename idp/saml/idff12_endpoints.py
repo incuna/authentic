@@ -7,6 +7,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.conf.urls.defaults import *
 from django.http import *
 from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_exempt
 from models import *
 from authentic.saml.common import *
 
@@ -117,6 +118,7 @@ def save_artifact(request, login):
 # cancelled flag
 # TODO: handle force_authn by redirecting to the login page with a parameter
 # linking the login event with this request id and next=current_path
+@csrf_exempt
 def sso(request):
     """Endpoint for AuthnRequests asynchronously sent, i.e. POST or Redirect"""
     # 1. Process the request, separate POST and GET treatment
@@ -222,6 +224,7 @@ def finish_sso(request, login):
 def artifact_resolve(request, soap_message):
     pass
 
+@csrf_exempt
 def soap(request):
     '''SAMLv1.1 soap endpoint implementation.
 
