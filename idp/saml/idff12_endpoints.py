@@ -62,8 +62,8 @@ def load_federation(request, login):
 def load_session(request, login, session_key = None):
     '''Load a session dump from the database'''
     if not session_key:
-        session_key = request.session_key
-    q = LibertySessionDump.objects.filter(django_session_key = request.session.session_key)
+        session_key = request.session.session_key
+    q = LibertySessionDump.objects.filter(django_session_key = session_key)
     if not q:
         return
     login.setSessionFromDump(q[0].session_dump)
@@ -85,10 +85,10 @@ def save_federation(request, login):
 def save_session(request, login, session_key = None):
     '''Save session dump to database'''
     if not session_key:
-        session_key = request.session_key
+        session_key = request.session.session_key
     if login.isSessionDirty:
         q = LibertySessionDump.objects.filter(
-                django_session_key = request.session.session_key)
+                django_session_key = session_key)
         if q:
             if login.session:
                 q[0].session_dump = login.session.dump()
