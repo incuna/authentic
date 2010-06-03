@@ -23,18 +23,16 @@ class FilenameGenerator(object):
         print >>sys.stderr, 'path', path
         return path
 
+class LibertyAttributeMap(models.Model):
+    name = models.CharField(max_length = 40, unique = True)
+    def __unicode__(self):
+        return self.name
+
 class LibertyAttributeMapping(models.Model):
     source_attribute_name = models.CharField(max_length = 40)
     attribute_value_format = models.URLField()
     attribute_name = models.CharField(max_length = 40)
-
-class LibertyAttributeMap(models.Model):
-    name = models.CharField(max_length = 40, unique = True)
-    mappings = models.ManyToManyField(LibertyAttributeMapping,
-            related_name = "maps")
-
-    def __unicode__(self):
-        return self.name
+    map = models.ForeignKey(LibertyAttributeMap)
 
 def validate_metadata(value):
     value.open()
@@ -45,14 +43,14 @@ def validate_metadata(value):
 
 
 class LibertyProvider(models.Model):
-    entity_id = models.URLField(unique = True, editable = False)
+    entity_id = models.URLField(unique = True)
     name = models.CharField(max_length = 40, unique = True,
             help_text = "Internal nickname for the service provider")
     protocol_conformance = models.IntegerField(max_length = 10,
             choices = ((0, 'SAML10'),
                        (1, 'SAML11'),
                        (2, 'SAML12'),
-                       (3, 'SAML20')), editable = False)
+                       (3, 'SAML20')))
     metadata = models.FileField(upload_to = FilenameGenerator("metadata", '.xml'),
             validators = [ validate_metadata ])
     public_key = models.FileField(upload_to = FilenameGenerator("public_key", '.pem'),
@@ -111,42 +109,41 @@ class LibertyIdentityDump(models.Model):
     identity_dump = models.TextField(blank = True)
 
 class LibertySessionDump(models.Model):
-    django_session_key = models.CharField(max_length = 40,
-            editable = False)
+    django_session_key = models.CharField(max_length = 40)
     session_dump = models.TextField(blank = True)
 
 class LibertyArtifact(models.Model):
     """Store an artifact"""
-    artifact = models.CharField(max_length = 40, editable = False, primary_key = True)
-    content = models.TextField(editable = False)
-    django_session_key = models.CharField(max_length = 40, editable = False)
+    artifact = models.CharField(max_length = 40, primary_key = True)
+    content = models.TextField()
+    django_session_key = models.CharField(max_length = 40)
     provider_id = models.CharField(max_length = 80)
 
 class LibertySession(models.Model):
     """Store the link between a Django session and a Liberty session"""
-    django_session_key = models.CharField(max_length = 40, editable = False)
+    django_session_key = models.CharField(max_length = 40)
 
 # When we receive a logout request, we lookup the LibertyAssertions, then the
 # LibertySession and the the real DjangoSession
 class LibertyAssertions(models.Model):
     assertion_id = models.CharField(max_length = 50, unique = True)
-    liberty_session = models.ForeignKey(LibertySession, editable = False,
+    liberty_session = models.ForeignKey(LibertySession,
             related_name = "assertions")
-    session_index = models.CharField(max_length = 80, editable = False)
-    assertion = models.TextField(editable = False)
-    emission_time = models.DateTimeField(auto_now = True, editable = False)
+    session_index = models.CharField(max_length = 80, )
+    assertion = models.TextField()
+    emission_time = models.DateTimeField(auto_now = True, )
 
 class LibertyFederation(models.Model):
     """Store a federation, i.e. an identifier shared with another provider, be
        it IdP or SP"""
     user = models.ForeignKey(User)
-    name_id_qualifier = models.CharField(max_length = 150, editable = False,
+    name_id_qualifier = models.CharField(max_length = 150,
             verbose_name = "Qualifier")
-    name_id_format = models.CharField(max_length = 100, editable = False,
+    name_id_format = models.CharField(max_length = 100,
             verbose_name = "NameIDFormat")
-    name_id_content = models.CharField(max_length = 100, editable = False,
+    name_id_content = models.CharField(max_length = 100,
             verbose_name = "NameID")
-    name_id_sp_name_qualifier = models.CharField(max_length = 100, editable = False,
+    name_id_sp_name_qualifier = models.CharField(max_length = 100,
             verbose_name = "SPNameQualifier")
 
     class Meta:
