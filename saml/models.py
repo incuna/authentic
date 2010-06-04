@@ -3,11 +3,13 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
+from django.utils.translation import ugettext as _
 import os.path
 import time
 import lasso
 
 
+# TODO: add toher name format with lasso next release
 ATTRIBUTE_VALUE_FORMATS = (
         (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, 'SAMLv2 URI'),)
 
@@ -45,7 +47,7 @@ def validate_metadata(value):
     meta=value.read()
     provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_NONE, meta)
     if not provider:
-        raise ValidationError('Bad metadata file')
+        raise ValidationError(_('Bad metadata file'))
 
 def metadata_field(prefix, suffix, validators = [], blank = True):
     '''Adapt a FileField to the need of metadata saving'''
@@ -57,7 +59,7 @@ def metadata_field(prefix, suffix, validators = [], blank = True):
 class LibertyProvider(models.Model):
     entity_id = models.URLField(unique = True)
     name = models.CharField(max_length = 40, unique = True,
-            help_text = "Internal nickname for the service provider")
+            help_text = _("Internal nickname for the service provider"))
     protocol_conformance = models.IntegerField(max_length = 10,
             choices = ((0, 'SAML 1.0'),
                        (1, 'SAML 1.1'),
@@ -85,13 +87,13 @@ class LibertyProvider(models.Model):
 class LibertyServiceProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True)
-    encrypt_nameid = models.BooleanField(verbose_name = "Encrypt NameID")
+    encrypt_nameid = models.BooleanField(verbose_name = _("Encrypt NameID"))
     encrypt_assertion = models.BooleanField(
-            verbose_name = "Encrypt Assertion")
+            verbose_name = _("Encrypt Assertion"))
     authn_request_signed = models.BooleanField(
-            verbose_name = "AuthnRequest signed")
+            verbose_name = _("AuthnRequest signed"))
     idp_initiated_sso = models.BooleanField(
-            verbose_name = "Allow IdP initiated SSO")
+            verbose_name = _("Allow IdP initiated SSO"))
     # Mapping to use to produce attributes in the assertions or in Attribute
     # requests
     attribute_map = models.ForeignKey(LibertyAttributeMap,
@@ -101,16 +103,16 @@ class LibertyServiceProvider(models.Model):
     # them as special
     default_name_id_format = models.CharField(max_length = 80,
             default = "persistent",
-            choices = (("persistent", "Persistent"),
-                ("transient", "Transient"),
-                ("email", "Email (only supported by SAMLv2)")))
+            choices = (("persistent", _("Persistent")),
+                ("transient", _("Transient")),
+                ("email", _("Email (only supported by SAMLv2)"))))
 
 
 class LibertyIdentityProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True)
     want_authn_request_signed = models.BooleanField(
-            verbose_name = "Want AuthnRequest signed")
+            verbose_name = _("Want AuthnRequest signed"))
     # Mapping to use to get User attributes from the assertion
     attribute_map = models.ForeignKey(LibertyAttributeMap,
             related_name = "identity_providers",
@@ -152,17 +154,17 @@ class LibertyFederation(models.Model):
        it IdP or SP"""
     user = models.ForeignKey(User)
     name_id_qualifier = models.CharField(max_length = 150,
-            verbose_name = "Qualifier")
+            verbose_name = _("Qualifier"))
     name_id_format = models.CharField(max_length = 100,
-            verbose_name = "NameIDFormat")
+            verbose_name = _("NameIDFormat"))
     name_id_content = models.CharField(max_length = 100,
-            verbose_name = "NameID")
+            verbose_name = _("NameID"))
     name_id_sp_name_qualifier = models.CharField(max_length = 100,
-            verbose_name = "SPNameQualifier")
+            verbose_name = _("SPNameQualifier"))
 
     class Meta:
-        verbose_name = "Liberty federation"
-        verbose_name_plural = "Liberty federations"
+        verbose_name = _("Liberty federation")
+        verbose_name_plural = _("Liberty federations")
         # XXX: To allow shared-federation (multiple-user with the same
         # federation), add user to this list
         unique_together = (("name_id_qualifier", "name_id_format",
