@@ -53,62 +53,6 @@ def consent(request, id = None, next = id, provider_id = id):
    # TODO: implement me
    raise NotImplementedError('Implement consent')
 
-def load_federation(request, login):
-    '''Load an identity dump from the database'''
-    q = LibertyIdentityDump.objects.filter(user = request.user)
-    if not q:
-        return
-    login.setIdentityFromDump(q[0].identity_dump)
-
-def load_session(request, login, session_key = None):
-    '''Load a session dump from the database'''
-    if not session_key:
-        session_key = request.session.session_key
-    q = LibertySessionDump.objects.filter(django_session_key = session_key)
-    if not q:
-        return
-    login.setSessionFromDump(q[0].session_dump)
-
-def save_federation(request, login):
-    '''Save identity dump to database'''
-    if login.isIdentityDirty:
-        q = LibertyIdentityDump.objects.filter(user = request.user)
-        if q:
-            if login.identity:
-                q[0].identity_dump = login.identity.dump()
-            else:
-                q[0].identity_dump = None
-            q[0].save()
-        elif login.identity:
-            LibertyIdentityDump(user = request.user,
-                    identity_dump = login.identity.dump()).save()
-
-def save_session(request, login, session_key = None):
-    '''Save session dump to database'''
-    if not session_key:
-        session_key = request.session.session_key
-    if login.isSessionDirty:
-        q = LibertySessionDump.objects.filter(
-                django_session_key = session_key)
-        if q:
-            if login.session:
-                q[0].session_dump = login.session.dump()
-            else:
-                q[0].session_dump = None
-            q[0].save()
-        elif login.session:
-            LibertySessionDump(django_session_key = request.session.session_key,
-                    session_dump = login.session.dump()).save()
-
-# TODO: handle autoloading of metadatas
-def load_provider(request, login, provider_id):
-    liberty_provider = LibertyProvider.objects.get(entity_id = provider_id)
-    if not liberty_provider:
-        return False
-    login.server.addProviderFromBuffer(lasso.PROVIDER_ROLE_SP,
-            liberty_provider.metadata.read())
-    return True
-
 def save_artifact(request, login):
     LibertyArtifact(artifact = login.assertionArtifact,
             django_session_key = request.session.session_key,
