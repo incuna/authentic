@@ -219,7 +219,7 @@ def soap(request):
         logging.warning(message)
         return NotImplementedError(message)
 
-def finish_failed_sso(request, login):
+def idp_initiated_response(request, provider_id):
     pass
 
 urlpatterns = patterns('',
