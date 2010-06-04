@@ -9,7 +9,7 @@ import time
 import lasso
 
 
-# TODO: add toher name format with lasso next release
+# TODO: add other name formats with lasso next release
 ATTRIBUTE_VALUE_FORMATS = (
         (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, 'SAMLv2 URI'),)
 
@@ -87,7 +87,7 @@ class LibertyProvider(models.Model):
 class LibertyServiceProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True)
-    enabled = models.BooleanField(verbose_name = _('Enabled')),
+    enabled = models.BooleanField(verbose_name = _('Enabled'))
     encrypt_nameid = models.BooleanField(verbose_name = _("Encrypt NameID"))
     encrypt_assertion = models.BooleanField(
             verbose_name = _("Encrypt Assertion"))
@@ -107,26 +107,40 @@ class LibertyServiceProvider(models.Model):
             choices = (("persistent", _("Persistent")),
                 ("transient", _("Transient")),
                 ("email", _("Email (only supported by SAMLv2)"))))
+    # TODO: add clean method which checks that the LassoProvider we can create
+    # with the metadata file support the SP role
+    # i.e. provider.roles & lasso.PROVIDER_ROLE_SP != 0
 
 
 class LibertyIdentityProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True)
-    enabled = models.BooleanField(verbose_name = _('Enabled')),
+    enabled = models.BooleanField(verbose_name = _('Enabled'))
     want_authn_request_signed = models.BooleanField(
             verbose_name = _("Want AuthnRequest signed"))
     # Mapping to use to get User attributes from the assertion
     attribute_map = models.ForeignKey(LibertyAttributeMap,
             related_name = "identity_providers",
             blank = True, null = True)
+    # TODO: add clean method which checks that the LassoProvider we can create
+    # with the metadata file support the IDP role
+    # i.e. provider.roles & lasso.PROVIDER_ROLE_IDP != 0
 
 
 # Transactional models
 class LibertyIdentityDump(models.Model):
+    '''Store lasso identity dump
+
+       Should be replaced in the future by direct reference to LassoFederation
+       objects'''
     user = models.ForeignKey(User, unique = True)
     identity_dump = models.TextField(blank = True)
 
 class LibertySessionDump(models.Model):
+    '''Store lasso session object dump.
+
+       Should be replaced in the future by direct references to known
+       assertions through the LibertySession object'''
     django_session_key = models.CharField(max_length = 40)
     session_dump = models.TextField(blank = True)
 
