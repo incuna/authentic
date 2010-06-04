@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.files.storage import FileSystemStorage
 import os.path
 import time
 import lasso
@@ -10,22 +11,22 @@ import lasso
 ATTRIBUTE_VALUE_FORMATS = (
         (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, 'SAMLv2 URI'),)
 
+metadata_store = FileSystemStorage(location=settings.SAML_METADATA_ROOT)
 
 def fix_name(name):
     return name.replace(' ', '_').replace('/', '_')
 
 class FilenameGenerator(object):
+    '''Generate a filename to store in media directory'''
     def __init__(self, prefix = '', suffix = ''):
         self.prefix = prefix
         self.suffix = suffix
 
     def __call__(self, instance, filename):
-        path = "metadata/%s_%s_%s%s" % (self.prefix,
+        path = "%s_%s_%s%s" % (self.prefix,
                     fix_name(instance.entity_id),
                     time.strftime("%Y%m%dT%H:%M:%SZ", time.gmtime()),
                     self.suffix)
-        import sys
-        print >>sys.stderr, 'path', path
         return path
 
 class LibertyAttributeMap(models.Model):
@@ -46,26 +47,27 @@ def validate_metadata(value):
     if not provider:
         raise ValidationError('Bad metadata file')
 
+def metadata_field(prefix, suffix, validators = [], blank = True):
+    '''Adapt a FileField to the need of metadata saving'''
+    return models.FileField(
+            upload_to = FilenameGenerator("metadata", '.xml'),
+            storage = metadata_store,
+            validators = validators, blank = blank)
 
 class LibertyProvider(models.Model):
     entity_id = models.URLField(unique = True)
     name = models.CharField(max_length = 40, unique = True,
             help_text = "Internal nickname for the service provider")
     protocol_conformance = models.IntegerField(max_length = 10,
-            choices = ((0, 'SAML10'),
-                       (1, 'SAML11'),
-                       (2, 'SAML12'),
-                       (3, 'SAML20')))
-    metadata = models.FileField(upload_to = FilenameGenerator("metadata", '.xml'),
-            validators = [ validate_metadata ])
-    public_key = models.FileField(upload_to = FilenameGenerator("public_key", '.pem'),
-            blank = True)
-    ssl_certificate = models.FileField(
-            upload_to = FilenameGenerator("ssl_certificate", '.pem'),
-            blank = True)
-    ca_cert_chain = models.FileField(
-            upload_to = FilenameGenerator('ca_cert_chain', '.pem'),
-            blank = True)
+            choices = ((0, 'SAML 1.0'),
+                       (1, 'SAML 1.1'),
+                       (2, 'SAML 1.2'),
+                       (3, 'SAML 2.0')))
+    metadata = metadata_field("metadata", '.xml',
+            [ validate_metadata ], blank = False)
+    public_key = metadata_field("public_key", '.pem')
+    ssl_certificate = metadata_field("ssl_certificate", '.pem')
+    ca_cert_chain = metadata_field('ca_cert_chain', '.pem')
 
     def __unicode__(self):
         return self.name
@@ -89,7 +91,7 @@ class LibertyServiceProvider(models.Model):
     authn_request_signed = models.BooleanField(
             verbose_name = "AuthnRequest signed")
     idp_initiated_sso = models.BooleanField(
-            verbose_name = "Allow IdP iniated SSO")
+            verbose_name = "Allow IdP initiated SSO")
     # Mapping to use to produce attributes in the assertions or in Attribute
     # requests
     attribute_map = models.ForeignKey(LibertyAttributeMap,

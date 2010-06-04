@@ -142,6 +142,7 @@ pkkt86tIOLEtaNO97CcF/t+Un5QAh9MqLmQv5pwUDo4Lqo7qo1bAfyHjOlr5kdaP
 17qqWRjf82jT6jzu5nddywJAVQpxlZ8fIZUzTD2mRQeLf5O+rXmtH1LlwRRGCNaa
 8eM47A92x9uplD/sN550pTKM7XLhHBvEfLujUoGHpWQxGA==
 -----END RSA PRIVATE KEY-----'''
+SAML_METADATA_ROOT = os.path.join(PROJECT_PATH, 'metadata')
 
 # SSL settings
 AUTH_SSL = True
