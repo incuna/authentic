@@ -2,6 +2,12 @@ from django.contrib import admin
 from django.utils.translation import ugettext as _
 from models import *
 
+class LibertyServiceProviderInline(admin.TabularInline):
+    model = LibertyServiceProvider
+
+class LibertyIdentityProviderInline(admin.TabularInline):
+    model = LibertyIdentityProvider
+
 class LibertyProviderAdmin(admin.ModelAdmin):
     list_display = ('name', 'entity_id', 'protocol_conformance')
     list_display_links = ('entity_id',)
@@ -12,17 +18,13 @@ class LibertyProviderAdmin(admin.ModelAdmin):
             (None, { 'fields' : ('name', 'entity_id') }),
             (_('Metadata files'),
                 { 'fields': ('metadata', 'public_key', 'ssl_certificate', 'ca_cert_chain') }))
-
-class LibertyAttributeMappingInline(admin.TabularInline):
-    model = LibertyAttributeMapping
-
-class LibertyAttributeMapAdmin(admin.ModelAdmin):
     inlines = [
-            LibertyAttributeMappingInline,
+            LibertyServiceProviderInline,
+            LibertyIdentityProviderInline
     ]
 
+
 admin.site.register(LibertyProvider, LibertyProviderAdmin)
-admin.site.register(LibertyAttributeMap, LibertyAttributeMapAdmin)
 admin.site.register(LibertySessionDump)
 admin.site.register(LibertyIdentityDump)
 admin.site.register(LibertyServiceProvider)
