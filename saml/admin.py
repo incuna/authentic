@@ -23,3 +23,6 @@ class LibertyAttributeMapAdmin(admin.ModelAdmin):
 
 admin.site.register(LibertyProvider, LibertyProviderAdmin)
 admin.site.register(LibertyAttributeMap, LibertyAttributeMapAdmin)
+admin.site.register(LibertySessionDump)
+admin.site.register(LibertyIdentityDump)
+admin.site.register(LibertyServiceProvider)
