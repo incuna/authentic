@@ -174,7 +174,7 @@ def sso(request):
         #  login event
         # Work around lack of informations returned by mustAuthenticate()
         if login.request.forceAuthn or request.user.is_anonymous():
-            return redirect_to_login(request.build_absolute_uri())
+            return redirect_to_login(request.get_full_path())
         else:
             user_authenticated = True
     else:
@@ -191,7 +191,7 @@ def sso(request):
             else:
                 return HttpResponseRedirect('consent?id=%s&next=%s' %
                         ( login.request.requestId,
-                            urllib.quote(request.build_absolute_uri())) )
+                            urllib.quote(request.get_full_path())) )
     # 4. Validate the request, passing authentication and consent status
     try:
         login.validateRequestMsg(user_authenticated, consent_obtained)
