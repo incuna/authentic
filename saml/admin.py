@@ -2,10 +2,10 @@ from django.contrib import admin
 from django.utils.translation import ugettext as _
 from models import *
 
-class LibertyServiceProviderInline(admin.TabularInline):
+class LibertyServiceProviderInline(admin.StackedInline):
     model = LibertyServiceProvider
 
-class LibertyIdentityProviderInline(admin.TabularInline):
+class LibertyIdentityProviderInline(admin.StackedInline):
     model = LibertyIdentityProvider
 
 class LibertyProviderAdmin(admin.ModelAdmin):
