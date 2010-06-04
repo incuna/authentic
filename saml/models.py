@@ -74,7 +74,9 @@ class LibertyProvider(models.Model):
             self.entity_id = provider.providerId
             self.protocol_conformance = provider.protocolConformance
 
-class LibertyServiceProvider(LibertyProvider):
+class LibertyServiceProvider(models.Model):
+    liberty_provider = models.OneToOneField(LibertyProvider,
+            primary_key = True)
     encrypt_nameid = models.BooleanField(verbose_name = "Encrypt NameID")
     encrypt_assertion = models.BooleanField(
             verbose_name = "Encrypt Assertion")
@@ -95,7 +97,9 @@ class LibertyServiceProvider(LibertyProvider):
                 ("email", "Email (only supported by SAMLv2)")))
 
 
-class LibertyIdentityProvider(LibertyProvider):
+class LibertyIdentityProvider(models.Model):
+    liberty_provider = models.OneToOneField(LibertyProvider,
+            primary_key = True)
     want_authn_request_signed = models.BooleanField(
             verbose_name = "Want AuthnRequest signed")
     # Mapping to use to get User attributes from the assertion
