@@ -8,9 +8,7 @@ import lasso
 
 
 ATTRIBUTE_VALUE_FORMATS = (
-        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_UNSPECIFIED, 'SAMLv2 unspecified'),
-        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, 'SAMLv2 URI'),
-        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC, 'SAMLv2 Basic'))
+        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, 'SAMLv2 URI'),)
 
 
 def fix_name(name):
