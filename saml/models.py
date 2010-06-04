@@ -94,7 +94,8 @@ class LibertyServiceProvider(models.Model):
     # Mapping to use to produce attributes in the assertions or in Attribute
     # requests
     attribute_map = models.ForeignKey(LibertyAttributeMap,
-            related_name = "service_providers")
+            related_name = "service_providers",
+            blank = True, null = True)
     # XXX: format in the metadata file, should be suffixed with a start to mark
     # them as special
     default_name_id_format = models.CharField(max_length = 80,
@@ -111,7 +112,8 @@ class LibertyIdentityProvider(models.Model):
             verbose_name = "Want AuthnRequest signed")
     # Mapping to use to get User attributes from the assertion
     attribute_map = models.ForeignKey(LibertyAttributeMap,
-            related_name = "identity_providers")
+            related_name = "identity_providers",
+            blank = True, null = True)
 
 
 # Transactional models
