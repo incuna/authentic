@@ -1,4 +1,3 @@
-import sys
 import datetime
 import logging
 import urllib
@@ -190,6 +189,10 @@ def artifact_resolve(request, soap_message):
             session_key = liberty_artifact.django_session_key)
 
 def finish_artifact_resolve(request, login, provider_id, session_key = None):
+    '''Finish artifact resolver processing:
+        compute a response, returns it and eventually update stored
+        LassoSession.
+    '''
     try:
         login.buildResponseMsg(provider_id)
     except:
@@ -207,14 +210,11 @@ def soap(request):
         - artifact resolution
         - logout
         - and federation termination'''
-    print >>sys.stderr, 'zoob'
     soap_message = get_soap_message(request)
     request_type = lasso.getRequestTypeFromSoapMsg(soap_message)
     if request_type == lasso.REQUEST_TYPE_LOGIN:
-        print >>sys.stderr, 'coin'
         return artifact_resolve(request, soap_message)
     else:
-        print >>sys.stderr, 'toto'
         message = _('ID-FFv1.2: soap request type %r is currently not supported') % request_type
         logging.warning(message)
         return NotImplementedError(message)
