@@ -74,12 +74,13 @@ class LibertyProvider(models.Model):
 
     def clean(self):
         models.Model.clean(self)
-        self.metadata.open()
-        meta=self.metadata.read()
-        provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_NONE, meta)
-        if provider:
-            self.entity_id = provider.providerId
-            self.protocol_conformance = provider.protocolConformance
+        if self.metadata:
+            self.metadata.open()
+            meta = self.metadata.read()
+            provider = lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_NONE, meta)
+            if provider:
+                self.entity_id = provider.providerId
+                self.protocol_conformance = provider.protocolConformance
 
 class LibertyServiceProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
