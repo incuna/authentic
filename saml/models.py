@@ -87,6 +87,7 @@ class LibertyProvider(models.Model):
 class LibertyServiceProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True)
+    enabled = models.BooleanField(verbose_name = _('Enabled')),
     encrypt_nameid = models.BooleanField(verbose_name = _("Encrypt NameID"))
     encrypt_assertion = models.BooleanField(
             verbose_name = _("Encrypt Assertion"))
@@ -111,6 +112,7 @@ class LibertyServiceProvider(models.Model):
 class LibertyIdentityProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True)
+    enabled = models.BooleanField(verbose_name = _('Enabled')),
     want_authn_request_signed = models.BooleanField(
             verbose_name = _("Want AuthnRequest signed"))
     # Mapping to use to get User attributes from the assertion
