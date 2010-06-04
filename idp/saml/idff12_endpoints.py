@@ -26,7 +26,7 @@ def fill_assertion(request, saml_request, assertion, provider_id):
     # attributes (user only authorized to give its email for email)
 
 def build_assertion(request, login):
-    '''After a succesfully validated authentication request, build an
+    '''After a successfully validated authentication request, build an
        authentication assertion'''
     now = datetime.datetime.utcnow()
     # 1 minute ago
