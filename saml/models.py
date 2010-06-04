@@ -6,6 +6,13 @@ import os.path
 import time
 import lasso
 
+
+ATTRIBUTE_VALUE_FORMATS = (
+        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_UNSPECIFIED, 'SAMLv2 unspecified'),
+        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, 'SAMLv2 URI'),
+        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC, 'SAMLv2 Basic'))
+
+
 def fix_name(name):
     return name.replace(' ', '_').replace('/', '_')
 
@@ -30,7 +37,7 @@ class LibertyAttributeMap(models.Model):
 
 class LibertyAttributeMapping(models.Model):
     source_attribute_name = models.CharField(max_length = 40)
-    attribute_value_format = models.URLField()
+    attribute_value_format = models.URLField(choices = ATTRIBUTE_VALUE_FORMATS)
     attribute_name = models.CharField(max_length = 40)
     map = models.ForeignKey(LibertyAttributeMap)
 
