@@ -2,11 +2,14 @@ import datetime
 import logging
 import urllib
 import lasso
+
 from django.contrib.auth.views import redirect_to_login
 from django.conf.urls.defaults import *
 from django.http import *
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
+from django.core.urlresolvers import reverse
+
 from authentic.saml.models import *
 from authentic.saml.common import *
 
@@ -43,7 +46,8 @@ def build_assertion(request, login):
 
 def metadata(request):
     '''Return ID-FFv1.2 metadata for our IdP'''
-    return HttpResponse(get_idff12_metadata(request), mimetype = 'text/xml')
+    return HttpResponse(get_idff12_metadata(request, reverse(metadata)),
+            mimetype = 'text/xml')
 
 def consent(request, id = None, next = id, provider_id = id):
    '''On a GET produce a form asking for consentment,
@@ -68,7 +72,7 @@ def sso(request):
     message = get_idff12_request_message(request)
     if not message:
         return HttpResponseForbidden('Invalid SAML 1.1 AuthnRequest: "%s"' % message)
-    server = create_idff12_server(request)
+    server = create_idff12_server(request, reverse(metadata))
     login = lasso.Login(server)
     while True:
         try:
@@ -166,7 +170,7 @@ def finish_sso(request, login):
 
 def artifact_resolve(request, soap_message):
     '''Resolve a SAMLv1.1 ArtifactResolve request'''
-    server = create_idff12_server(request)
+    server = create_idff12_server(request, reverse(metadata))
     login = lasso.Login(server)
     try:
         login.processRequestMsg(soap_message)

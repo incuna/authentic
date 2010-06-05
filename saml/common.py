@@ -33,20 +33,20 @@ def get_http_binding(request):
 
 # SAMLv2 methods
 
-def get_base_path(request):
-    full_path = request.get_full_path()
-    path = urlparse.urlparse(full_path).path
+def get_base_path(request, metadata):
+    '''Get endpoints base path given metadata path
+    '''
+    path = urlparse.urlparse(metadata).path
     return request.build_absolute_uri(os.path.dirname(path))
 
-def get_entity_id(request):
-    '''Return the EntityID, request must points to an endpoint handler'''
-    # FIXME: find the base URL with a better method than that
-    path = get_base_path(request)
-    return path + '/metadata'
+def get_entity_id(request, metadata):
+    '''Return the EntityID, given metadata absolute path
+    '''
+    return request.build_absolute_uri(metadata)
 
-def get_saml2_metadata(request):
-    metagen = saml2utils.Saml2Metadata(get_entity_id(request),
-            url_prefix = get_base_path(request))
+def get_saml2_metadata(request, metadata):
+    metagen = saml2utils.Saml2Metadata(get_entity_id(request, metadata),
+            url_prefix = get_base_path(request, metadata))
     synchronous_bindings = [ lasso.SAML2_METADATA_BINDING_REDIRECT,
                     lasso.SAML2_METADATA_BINDING_POST ]
     map = (('SingleSignOnService', synchronous_bindings , '/sso'),)
@@ -54,9 +54,9 @@ def get_saml2_metadata(request):
     metagen.add_idp_descriptor(map, options)
     return str(metagen)
 
-def create_saml2_server(request):
+def create_saml2_server(request, metadata):
     '''Create a lasso Server object for using with a profile'''
-    server = lasso.Server.newFromBuffers(get_saml2_metadata(request),
+    server = lasso.Server.newFromBuffers(get_saml2_metadata(request, metadata),
             SAML_PRIVATE_KEY)
     if not server:
         raise Exception('Cannot create LassoServer object')
@@ -109,12 +109,13 @@ def return_saml2(profile, field_name, title = ''):
         return TypeError('profile do not contain a response')
 
 # ID-FF 1.2 methods
-def get_idff12_metadata(request):
+def get_idff12_metadata(request, metadata):
     '''Produce SAMLv1.1 metadata for our ID-FF 1.2 IdP
 
       This method only works with request pointing to an endpoint'''
-    metagen = saml11utils.Saml11Metadata(get_entity_id(request),
-            url_prefix = get_base_path(request),
+
+    metagen = saml11utils.Saml11Metadata(get_entity_id(request, metadata),
+            url_prefix = get_base_path(request, metadata),
             protocol_support_enumeration = [ lasso.LIB_HREF ])
     sso_protocol_profiles = [
         lasso.LIB_PROTOCOL_PROFILE_BRWS_ART,
@@ -128,8 +129,8 @@ def get_idff12_metadata(request):
     metagen.add_idp_descriptor(map, options)
     return str(metagen)
 
-def create_idff12_server(request):
-    server = lasso.Server.newFromBuffers(get_idff12_metadata(request),
+def create_idff12_server(request, metadata):
+    server = lasso.Server.newFromBuffers(get_idff12_metadata(request, metadata),
             SAML_PRIVATE_KEY)
     if not server:
         raise Exception('Cannot create LassoServer object')
