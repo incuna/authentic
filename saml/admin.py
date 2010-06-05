@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import ugettext as _
+from django.conf import settings
 from models import *
 
 class LibertyServiceProviderInline(admin.StackedInline):
@@ -25,6 +26,6 @@ class LibertyProviderAdmin(admin.ModelAdmin):
 
 
 admin.site.register(LibertyProvider, LibertyProviderAdmin)
-admin.site.register(LibertySessionDump)
-admin.site.register(LibertyIdentityDump)
-admin.site.register(LibertyServiceProvider)
+if settings.DEBUG:
+    admin.site.register(LibertySessionDump)
+    admin.site.register(LibertyIdentityDump)
