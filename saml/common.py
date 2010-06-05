@@ -154,12 +154,12 @@ def return_saml_soap_response(profile):
 def return_idff12_response(profile, title = ''):
     '''Finish your ID-FFv1.2 views with this method to return a SAML
     response'''
-    return return_saml2(profile, lasso.SAML2_FIELD_RESPONSE, title)
+    return return_saml2(profile, 'LARES', title)
 
 def return_idff12_request(profile, title = ''):
     '''Finish your SAMLv2 views with this method to return a SAML
     request'''
-    return return_saml2(profile, lasso.SAML2_FIELD_REQUEST, title)
+    return return_saml2(profile, 'LAREQ', title)
 
 def return_idff12(profile, field_name, title = ''):
     '''Helper to handle SAMLv2 bindings to emit request and responses'''
