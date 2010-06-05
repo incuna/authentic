@@ -10,4 +10,11 @@
  <li><a href="{% url auth_logout %}">{% trans "Log out" %}</a></li>
 </ul>
 
+<h2>{% trans "Services" %}</h2>
+
+<ul>
+{% for service in authorized_services %}
+<li><a href="{{ service.0 }}">{{ service.1 }}</a></li>
+{% endfor %}
+</ul>
 {% endblock %}
