@@ -230,11 +230,32 @@ def save_session(request, login, session_key = None):
                     session_dump = login.session.dump()).save()
 
 # TODO: handle autoloading of metadatas
-def load_provider(request, login, provider_id):
+def load_provider(request, login, provider_id, sp_or_idp = 'sp'):
+    '''Look up a provider in the database, and verify it handles wanted
+       role be it sp or idp.
+    '''
     liberty_provider = LibertyProvider.objects.get(entity_id = provider_id)
     if not liberty_provider:
         return False
-    login.server.addProviderFromBuffer(lasso.PROVIDER_ROLE_SP,
-            liberty_provider.metadata.read())
-    return True
+    if sp_or_idp == 'sp':
+        try:
+            service_provider = liberty_provider.service_provider
+        except LibertyServiceProvider.DoesNotExist:
+            return False
+        if not service_provider.enabled:
+            return False
+        login.server.addProviderFromBuffer(lasso.PROVIDER_ROLE_SP,
+                liberty_provider.metadata.read())
+    elif sp_or_idp == 'idp':
+        try:
+            identity_provider = liberty_provider.identity_provider
+        except LibertyIdentityProvider.DoesNotExist:
+            return False
+        if not identity_provider.enabled:
+            return False
+        login.server.addProviderFromBuffer(lasso.PROVIDER_ROLE_IDP,
+                liberty_provider.metadata.read())
+    else:
+        raise Exception('unsupported option sp_or_idp = %r' % sp_or_idp)
 
+    return liberty_provider
