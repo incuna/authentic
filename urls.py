@@ -2,7 +2,7 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.views.generic.simple import direct_to_template
-
+from authentic.idp import homepage
 import settings
 
 admin.autodiscover()
@@ -10,8 +10,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^idp/', include('authentic.idp.urls')),
-    (r'^$', login_required(direct_to_template),
-        { 'template': 'index.html' }, 'index'),
+    (r'^$', login_required(homepage), {}, 'index'),
 )
 
 if settings.AUTH_OPENID:
