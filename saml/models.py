@@ -84,10 +84,16 @@ class LibertyProvider(models.Model):
                 self.entity_id = provider.providerId
                 self.protocol_conformance = provider.protocolConformance
 
+ASSERTION_CONSUMER_PROFILES = (
+        ('art', _('Artifact binding')),
+        ('post', _('Post binding')))
+
 class LibertyServiceProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
-            primary_key = True)
+            primary_key = True, related_name = 'service_provider')
     enabled = models.BooleanField(verbose_name = _('Enabled'))
+    prefered_assertion_consumer_binding = models.CharField(
+            max_length = 4, choices = ASSERTION_CONSUMER_PROFILES)
     encrypt_nameid = models.BooleanField(verbose_name = _("Encrypt NameID"))
     encrypt_assertion = models.BooleanField(
             verbose_name = _("Encrypt Assertion"))
@@ -114,7 +120,7 @@ class LibertyServiceProvider(models.Model):
 
 class LibertyIdentityProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
-            primary_key = True)
+            primary_key = True, related_name = 'identity_provider')
     enabled = models.BooleanField(verbose_name = _('Enabled'))
     want_authn_request_signed = models.BooleanField(
             verbose_name = _("Want AuthnRequest signed"))
