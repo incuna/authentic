@@ -106,6 +106,19 @@ def sso(request):
                 # XXX: does consent be always automatic for known providers ? Maybe
                 # add a configuration key on the provider.
                 consent_obtained = True
+    return sso_after_process_request(request, login,
+            consent_obtained = consent_obtained)
+
+def sso_after_process_request(request, login,
+        consent_obtained = True, user = None, save = True):
+    '''Common path for sso and idp_initiated_sso.
+
+       consent_obtained: whether the user has given his consent to this federation
+       user: the user which must be federated, if None, current user is the default.
+       save: whether to save the result of this transaction or not.
+    '''
+    if user is None:
+        user = request.user
     # Flags possible:
     # - consent
     # - isPassive
@@ -149,14 +162,20 @@ def sso(request):
         do_federation = True
     # 5. Lookup the federations
     if do_federation:
-        load_federation(request, login)
+        load_federation(request, login, user)
         load_session(request, login)
         # 3. Build and assertion, fill attributes
         build_assertion(request, login)
-    return finish_sso(request, login)
+    return finish_sso(request, login, user = user, save = save)
 
-def finish_sso(request, login):
-    '''Return the response to an AuthnRequest'''
+def finish_sso(request, login, user = None, save = True):
+    '''Return the response to an AuthnRequest
+
+       user: the user which must be federated, if None default to current user.
+       save: whether to save the result of this transaction or not.
+    '''
+    if user is None:
+        user = request.user
     if login.protocolProfile == lasso.LOGIN_PROTOCOL_PROFILE_BRWS_ART:
         login.buildArtifactMsg(lasso.HTTP_METHOD_REDIRECT)
         save_artifact(request, login)
@@ -164,12 +183,14 @@ def finish_sso(request, login):
         login.buildAuthnResponseMsg()
     else:
         raise NotImplementedError()
-    save_federation(request, login)
-    save_session(request, login)
+    if save:
+        save_federation(request, login)
+        save_session(request, login)
     return return_idff12_response(login, title = _('Authentication response'))
 
 def artifact_resolve(request, soap_message):
-    '''Resolve a SAMLv1.1 ArtifactResolve request'''
+    '''Resolve a SAMLv1.1 ArtifactResolve request
+    '''
     server = create_idff12_server(request, reverse(metadata))
     login = lasso.Login(server)
     try:
@@ -185,7 +206,9 @@ def artifact_resolve(request, soap_message):
         load_provider(request, login, provider_id)
         load_session(request, login,
                 session_key = liberty_artifact.django_session_key)
-        logging.info(_('ID-FFv1.2 artifact resolve from %r for artifact %r') % (provider_id, login.assertionArtifact))
+        logging.info(
+                _('ID-FFv1.2 artifact resolve from %r for artifact %r') %
+                (provider_id, login.assertionArtifact))
     else:
          logging.warning(_('ID-FFv1.2 no artifact found for %r') % login.assertionArtifact)
          provider_id = None
@@ -196,6 +219,9 @@ def finish_artifact_resolve(request, login, provider_id, session_key = None):
     '''Finish artifact resolver processing:
         compute a response, returns it and eventually update stored
         LassoSession.
+
+        provider_id: the entity id of the provider which should receive the artifact
+        session_key: the session_key of the session linked to the artifact, if None it means no artifact was found
     '''
     try:
         login.buildResponseMsg(provider_id)
@@ -223,11 +249,56 @@ def soap(request):
         logging.warning(message)
         return NotImplementedError(message)
 
-def idp_initiated_response(request, provider_id):
-    pass
+def check_delegated_authentication_permission(request):
+    return request.user.is_superuser()
+
+def idp_sso(request, provider_id, user_id = None):
+    '''Initiate an SSO toward provider_id without a prior AuthnRequest
+    '''
+    assert provider_id, 'You must call idp_initiated_sso with a provider_id parameter'
+    server = create_idff12_server(request, reverse(metadata))
+    login = lasso.Login(server)
+    liberty_provider = load_provider(request, login, provider_id)
+    service_provider = liberty_provider.service_provider
+    binding = service_provider.prefered_assertion_consumer_binding
+    nid_policy = service_provider.default_name_id_format
+    if user_id:
+        user = User.get(id = user_id)
+        if not check_delegated_authentication_permission(request):
+            logging.warning(_('ID-FFv1.2: %r tried to log as %r on %r but was forbidden') %
+                    (request.user, user, provider_id))
+            return HttpResponseForbidden('You must be superuser to log as another user')
+    else:
+        user = request.user
+    load_federation(request, login, user)
+    if not liberty_provider:
+        message = _('ID-FFv1.2: provider %r unknown') % provider_id
+        logging.warning(message)
+        return HttpResponseForbidden(message)
+    login.initIdpInitiatedAuthnRequest(provider_id)
+    if binding == 'art':
+        login.request.protocolProfile = lasso.LIB_PROTOCOL_PROFILE_BRWS_ART
+    elif binding == 'post':
+        login.request.protocolProfile = lasso.LIB_PROTOCOL_PROFILE_BRWS_POST
+    else:
+        raise Exception('Unsupported binding %r' % binding)
+    if nid_policy == 'persistent':
+        login.request.nameIdPolicy = lasso.LIB_NAMEID_POLICY_TYPE_FEDERATED
+    elif nid_policy == 'transient':
+        login.request.nameIdPolicy = lasso.LIB_NAMEID_POLICY_TYPE_ONE_TIME
+    else:
+        message = _('ID-FFv1.2: default nameIdPolicy unsupported %r') % nid_policy
+        logging.error(message)
+        raise Exception(message)
+    login.processAuthnRequestMsg(None)
+
+    return sso_after_process_request(request, login,
+            consent_obtained = True, user = user, save = False)
 
 urlpatterns = patterns('',
     (r'^metadata$', metadata),
     (r'^sso$', sso),
     (r'^soap', soap),
+    (r'^idp_sso/(.*)$', idp_sso),
+    (r'^idp_sso/([^/]*)/([^/]*)$', idp_sso),
 )
