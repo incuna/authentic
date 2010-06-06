@@ -183,9 +183,11 @@ def return_idff12(profile, field_name, title = ''):
 # LassoSession) holding all the datas, to manipulate them at row Level with
 # LibertyFederation and LibertyAssertion objects.
 
-def load_federation(request, login):
+def load_federation(request, login, user = None):
     '''Load an identity dump from the database'''
-    q = LibertyIdentityDump.objects.filter(user = request.user)
+    if not user:
+        user = request.user
+    q = LibertyIdentityDump.objects.filter(user = user)
     if not q:
         return
     login.setIdentityFromDump(q[0].identity_dump)
@@ -199,10 +201,12 @@ def load_session(request, login, session_key = None):
         return
     login.setSessionFromDump(q[0].session_dump)
 
-def save_federation(request, login):
+def save_federation(request, login, user = None):
     '''Save identity dump to database'''
+    if not user:
+        user = request.user
     if login.isIdentityDirty:
-        q = LibertyIdentityDump.objects.filter(user = request.user)
+        q = LibertyIdentityDump.objects.filter(user = user)
         if q:
             if login.identity:
                 q[0].identity_dump = login.identity.dump()
