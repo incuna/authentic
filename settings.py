@@ -157,6 +157,12 @@ AUTHENTICATION_BACKENDS = (
 AUTH_OPENID = True
 IDP_OPENID = True
 
+# Logging settings
+LOG_FILENAME = 'log.log'
+LOG_FILE_LEVEL = 10 #CRITICAL 50 ERROR 40 WARNING 30 INFO 20 DEBUG 10
+LOG_SYSLOG = True
+LOG_SYS_LEVEL = 10
+
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
 try:

@@ -8,6 +8,7 @@ import settings
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^admin/admin_log_view/log/', 'admin_log_view.views.admin_view'),
     (r'^admin/', include(admin.site.urls)),
     (r'^idp/', include('authentic.idp.urls')),
     (r'^$', login_required(homepage), {}, 'index'),
