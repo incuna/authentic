@@ -107,6 +107,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.admin',
+    'django.contrib.sites',
     'authentic.saml',
     'authentic.idp',
     'authentic.idp.saml',
