@@ -113,6 +113,7 @@ INSTALLED_APPS = (
     'authentic.idp.saml',
     'registration',
     'authentic.sslauth',
+    'authentic.admin_log_view',
 )
 
 # Registration settings
