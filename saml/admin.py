@@ -24,8 +24,10 @@ class LibertyProviderAdmin(admin.ModelAdmin):
             LibertyIdentityProviderInline
     ]
 
-
 admin.site.register(LibertyProvider, LibertyProviderAdmin)
+
 if settings.DEBUG:
     admin.site.register(LibertySessionDump)
     admin.site.register(LibertyIdentityDump)
+    admin.site.register(LibertyFederation)
+    admin.site.register(LibertySessionSP)

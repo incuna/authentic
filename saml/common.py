@@ -298,13 +298,16 @@ def add_federation(user, login):
         return None
     if not login.nameIdentifier.content or not login.nameIdentifier.nameQualifier:
         return None
-    fed = LibertyFederation()
-    fed.user = user
-    fed.name_id_content = login.nameIdentifier.content
-    fed.name_id_qualifier = login.nameIdentifier.nameQualifier
-    fed.name_id_sp_name_qualifier = login.nameIdentifier.sPNameQualifier
-    fed.name_id_format = login.nameIdentifier.format
-    fed.save()
+    try:
+        fed = LibertyFederation()
+        fed.user = user
+        fed.name_id_content = login.nameIdentifier.content
+        fed.name_id_qualifier = login.nameIdentifier.nameQualifier
+        fed.name_id_sp_name_qualifier = login.nameIdentifier.sPNameQualifier
+        fed.name_id_format = login.nameIdentifier.format
+        fed.save()
+    except:
+        return None
     return fed
 
 # TODO: Deal with format and sPNameQualifier
@@ -379,3 +382,58 @@ def get_idp_user_not_federated_list(request):
         if not fed:
             p_list.append(p)
     return p_list
+
+# The Liberty Session is the "Session on the IdP"
+# It is made of many session identifiers (index)
+# dedicated to each sp for each user session 
+# to not be a factor of linkability between sp,
+# that would be the case with a single session identifier
+# A same user Liberty session is thus made of
+# as many session index as SP having received an auth a8n
+# GOAL: The session index is only useful to maintain the
+# coherence between the sessions on the IdP and on the SP
+# for the global logout: If one session is broken somewhere,
+# when a session is restablished there, it can be linked to
+# other remaining sessions making feasible the global logout
+# TODO: Xpath search of sessionIndex
+def maintain_liberty_session_on_service_provider(request, login):
+    import sys
+    if not login:
+        return False
+    # 1. Retrieve this user federation
+    fed = lookup_federation_by_name_identifier(request.session, login)
+    if not fed:
+        return False
+    # 2.a Retrieve a liberty session with the session index and this federation
+    try:
+        s = LibertySessionSP.objects.get(federation=fed, session_index=login.response.assertion[0].authnStatement[0].sessionIndex)
+        # Liberty Session already existing
+        # If the local session registered is different: updated
+        # It would mean that the local session was broken
+        # and not the distant one
+        s.django_session_key = request.session.session_key
+        return True
+    except:
+        pass
+    # 2.b Retrieve a liberty session with the django session identifier and this federation
+    try:
+        s = LibertySessionSP.objects.get(federation=fed, django_session_key=request.session.session_key)
+        # Local session already existing
+        # If the index session registered is different: updated
+        # It would mean that the distant session was broken
+        # and not the local one
+        s.session_index = login.response.assertion[0].authnStatement[0].sessionIndex
+        return True
+    except:
+        pass
+    # 2.c Create a new Liberty Session
+    try:
+        s = LibertySessionSP()
+        s.federation = fed
+        s.django_session_key = request.session.session_key
+        s.session_index = login.response.assertion[0].authnStatement[0].sessionIndex
+        s.save()
+        return True
+    except:
+        return False
+    return False

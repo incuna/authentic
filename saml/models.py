@@ -192,3 +192,8 @@ class LibertyFederation(models.Model):
         unique_together = (("name_id_qualifier", "name_id_format",
             "name_id_content", "name_id_sp_name_qualifier"))
 
+class LibertySessionSP(models.Model):
+    """Store the link between a Django session and a Liberty session on the SP"""
+    django_session_key = models.CharField(max_length = 40)
+    session_index =  models.CharField(max_length = 80, )
+    federation = models.ForeignKey(LibertyFederation)
