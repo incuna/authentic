@@ -62,6 +62,31 @@ def create_saml2_server(request, metadata):
         raise Exception('Cannot create LassoServer object')
     return server
 
+def get_saml2_sp_metadata(request, metadata):
+    metagen = saml2utils.Saml2Metadata(get_entity_id(request, metadata),
+            url_prefix = get_base_path(request, metadata))
+    map = (('AssertionConsumerService', lasso.SAML2_METADATA_BINDING_ARTIFACT , '/singleSignOnArtifact'),
+        ('AssertionConsumerService', lasso.SAML2_METADATA_BINDING_POST , '/singleSignOnPost'),
+        ('AssertionConsumerService', lasso.SAML2_METADATA_BINDING_PAOS , '/singleSignOnSOAP'),
+        ('AssertionConsumerService', lasso.SAML2_METADATA_BINDING_REDIRECT , '/singleSignOnRedirect'),
+        ('SingleLogoutService', lasso.SAML2_METADATA_BINDING_SOAP , '/singleLogoutSOAP'),
+        ('SingleLogoutService', lasso.SAML2_METADATA_BINDING_REDIRECT , '/singleLogout', '/singleLogoutReturn'),
+        ('ManageNameIDService', lasso.SAML2_METADATA_BINDING_SOAP , '/manageNameIdSOAP'),
+        ('ManageNameIDService', lasso.SAML2_METADATA_BINDING_REDIRECT , '/manageNameId', '/manageNameIdReturn'),
+    )
+    options = { 'signing_key': SAML_PRIVATE_KEY }
+    metagen.add_sp_descriptor(map, options)
+    return str(metagen)
+
+def create_saml2_sp_server(request, metadata):
+    '''Create a lasso Server object for using with a profile'''
+    server = lasso.Server.newFromBuffers(get_saml2_sp_metadata(request, metadata),
+            SAML_PRIVATE_KEY)
+    if not server:
+        #raise Exception('Cannot create LassoServer object')
+        return None
+    return server
+
 def get_saml2_post_request(request):
     '''Extract the SAMLRequest field from the POST'''
     return request.POST.get(lasso.SAML2_FIELD_REQUEST, '')
@@ -264,3 +289,93 @@ def load_provider(request, login, provider_id, sp_or_idp = 'sp'):
         raise Exception('unsupported option sp_or_idp = %r' % sp_or_idp)
 
     return liberty_provider
+
+# Federation management
+def add_federation(user, login):
+    if not login:
+        return None
+    if not login.nameIdentifier:
+        return None
+    if not login.nameIdentifier.content or not login.nameIdentifier.nameQualifier:
+        return None
+    fed = LibertyFederation()
+    fed.user = user
+    fed.name_id_content = login.nameIdentifier.content
+    fed.name_id_qualifier = login.nameIdentifier.nameQualifier
+    fed.name_id_sp_name_qualifier = login.nameIdentifier.sPNameQualifier
+    fed.name_id_format = login.nameIdentifier.format
+    fed.save()
+    return fed
+
+# TODO: Deal with format and sPNameQualifier
+# WARNING: Qualifier is necessary if there is a not negligeable probability that two identity providers generate a same nameId
+def lookup_federation_by_name_identifier(session, login = None, name_id = None, qualifier=None):
+    if not login and not name_id:
+        return None
+    if login:
+        if login.nameIdentifier:
+            ni = login.nameIdentifier.content
+            session.name_identifier = ni
+        else:
+            ni = name_id
+        if not qualifier:
+            qualifier = login.get_remoteProviderId()
+    else:
+        ni = name_id
+    try:
+        if not qualifier:
+            fed = LibertyFederation.objects.get(name_id_content=ni)
+        else:
+            fed = LibertyFederation.objects.get(name_id_content=ni, name_id_qualifier=qualifier)
+    except LibertyFederation.DoesNotExist:
+        return None
+    return fed
+
+# TODO: Does it happen that a user have multiple federation with a same idp?
+def lookup_federation_by_user(session, user, qualifier):
+    if not user or not qualifier:
+        return None
+    try:
+        fed = LibertyFederation.objects.get(user=user, name_id_qualifier=qualifier)
+    except LibertyFederation.DoesNotExist:
+        return None
+    return fed
+
+# List Idp providers - Use from display in templates
+# WARNING: No way for multiple federation by user with a single IdP (is it a problem??)
+def get_idp_list():
+    providers = LibertyProvider.objects.all()
+    if not providers:
+        return None
+    p_list = []
+    for p in providers:
+        try:
+            p.identity_provider
+        except LibertyIdentityProvider.DoesNotExist:
+            continue
+        p_list.append(p)
+    return p_list
+
+def get_idp_user_federated_list(request):
+    user = request.user
+    if request.user.is_anonymous():
+        return None
+    providers_list = get_idp_list()
+    p_list = []
+    for p in providers_list:
+        fed = lookup_federation_by_user(request.session, user, p.entity_id)
+        if fed:
+            p_list.append(p)
+    return p_list
+
+def get_idp_user_not_federated_list(request):
+    user = request.user
+    if request.user.is_anonymous():
+        return None
+    providers_list = get_idp_list()
+    p_list = []
+    for p in providers_list:
+        fed = lookup_federation_by_user(request.session, user, p.entity_id)
+        if not fed:
+            p_list.append(p)
+    return p_list
