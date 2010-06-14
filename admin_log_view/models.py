@@ -1,8 +1,5 @@
 from django.db import models
 from django.conf import settings
-from authentic.admin_log_view import views
-from registration.signals import user_registered
-from registration.signals import user_activated
 import logging
 from logging.handlers import SysLogHandler
 import threading
@@ -52,17 +49,6 @@ def warning(msg):
 def error(msg):
     logger = getlogger()
     logger.error(msg)
-
-def LogRegistered(sender, user, **kwargs):
-    msg = user.username + ' is now registered'
-    info(msg)
-
-def LogActivated(sender, user, **kwargs):
-    msg = user.username + ' has activated his acount'
-    info(msg)
-
-user_registered.connect(LogRegistered, dispatch_uid = "authentic.admin_log_view")
-user_activated.connect(LogActivated, dispatch_uid = "authentic.admin_log_view")
 
 class Log(models.Model):
     pass
