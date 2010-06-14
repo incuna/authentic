@@ -11,8 +11,10 @@ def admin_view(request):
         Context ['file'] = False
     else:
         filin = open(settings.LOG_FILENAME,'r')
+        lines = []
         lines =  filin.readlines()
         filin.close()
+        lines.reverse()
         Context ['file'] = True
         paginator =  Paginator(lines, 25)
 

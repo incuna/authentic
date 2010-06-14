@@ -13,7 +13,7 @@ def getlogger():
         return logger
     logger = logging.getLogger()
 
-    formatter = logging.Formatter('[%(asctime)s]%(levelname)-8s"%(message)s"','%Y-%m-%d %a %H:%M:%S') 
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)-8s"%(message)s"','%Y-%m-%d %a %H:%M:%S') 
     
     log_handler = logging.FileHandler(settings.LOG_FILENAME)
     log_handler.setFormatter(formatter)

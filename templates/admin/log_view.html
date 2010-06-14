@@ -13,7 +13,15 @@
 <p> There is no log for the moment.</p>
 {% else %}
 {% for log in logs.object_list %}
-<p> {{ log }} </p>
+    {% if "CRITICAL" in log %}
+        <p> <strong> {{ log  }} </strong> </p>
+    {% else %}
+        {% if "ERROR" in log %}
+            <p> <strong> {{ log }} </strong> </p>
+        {% else %}
+            <p> {{ log }} </p>
+        {% endif %}
+    {% endif %}
 {% endfor %}
 
 <div class = "pagination">
