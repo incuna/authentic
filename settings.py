@@ -150,6 +150,7 @@ SAML_METADATA_ROOT = os.path.join(PROJECT_PATH, 'metadata')
 AUTH_SSL = True
 SSLAUTH_CREATE_USER = True
 AUTHENTICATION_BACKENDS = (
+    'authentic.idp.auth_backends.LogginBackend',
     'django.contrib.auth.backends.ModelBackend',
     'authentic.sslauth.backends.SSLAuthBackend',
 )
