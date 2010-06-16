@@ -219,16 +219,11 @@ def load_federation(request, login, user = None):
 
 def load_session(request, login, session_key = None):
     '''Load a session dump from the database'''
-    import sys
-    print >>sys.stderr, 'load session'
     if not session_key:
         session_key = request.session.session_key
-    print >>sys.stderr, '1'
     q = LibertySessionDump.objects.filter(django_session_key = session_key)
     if not q:
-        print >>sys.stderr, 'session_key: ' + session_key
         return
-    print >>sys.stderr, 'ok: ' + session_key
     login.setSessionFromDump(q[0].session_dump)
     return q[0]
 
