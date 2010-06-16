@@ -26,6 +26,10 @@ urlpatterns += patterns('',
     (r'^accounts/', include('registration.urls')),
 )
 
+urlpatterns += patterns('',
+    (r'^authsaml2/', include('authentic.authsaml2.urls')),
+)
+
 if settings.AUTH_SSL:
     urlpatterns += patterns('',
         url(r'^sslauth/$',

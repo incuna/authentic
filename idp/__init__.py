@@ -27,8 +27,17 @@ def service_list(request):
 
 def homepage(request):
     '''Homepage of the IdP'''
+    import authentic.saml.common
+    import authentic.authsaml2.utils
+    if authentic.authsaml2.utils.is_sp_configured():
+        return render_to_response('index.html',
+            { 'authorized_services' : service_list(request),
+            'providers_list_federated': authentic.saml.common.get_idp_user_federated_list(request),
+            'providers_list_not_federated': authentic.saml.common.get_idp_user_not_federated_list(request),
+            'provider_active_session': authentic.saml.common.get_provider_of_active_session(request)},
+            RequestContext(request))
     return render_to_response('index.html',
-            { 'authorized_services' : service_list(request) },
+            { 'authorized_services' : service_list(request)},
             RequestContext(request))
 
 def LogRegistered(sender, user, **kwargs):

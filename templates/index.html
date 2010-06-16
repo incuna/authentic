@@ -11,6 +11,50 @@
  <li><a href="{% url user_associate %}">{% trans "Associate with your OpenID"  %}</a></li>
 </ul>
 
+{% if providers_list_not_federated %}
+<div id="login-actions">
+{% trans "Federate your identity" %}
+</div>
+<br/>
+<div>
+<form>
+    <select name="list_providers" size="1" onChange="redirect_from_list(this.form)">
+    <option selected="selected">{% trans "Tell me where!" %}</option>  
+    {% for p in providers_list_not_federated %}
+        <option>{{ p.entity_id }}</option>
+    {% endfor %}
+    </select>
+</form>
+</div>
+<br/>
+{% endif %}
+{% if providers_list_federated %}
+<div id="login-actions">
+{% trans "Defederate your identity" %}
+</div>
+<br/>
+<div>
+<form>
+    <select name="list_providers" size="1" onChange="redirect_from_list_defederation(this.form)">
+    <option selected="selected">{% trans "Tell me where!" %}</option>  
+    {% for p in providers_list_federated %}
+        <option>{{ p.entity_id }}</option>
+    {% endfor %}
+    </select>
+</form>
+</div>
+<br/>
+{% endif %}
+{% if provider_active_session %}
+<div id="login-actions">
+{% trans "Global Logout" %}
+<a href="/authsaml2/logout/{{ provider_active_session.entity_id }}/">{{ provider_active_session.entity_id }}</a>
+</div>
+{% endif %}
+
+
+<br/>
+<div id="login-actions">
 <h2>{% trans "Services" %}</h2>
 
 <ul>
@@ -18,4 +62,12 @@
 <li><a href="{{ service.0 }}">{{ service.1 }}</a></li>
 {% endfor %}
 </ul>
+</div>
+
+<script type="text/javascript">
+function redirect_from_list(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/selectProvider/' + f.list_providers.options[f.list_providers.selectedIndex].value; }
+</script>
+<script type="text/javascript">
+function redirect_from_list_defederation(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/federationTermination/' + f.list_providers.options[f.list_providers.selectedIndex].value; }
+</script>
 {% endblock %}
