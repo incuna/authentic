@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Log in to link your account" %}
+{% endblock %}
+
+{% block content %}
+<p>* {% trans "Log in to link with your existing account" %}</p>
+<div id="login-actions">
+<form id="login-form" method="post" action="./finish_federation">
+  <ul class="errorlist">
+    {% for error in form.non_field_errors %}
+      <li>{{ error|escape }}</li>
+    {% endfor %}
+    {% for error in form.username.errors %}
+      <li>{% trans "Username:" %} {{ error|escape }}</li>
+    {% endfor %}
+    {% for error in form.password.errors %}
+      <li>{% trans "Password:" %} {{ error|escape }}</li>
+    {% endfor %}
+  </ul>
+  <p>
+    <label for="id_username">{% trans "Username:" %}</label>
+    <input id="id_username" type="text" name="username" maxlength="30" />
+  </p>
+  <p>
+    <label for="id_password">{% trans "Password:" %}</label>
+    <input type="password" name="password" id="id_password" />
+  </p>
+
+  <input type="submit" value="{% trans 'Log in' %}" class="submit" />
+  <input type="hidden" name="next" value="{{ next }}" />
+</form>
+</div>
+<script type="text/javascript">
+document.getElementById('id_username').focus();
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+{% if providers_list %}
+<h2>{% trans "Identity Provider Selection" %}</h2>
+<div>
+<form>
+    <select name="list_providers" size="1" onChange="redirect_from_list(this.form)">
+    <option selected="selected">{% trans "Tell me where!" %}</option>  
+    {% for p in providers_list %}
+        <option><a href="/authsaml2/selectProvider/{{ p.entity_id }}/">{{ p.entity_id }}</a></option>
+    {% endfor %}
+    </select>
+</form>
+</div>
+{% else %}
+    <p>You should not be there! <a href='/'>Back</a></p>
+{% endif %}
+<script type="text/javascript">
+function redirect_from_list(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/selectProvider/' + f.list_providers.options[f.list_providers.selectedIndex].value; }
+</script>
+{% endblock %}
