@@ -45,7 +45,7 @@ class LibertyAttributeMapping(models.Model):
 def validate_metadata(value):
     value.open()
     meta=value.read()
-    provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_NONE, meta)
+    provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_ANY, meta)
     if not provider:
         raise ValidationError(_('Bad metadata file'))
 
@@ -79,7 +79,7 @@ class LibertyProvider(models.Model):
         if self.metadata:
             self.metadata.open()
             meta = self.metadata.read()
-            provider = lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_NONE, meta)
+            provider = lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_ANY, meta)
             if provider:
                 self.entity_id = provider.providerId
                 self.protocol_conformance = provider.protocolConformance
@@ -149,6 +149,14 @@ class LibertySessionDump(models.Model):
        assertions through the LibertySession object'''
     django_session_key = models.CharField(max_length = 40)
     session_dump = models.TextField(blank = True)
+
+class LibertyManageDump(models.Model):
+    '''Store lasso manage dump
+
+       Should be replaced in the future by direct reference to ?
+       objects'''
+    django_session_key = models.CharField(max_length = 40)
+    manage_dump = models.TextField(blank = True)
 
 class LibertyArtifact(models.Model):
     """Store an artifact"""

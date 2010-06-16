@@ -219,12 +219,18 @@ def load_federation(request, login, user = None):
 
 def load_session(request, login, session_key = None):
     '''Load a session dump from the database'''
+    import sys
+    print >>sys.stderr, 'load session'
     if not session_key:
         session_key = request.session.session_key
+    print >>sys.stderr, '1'
     q = LibertySessionDump.objects.filter(django_session_key = session_key)
     if not q:
+        print >>sys.stderr, 'session_key: ' + session_key
         return
+    print >>sys.stderr, 'ok: ' + session_key
     login.setSessionFromDump(q[0].session_dump)
+    return q[0]
 
 def save_federation(request, login, user = None):
     '''Save identity dump to database'''
@@ -258,6 +264,24 @@ def save_session(request, login, session_key = None):
         elif login.session:
             LibertySessionDump(django_session_key = request.session.session_key,
                     session_dump = login.session.dump()).save()
+
+def delete_session(request):
+    '''Delete all liberty sessions for a django session'''
+    ss = LibertySessionDump.objects.filter(django_session_key = request.session.session_key)
+    for s in ss:
+        s.delete()
+
+def save_manage(request, manage):
+    if not request or not manage:
+        raise Exception('Cannot save manage dump')
+    LibertyManageDump(django_session_key = request.session.session_key,
+                    manage_dump = manage.dump()).save()
+
+def get_manage_dump(request):
+    if not request:
+        raise Exception('Cannot get manage dump')
+    d = LibertyManageDump.objects.filter(django_session_key = request.session.session_key)
+    return d
 
 # TODO: handle autoloading of metadatas
 def load_provider(request, login, provider_id, sp_or_idp = 'sp'):
@@ -298,51 +322,60 @@ def add_federation(user, login):
         return None
     if not login.nameIdentifier.content or not login.nameIdentifier.nameQualifier:
         return None
+    fed = None
     try:
-        fed = LibertyFederation()
-        fed.user = user
-        fed.name_id_content = login.nameIdentifier.content
-        fed.name_id_qualifier = login.nameIdentifier.nameQualifier
-        fed.name_id_sp_name_qualifier = login.nameIdentifier.sPNameQualifier
-        fed.name_id_format = login.nameIdentifier.format
-        fed.save()
+        fed = lookup_federation_by_name_identifier(login)
     except:
-        return None
+        raise Exception('Unable to add a new federation: Existing unconsistent records')
+    if not fed:
+        try:
+            fed = LibertyFederation()
+            fed.user = user
+            fed.name_id_content = login.nameIdentifier.content
+            fed.name_id_qualifier = login.nameIdentifier.nameQualifier
+            fed.name_id_sp_name_qualifier = login.nameIdentifier.sPNameQualifier
+            fed.name_id_format = login.nameIdentifier.format
+            fed.save()
+        except:
+            return None
     return fed
 
 # TODO: Deal with format and sPNameQualifier
 # WARNING: Qualifier is necessary if there is a not negligeable probability that two identity providers generate a same nameId
-def lookup_federation_by_name_identifier(session, login = None, name_id = None, qualifier=None):
+def lookup_federation_by_name_identifier(login = None, name_id = None, qualifier=None):
     if not login and not name_id:
         return None
     if login:
         if login.nameIdentifier:
             ni = login.nameIdentifier.content
-            session.name_identifier = ni
         else:
             ni = name_id
         if not qualifier:
             qualifier = login.get_remoteProviderId()
     else:
         ni = name_id
-    try:
-        if not qualifier:
-            fed = LibertyFederation.objects.get(name_id_content=ni)
-        else:
-            fed = LibertyFederation.objects.get(name_id_content=ni, name_id_qualifier=qualifier)
-    except LibertyFederation.DoesNotExist:
+    if not qualifier:
+        fed = LibertyFederation.objects.filter(name_id_content=ni)
+    else:
+        fed = LibertyFederation.objects.filter(name_id_content=ni, name_id_qualifier=qualifier)
+    if fed and fed.count()>1:
+        # TODO: delete all but the last record
+        raise Exception('Unconsistent federation record for %s' % ni)
+    if not fed:
         return None
-    return fed
+    return fed[0]
 
-# TODO: Does it happen that a user have multiple federation with a same idp?
-def lookup_federation_by_user(session, user, qualifier):
+# TODO: Does it happen that a user have multiple federation with a same idp? NO
+def lookup_federation_by_user(user, qualifier):
     if not user or not qualifier:
         return None
-    try:
-        fed = LibertyFederation.objects.get(user=user, name_id_qualifier=qualifier)
-    except LibertyFederation.DoesNotExist:
+    fed = LibertyFederation.objects.filter(user=user, name_id_qualifier=qualifier)
+    if fed and fed.count()>1:
+        # TODO: delete all but the last record
+        raise Exception('Unconsistent federation record for %s' % ni)
+    if not fed:
         return None
-    return fed
+    return fed[0]
 
 # List Idp providers - Use from display in templates
 # WARNING: No way for multiple federation by user with a single IdP (is it a problem??)
@@ -366,7 +399,7 @@ def get_idp_user_federated_list(request):
     providers_list = get_idp_list()
     p_list = []
     for p in providers_list:
-        fed = lookup_federation_by_user(request.session, user, p.entity_id)
+        fed = lookup_federation_by_user(user, p.entity_id)
         if fed:
             p_list.append(p)
     return p_list
@@ -378,30 +411,29 @@ def get_idp_user_not_federated_list(request):
     providers_list = get_idp_list()
     p_list = []
     for p in providers_list:
-        fed = lookup_federation_by_user(request.session, user, p.entity_id)
+        fed = lookup_federation_by_user(user, p.entity_id)
         if not fed:
             p_list.append(p)
     return p_list
 
-# The Liberty Session is the "Session on the IdP"
-# It is made of many session identifiers (index)
-# dedicated to each sp for each user session 
-# to not be a factor of linkability between sp,
-# that would be the case with a single session identifier
-# A same user Liberty session is thus made of
-# as many session index as SP having received an auth a8n
-# GOAL: The session index is only useful to maintain the
-# coherence between the sessions on the IdP and on the SP
-# for the global logout: If one session is broken somewhere,
-# when a session is restablished there, it can be linked to
-# other remaining sessions making feasible the global logout
+# The session_index is the "session on the IdP" identifiers
+# One identifier is dedicated for each sp for each user session 
+# to not be a factor of linkability between sp
+# (like the nameId dedicated for each sp)
+# A same user IdP session is thus made of as many session index as SP having received an auth a8n
+# The session index is only useful to maintain 
+# the coherence between the sessions on the IdP and on the SP
+# for the global logout:
+# If one session is broken somewhere, when a session is restablished there
+# it can be linked to other remaining session
+# and then make feasible the global logout
+# The table entry for the liberty session should be removed at the logout
 # TODO: Xpath search of sessionIndex
 def maintain_liberty_session_on_service_provider(request, login):
-    import sys
     if not login:
         return False
     # 1. Retrieve this user federation
-    fed = lookup_federation_by_name_identifier(request.session, login)
+    fed = lookup_federation_by_name_identifier(login)
     if not fed:
         return False
     # 2.a Retrieve a liberty session with the session index and this federation
@@ -412,6 +444,7 @@ def maintain_liberty_session_on_service_provider(request, login):
         # It would mean that the local session was broken
         # and not the distant one
         s.django_session_key = request.session.session_key
+        s.save()
         return True
     except:
         pass
@@ -423,6 +456,7 @@ def maintain_liberty_session_on_service_provider(request, login):
         # It would mean that the distant session was broken
         # and not the local one
         s.session_index = login.response.assertion[0].authnStatement[0].sessionIndex
+        s.save()
         return True
     except:
         pass
@@ -431,9 +465,64 @@ def maintain_liberty_session_on_service_provider(request, login):
         s = LibertySessionSP()
         s.federation = fed
         s.django_session_key = request.session.session_key
-        s.session_index = login.response.assertion[0].authnStatement[0].sessionIndex
+        s.session_index = login.session.getAssertions()[0].authnStatement[0].sessionIndex
         s.save()
         return True
     except:
         return False
     return False
+
+def get_session_index(request):
+    if not request:
+        return None
+    try:
+        s = LibertySessionSP.objects.get(django_session_key=request.session.session_key)
+        return s.session_index
+    except:
+        return None
+
+def remove_liberty_session_sp(request):
+    if not request:
+        return None
+    try:
+        ss = LibertySessionSP.objects.filter(django_session_key=request.session.session_key)
+        for s in ss:
+            s.delete()
+    except:
+        return None
+
+def get_provider_of_active_session(request):
+    if not request:
+        return None
+    try:
+        s = LibertySessionSP.objects.get(django_session_key=request.session.session_key)
+        p = LibertyProvider.objects.get(entity_id=s.federation.name_id_qualifier)
+        return p
+    except:
+        return None
+
+class SOAPException(Exception):
+    url = None
+    def __init__(self, url):
+        self.url = url
+
+def soap_call(url, msg, client_cert = None):
+    if url.startswith('http://'):
+        host, query = urllib.splithost(url[5:])
+        conn = httplib.HTTPConnection(host)
+    else:
+        host, query = urllib.splithost(url[6:])
+        conn = httplib.HTTPSConnection(host,
+                key_file = client_cert, cert_file = client_cert)
+    try:
+        conn.request('POST', query, msg, {'Content-Type': 'text/xml'})
+        response = conn.getresponse()
+    except Exception, err:
+        logging.error('SOAP error (on %s): %s' % (url, err))
+        raise SOAPException(url)
+    data = response.read()
+    conn.close()
+    if response.status not in (200, 204): # 204 ok for federation termination
+        logging.warning('SOAP error (%s) (on %s)' % (response.status, url))
+        raise SOAPException(url)
+    return data
