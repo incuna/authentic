@@ -14,6 +14,7 @@ from django_authopenid.forms import OpenidSigninForm
 from django_authopenid.views import _build_context, signin_success, signin_failure, not_authenticated
 from django_authopenid.utils import *
 from openid.yadis import xri
+from openid.consumer.discover import DiscoveryFailure
 from openid.consumer.consumer import Consumer, \
     SUCCESS, CANCEL, FAILURE, SETUP_NEEDED
 
