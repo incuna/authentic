@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.views.generic.simple import direct_to_template
 from authentic.idp import homepage
+import authentic.idp.views
+
 import settings
 
 admin.autodiscover()
@@ -17,7 +19,9 @@ urlpatterns = patterns('',
 if settings.AUTH_OPENID:
     urlpatterns += patterns('',
             (r'^accounts/openid/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
-            (r'^accounts/openid/', include('django_authopenid.urls')),
+            (r'^accounts/openid/signin/complete/signin/', authentic.idp.views.complete_signin,{} ,'user_complete_signin'),
+            (r'^accounts/openid/signin/complete/', include ('django_authopenid.urls')),
+            (r'^accounts/openid/signin/',authentic.idp.views.signin,{} ,'user_signin')
     )
 
 urlpatterns += patterns('',
