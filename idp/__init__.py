@@ -4,6 +4,7 @@ from registration.signals import user_registered
 from registration.signals import user_activated
 from signals import auth_login
 from signals import auth_logout
+from signals import auth_oidlogin
 from django.conf import settings
 from admin_log_view.models import info
 
@@ -69,10 +70,28 @@ def LogAuthLogout(sender, user, **kwargs):
     msg += ' has logout'
     info(msg)
 
+def LogAuthLoginOI(sender, openid_url, state, **kwargs):
+    msg = str(openid_url)
+    if state is 'success':
+        msg += ' has login with success with OpenID'
+    elif state is 'invalid':
+        msg += ' is invalid'
+    elif state is 'not_supported':
+        msg += ' did not support i-names'
+    elif state is 'cancel':
+        msg += ' has cancel'
+    elif state is 'failure':
+        msg += ' has failed'
+    elif state is 'setup_needed':
+        msg += ' setup_needed'
+    
+    info(msg)
+
 user_registered.connect(LogRegistered, dispatch_uid = "authentic.idp")
 user_activated.connect(LogActivated, dispatch_uid = "authentic.idp")
 auth_login.connect(LogAuthLogin, dispatch_uid = "authentic.idp")
 auth_logout.connect(LogAuthLogout, dispatch_uid = "authentic.idp")
+auth_oidlogin.connect(LogAuthLoginOI, dispatch_uid ="authentic.idp")
 
 if settings.AUTH_OPENID:
     from django_authopenid.signals import oid_register
