@@ -8,7 +8,7 @@ class LoggerMiddleware:
         if (request.path.startswith(settings.ADMIN_MEDIA_PREFIX)) or (request.path == '/favicon.ico'):
             return
         else:
-            msg = 'user ' + str(request.user) + ' path ' + str(request.path)
+            msg = 'user: ' + str(request.user) + ' path: ' + str(request.path)
             info(msg)
 
     def process_exception(self, request, exception):
