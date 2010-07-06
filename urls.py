@@ -21,6 +21,7 @@ if settings.IDP_OPENID:
     urlpatterns += patterns('',
             (r'^openid/$',authentic.django_openid_provider.views.openid_server, {},'openid-provider-root'),
             (r'^openid/decide/$',authentic.django_openid_provider.views.openid_decide, {},'openid-provider-decide'),
+            (r'^openid/manage/',authentic.django_openid_provider.views.manage_trustroot, {},'manage_trustroot'),
             (r'^openid/manageid/',authentic.django_openid_provider.views.manage_id, {},'manage_id' ),
             (r'^openid/manageid_confirm/',authentic.django_openid_provider.views.manage_id_confirm, {}, 'manage_id_confirm'),
             (r'^openid/addopenid/',authentic.django_openid_provider.views.addopenid, {}, 'add_openid'),

@@ -21,6 +21,35 @@ def openid_decide(req):
     return origin_openid_decide(req)
 
 @login_required(redirect_field_name = '/')
+def manage_trustroot(request):
+    
+    trustedroots = []
+    trustroot = []
+    openids = {}
+
+    for openid in request.user.openid_set.iterator():
+        openids[openid.id] = {'caption':openid.openid}
+        openids[openid.id]['trustroot'] = {}
+        for trust in openid.trustedroot_set.iterator():
+            openids[openid.id]['trustroot'][trust.id] = trust.trust_root
+            
+
+    template = get_template('django_openid_provider/manage_trustroot.html')
+    html = template.render(Context({'openids':openids}))
+
+    if request.method == 'POST':
+        openids_remove = request.POST.getlist('trustremove')
+        
+        for openid in request.user.openid_set.iterator():
+            for trust in openid.trustedroot_set.iterator():
+                if unicode(trust.id) in openids_remove:
+                    trust.delete()
+        
+        return redirect_to(request,'/openid/manage')
+
+    return HttpResponse(html)
+
+@login_required(redirect_field_name = '/')
 def manage_id(request):
 
     openids = {}
