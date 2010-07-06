@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.simple import direct_to_template
 from authentic.idp import homepage
 import authentic.idp.views
+import authentic.django_openid_provider.views
 
 import settings
 
@@ -16,12 +17,19 @@ urlpatterns = patterns('',
     (r'^$', login_required(homepage), {}, 'index'),
 )
 
+if settings.IDP_OPENID:
+    urlpatterns += patterns('',
+            (r'^openid/$',authentic.django_openid_provider.views.openid_server, {},'openid-provider-root'),
+            (r'^openid/decide/$',authentic.django_openid_provider.views.openid_decide, {},'openid-provider-decide'),
+            (r'^openid/',include('openid_provider.urls')),
+    )
+
 if settings.AUTH_OPENID:
     urlpatterns += patterns('',
             (r'^accounts/openid/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
             (r'^accounts/openid/signin/complete/signin/', authentic.idp.views.complete_signin,{} ,'user_complete_signin'),
             (r'^accounts/openid/signin/complete/', include ('django_authopenid.urls')),
-            (r'^accounts/openid/signin/',authentic.idp.views.signin,{} ,'user_signin')
+            (r'^accounts/openid/signin/',authentic.idp.views.signin,{} ,'user_signin'),
     )
 
 urlpatterns += patterns('',

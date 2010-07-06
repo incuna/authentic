@@ -176,6 +176,7 @@ TEMPLATE_CONTEXT_PROCESSORS += ('authentic.idp.views.authsaml2_login_page',)
 # OpenID settings
 AUTH_OPENID = True
 IDP_OPENID = True
+IDPOI_PATH = '/openid'
 
 # Logging settings
 LOG_FILENAME = 'log.log'
@@ -197,3 +198,7 @@ if USE_DEBUG_TOOLBAR:
 if AUTH_OPENID:
     MIDDLEWARE_CLASSES += ('django_authopenid.middleware.OpenIDMiddleware',)
     INSTALLED_APPS += ('django_authopenid',)
+
+if IDP_OPENID:
+    INSTALLED_APPS += ('django_openid_provider',
+                    'openid_provider',)

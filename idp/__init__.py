@@ -7,6 +7,7 @@ from signals import auth_logout
 from signals import auth_oidlogin
 from django.conf import settings
 from admin_log_view.models import info
+from django.contrib.auth.models import User
 
 REGISTERED_SERVICE_LIST = []
 
@@ -30,15 +31,21 @@ def homepage(request):
     '''Homepage of the IdP'''
     import authentic.saml.common
     import authentic.authsaml2.utils
+    
+
     if authentic.authsaml2.utils.is_sp_configured():
         return render_to_response('index.html',
             { 'authorized_services' : service_list(request),
             'providers_list_federated': authentic.saml.common.get_idp_user_federated_list(request),
             'providers_list_not_federated': authentic.saml.common.get_idp_user_not_federated_list(request),
-            'provider_active_session': authentic.saml.common.get_provider_of_active_session(request)},
+            'provider_active_session': authentic.saml.common.get_provider_of_active_session(request),
+            'openid':request.user.openid_set,
+            'IDP_OPENID': settings.IDP_OPENID},##
             RequestContext(request))
     return render_to_response('index.html',
-            { 'authorized_services' : service_list(request)},
+            { 'authorized_services' : service_list(request),
+                'openid':request.user.openid_set,
+            'IDP_OPENID': settings.IDP_OPENID},##
             RequestContext(request))
 
 def LogRegistered(sender, user, **kwargs):
