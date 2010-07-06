@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+    <form action = "/openid/manageid_confirm/" id = "form" method = "post">
+            <p>Are you sure, you want to delete <strong> {{ id }} </strong> and these trustedroot:</p>
+        {% for i in trust %}
+            {{ i }}
+        {% endfor %}
+        <br>
+    <input type = "hidden" name = "idremove" value = {{ id }}>
+    <input type = "submit" value = "Yes" name = "Answer" />
+    <input type = "submit" value = "No" name = "Answer" />
+    <br>
+    </form>
+{% endblock %}

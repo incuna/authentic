@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<h3> Choose your identities to remove, be careful this will remove all the trustedroot for these identities.</h3>
+<form action="." id="form1" method="post">
+{% for key,value in openids.items %}
+<p>  <h4> {{ value.caption }}
+    {% if value.Default %}
+        (Default)
+    {% endif %}
+    </h4>
+    {% for key2, value2 in value.trustroot.items %}
+        <li> {{ value2 }} </li>
+    {% empty %}
+    There is no trustedroot for this identity<br>
+    {% endfor %}
+    <input type = "submit" name = {{ value.caption }} value = "Remove" />
+    {% if not value.Default %}
+        <input type = "submit" name= {{ value.caption }} value = "Make default" />
+    {% endif %}
+</p>
+{% endfor %}
+</form>
+<br>
+<p>
+<form action = "/openid/addopenid/" id = "form2" method = "post">
+    <h3>Add a new OpenID identity: </h3>
+    {{ uri }}/{{ oipath }}/{{ form.openid }}
+    <br>
+    Default: 
+    {{ form.Default }}
+    <br>
+    <input type = "submit" value = "Add" />
+    </p>
+</form>
+<p>
+<a href="/openid/manage/">Manage your Trusted root</a>
+</p>
+{% endblock %}

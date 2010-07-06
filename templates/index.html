@@ -9,6 +9,9 @@
  <li><a href="{% url auth_password_change %}">{% trans "Change password" %}</a></li>
  <li><a href="{% url auth_logout %}">{% trans "Log out" %}</a></li>
  <li><a href="{% url user_associate %}">{% trans "Associate with your OpenID"  %}</a></li>
+ {% if IDP_OPENID %}
+   <li><a href="{% url manage_id %}">{% trans "Manage your openid identities" %}</a></li>
+ {% endif  %}
 </ul>
 
 {% if providers_list_not_federated %}
