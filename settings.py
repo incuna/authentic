@@ -99,6 +99,7 @@ ROOT_URLCONF = 'authentic.urls'
 
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_PATH, 'templates'),
+    os.path.join(PROJECT_PATH, 'templates/django_openid_provider'),
 )
 
 INSTALLED_APPS = (

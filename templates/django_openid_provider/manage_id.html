@@ -5,7 +5,7 @@
 <h3> Choose your identities to remove, be careful this will remove all the trustedroot for these identities.</h3>
 <form action="." id="form1" method="post">
 {% for key,value in openids.items %}
-<p>  <h4> {{ value.caption }}
+<p>  <h4> {{ uri }}{{ oipath }}/{{ value.caption }}/
     {% if value.Default %}
         (Default)
     {% endif %}
@@ -26,7 +26,7 @@
 <p>
 <form action = "/openid/addopenid/" id = "form2" method = "post">
     <h3>Add a new OpenID identity: </h3>
-    {{ uri }}/{{ oipath }}/{{ form.openid }}
+    {{ uri }}{{ oipath }}/{{ form.openid }}/
     <br>
     Default: 
     {{ form.Default }}

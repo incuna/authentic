@@ -4,7 +4,7 @@
 <h3>Your Turstedroot for your OpenID identities are : </h3>
  <form action="." id="form" method="post">
  {% for key, value in openids.items %}
-    <p> <h4> {{ value.caption }} </h4>
+    <p> <h4> {{ uri }}{{ oipath }}/{{ value.caption }} </h4>
     {% for key2, value2 in value.trustroot.items %}
         <li> {{ value2 }} <input type="checkbox" name = "trustremove" value = {{ key2 }} /> </li>
     {% empty %}
@@ -12,7 +12,7 @@
     {% endfor %}
     </p>
  {% endfor %}
-    <input type="submit" value="Remove" />
+    <br><input type="submit" value="Remove" />
  </form>
 {% endblock %}
 
