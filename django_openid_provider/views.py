@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 import re
 from openid_provider.views import get_base_uri
+from django.template import RequestContext
 import settings
 
 @csrf_exempt
@@ -34,9 +35,6 @@ def manage_trustroot(request):
             openids[openid.id]['trustroot'][trust.id] = trust.trust_root
             
 
-    template = get_template('django_openid_provider/manage_trustroot.html')
-    html = template.render(Context({'openids':openids}))
-
     if request.method == 'POST':
         openids_remove = request.POST.getlist('trustremove')
         
@@ -47,7 +45,7 @@ def manage_trustroot(request):
         
         return redirect_to(request,'/openid/manage')
 
-    return HttpResponse(html)
+    return render_to_response('django_openid_provider/manage_trustroot.html',{'openids':openids,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH},context_instance=RequestContext(request))
 
 @login_required(redirect_field_name = '/')
 def manage_id(request):
@@ -74,9 +72,7 @@ def manage_id(request):
                     trust = []
                     for t in Id.trustedroot_set.iterator():
                         trust.append(t.trust_root)
-                    template = get_template('django_openid_provider/manage_id_confirm.html')
-                    html = template.render(Context({'id':Id_remove,'trust':trust}))
-                    return HttpResponse(html)
+                    return render_to_response('django_openid_provider/manage_id_confirm.html',{'id':Id_remove,'trust':trust},context_instance=RequestContext(request))
         else:
             for k,v in request.POST.iteritems():
                 if v == "Make default":
@@ -91,7 +87,7 @@ def manage_id(request):
             return redirect_to(request,'/openid/manageid')
 
     form = addopenid_form()
-    return render_to_response('django_openid_provider/manage_id.html',{'openids':openids,'form':form,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH})
+    return render_to_response('django_openid_provider/manage_id.html',{'openids':openids,'form':form,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH},context_instance=RequestContext(request))
 
 
 def manage_id_confirm(request):
