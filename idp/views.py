@@ -43,18 +43,26 @@ def mycomplete(request, on_success=None, on_failure=None, return_to=None,
     # make sure params are encoded in utf8
     params = dict((k,smart_unicode(v)) for k, v in request.GET.items())
     openid_response = consumer.complete(params, return_to)
+
+    if not hasattr(request.GET,'openid.identity'):
+        print "identity"
+        _openid_url = 'None'
+        print _openid_url
+    else:
+        _openid_url = request.GET['openid.identity']
+
     if openid_response.status == SUCCESS:
-        auth_oidlogin.send(sender = None, openid_url = request.GET['openid.identity'], state = 'success')
+        auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'success')
         return on_success(request, openid_response.identity_url,
                 openid_response, **kwargs)
     elif openid_response.status == CANCEL:
-        auth_oidlogin.send(sender = None, openid_url = request.GET['openid.identity'], state = 'cancel')
+        auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'cancel')
         return on_failure(request, 'The request was canceled', **kwargs)
     elif openid_response.status == FAILURE:
-        auth_oidlogin.send(sender = None, openid_url = request.GET['openid.identity'], state = 'failure')
+        auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'failure')
         return on_failure(request, openid_response.message, **kwargs)
     elif openid_response.status == SETUP_NEEDED:
-        auth_oidlogin.send(sender = None, openid_url = request.GET['openid.identity'], state = 'setup_needed')
+        auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'setup_needed')
         return on_failure(request, 'Setup needed', **kwargs)
     else:
         assert False, "Bad openid status: %s" % openid_response.status
@@ -65,10 +73,14 @@ def complete_signin(request, redirect_field_name=REDIRECT_FIELD_NAME,
         on_success=signin_success, on_failure=signin_failure, 
         extra_context=None):
     
+    _openid_form = openid_form
+    _auth_form = auth_form
+    _extra_context = extra_context
+    
     return mycomplete(request, on_success, on_failure,
             get_url_host(request) + reverse('user_complete_signin'),
-            redirect_field_name=redirect_field_name, openid_form=openid_form, 
-            auth_form=auth_form, extra_context=extra_context)
+            redirect_field_name=redirect_field_name, openid_form=_openid_form, 
+            auth_form=_auth_form, extra_context=_extra_context)
 
 def ask_openid(request, openid_url, redirect_to, on_failure=None):
     on_failure = on_failure or signin_failure
