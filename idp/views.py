@@ -17,6 +17,7 @@ from openid.yadis import xri
 from openid.consumer.discover import DiscoveryFailure
 from openid.consumer.consumer import Consumer, \
     SUCCESS, CANCEL, FAILURE, SETUP_NEEDED
+from django.views.decorators.csrf import csrf_exempt
 
 import urllib
 
@@ -33,6 +34,7 @@ def AuthLogout(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME)
     return logout(request, template_name = 'registration/logout.html', next_page = next_page, redirect_field_name=redirect_field_name)
 
 
+@csrf_exempt
 def mycomplete(request, on_success=None, on_failure=None, return_to=None, 
     **kwargs):
     on_success = on_success or default_on_success
@@ -57,6 +59,7 @@ def mycomplete(request, on_success=None, on_failure=None, return_to=None,
     else:
         assert False, "Bad openid status: %s" % openid_response.status
 
+@csrf_exempt
 def complete_signin(request, redirect_field_name=REDIRECT_FIELD_NAME,  
         openid_form=OpenidSigninForm, auth_form=AuthenticationForm, 
         on_success=signin_success, on_failure=signin_failure, 
@@ -123,11 +126,12 @@ def ask_openid(request, openid_url, redirect_to, on_failure=None):
     redirect_url = auth_request.redirectURL(trust_root, redirect_to)
     return HttpResponseRedirect(redirect_url)
 
+@csrf_exempt
 @not_authenticated
 def signin(request, template_name='authopenid/signin.html', 
         redirect_field_name=REDIRECT_FIELD_NAME, openid_form=OpenidSigninForm,
         auth_form=AuthenticationForm, on_failure=None, extra_context=None):
- 
+    
     if on_failure is None:
         on_failure = signin_failure
         
