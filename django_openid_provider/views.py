@@ -1,8 +1,9 @@
 from django.views.decorators.csrf import csrf_exempt
-from openid_provider.views import openid_decide as origin_openid_decide
-from openid_provider.views import openid_is_authorized
+from openid_provider.views import openid_get_identity
 from openid_provider.views import django_response
+from openid_provider.views import error_page
 from django.http import HttpResponse, HttpResponseRedirect
+from openid.server.trustroot import verifyReturnTo
 from django.template.loader import get_template
 from django.template import Context
 from django.views.generic.simple import redirect_to
@@ -75,9 +76,74 @@ def openid_server(req):
     webresponse = server.encodeResponse(oresponse)
     return django_response(webresponse)
 
+
+import urlparse
+def openid_is_authorized(req, identity_url, trust_root):
+    """
+    Check that they own the given identity URL, and that the trust_root is 
+    in their whitelist of trusted sites.
+    """
+    if not req.user.is_authenticated():
+        return None
+
+    openid = openid_get_identity(req, identity_url)
+    if openid is None:
+        return None
+
+    try:
+        if openid.trustedroot_set.filter(trust_root=trust_root).count() < 1:
+            return None
+        elif "openid.return_to" in req.GET.keys(): 
+            trust_root_valid = verifyReturnTo(req.GET['openid.realm'], req.GET['openid.return_to']) and "Valid" or "Invalid" 
+            realm_str = req.GET['openid.realm']
+            return_to = req.GET['openid.return_to']
+            if trust_root_valid is "Invalid": 
+                return  None
+    except:
+        pass
+    
+    return openid
+
 @csrf_exempt
 def openid_decide(req):
-    return origin_openid_decide(req)
+    """
+    The page that asks the user if they really want to sign in to the site, and
+    lets them add the consumer to their trusted whitelist.
+    # If user is logged in, ask if they want to trust this trust_root
+    # If they are NOT logged in, show the landing page
+    """
+    from openid.yadis.discover import DiscoveryFailure
+    from openid.fetchers import HTTPFetchingError
+    
+    orequest = req.session.get('OPENID_REQUEST')
+    
+    if not req.user.is_authenticated():
+        return landing_page(req, orequest)
+    openid = openid_get_identity(req, orequest.identity)
+    if openid is None:
+        return error_page(req, "You are signed in but you don't have OpenID here!")
+    if req.method == 'POST' and req.POST.get('decide_page', False) and req.POST.get('allow',False):
+        allowed = 'allow' in req.POST
+        if openid.trustedroot_set.filter(trust_root=orequest.trust_root).count() < 1:
+            openid.trustedroot_set.create(trust_root=orequest.trust_root)
+        return HttpResponseRedirect(reverse('openid-provider-root'))
+    elif req.method == 'POST' and req.POST.get('cancel',False):
+        return HttpResponseRedirect('/')
+
+    try:
+        trust_root_valid = verifyReturnTo(orequest.trust_root, orequest.return_to ) and "Valid" or "Invalid"
+    except HTTPFetchingError:
+        trust_root_valid = "Unreachable"
+    except DiscoveryFailure:
+        trust_root_valid = "DISCOVERY_FAILED"
+
+    return render_to_response('openid_provider/decide.html', {
+            'title': 'Trust this site?',
+            'trust_root': orequest.trust_root,
+            'trust_root_valid': trust_root_valid,
+            'identity': orequest.identity,
+        },
+        context_instance=RequestContext(req))
 
 @login_required(redirect_field_name = '/')
 def manage_trustroot(request):
