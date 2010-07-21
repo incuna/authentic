@@ -3,7 +3,7 @@ from openid_provider.views import openid_get_identity
 from openid_provider.views import django_response
 from openid_provider.views import error_page
 from openid_provider.views import landing_page
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from openid.server.trustroot import verifyReturnTo
 from django.template.loader import get_template
 from django.template import Context
@@ -41,9 +41,28 @@ def openid_server(req):
     # Clear AuthorizationInfo session var, if it is set
     if req.session.get('AuthorizationInfo', None):
         del req.session['AuthorizationInfo']
-
+    
     querydict = dict(req.REQUEST.items())
-    orequest = server.decodeRequest(querydict)
+
+    try:
+        from openid.server.server import ProtocolError
+        orequest = server.decodeRequest(querydict)
+        if hasattr(orequest,'claimed_id') and hasattr(orequest,'identity'):
+            if (orequest.claimed_id and orequest.identity) is None:
+                response = orequest.answer(allow=False, server_url = orequest.op_endpoint)
+                if ('URL/redirect' or 'HTML form') in response.whichEncoding():
+                    encoded_response = response.toHTML()
+                elif 'kvform' in response.whichEncoding():
+                    encoded_response = response.encodeToKVForm()
+                return HttpResponseBadRequest(encoded_response)
+    except ProtocolError as p:
+        if 'URL/redirect' in p.whichEncoding():
+            encoded_response = p.toHTML()
+        elif 'kvform' in p.whichEncoding():
+            encoded_response = p.encodeToKVForm()
+        return HttpResponseBadRequest(encoded_response)
+        
+
     if not orequest:
         orequest = req.session.get('OPENID_REQUEST', None)
         if not orequest:
@@ -120,7 +139,10 @@ def openid_decide(req):
     
     if not req.user.is_authenticated():
         return landing_page(req, orequest)
+
     openid = openid_get_identity(req, orequest.identity)
+
+
     if openid is None:
         return error_page(req, "You are signed in but you don't have OpenID here!")
     if req.method == 'POST' and req.POST.get('decide_page', False) and req.POST.get('allow',False):
