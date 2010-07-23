@@ -17,6 +17,8 @@ import re
 from openid_provider.views import get_base_uri
 from django.template import RequestContext
 import settings
+from openid.server.server import ProtocolError, CheckIDRequest, Message
+from django.core.cache import cache
 
 @csrf_exempt
 def openid_server(req):
@@ -45,7 +47,6 @@ def openid_server(req):
     querydict = dict(req.REQUEST.items())
 
     try:
-        from openid.server.server import ProtocolError
         orequest = server.decodeRequest(querydict)
         if hasattr(orequest,'claimed_id') and hasattr(orequest,'identity'):
             if (orequest.claimed_id and orequest.identity) is None:
@@ -56,23 +57,57 @@ def openid_server(req):
                     encoded_response = response.encodeToKVForm()
                 return HttpResponseBadRequest(encoded_response)
     except ProtocolError as p:
-        if 'URL/redirect' in p.whichEncoding():
-            encoded_response = p.toHTML()
-        elif 'kvform' in p.whichEncoding():
-            encoded_response = p.encodeToKVForm()
-        return HttpResponseBadRequest(encoded_response)
+        if p.whichEncoding() is not None:
+            p.whichEncoding()
+            if 'URL/redirect' in p.whichEncoding():
+                encoded_response = p.toHTML()
+            elif 'kvform' in p.whichEncoding():
+                encoded_response = p.encodeToKVForm()
+            return HttpResponseBadRequest(encoded_response)
         
+        elif req.session['OPENID_REQUEST'].message is not None and req.session['OPENID_REQUEST'].message.hasKey('http://specs.openid.net/extensions/pape/1.0','max_auth_age'):
+            orequest = cache.get(querydict['openid.claimed_id'])
+            cache.delete(querydict['openid.claimed_id'])
+
+            if orequest.mode in ("checkid_immediate", "checkid_setup"):
+                if not req.user.is_authenticated():
+                    return landing_page(req, orequest)
+                openid = openid_is_authorized(req, orequest.identity, orequest.trust_root)
+                if openid is not None:
+                    oresponse = orequest.answer(True, identity="%s%s" % (
+                        host, reverse('openid-provider-identity', args=[openid.openid])))
+                elif orequest.immediate:
+                    raise Exception('checkid_immediate mode not supported')
+            else:
+                for k,v in orequest.message.args.iteritems():
+                    if v == 'no-encryption' and not req.is_secure():
+                        return error_page(req,"Association with no encryption over http is forbidden")
+                oresponse = server.handleRequest(orequest)
+            webresponse = server.encodeResponse(oresponse)
+            req.session['OPENID_REQUEST'] = None
+            return django_response(webresponse)
 
     if not orequest:
         orequest = req.session.get('OPENID_REQUEST', None)
         if not orequest:
-            # not request, render info page:
             return render_to_response('openid_provider/server.html',
                 {'host': host,},
                 context_instance=RequestContext(req))
         else:
             # remove session stored data:
             del req.session['OPENID_REQUEST']
+    
+    elif hasattr(orequest,'message'):
+        if orequest.message is not None and orequest.message.hasKey('http://specs.openid.net/extensions/pape/1.0','max_auth_age'):
+            import time
+            delta = time.time() - time.mktime(req.user.last_login.timetuple())
+            max_auth = int(orequest.message.getArg('http://specs.openid.net/extensions/pape/1.0','max_auth_age').encode())
+    
+            if delta > max_auth:
+                from django.core.cache import cache
+                cache.set(orequest.claimed_id,orequest)
+                return landing_page(req, orequest)
+
     if orequest.mode in ("checkid_immediate", "checkid_setup"):
 
         if not req.user.is_authenticated():
@@ -97,7 +132,6 @@ def openid_server(req):
     return django_response(webresponse)
 
 
-import urlparse
 def openid_is_authorized(req, identity_url, trust_root):
     """
     Check that they own the given identity URL, and that the trust_root is 
