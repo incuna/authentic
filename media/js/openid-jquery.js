@@ -12,7 +12,8 @@ var providers_large = {
   },
   yahoo: {
     name: 'Yahoo',      
-    url: 'http://yahoo.com/'
+    label: 'Enter your yahoo OpenID identifier',
+    url: 'https://me.yahoo.com/{username}/'
   },    
   aol: {
     name: 'AOL',     
