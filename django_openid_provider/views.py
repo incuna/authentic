@@ -259,7 +259,7 @@ def addopenid(request):
         print openid
         if match(openid): 
             user = request.user
-            if hasattr(request.POST,'Default'):
+            if form.cleaned_data['Default']:
                Default = True
             else:
                Default = False
