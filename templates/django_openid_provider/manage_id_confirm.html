@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
 
+{% block title %}
+{% trans "Manage OpenID" %}
+{% endblock %}
+
 {% block content %}
     <form action = "/openid/manageid_confirm/" id = "form" method = "post">
             <p>Are you sure, you want to delete <strong> {{ id }} </strong> and these trustedroot:</p>

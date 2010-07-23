@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
 
+{% block title %}
+{% trans "Associate OpenID" %}
+{% endblock %}
+
 {% block content %}
 {% if msg %}
 	<div class="errors"><p>{{ msg }}</p></div>

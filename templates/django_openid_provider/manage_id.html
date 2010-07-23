@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
 
+{% block title %}
+{% trans "Manage OpenID" %}
+{% endblock %}
+
 {% block content %}
 <h3> Choose your identities to remove, be careful this will remove all the trustedroot for these identities.</h3>
 <form action="." id="form1" method="post">
