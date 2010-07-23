@@ -42,11 +42,6 @@ var providers_small = {
     label: 'Enter your Flickr username.',
     url: 'http://www.flickr.com/photos/{username}/'
   },
-  technorati: {
-    name: 'Technorati',
-    label: 'Enter your Technorati username.',
-    url: 'http://technorati.com/people/technorati/{username}/'
-  },
   wordpress: {
     name: 'Wordpress',
     label: 'Enter your Wordpress.com username.',
