@@ -17,8 +17,11 @@ from openid.yadis import xri
 from openid.consumer.discover import DiscoveryFailure
 from openid.consumer.consumer import Consumer, \
     SUCCESS, CANCEL, FAILURE, SETUP_NEEDED
-from django.views.decorators.csrf import csrf_exempt
-
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.template import RequestContext
+from django.shortcuts import render_to_response
 import urllib
 
 import authentic.saml.common
@@ -180,5 +183,30 @@ def signin(request, template_name='authopenid/signin.html',
         'msg':  request.GET.get('msg','')
     }, context_instance=_build_context(request, extra_context=extra_context))
 
+@csrf_protect
+@login_required
+def password_change(request, template = 'authopenid/password_change_form.html',
+        post_change_redirect = None, password_change_form  = PasswordChangeForm):
+
+    if post_change_redirect is None:
+        post_change_redirect = reverse('django.contrib.auth.views.password_change_done')
+    if request.method == 'POST':
+        form = password_change_form(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(post_change_redirect)
+    
+    else:
+        form = password_change_form(user=request.user)
+    
+    if request.user.password == '!':
+        context = RequestContext(request)
+        context['set_password'] = True 
+    else:
+        context = RequestContext(request)
+    
+    return render_to_response(template, {
+        'form': form,
+    }, context_instance=context)
 
 # Create your views here.

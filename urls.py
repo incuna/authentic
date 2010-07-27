@@ -39,6 +39,7 @@ if settings.AUTH_OPENID:
 urlpatterns += patterns('',
     (r'^accounts/logout/', 'idp.views.AuthLogout'),
     (r'^accounts/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
+    (r'^accounts/password/change/$','idp.views.password_change'),
     (r'^accounts/', include('registration.urls')),
 )
 
