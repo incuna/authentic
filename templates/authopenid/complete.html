@@ -21,25 +21,24 @@
 	</div>
 
 		
-	
 	{% if form1.errors %}
 	<p class="errors">{% trans "Please correct errors below:" %}<br />
 		{% if form1.username.errors %} 
-			<span class="error">{{ form1.username.errors|join:", " }}</span>
+            <ul class="errorlist">{{ form1.username.errors|join:", " }}</ul>
 		{% endif %}
-		{% if form1.email.errors %} 
-			<span class="error">{{ form1.email.errors|join:", " }}</span>
+        {% if form1.email.errors %} 
+            <ul class="errorlist">{{ form1.email.errors|join:", " }}</ul>
 		{% endif %}
-	</p>
+    </p>
 	{% endif %}
 	{% if form2.errors %}
 	<p class="errors">{% trans "Please correct errors below:" %}<br />
 		{% if form2.username.errors %} 
-			<span class="error">{{ form2.username.errors|join:", " }}</span>
+            <ul class="errorlist">{{ form2.username.errors|join:", " }}</ul>
 		{% endif %}
 		{% if form2.password.errors %} 
-			<span class="error">{{ form2.password.errors|join:", " }}</span>
-		{% endif %}
+            <ul class="errorlist">{{ form2.password.errors|join:", " }}</ul>
+        {% endif %}
 	</p>
 	{% endif %}
 
