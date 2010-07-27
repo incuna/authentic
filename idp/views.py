@@ -51,7 +51,6 @@ def AuthLogout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME):
         return HttpResponseRedirect(next_page or request.path)
 
 
-
 @csrf_exempt
 def mycomplete(request, on_success=None, on_failure=None, return_to=None, 
     **kwargs):
