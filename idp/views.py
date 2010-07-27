@@ -32,9 +32,24 @@ def authsaml2_login_page(request):
         return {}
     return {'providers_list': authentic.saml.common.get_idp_list()}
 
-def AuthLogout(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
+def AuthLogout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME):
+    "Logs out the user and displays 'You are logged out' message."
+
     auth_logout.send(sender = None, user = request.user)
-    return logout(request, template_name = 'registration/logout.html', next_page = next_page, redirect_field_name=redirect_field_name)
+    from django.contrib.auth import logout
+    logout(request)
+
+    if next_page is None or next_page == '/':
+        redirect_to = request.REQUEST.get(redirect_field_name, '')
+        if len(redirect_to) != 0:
+            return HttpResponseRedirect(redirect_to)
+        else:
+            return HttpResponseRedirect(next_page or request.path)
+    
+    else:
+        # Redirect to this page until the session has been cleared.
+        return HttpResponseRedirect(next_page or request.path)
+
 
 
 @csrf_exempt
