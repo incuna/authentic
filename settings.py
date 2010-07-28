@@ -117,6 +117,8 @@ INSTALLED_APPS = (
     'authentic.admin_log_view',
 )
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
 # Registration settings
 ACCOUNT_ACTIVATION_DAYS = 2
 EMAIL_HOST = 'localhost'

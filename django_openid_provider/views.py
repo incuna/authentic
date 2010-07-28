@@ -266,9 +266,14 @@ def manage_id(request):
                             o.default = False
                             o.save()
             return redirect_to(request,'/openid/manageid')
-
-    form = addopenid_form()
-    return render_to_response('django_openid_provider/manage_id.html',{'openids':openids,'form':form,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH},context_instance=RequestContext(request))
+    else:
+        form = addopenid_form()
+        messages = request.user.get_and_delete_messages()
+        if len(messages) == 0:
+            return render_to_response('django_openid_provider/manage_id.html',{'openids':openids,'form':form,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH},context_instance=RequestContext(request))
+        elif len(messages) == 1:
+            messages = messages[0].decode()
+            return render_to_response('django_openid_provider/manage_id.html',{'openids':openids,'form':form,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH,'message':messages},context_instance=RequestContext(request))
 
 
 def manage_id_confirm(request):
@@ -285,21 +290,25 @@ class addopenid_form(forms.Form):
     Default = forms.BooleanField()
     openid = forms.CharField(max_length = 200)
 
-    
+from django.db import IntegrityError
 def addopenid(request):
     if request.method == 'POST':
         form = addopenid_form(request.POST)
         openid = request.POST['openid']
-        print openid
         if match(openid): 
             user = request.user
-            if form.cleaned_data['Default']:
+            if 'Default' in form.data.keys() and form.data['Default'] == 'on':
                Default = True
             else:
                Default = False
-            user.openid_set.create(openid = openid, default = Default)
-
+            try:
+                user.openid_set.create(openid = openid, default = Default)
+            except IntegrityError:
+                msg = openid + ' is already use by someone else please choose another openid identifier'
+                request.user.message_set.create(message = msg)
+        else:
+            request.user.message_set.create(message = 'Your OpenID identity can only contain letters, numbers and underscores')
     return redirect_to(request,'/openid/manageid/')
 
-def match(strg, search = re.compile(r'[^a-z0-9.]').search):
+def match(strg, search = re.compile(r'[^a-z0-9._]').search):
     return not bool(search(strg))

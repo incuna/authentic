@@ -6,6 +6,12 @@
 {% endblock %}
 
 {% block content %}
+{% if message %}
+<ul class="errorlist">{{ message }}</ul>
+{% endif %}
+<p>
+<a href="/openid/manage/">Manage your Trusted root</a>
+</p>
 <h3> Choose your identities to remove, be careful this will remove all the trustedroot for these identities.</h3>
 <form action="." id="form1" method="post">
 {% for key,value in openids.items %}
@@ -15,14 +21,17 @@
     {% endif %}
     </h4>
     {% for key2, value2 in value.trustroot.items %}
-        <li> {{ value2 }} </li>
+        <li class="indented"> {{ value2 }} </li>
     {% empty %}
-    There is no trustedroot for this identity<br>
+    <span style="margin-left: 50px">There is no trustedroot for this identity</span><br>
     {% endfor %}
-    <input type = "submit" name = {{ value.caption }} value = "Remove" />
+    <span style="margin-left: 50px">
     {% if not value.Default %}
         <input type = "submit" name= {{ value.caption }} value = "Make default" />
     {% endif %}
+    <input type = "submit" name = {{ value.caption }} value = "Remove"/>
+    </span>
+    <br>
 </p>
 {% endfor %}
 </form>
@@ -38,7 +47,4 @@
     <input type = "submit" value = "Add" />
     </p>
 </form>
-<p>
-<a href="/openid/manage/">Manage your Trusted root</a>
-</p>
 {% endblock %}
