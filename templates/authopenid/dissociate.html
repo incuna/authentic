@@ -16,13 +16,14 @@
 
 <div class="login">
 
-<form name="fopenid" action="" method="post">
+    <form name="fopenid" action="{% url user-dissociate %}" method="post">
     <input type="hidden" name="next" value="{{ next }}" />
 	{{ form.openid_url }}
 	<fieldset>
 		<legend>{% trans "Dissociate OpenID URL" %}</legend>
-        <p>Confirm to dissociate {{ openid_url }} from your account</p>
-        <div class="submit-row "><input name="bdissociate" type="submit" value="{% trans "Dissociate OpenID" %}"></div>
+        <p>Confirm to dissociate {% for a_oi in a_openids %} {{ a_oi }} <input type="hidden" name="a_openids_remove" value="{{ a_oi }}" /> {% endfor %} from your account</p>
+        <div class="submit-row "><input name="bdissociate" type="submit" value="{% trans "Dissociate OpenID" %}">
+        <input name="bdissociate_cancel" type="submit" value="{% trans "Cancel" %}"></div>
 		
 	</fieldset>
 </form>	

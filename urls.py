@@ -36,6 +36,7 @@ if settings.AUTH_OPENID:
             (r'^accounts/openid/complete/associate/$', authentic.idp.views.complete_associate,{}, 'user_complete_myassociate'),
             (r'^accounts/openid/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
             (r'^accounts/openid/signin/complete/signin/', authentic.idp.views.complete_signin,{} ,'user_complete_signin'),
+            (r'^accounts/openid/dissociate/$', authentic.idp.views.dissociate,{} ,'user-dissociate'),#
             (r'^accounts/openid/associate/$', authentic.idp.views.associate,{} ,'user-associate'),#
             (r'^accounts/openid/password/change/$', django_authopenid.views.password_change, {}, 'authopenid_password_change'),
             (r'^accounts/openid/signin/complete/', include ('django_authopenid.urls')),
@@ -69,3 +70,4 @@ if settings.STATIC_SERVE:
             view = 'django.views.static.serve',
             kwargs = {'document_root': settings.MEDIA_ROOT}),
     )
+

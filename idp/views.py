@@ -224,6 +224,41 @@ def password_change(request, template = 'authopenid/password_change_form.html',
         'form': form,
     }, context_instance=context)
 
+@csrf_exempt
+@login_required
+def dissociate(request, template_name="authopenid/dissociate.html",
+        dissociate_form=OpenidDissociateForm, 
+        redirect_field_name=REDIRECT_FIELD_NAME, 
+        default_redirect=settings.LOGIN_REDIRECT_URL, extra_context=None):
+    """ view used to dissociate an openid from an account """
+    nb_associated_openids, associated_openids = get_associate_openid(request.user)
+    if nb_associated_openids == 1 and not request.user.has_usable_password() and request.method != 'GET':
+        msg = ["You can't remove this openid, you should set a password first."]
+        return render_to_response("authopenid/associate.html",{
+                'associated_openids' : associated_openids ,
+                'nb_associated_openids':nb_associated_openids,
+                'msg': msg},
+                context_instance = RequestContext(request)
+                 )
+    
+    if request.POST:
+        if request.POST.get('bdissociate_cancel','') ==  'Cancel':
+            msg = ['Operation Cancel.']
+            return redirect_to(request,'/accounts/openid/associate/')
+
+        openid_urls = request.POST.getlist('a_openids_remove')
+        if len(openid_urls) >= 1:
+            for openid_url in openid_urls:
+                UserAssociation.objects.get(openid_url__exact=openid_url).delete()
+                if openid_url == request.session.get('openid_url'):
+                    del request.session['openid_url']
+                msg = "Openid removed."
+
+            request.user.message_set.create(message = msg)
+            return redirect_to(request,'/accounts/openid/associate')
+    else:
+        return redirect_to(request, '/accounts/openid/associate')
+
 @login_required
 def associate(request, template_name='authopenid/associate.html', 
         openid_form=AssociateOpenID, redirect_field_name='/',
