@@ -172,6 +172,7 @@ def openid_is_authorized(req, identity_url, trust_root):
     return openid
 
 @csrf_exempt
+@login_required
 def openid_decide(req):
     """
     The page that asks the user if they really want to sign in to the site, and
@@ -292,6 +293,7 @@ def manage_id(request):
             return render_to_response('django_openid_provider/manage_id.html',{'openids':openids,'form':form,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH,'message':messages},context_instance=RequestContext(request))
 
 
+@login_required
 def manage_id_confirm(request):
     if request.method == 'POST' and request.POST['Answer'] == 'Yes':
         Id = request.POST['idremove']
