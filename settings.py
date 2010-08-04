@@ -183,7 +183,7 @@ TEMPLATE_CONTEXT_PROCESSORS += ('authentic.idp.views.authsaml2_login_page',)
 # OpenID settings
 AUTH_OPENID = True
 IDP_OPENID = True
-IDPOI_PATH = '/openid'
+IDPOI_PATH = ''
 
 # Logging settings
 LOG_FILENAME = 'log.log'
