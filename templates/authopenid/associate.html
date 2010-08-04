@@ -7,20 +7,34 @@
 
 {% block content %}
 {% if msg %}
-	<div class="errors"><p>{{ msg }}</p></div>
+    <ul class="errorlist"> {{ msg.0 }}</ul>
 {% endif %}
 
 {% if form.errors %}
     <div class="errors"><p>{% trans "OpenID URL:" %} {{ form.openid_url.errors|join:', ' }}</p></div>
 {% endif %}
 
+{% if nb_associated_openids > 0 %}
 <div class="login">
+<form name = "fopenid" action = "." method= "post" />
+    <fieldset>
+        <legend>{% trans "Dissociate OpenID URL" %}</legend>
+        <ul class = "NoBullet">
+        {% for a_openid in associated_openids %}
+        <li><input type = "checkbox" name = "a_openids" value = {{ a_openid }} /> {{ a_openid }} </li>
+        {% endfor %}
+        </ul>
+        <input type="submit" value = "Dissociate OpenID" />
+    </fieldset>
+</form>
+{% endif %}
 
-<form name="openid_form" id="openid_form" action="{% url user_associate %}" method="post">
+
+<form name="openid_form" id="openid_form" action="." method="post">
     <input type="hidden" name="action" value="verify" />
     <input type="hidden" name="next" value="{{ next }}" />
 	<fieldset>
-		<legend>{% trans "Add a new OpenID URL" %}</legend>
+		<legend>{% trans "Add a new OpenID account" %}</legend>
 		<div id="openid_choice">
     		<p>{% trans "Please click your account provider:" %}</p>
     		<div id="openid_btns"></div>
