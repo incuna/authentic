@@ -204,7 +204,6 @@ def openid_decide(req):
 
 @login_required(redirect_field_name = '/')
 def manage_trustroot(request):
-    
     trustedroots = []
     trustroot = []
     openids = {}
@@ -214,7 +213,11 @@ def manage_trustroot(request):
         openids[openid.id]['trustroot'] = {}
         for trust in openid.trustedroot_set.iterator():
             openids[openid.id]['trustroot'][trust.id] = trust.trust_root
-            
+    
+    trust_sum = 0
+    for k, v in openids.iteritems():
+        dic = v['trustroot']
+        trust_sum += len(dic)
 
     if request.method == 'POST':
         openids_remove = request.POST.getlist('trustremove')
@@ -226,7 +229,7 @@ def manage_trustroot(request):
         
         return redirect_to(request,'/openid/manage')
 
-    return render_to_response('django_openid_provider/manage_trustroot.html',{'openids':openids,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH},context_instance=RequestContext(request))
+    return render_to_response('django_openid_provider/manage_trustroot.html',{'openids':openids,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH,'trust_sum':trust_sum},context_instance=RequestContext(request))
 
 @login_required(redirect_field_name = '/')
 def manage_id(request):
@@ -239,7 +242,7 @@ def manage_id(request):
         for trust in openid.trustedroot_set.iterator():
             openids[openid.id]['trustroot'][trust.id] = trust.trust_root
 
-
+    nb_openids = len(openids)
 
     if request.method == 'POST':
         Id_remove = None
@@ -270,7 +273,7 @@ def manage_id(request):
         form = addopenid_form()
         messages = request.user.get_and_delete_messages()
         if len(messages) == 0:
-            return render_to_response('django_openid_provider/manage_id.html',{'openids':openids,'form':form,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH},context_instance=RequestContext(request))
+            return render_to_response('django_openid_provider/manage_id.html',{'openids':openids,'form':form,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH, 'nb_openids':nb_openids},context_instance=RequestContext(request))
         elif len(messages) == 1:
             messages = messages[0].decode()
             return render_to_response('django_openid_provider/manage_id.html',{'openids':openids,'form':form,'uri':get_base_uri(request),'oipath':settings.IDPOI_PATH,'message':messages},context_instance=RequestContext(request))

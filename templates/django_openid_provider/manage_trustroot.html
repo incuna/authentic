@@ -2,22 +2,24 @@
 {% load i18n %}
 
 {% block title %}
-{% trans "Manage trustroot" %}
+{% trans "Manage trusted site" %}
 {% endblock %}
 
 {% block content %}
-<h3>Your Turstedroot for your OpenID identities are : </h3>
+<h3>Your trusted site for your OpenID identities are : </h3>
  <form action="." id="form" method="post">
  {% for key, value in openids.items %}
     <p> <h4> {{ uri }}{{ oipath }}/{{ value.caption }}/ </h4>
     {% for key2, value2 in value.trustroot.items %}
         <li> {{ value2 }} <input type="checkbox" name = "trustremove" value = {{ key2 }} /> </li>
     {% empty %}
-        You have no trustedroot for this openid
+        You have no trusted site for this openid
     {% endfor %}
     </p>
  {% endfor %}
+ {% if trust_sum != 0 %}
     <br><input type="submit" value="Remove" />
+ {% endif %}
  </form>
 {% endblock %}
 
