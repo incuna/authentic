@@ -11,7 +11,7 @@
 {% block content %}
 
 {% if nb_openid > 0 %}
- <p>To manage your OpenID account go on <a href='/openid/manageid/'> manage your OpenID account</a></p>
+ <p>To manage your OpenID accounts go on <a href='/openid/manageid/'> manage your OpenID account</a></p>
 <h3>Your OpenID account are: </h3>
  {% for key, value in openids.items %}
     <p> <h4> {{ uri }}{{ oipath }}/{{ value.caption }}/ </h4>

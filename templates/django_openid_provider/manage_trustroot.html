@@ -6,20 +6,25 @@
 {% endblock %}
 
 {% block content %}
-<h3>Your trusted site for your OpenID identities are : </h3>
+<fieldset>
+<legend>{% trans "Your trusted site" %} </legend>
+<p>Check the trusted site that you want to remove and click on remove to remove these trusted site from these </p>
  <form action="." id="form" method="post">
  {% for key, value in openids.items %}
     <p> <h4> {{ uri }}{{ oipath }}/{{ value.caption }}/ </h4>
+    <ul class="NoBullet">
     {% for key2, value2 in value.trustroot.items %}
-        <li> {{ value2 }} <input type="checkbox" name = "trustremove" value = {{ key2 }} /> </li>
+        <li class="indented"> <input type="checkbox" name = "trustremove" value = {{ key2 }} /> {{ value2 }} </li>
     {% empty %}
         You have no trusted site for this openid
     {% endfor %}
+    </ul>
     </p>
  {% endfor %}
  {% if trust_sum != 0 %}
     <br><input type="submit" value="Remove" />
  {% endif %}
  </form>
+ </fieldset>
 {% endblock %}
 

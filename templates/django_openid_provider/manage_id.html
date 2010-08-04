@@ -13,7 +13,11 @@
 {% if nb_openids > 0 %}
 <a href="/openid/manage/">Manage your trusted site</a>
 </p>
-<h3> Choose your identities to remove, be careful this will remove all the trusted site for these identities.</h3>
+<fieldset>
+<legend>{% trans "Your current OpenID" %}</legend>
+<p> Choose your identities to remove, be careful this will remove all the trusted site for these identities.
+<br> You can change your default OpenID by clicking on "Make Default"
+</p>
 <form action="." id="form1" method="post">
 {% for key,value in openids.items %}
 <p>  <h4> {{ uri }}{{ oipath }}/{{ value.caption }}/
@@ -24,24 +28,24 @@
     {% for key2, value2 in value.trustroot.items %}
         <li class="indented"> {{ value2 }} </li>
     {% empty %}
-    <span style="margin-left: 50px">There is no trusted site for this identity</span><br>
+    There is no trusted site for this identity<br>
     {% endfor %}
-    <span style="margin-left: 50px">
     {% if not value.Default %}
         <input type = "submit" name= {{ value.caption }} value = "Make default" />
     {% endif %}
     <input type = "submit" name = {{ value.caption }} value = "Remove"/>
-    </span>
     <br>
 </p>
 {% endfor %}
 </form>
+</fieldset>
 {% else %}
 <p> You have no OpenID account for the moment</p>
 {% endif %}
+<fieldset>
+<legend>{% trans "Add a new OpenID identity" %} </legend>
 <p>
 <form action = "/openid/addopenid/" id = "form2" method = "post">
-    <h3>Add a new OpenID identity: </h3>
     <p> Leave blank to create an anonymous OpenID</p>
     {{ uri }}{{ oipath }}/{{ form.openid }}/
     <br>
@@ -52,3 +56,4 @@
     </p>
 </form>
 {% endblock %}
+</fieldset>
