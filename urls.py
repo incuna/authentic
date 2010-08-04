@@ -28,7 +28,7 @@ if settings.IDP_OPENID:
             (r'^openid/manageid_confirm/',authentic.django_openid_provider.views.manage_id_confirm, {}, 'manage_id_confirm'),
             (r'^openid/addopenid/',authentic.django_openid_provider.views.addopenid, {}, 'add_openid'),
             (r'^openid/',include('openid_provider.urls')),
-            url(r'^(?P<id>[a-zA-Z0-9,_]*)/$', openid_provider.views.openid_xrds, {'identity': True}, name='openid-provider-identity'),
+            url(r'^(?P<id>[a-zA-Z0-9,_,]*/?)/$', openid_provider.views.openid_xrds, {'identity': True}, name='openid-provider-identity'),
     )
 
 if settings.AUTH_OPENID:
