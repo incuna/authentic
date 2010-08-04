@@ -8,6 +8,7 @@ import authentic.django_openid_provider.views
 import openid_provider.views
 
 import settings
+import django_authopenid
 
 admin.autodiscover()
 
@@ -34,6 +35,7 @@ if settings.AUTH_OPENID:
     urlpatterns += patterns('',
             (r'^accounts/openid/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
             (r'^accounts/openid/signin/complete/signin/', authentic.idp.views.complete_signin,{} ,'user_complete_signin'),
+            (r'^accounts/openid/password/change/$', django_authopenid.views.password_change, {}, 'authopenid_password_change'),
             (r'^accounts/openid/signin/complete/', include ('django_authopenid.urls')),
             (r'^accounts/openid/signin/',authentic.idp.views.signin,{} ,'user_signin'),
     )

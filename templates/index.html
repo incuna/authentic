@@ -12,12 +12,12 @@
 
 <ul>
  {% if user.password == '!' %}
- <li><a href="{% url auth_password_change %}">{% trans "Set password" %}</a></li>
+ <li><a href="{% url authopenid_password_change %}">{% trans "Set password" %}</a></li>
  {% else %}
  <li><a href="{% url auth_password_change %}">{% trans "Change password" %}</a></li>
  {% endif %}
  <li><a href="{% url auth_logout %}">{% trans "Log out" %}</a></li>
- <li><a href="{% url user_associate %}">{% trans "Associate with your OpenID"  %}</a></li>
+ <li><a href="/accounts/openid/associate/">{% trans "Associate your account with an OpenID"  %}</a></li>
  {% if IDP_OPENID %}
    <li><a href="{% url manage_id %}">{% trans "Manage your openid identities" %}</a></li>
  {% endif  %}
