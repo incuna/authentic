@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block extrahead %}{{ block.super }}
+<meta http-equiv="x-xrds-location" content="{{ host }}{% url openid-provider-xrds %}">
+{% endblock %}
+
+{% block title %}
+ OpenID endpoint
+{% endblock %}
+
+{% block content %}
+
+{% if nb_openid > 0 %}
+ <p>To manage your OpenID account go on <a href='/openid/manageid/'> manage your OpenID account</a></p>
+<h3>Your OpenID account are: </h3>
+ {% for key, value in openids.items %}
+    <p> <h4> {{ uri }}{{ oipath }}/{{ value.caption }}/ </h4>
+    {% for key2, value2 in value.trustroot.items %}
+        <li> {{ value2 }}  </li>
+    {% empty %}
+        You have no trusted site for this openid.
+    {% endfor %}
+    </p>
+ {% endfor %}
+{% else %}
+    <p>You currently have no OpenID account.
+    <br>
+    To create an OpenID account go on <a href='/openid/manageid/'> create an OpenID account</a></p>
+{% endif %}
+
+{% endblock %}

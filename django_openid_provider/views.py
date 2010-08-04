@@ -20,7 +20,9 @@ import settings
 from openid.server.server import ProtocolError, CheckIDRequest, Message
 from django.core.cache import cache
 
+
 @csrf_exempt
+@login_required
 def openid_server(req):
     """
     This view is the actual OpenID server - running at the URL pointed to by 
@@ -90,9 +92,20 @@ def openid_server(req):
     if not orequest:
         orequest = req.session.get('OPENID_REQUEST', None)
         if not orequest:
-            return render_to_response('openid_provider/server.html',
-                {'host': host,},
-                context_instance=RequestContext(req))
+            trustedroots = []
+            trustroot = []
+            openids = {}
+            
+            for openid in req.user.openid_set.iterator():
+                openids[openid.id] = {'caption':openid.openid}
+                openids[openid.id]['trustroot'] = {}
+                for trust in openid.trustedroot_set.iterator():
+                    openids[openid.id]['trustroot'][trust.id] = trust.trust_root
+            
+            nb_openid = len(openids)
+            
+            return render_to_response('django_openid_provider/server.html', {'openids':openids, 'uri':get_base_uri(req), 'oipath':settings.IDPOI_PATH, 'nb_openid':nb_openid},context_instance=RequestContext(req))
+
         else:
             # remove session stored data:
             del req.session['OPENID_REQUEST']
