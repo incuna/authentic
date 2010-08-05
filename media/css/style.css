@@ -243,3 +243,8 @@ div.errors {
     color: #e80404;
     list-style: none;
 }
+
+div#home{
+    text-align: right;
+}
+

@@ -84,8 +84,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
+    'django.core.context_processors.request',
     'django.contrib.messages.context_processors.messages',
     'authentic.core.context_processors.auth_settings',
+    'authentic.core.context_processors.No_Home_Url',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -209,3 +211,8 @@ if AUTH_OPENID:
 if IDP_OPENID:
     INSTALLED_APPS += ('django_openid_provider',
                     'openid_provider',)
+
+NO_HOME_URL = ['/',
+            '/openid/decide/',
+            '/accounts/login/',
+            ]
