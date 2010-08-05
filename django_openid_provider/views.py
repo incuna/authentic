@@ -22,7 +22,6 @@ from django.core.cache import cache
 
 
 @csrf_exempt
-@login_required
 def openid_server(req):
     """
     This view is the actual OpenID server - running at the URL pointed to by 
@@ -92,10 +91,13 @@ def openid_server(req):
     if not orequest:
         orequest = req.session.get('OPENID_REQUEST', None)
         if not orequest:
+            if hasattr(req.user, 'username'):
+                return redirect_to(req,'/')
+            
             trustedroots = []
             trustroot = []
             openids = {}
-            
+
             for openid in req.user.openid_set.iterator():
                 openids[openid.id] = {'caption':openid.openid}
                 openids[openid.id]['trustroot'] = {}
