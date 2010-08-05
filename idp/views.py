@@ -276,7 +276,7 @@ def associate(request, template_name='authopenid/associate.html',
                         msg = ["You can't remove these openids, You should set a password first."]
                     else:
                         msg = ["You can't remove this openid, You should set a password first."]
-                    return render(template_name, {
+                    return render('authopenid/associate.html', {
                         redirect_field_name: redirect_to,
                         'associated_openids' : associated_openids,
                         'nb_associated_openids' : nb_associated_openids,
@@ -311,7 +311,7 @@ def associate(request, template_name='authopenid/associate.html',
                         on_failure=on_failure)
             else:
                 msg = ['You must enter a valid OpenID url']
-                return render(template_name, {
+                return render('authopenid/associate.html', {
                     redirect_field_name: redirect_to,
                    'associated_openids' : associated_openids,
                     'nb_associated_openids' : nb_associated_openids,
@@ -321,7 +321,7 @@ def associate(request, template_name='authopenid/associate.html',
         form = openid_form(request.user)
 
     msg = request.user.get_and_delete_messages()
-    return render(template_name, {
+    return render('authopenid/associate.html', {
         'form': form,
         redirect_field_name: redirect_to,
         'associated_openids' : associated_openids,
