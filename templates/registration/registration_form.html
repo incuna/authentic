@@ -5,6 +5,12 @@
 {% trans "Registration" %}
 {% endblock %}
 
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb_url 'Register' %}
+{% endblock %}
+
 {% block content %}
 
 <h2>{% trans "Registration" %}</h2>

@@ -20,7 +20,20 @@
 
     <div id="splash"></div>
 
+
     <div id="content">
+    <div id="breadcrumb">
+    {% load breadcrumbs %}
+
+    {% block breadcrumbs %}
+    {% breadcrumb_url 'home' index %}
+    {% endblock %}
+    <br>
+    <br>
+    </div>
+        {% if not request.user.username == '' %}
+        <div id="user"><p>You are authenticated as {{ request.user.username }}</p></div>
+        {% endif %}
         {% block content %}{% endblock %}
     </div>
     

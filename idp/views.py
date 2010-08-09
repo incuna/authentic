@@ -292,7 +292,7 @@ def associate(request, template_name='authopenid/associate.html',
             if form.is_valid():
                 if ' ' in form.cleaned_data['openid_url'] or form.cleaned_data['openid_url'] in OPENID_PROVIDER:
                     msg = ['You must enter a valid OpenID url']
-                    return render(template_name, {
+                    return render('authopenid/associate.html', {
                         redirect_field_name: redirect_to,
                        'associated_openids' : associated_openids,
                         'nb_associated_openids' : nb_associated_openids,

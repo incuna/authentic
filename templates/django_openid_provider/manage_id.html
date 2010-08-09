@@ -5,6 +5,12 @@
 {% trans "Manage OpenID" %}
 {% endblock %}
 
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb_url 'Manage OpenID' manage_id %}
+{% endblock %}
+
 {% block content %}
 {% if message %}
 <ul class="errorlist">{{ message }}</ul>

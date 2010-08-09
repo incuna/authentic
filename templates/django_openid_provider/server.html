@@ -8,6 +8,12 @@
  OpenID endpoint
 {% endblock %}
 
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb_url 'OpenID' openid-provider-root %}
+{% endblock %}
+
 {% block content %}
 
 {% if nb_openid > 0 %}

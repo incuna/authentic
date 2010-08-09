@@ -5,6 +5,13 @@
 {% trans "OpenID Signin" %}
 {% endblock %}
 
+{% load breadcrumbs %}
+{% block breadcrumbs %}
+{{ block.super }}
+{% breadcrumb_url 'Signin with OpenID' user_signin %}
+{% endblock %}
+
+
 {% block content %}
 {% if msg %}
 	<ul class="errorlist">
