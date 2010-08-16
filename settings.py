@@ -211,6 +211,10 @@ if AUTH_OPENID:
 if IDP_OPENID:
     INSTALLED_APPS += ('django_openid_provider',
                     'openid_provider',)
+    EXCLUDE_URL = ('admin',
+            'idp',
+            'accounts',
+            'openid')
 
 NO_HOME_URL = ['/',
             '/openid/decide/',

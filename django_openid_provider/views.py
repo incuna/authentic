@@ -327,8 +327,21 @@ def addopenid(request):
                 msg = openid + ' is already use by someone else please choose another openid identifier'
                 request.user.message_set.create(message = msg)
         else:
-            request.user.message_set.create(message = 'Your OpenID identity can only contain letters, numbers and underscores')
+            if not match(openid):
+                msg = "Your OpenID identity can not be " + openid
+                request.user.message_set.create(message = msg)
+            else:
+                request.user.message_set.create(message = 'Your OpenID identity can only contain letters, numbers and underscores')
     return redirect_to(request,'/openid/manageid/')
 
 def match(strg, search = re.compile(r'[^a-z0-9._]').search):
-    return not bool(search(strg))
+    if strg in settings.EXCLUDE_URL:
+        res = True
+
+    if res or not bool(search(strg)):
+        return False
+    else:
+        return True
+
+    #return not bool(search(strg))
+
