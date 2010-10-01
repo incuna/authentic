@@ -18,7 +18,6 @@ import lasso
 from saml.common import *
 from saml.models import *
 from utils import *
-from backends import AuthSAML2Backend
 
 #############################################
 # SAML2 protocol
@@ -76,7 +75,7 @@ def selectProvider(request, entity_id):
 def singleSignOnArtifact(request):
     server = build_service_provider(request)
     if not server:
-        error_page(request, _('Service provider not configured'))
+        return error_page(request, _('Service provider not configured'))
     login = lasso.Login(server)
     message = get_saml2_request_message(request)
     try:
@@ -207,6 +206,7 @@ def sso_after_response(request, login, relay_state = None):
             maintain_liberty_session_on_service_provider(request, login)
             return redirect_to_target(request)
     else:
+        from backends import AuthSAML2Backend
         user = AuthSAML2Backend().authenticate(request,login)
         if user:
             key = request.session.session_key
@@ -234,7 +234,6 @@ def sso_after_response(request, login, relay_state = None):
             elif s.unauth == 'AUTHSAML2_UNAUTH_ACCOUNT_LINKING_BY_TOKEN':
                 pass
             elif s.unauth == 'AUTHSAML2_UNAUTH_CREATE_USER_PSEUDONYMOUS':
-                from backends import SAML2AuthBackend
                 user = SAML2AuthBackend().create_user(nameId=login.nameIdentifier.content)
                 key = request.session.session_key
                 auth_login(request, user)
