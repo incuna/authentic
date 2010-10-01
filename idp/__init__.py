@@ -8,6 +8,7 @@ from signals import auth_oidlogin
 from django.conf import settings
 from admin_log_view.models import info
 from django.contrib.auth.models import User
+import settings
 
 REGISTERED_SERVICE_LIST = []
 
@@ -31,22 +32,16 @@ def homepage(request):
     '''Homepage of the IdP'''
     import authentic.saml.common
     import authentic.authsaml2.utils
-    
-
+    tpl_parameters = {}
+    tpl_parameters['authorized_services'] = service_list(request)
     if authentic.authsaml2.utils.is_sp_configured():
-        return render_to_response('index.html',
-            { 'authorized_services' : service_list(request),
-            'providers_list_federated': authentic.saml.common.get_idp_user_federated_list(request),
-            'providers_list_not_federated': authentic.saml.common.get_idp_user_not_federated_list(request),
-            'provider_active_session': authentic.saml.common.get_provider_of_active_session(request),
-            'openid':request.user.openid_set,
-            'IDP_OPENID': settings.IDP_OPENID},##
-            RequestContext(request))
-    return render_to_response('index.html',
-            { 'authorized_services' : service_list(request),
-                'openid':request.user.openid_set,
-            'IDP_OPENID': settings.IDP_OPENID},##
-            RequestContext(request))
+        tpl_parameters['providers_list_federated'] = authentic.saml.common.get_idp_user_federated_list(request)
+        tpl_parameters['providers_list_not_federated'] = authentic.saml.common.get_idp_user_not_federated_list(request)
+        tpl_parameters['provider_active_session'] = authentic.saml.common.get_provider_of_active_session(request)
+    if settings.IDP_OPENID:
+        tpl_parameters['openid'] = request.user.openid_set
+        tpl_parameters['IDP_OPENID'] = settings.IDP_OPENID
+    return render_to_response('index.html', tpl_parameters, RequestContext(request))
 
 def LogRegistered(sender, user, **kwargs):
     msg = user.username + ' is now registered'

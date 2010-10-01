@@ -105,7 +105,6 @@ ROOT_URLCONF = 'authentic.urls'
 
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_PATH, 'templates'),
-    os.path.join(PROJECT_PATH, 'templates/django_openid_provider'),
 )
 
 INSTALLED_APPS = (
@@ -183,8 +182,8 @@ AUTHENTICATION_BACKENDS += (SAML2_BACKEND,)
 TEMPLATE_CONTEXT_PROCESSORS += ('authentic.idp.views.authsaml2_login_page',)
 
 # OpenID settings
-AUTH_OPENID = True
-IDP_OPENID = True
+AUTH_OPENID = False
+IDP_OPENID = False
 IDPOI_PATH = ''
 
 # Logging settings
@@ -215,6 +214,9 @@ if IDP_OPENID:
             'idp',
             'accounts',
             'openid')
+    TEMPLATE_DIRS = (
+        os.path.join(PROJECT_PATH, 'templates/django_openid_provider'),
+    )
 
 NO_HOME_URL = ['/',
             '/openid/decide/',

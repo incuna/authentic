@@ -4,11 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.simple import direct_to_template
 from authentic.idp import homepage
 import authentic.idp.views
-import authentic.django_openid_provider.views
-import openid_provider.views
-
 import settings
-import django_authopenid
 
 admin.autodiscover()
 
@@ -20,6 +16,8 @@ urlpatterns = patterns('',
 )
 
 if settings.IDP_OPENID:
+    import authentic.django_openid_provider.views
+    import openid_provider.views
     urlpatterns += patterns('',
             (r'^openid/$',authentic.django_openid_provider.views.openid_server, {},'openid-provider-root'),
             (r'^openid/decide/$',authentic.django_openid_provider.views.openid_decide, {},'openid-provider-decide'),
@@ -32,6 +30,7 @@ if settings.IDP_OPENID:
     )
 
 if settings.AUTH_OPENID:
+    import django_authopenid
     urlpatterns += patterns('',
             (r'^accounts/openid/complete/associate/$', authentic.idp.views.complete_associate,{}, 'user_complete_myassociate'),
             (r'^accounts/openid/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
