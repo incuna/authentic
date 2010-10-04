@@ -1,4 +1,3 @@
-from registration.signals import user_registered
 from django.contrib.auth.models import User
 
 def create_openid(sender, user, **kwargs):

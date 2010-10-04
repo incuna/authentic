@@ -1,7 +1,5 @@
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from registration.signals import user_registered
-from registration.signals import user_activated
 from signals import auth_login
 from signals import auth_logout
 from signals import auth_oidlogin
@@ -86,11 +84,8 @@ def LogAuthLoginOI(sender, openid_url, state, **kwargs):
         msg += ' has failed'
     elif state is 'setup_needed':
         msg += ' setup_needed'
-    
     info(msg)
 
-user_registered.connect(LogRegistered, dispatch_uid = "authentic.idp")
-user_activated.connect(LogActivated, dispatch_uid = "authentic.idp")
 auth_login.connect(LogAuthLogin, dispatch_uid = "authentic.idp")
 auth_logout.connect(LogAuthLogout, dispatch_uid = "authentic.idp")
 auth_oidlogin.connect(LogAuthLoginOI, dispatch_uid ="authentic.idp")

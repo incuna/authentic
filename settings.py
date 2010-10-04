@@ -181,7 +181,7 @@ AUTHENTICATION_BACKENDS += (SAML2_BACKEND,)
 TEMPLATE_CONTEXT_PROCESSORS += ('authentic.idp.views.authsaml2_login_page',)
 
 # OpenID settings
-AUTH_OPENID = False
+AUTH_OPENID = True
 IDP_OPENID = False
 IDPOI_PATH = ''
 
