@@ -243,17 +243,3 @@ div.errors {
     color: #e80404;
     list-style: none;
 }
-
-div#home{
-    text-align: right;
-}
-
-div#user p{
-    font-size: 80%;
-    margin-top: -15px;
-}
-
-div#breadcrumb {
-    font-size: 80%;
-    margin-top: -15px;
-}

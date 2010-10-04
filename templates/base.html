@@ -36,14 +36,6 @@
         {% endif %}
         {% block content %}{% endblock %}
     </div>
-    
-    <div id="home"> 
-        {% if not request.path in NO_HOME_URL  %}
-            <form method="link" action="/">
-                <input type="submit" value="Home">
-            </form>
-        {% endif %}
-    </div>
 
     <div id="footer">
         {% block footer %}

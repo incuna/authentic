@@ -6,6 +6,3 @@ def auth_settings(request):
         'HAS_AUTH_SSL': settings.AUTH_SSL,
     }
 
-
-def No_Home_Url(request):
-    return {'NO_HOME_URL': settings.NO_HOME_URL}
