@@ -88,7 +88,7 @@ def selectProvider(request, entity_id):
  # @request
  #
  # Single SignOn Response
- # Binding supported: Artifact, POST, Redirect
+ # Binding supported: Artifact, POST
  ###
 def singleSignOnArtifact(request):
     server = build_service_provider(request)
@@ -167,12 +167,18 @@ def singleSignOnPost(request):
  # @relay_state
  #
  # Post-authnrequest process
- # TODO: Manage IdP initiated.
  # TODO: Proxying
  ###
 def sso_after_response(request, login, relay_state = None):
-    if not check_response_id(login):
-        return error_page(request, _('Response identifier mistaken'))
+    # If there is no inResponseTo: IDP initiated
+    # else, check that the response id is the same
+    irt = None
+    try:
+        irt = login.response.assertion[0].subject.subjectConfirmation.subjectConfirmationData.inResponseTo
+    except:
+        return error_page(request, _('Assertion missing'))
+    if irt and not check_response_id(login):
+        return error_page(request, _('Response identifier does not match with request'))
     #TODO: Register assertion and check for replay
     assertion = login.response.assertion[0]
     # Check: Check that the url is the same as in the assertion
