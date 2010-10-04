@@ -1,3 +1,16 @@
+# This is a copy of http://djangosnippets.org/snippets/1289/
+#
+# it provides two template tags to use in HTML templates: breadcrumb and
+# breadcrumb_url.
+#
+# The first allows creating of simple url, with the text portion and url
+# portion. Or only unlinked text (as the last item in breadcrumb trail for
+# example). The second, can actually take the named url with arguments.
+# Additionally it takes a title as the first argument.
+#
+# Initial Author: Andriy Drozdyuk
+
+
 from django import template
 from django.template import loader, Node, Variable
 from django.utils.encoding import smart_str, smart_unicode
