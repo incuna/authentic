@@ -307,11 +307,54 @@ def register_federation_in_progress(request, nameId):
             pass 
     return session_ext
 
+###
+ # finish_federation
+ # @request
+ #
+ # Called after an account linking.
+ ###
+@csrf_exempt
+def finish_federation(request):
+    if request.method == "POST":
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            server = build_service_provider(request)
+            if not server:
+                return error_page(request, _('Service provider not configured'))
+            login = lasso.Login(server)
+            s = load_session(request, login)
+            load_federation_temp(request, login)
+            if not login.session:
+                return error_page(request, _('Error loading session.'))
+            login.nameIdentifier = login.session.getAssertions()[0].subject.nameID
+            fed = add_federation(form.get_user(), login)
+            if not fed:
+                return error_page(request, _('Error adding new federation for this user'))
+            key = request.session.session_key
+            auth_login(request, form.get_user())
+            if request.session.test_cookie_worked():
+                request.session.delete_test_cookie()
+            s.delete()
+            login.session.isDirty = True
+            login.identity.isDirty = True
+            save_session(request, login)
+            save_federation(request, login)
+            maintain_liberty_session_on_service_provider(request, login)
+            return redirect_to_target(request, key)
+        else:
+            # TODO: Error: login failed: message and count 3 attemps
+            return render_to_response('account_linking.html', context_instance=RequestContext(request))
+    else:
+        return error_page(request, _('Unable to perform federation'))
+
 # TODO: We do not manage mutliple login.
 # There is only one global logout possible.
 # Then, remove the function "federate your identity" under a sso session.
 # Multiple login should not be for a SSO purpose but to obtain "membership cred" or "attributes".
 # Then, Idp sollicited for such creds should not maintain a session after the credential issuing.
+# Multiple logout: Tell the user on which idps, the user is logged
+# Propose local or global logout
+# for global, break local session only when there is only idp logged remaining
 
 def singleLogout(request):
     return error_page(request, _('singleLogout'))

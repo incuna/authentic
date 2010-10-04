@@ -60,7 +60,7 @@
 {% if provider_active_session %}
 <div id="login-actions">
 {% trans "Global Logout" %}
-<a href="/authsaml2/logout/{{ provider_active_session.entity_id }}/">{{ provider_active_session.entity_id }}</a>
+<a href="/authsaml2/logout">{{ provider_active_session.entity_id }}</a>
 </div>
 {% endif %}
 
