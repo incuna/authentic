@@ -26,6 +26,16 @@ from utils import *
 def metadata(request):
     return HttpResponse(get_saml2_sp_metadata(request, reverse(metadata)), mimetype = 'text/xml')
 
+# TODO: SSO IdP initiated
+
+###
+ # sso
+ # @request
+ # @ entity_id: Provider ID to request
+ #
+ # Single SignOn request
+ # Binding supported: Redirect
+ ###
 def sso(request, entity_id=None):
     s = get_service_provider_settings()
     if not s:
@@ -52,13 +62,15 @@ def sso(request, entity_id=None):
         try:
             p = LibertyProvider.objects.get(entity_id=entity_id)
         except LibertyProvider.DoesNotExist:
-            raise Http404
+            return error_page(request, 'The provider does not exist')
     # 4. Build authn request
     login = lasso.Login(server)
+    # Only redirect is necessary for the authnrequest
     login.initAuthnRequest(p.entity_id, lasso.HTTP_METHOD_REDIRECT)
     login.request.nameIDPolicy.format = lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT
     login.request.nameIDPolicy.allowCreate = True
-    login.request.protocolBinding = s.binding_authn_request
+    # TODO: from model if checked set binding for response (else the IdP decides form the SP md)
+    # login.request.protocolBinding = p.identity_provider.binding_for_sso_response
     login.request.forceAuthn = False
     login.request.isPassive = False
     login.request.consent = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit'
@@ -72,6 +84,13 @@ def sso(request, entity_id=None):
 def selectProvider(request, entity_id):
     return sso(request, entity_id=entity_id)
 
+###
+ # singleSignOnArtifact, singleSignOnPostOrRedirect
+ # @request
+ #
+ # Single SignOn Response
+ # Binding supported: Artifact, POST, Redirect
+ ###
 def singleSignOnArtifact(request):
     server = build_service_provider(request)
     if not server:
@@ -110,6 +129,9 @@ def singleSignOnArtifact(request):
     # TODO: Relay State
     return sso_after_response(request, login)
 
+# According to: saml-profiles-2.0-os
+# The HTTP Redirect binding MUST NOT be used, as the response will typically exceed the URL length permitted by most user agents.
+# TODO: Remove redirect
 @csrf_exempt
 def singleSignOnPostOrRedirect(request):
     server = build_service_provider(request)
@@ -140,13 +162,19 @@ def singleSignOnPostOrRedirect(request):
         return error_page(request, _('Unknown error processing authn response message'))
     return sso_after_response(request, login)
 
+###
+ # sso_after_response
+ # @request
+ # @login
+ # @relay_state
+ #
+ # Post-authnrequest process 
+ ###
 def sso_after_response(request, login, relay_state = None):
     if not check_response_id(login):
         return error_page(request, _('Response identifier mistaken'))
-
     #TODO: Register assertion and check for replay
     assertion = login.response.assertion[0]
-
     # Check: Check that the url is the same as in the assertion
     try:
         if assertion.subject.subjectConfirmation.subjectConfirmationData.recipient != \
@@ -154,7 +182,6 @@ def sso_after_response(request, login, relay_state = None):
             return error_page(request, _('SubjectConfirmation Recipient Mismatch'))
     except:
             return error_page(request, _('Errot checking SubjectConfirmation Recipient'))
-
     # Check: SubjectConfirmation
     try:
         if assertion.subject.subjectConfirmation.method != \
@@ -162,7 +189,6 @@ def sso_after_response(request, login, relay_state = None):
             return error_page(request, _('Unknown SubjectConfirmation Method'))
     except:
         return error_page(request, _('Error checking SubjectConfirmation Method'))
-
     # Check: AudienceRestriction
     try:
         audience_ok = False
@@ -174,7 +200,6 @@ def sso_after_response(request, login, relay_state = None):
             return error_page(request, _('Incorrect AudienceRestriction'))
     except:
         return error_page(request, _('Error checking AudienceRestriction'))
-
     # Check: notBefore, notOnOrAfter
     try:
         now = datetime.datetime.utcnow()
@@ -189,6 +214,7 @@ def sso_after_response(request, login, relay_state = None):
 
     login.acceptSso()
 
+    # TODO: Proxying
     user = request.user
     if not request.user.is_anonymous():
         fed = lookup_federation_by_name_identifier(login)
@@ -251,6 +277,14 @@ def sso_after_response(request, login, relay_state = None):
         #TODO: Relay state
         return error_page(request, _('Not yet implemented'))
 
+###
+ # register_federation_in_progres
+ # @request
+ # @nameId
+ #
+ # Register the post-authnrequest process during account linking
+ # Binding supported: Only Redirect
+ ###
 def register_federation_in_progress(request, nameId):
     session_ext = None
     try:
@@ -269,6 +303,12 @@ def register_federation_in_progress(request, nameId):
             pass 
     return session_ext
 
+###
+ # finish_federation
+ # @request
+ #
+ # TODO: Remove - NOT USED
+ ###
 @csrf_exempt
 def finish_federation(request):
     if request.method == "POST":
@@ -306,21 +346,57 @@ def finish_federation(request):
 def singleSignOnSOAP(request):
     raise Http404
 
+# TODO: We do not manage mutliple login.
+# There is only one global logout possible.
+# Then, remove the function "federate your identity" under a sso session.
+# Multiple login should not be for a SSO purpose but to obtain "membership cred" or "attributes".
+# Then, Idp sollicited for such creds should not maintain a session after the credential issuing.
+
+def singleLogout(request):
+    return error_page(request, _('singleLogout'))
+
+###
+ # logout
+ # @request
+ # @method
+ # @entity_id
+ #
+ # Single Logout Request
+ # Assumed that the principal is logged on a single IdP
+ # The provider is given in parameter, also in the session.
+ # Profile supported: Redirect, SOAP
+ # For response, if the requester uses a (a)synchronous binding, the responder uses the same.
+ # Else, the grabs the preferred method from the metadata.
+ # TODO: move to singleLogout
+ # TODO: IdP initiated
+ ###
 def logout(request, method = None):
     if not is_sp_configured():
         return error_page(request, _('Service provider not configured'))
     if request.user.is_anonymous():
         return error_page(request, _('Unable to logout a not logged user!'))
+    # TODO: remove - The default is defined in the model
     if method is None:
         method = lasso.HTTP_METHOD_REDIRECT
     server = build_service_provider(request)
     if not server:
         error_page(request, _('Service provider not configured'))
     logout = lasso.Logout(server)
-
     load_session(request, logout)
     load_federation(request, logout)
-
+    # TODO: grep method from model
+    # remove entity_id?
+    # p = None
+    # if entity_id:
+    #     try:
+    #         p = LibertyProvider.objects.get(entity_id=entity_id)
+    #     except LibertyProvider.DoesNotExist:
+    #         grab provider from session
+    # else:
+    #     grab provider from session
+    # if not p:
+    #     return error_page(request, 'Unable to logout without a valid provider')
+    # if p.identity_provider.binding_for_slo_request...
     if method == lasso.HTTP_METHOD_REDIRECT:
         return slo_sp_redirect(request, logout)
     if method == lasso.HTTP_METHOD_SOAP:
@@ -358,7 +434,12 @@ def slo_sp_soap(request, logout):
         return error_page(request, _('Could not send logout request to the identity provider.\n Only local logout performed.'))
     return slo_return(request, logout, soap_answer)
 
-
+###
+ # singleLogoutReturn
+ # @request
+ #
+ # Response from Redirect
+ ###
 def singleLogoutReturn(request):
     if not is_sp_configured():
         return error_page(request, _('Service provider not configured'))
@@ -370,6 +451,14 @@ def singleLogoutReturn(request):
     message = request.META.get('QUERY_STRING', '')
     return slo_return(request, logout, message)
 
+###
+ # slo_return
+ # @request
+ # @logout
+ # @message
+ #
+ # Post-response processing
+ ###
 def slo_return(request, logout, message):
     s = get_service_provider_settings()
     if not s:
@@ -395,12 +484,29 @@ def slo_return(request, logout, message):
         pass
     return HttpResponseRedirect('/')
 
+###
+ # singleLogoutSOAP
+ # @request
+ #
+ # Single Logout IdP initiated
+ ###
 def singleLogoutSOAP(request):
     return error_page(request, _('singleLogoutSOAP'))
 
-def singleLogout(request):
-    return error_page(request, _('singleLogout'))
-
+###
+ # federationTermination
+ # @request
+ # @method
+ # @entity_id
+ #
+ # Name Identifier Management
+ # Profile supported: Redirect, SOAP
+ # For response, if the requester uses a (a)synchronous binding, the responder uses the same.
+ # Else, the grabs the preferred method from the metadata.
+ # TODO: IdP initiated
+ # TODO: Define in admin a parameter to indicate if the federation termination implies a local logout (IDP and SP initiated)
+ # TODO: Clean tables of all dumps about this user
+ ###
 def federationTermination(request, entity_id, method = None):
     s = get_service_provider_settings()
     if not s:
@@ -410,31 +516,37 @@ def federationTermination(request, entity_id, method = None):
     server = build_service_provider(request)
     if not server:
         error_page(request, _('Service provider not configured'))
-
+    # TODO: remove - The default is defined in the model
     if method is None:
         method = lasso.HTTP_METHOD_REDIRECT
-
     manage = lasso.NameIdManagement(server)
-
     load_session(request, manage)
     load_federation(request, manage)
     try:
         p = LibertyProvider.objects.get(entity_id=entity_id)
     except LibertyProvider.DoesNotExist:
         return error_page(request, _('No provider for defederation'))
-
-    # WARNING: We delete local federation without the knowing the IdP answer
+    # WARNING: We delete local federation without knowing the IdP answer
     # Better privacy: The user choice whatever the IdP wants.
-    # TODO: Not logout but remove global logout
-    # Clean tables of all dumps about this user
+    # TODO: grep method from model
+    # remove entity_id?
+    # p = None
+    # if entity_id:
+    #     try:
+    #         p = LibertyProvider.objects.get(entity_id=entity_id)
+    #     except LibertyProvider.DoesNotExist:
+    #         grab provider from session
+    # else:
+    #     grab provider from session
+    # if not p:
+    #     return error_page(request, 'Unable to logout without a valid provider')
+    # if p.identity_provider.binding_for_slo_request...
     fed = lookup_federation_by_user(request.user, p.entity_id)
     if not fed:
         return error_page(request, _('Not a valid federation'))
     fed.delete()
-
     if method == lasso.HTTP_METHOD_REDIRECT:
         return fedterm_sp_redirect(request, manage, entity_id)
-
     if method == lasso.HTTP_METHOD_SOAP:
         return fedterm_sp_soap(request, manage, entity_id)
 
@@ -455,6 +567,12 @@ def fedterm_sp_soap(request, manage, remote_provider_id):
         return error_page(request, _('Failure to communicate with identity provider'))
     return manage_name_id_return(request, manage, soap_answer)
 
+###
+ # manageNameIdReturn
+ # @request
+ #
+ # Response from Redirect
+ ###
 def manageNameIdReturn(request):
     server = build_service_provider(request)
     if not server:
@@ -479,6 +597,14 @@ def manageNameIdReturn(request):
     message = get_saml2_request_message(request)
     return manage_name_id_return(request, manage, message)
 
+###
+ # manage_name_id_return
+ # @request
+ # @logout
+ # @message
+ #
+ # Post-response processing
+ ###
 def manage_name_id_return(request, manage, message):
     try:
         manage.processResponseMsg(message)
@@ -489,6 +615,15 @@ def manage_name_id_return(request, manage, message):
             if manage.identity:
                 save_federation(request, manage)
     return redirect_to_target(request)
+
+###
+ # federationTerminationSOAP
+ # @request
+ #
+ # Federation termination IdP initiated
+ ###
+def federationTerminationSOAP(request):
+    return error_page(request, _('federationTerminationSOAP'))
 
 #############################################
 # Helper functions 
