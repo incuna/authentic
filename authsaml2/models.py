@@ -22,7 +22,6 @@ AUTHSAML2_BINDING_FOR_AUTHN_REQUEST = (
 
 class MyServiceProvider(models.Model):
     unauth = models.CharField(max_length=80, choices=AUTHSAML2_UNAUTH)
-    binding_authn_request = models.CharField(max_length=80, choices=AUTHSAML2_BINDING_FOR_AUTHN_REQUEST)
     back_url = models.CharField(max_length = 80, )
 
 class ExtendDjangoSession(models.Model):
