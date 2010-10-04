@@ -84,10 +84,13 @@ class LibertyProvider(models.Model):
                 self.entity_id = provider.providerId
                 self.protocol_conformance = provider.protocolConformance
 
+# TODO: Remove this in LibertyServiceProvider
 ASSERTION_CONSUMER_PROFILES = (
         ('art', _('Artifact binding')),
         ('post', _('Post binding')))
 
+# TODO: The IdP must look to the preferred binding order for sso in the SP metadata (AssertionConsumerService)
+# expect if the protocol for response is defined in the request (ProtocolBinding attribute)
 class LibertyServiceProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True, related_name = 'service_provider')
@@ -117,11 +120,46 @@ class LibertyServiceProvider(models.Model):
     # with the metadata file support the SP role
     # i.e. provider.roles & lasso.PROVIDER_ROLE_SP != 0
 
+# According to: saml-profiles-2.0-os
+# The HTTP Redirect binding MUST NOT be used, as the response will typically exceed the URL length permitted by most user agents.
+BINDING_SSO_IDP = (
+    (lasso.SAML2_METADATA_BINDING_ARTIFACT, _('Artifact binding')),
+    (lasso.SAML2_METADATA_BINDING_POST, _('POST binding'))
+)
+HTTP_METHOD = (
+    (lasso.HTTP_METHOD_REDIRECT, _('Redirect binding')),
+    (lasso.HTTP_METHOD_SOAP, _('SOAP binding'))
+)
 
+# TODO: The choice for requests must be restricted by the IdP metadata
+# The SP then chooses the binding in this list.
+# For response, if the requester uses a (a)synchronous binding, the responder uses the same.
+# However, the responder can choose which asynchronous binding it employs.
+# TODO: Add checkbox to enable protocol binding definition for responses.
+# - Not checked, not specified in request, the IdP take from the SP metadata
+# - Checked, The SP defines in its request the binding for response
 class LibertyIdentityProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True, related_name = 'identity_provider')
     enabled = models.BooleanField(verbose_name = _('Enabled'))
+    enable_binding_for_sso_response = models.BooleanField(
+            verbose_name = _('Binding for Authnresponse (taken from metadata by the IdP if not enabled)'))
+    binding_for_sso_response = models.CharField(
+            max_length = 60, choices = BINDING_SSO_IDP,
+            verbose_name = '',
+            default = lasso.SAML2_METADATA_BINDING_ARTIFACT)
+    enable_http_method_for_slo_request = models.BooleanField(
+            verbose_name = _('HTTP method for single logout request (taken from metadata if not enabled)'))
+    http_method_for_slo_request = models.IntegerField(
+            max_length = 60, choices = HTTP_METHOD,
+            verbose_name = '',
+            default = lasso.HTTP_METHOD_REDIRECT)
+    enable_http_method_for_defederation_request = models.BooleanField(
+            verbose_name = _('HTTP method for federation termination request (taken from metadata if not enabled)'))
+    http_method_for_defederation_request = models.IntegerField(
+            max_length = 60, choices = HTTP_METHOD,
+            verbose_name = '',
+            default = lasso.HTTP_METHOD_SOAP)
     want_authn_request_signed = models.BooleanField(
             verbose_name = _("Want AuthnRequest signed"))
     # Mapping to use to get User attributes from the assertion

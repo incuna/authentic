@@ -3,6 +3,9 @@ import os.path
 import lasso
 import saml2utils
 import saml11utils
+import urllib
+import httplib
+import logging
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response
