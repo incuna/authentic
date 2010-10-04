@@ -106,7 +106,7 @@ class LibertyServiceProvider(models.Model):
     attribute_map = models.ForeignKey(LibertyAttributeMap,
             related_name = "service_providers",
             blank = True, null = True)
-    # XXX: format in the metadata file, should be suffixed with a start to mark
+    # XXX: format in the metadata file, should be suffixed with a star to mark
     # them as special
     default_name_id_format = models.CharField(max_length = 80,
             default = "persistent",
