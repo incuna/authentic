@@ -389,6 +389,10 @@ def logout(request):
         p = LibertyProvider.objects.get(entity_id=pid)
     except:
         return error_page(request, _('Session malformed.'))
+
+    # TODO: The user asks a logout, we should perform before knowing if the IdP can handle
+    # Except if we want to manage mutliple logout with multiple IdP
+
     # If not defined in the metadata, put ANY to let lasso do its job from metadata
     if not p.identity_provider.enable_http_method_for_slo_request:
         try:
@@ -742,84 +746,90 @@ def slo_return_response(logout):
  # @entity_id
  #
  # Name Identifier Management
+ # Federation termination: request from user interface
  # Profile supported: Redirect, SOAP
  # For response, if the requester uses a (a)synchronous binding, the responder uses the same.
  # Else, the grabs the preferred method from the metadata.
- # TODO: IdP initiated
+ # By default we do not break the session.
  # TODO: Define in admin a parameter to indicate if the federation termination implies a local logout (IDP and SP initiated)
  # TODO: Clean tables of all dumps about this user
  ###
-def federationTermination(request, entity_id, method = None):
-    s = get_service_provider_settings()
-    if not s:
+def federationTermination(request, entity_id):
+    if not is_sp_configured():
         return error_page(request, _('Service provider not configured'))
     if not entity_id:
         return error_page(request, _('No provider for defederation'))
+    if request.user.is_anonymous():
+        return error_page(request, _('Unable to defederate a not logged user!'))
     server = build_service_provider(request)
     if not server:
         error_page(request, _('Service provider not configured'))
-    # TODO: remove - The default is defined in the model
-    if method is None:
-        method = lasso.HTTP_METHOD_REDIRECT
+    # Lookup for the Identity provider
+    try:
+        p = LibertyProvider.objects.get(entity_id=entity_id)
+    except:
+        return error_page(request, _('No such identity provider.'))
     manage = lasso.NameIdManagement(server)
     load_session(request, manage)
     load_federation(request, manage)
-    try:
-        p = LibertyProvider.objects.get(entity_id=entity_id)
-    except LibertyProvider.DoesNotExist:
-        return error_page(request, _('No provider for defederation'))
-    # WARNING: We delete local federation without knowing the IdP answer
-    # Better privacy: The user choice whatever the IdP wants.
-    # TODO: grep method from model
-    # remove entity_id?
-    # p = None
-    # if entity_id:
-    #     try:
-    #         p = LibertyProvider.objects.get(entity_id=entity_id)
-    #     except LibertyProvider.DoesNotExist:
-    #         grab provider from session
-    # else:
-    #     grab provider from session
-    # if not p:
-    #     return error_page(request, 'Unable to logout without a valid provider')
-    # if p.identity_provider.binding_for_slo_request...
     fed = lookup_federation_by_user(request.user, p.entity_id)
     if not fed:
         return error_page(request, _('Not a valid federation'))
+    # The user asks a defederation, we perform without knowing if the IdP can handle
     fed.delete()
-    if method == lasso.HTTP_METHOD_REDIRECT:
-        return fedterm_sp_redirect(request, manage, entity_id)
-    if method == lasso.HTTP_METHOD_SOAP:
-        return fedterm_sp_soap(request, manage, entity_id)
-
-def fedterm_sp_redirect(request, manage, remote_provider_id):
-    manage.initRequest(remote_provider_id, None, lasso.HTTP_METHOD_REDIRECT)
-    manage.buildRequestMsg()
-    save_manage(request, manage)
-    return HttpResponseRedirect(manage.msgUrl)
-
-def fedterm_sp_soap(request, manage, remote_provider_id):
-    manage.initRequest(remote_provider_id, None, lasso.HTTP_METHOD_SOAP)
-    manage.buildRequestMsg()
-    # TODO: Client cert
-    client_cert = None
-    try:
-        soap_answer = soap_call(manage.msgUrl, manage.msgBody, client_cert = client_cert)
-    except SOAPException:
-        return error_page(request, _('Failure to communicate with identity provider'))
-    return manage_name_id_return(request, manage, soap_answer)
+    # If not defined in the metadata, put ANY to let lasso do its job from metadata
+    if not p.identity_provider.enable_http_method_for_defederation_request:
+        try:
+            manage.initRequest(entity_id, None, lasso.HTTP_METHOD_ANY)
+        except lasso.Error, error:
+            return error_page(request, _('fedTerm/SP: Unable to init defederation request'))
+        if manage.msgBody:
+            manage.buildRequestMsg()
+            # TODO: Client cert
+            client_cert = None
+            try:
+                soap_answer = soap_call(manage.msgUrl, manage.msgBody, client_cert = client_cert)
+            except SOAPException:
+                return error_page(request, _('fedTerm/SOAP SP: Unable to perform SOAP defederation request'))
+            return manage_name_id_return(request, manage, soap_answer)
+        else:
+            manage.buildRequestMsg()
+            save_manage(request, manage)
+            return HttpResponseRedirect(manage.msgUrl)
+    # Else, taken from config
+    if p.identity_provider.http_method_for_defederation_request == lasso.HTTP_METHOD_REDIRECT:
+        try:
+            manage.initRequest(entity_id, None, lasso.HTTP_METHOD_REDIRECT)
+        except lasso.Error, error:
+            return error_page(request, _('fedTerm/Redirect SP: Unable to init defederation request'))
+        manage.buildRequestMsg()
+        save_manage(request, manage)
+        return HttpResponseRedirect(manage.msgUrl)
+    if p.identity_provider.http_method_for_defederation_request == lasso.HTTP_METHOD_SOAP:
+        try:
+           manage.initRequest(entity_id, None, lasso.HTTP_METHOD_SOAP)
+        except lasso.Error, error:
+            return error_page(request, _('fedTerm/SOAP SP: Unable to init defederation request'))
+        manage.buildRequestMsg()
+        # TODO: Client cert
+        client_cert = None
+        try:
+            soap_answer = soap_call(manage.msgUrl, manage.msgBody, client_cert = client_cert)
+        except SOAPException:
+            return error_page(request, _('fedTerm/SOAP SP: Unable to perform SOAP defederation request'))
+        return manage_name_id_return(request, manage, soap_answer)
+    return error_page(request, _('Unknown HTTP method.'))
 
 ###
  # manageNameIdReturn
  # @request
  #
- # Response from Redirect
+ # Federation termination: response from Redirect SP initiated
  ###
 def manageNameIdReturn(request):
     server = build_service_provider(request)
     if not server:
         error_page(request, _('Service provider not configured'))
-
     manage_dump = get_manage_dump(request)
     manage = None
     if manage_dump and manage_dump.count()>1:
@@ -833,9 +843,7 @@ def manageNameIdReturn(request):
         manage = lasso.NameIdManagement(server)
     if not manage:
         return error_page(request, _('Defederation failed'))
-
     load_federation(request, manage)
-
     message = get_saml2_request_message(request)
     return manage_name_id_return(request, manage, message)
 
@@ -859,13 +867,22 @@ def manage_name_id_return(request, manage, message):
     return redirect_to_target(request)
 
 ###
- # federationTerminationSOAP
+ # manageNameIdSOAP
  # @request
  #
- # Federation termination IdP initiated
+ # Federation termination: request from SOAP IdP initiated
  ###
-def federationTerminationSOAP(request):
-    return error_page(request, _('federationTerminationSOAP'))
+def manageNameIdSOAP(request):
+    return error_page(request, _('manageNameIdSOAP'))
+
+###
+ # manageNameIdSOAP
+ # @request
+ #
+ # Federation termination: request from Redirect IdP initiated
+ ###
+def manageNameId(request):
+    return error_page(request, _('manageNameId'))
 
 #############################################
 # Helper functions 
