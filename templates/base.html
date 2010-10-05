@@ -22,15 +22,14 @@
 
 
     <div id="content">
-    <div id="breadcrumb">
-    {% load breadcrumbs %}
 
-    {% block breadcrumbs %}
-    {% breadcrumb_url 'Home' index %}
-    {% endblock %}
-    <br>
-    <br>
-    </div>
+        <div id="breadcrumb">
+        {% load breadcrumbs %}
+        {% block breadcrumbs %}
+        {% breadcrumb_url 'Home' index %}
+        {% endblock %}
+        </div>
+
         {% if not request.user.username == '' %}
         <div id="user"><p>You are authenticated as {{ request.user.username }}</p></div>
         {% endif %}
