@@ -13,13 +13,6 @@ AUTHSAML2_UNAUTH = (
 #    ('AUTHSAML2_UNAUTH_CREATE_USER_WITH_ATTRS_SELF_ASSERTED', _('Create new user with attributes seld-asserted by the user')),
 )
 
-AUTHSAML2_BINDING_FOR_AUTHN_REQUEST = (
-    (lasso.SAML2_METADATA_BINDING_POST, _('Binding HTTP POST')),
-    (lasso.SAML2_METADATA_BINDING_ARTIFACT, _('Binding ARTIFACT')),
-#    (lasso.SAML2_METADATA_BINDING_SOAP, _('HTTP SOAP')),
-#    (lasso.SAML2_METADATA_BINDING_REDIRECT, _('HTTP REDIRECT')),
-)
-
 class MyServiceProvider(models.Model):
     unauth = models.CharField(max_length=80, choices=AUTHSAML2_UNAUTH)
     back_url = models.CharField(max_length = 80, )

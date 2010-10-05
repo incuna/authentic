@@ -356,9 +356,6 @@ def finish_federation(request):
 # Propose local or global logout
 # for global, break local session only when there is only idp logged remaining
 
-def singleLogout(request):
-    return error_page(request, _('singleLogout'))
-
 ###
  # logout
  # @request
@@ -371,7 +368,6 @@ def singleLogout(request):
  # Profile supported: Redirect, SOAP
  # For response, if the requester uses a (a)synchronous binding, the responder uses the same.
  # Else, the grabs the preferred method from the metadata.
- # TODO: move to singleLogout
  # TODO: IdP initiated
  ###
 def logout(request):
@@ -416,7 +412,7 @@ def logout(request):
             #auth_logout(request)
             return HttpResponseRedirect(logout.msgUrl)
     # Else, taken from config
-    if p.identity_provider.http_method_for_slo_request == lasso.HTTP_METHOD_SOAP:
+    if p.identity_provider.http_method_for_slo_request == lasso.HTTP_METHOD_REDIRECT:
         try:
             logout.initRequest(None, lasso.HTTP_METHOD_REDIRECT)
         except lasso.Error, error:
@@ -427,7 +423,7 @@ def logout(request):
         logout.buildRequestMsg()
         #auth_logout(request)
         return HttpResponseRedirect(logout.msgUrl)
-    if p.identity_provider.http_method_for_slo_request == lasso.HTTP_METHOD_REDIRECT:
+    if p.identity_provider.http_method_for_slo_request == lasso.HTTP_METHOD_SOAP:
         try:
            logout.initRequest(None, lasso.HTTP_METHOD_SOAP)
         except lasso.Error, error:
@@ -452,6 +448,7 @@ def localLogout(request):
  # @request
  #
  # Response from Redirect
+ # Single Logout SOAP IdP initiated
  ###
 def singleLogoutReturn(request):
     if not is_sp_configured():
@@ -459,10 +456,12 @@ def singleLogoutReturn(request):
     server = build_service_provider(request)
     if not server:
         error_page(request, _('Service provider not configured'))
+    query = get_saml2_query_request(request)
+    if not query:
+        return error_page(request, _('SLO/Redirect: Unable to handle Single Logout by Redirect without request'))
     logout = lasso.Logout(server)
-    s = load_session(request, logout)
-    message = request.META.get('QUERY_STRING', '')
-    return slo_return(request, logout, message)
+    load_session(request, logout)
+    return slo_return(request, logout, query)
 
 ###
  # slo_return
@@ -479,9 +478,6 @@ def slo_return(request, logout, message):
     try:
         logout.processResponseMsg(message)
     except lasso.Error, error:
-        delete_session(request)
-        remove_liberty_session_sp(request)
-        auth_logout(request)
         return error_page(request, _('Could not send logout request to the identity provider.\n Only local logout performed.'))
     if logout.isSessionDirty:
         if logout.session:
@@ -501,10 +497,243 @@ def slo_return(request, logout, message):
  # singleLogoutSOAP
  # @request
  #
- # Single Logout IdP initiated
+ # Single Logout SOAP IdP initiated
  ###
+@csrf_exempt
 def singleLogoutSOAP(request):
-    return error_page(request, _('singleLogoutSOAP'))
+    try:
+        soap_message = get_soap_message(request)
+    except:
+        logging.warning(_('SLO/SOAP: Bad SOAP message'))
+        return
+    if not soap_message:
+        logging.warning(_('SLO/SOAP: Bad SOAP message'))
+        return
+
+#        response = get_response()
+#        response.set_content_type('text/xml')
+#        session_index = None
+
+    request_type = lasso.getRequestTypeFromSoapMsg(soap_message)
+    if request_type != lasso.REQUEST_TYPE_LOGOUT:
+        logging.warning(_('SLO/SOAP: SOAP message is not a slo message'))
+        return
+
+    if not is_sp_configured():
+        logging.warning(_('SLO/SOAP: Service provider not configured'))
+        return
+        return error_page(request, _('Service provider not configured'))
+    server = build_service_provider(request)
+    if not server:
+        logging.warning(_('SLO/SOAP: Service provider not configured'))
+        return
+    logout = lasso.Logout(server)
+
+    try:
+        logout.processRequestMsg(soap_message)
+    except lasso.Error, error:
+        handled_errors = (lasso.PROFILE_ERROR_MISSING_REMOTE_PROVIDERID,
+                          lasso.DS_ERROR_INVALID_SIGNATURE,
+                          lasso.DS_ERROR_SIGNATURE_NOT_FOUND)
+        if error[0] in handled_errors:
+            logging.warning(_('SLO/SOAP: Error while processing request %s' % error[1]))
+            return
+        else:
+            logging.warning(_('SLO/SOAP: Unknown error while processing request'))
+            return
+
+    # Look for a session index
+    try:
+        session_index = logout.request.sessionIndex
+    except:
+        pass
+
+    fed = lookup_federation_by_name_identifier(logout)
+    if not fed:
+        logging.warning(_('SLO/SOAP: Error while processing request %s' % error[1]))
+        return
+
+    session = None
+    if session_index:
+#        # Map session.id to session.index
+#        for x in get_session_manager().values():
+#            if logout.remoteProviderId is x.proxied_idp:
+#                if x._proxy_session_index == session_index:
+#                   session = x
+#            else:
+#                if x.get_session_index() == session_index:
+#                    session = x
+        # TODO: WARNING: A user can be logged without a federation!
+        try:
+            session = LibertySessionSP.objects.get(federation=fed, session_index=session_index)
+        except:
+            pass
+#    else:
+#        # No session index take the last session with the same name identifier
+#        name_identifier = logout.nameIdentifier.content
+#        for session_candidate in get_session_manager().values():
+#            if name_identifier in (session_candidate.name_identifiers or []):
+#                session = session_candidate
+        try:
+            session = LibertySessionSP.objects.get(federation=fed)
+        except:
+            # no session, build straight failure answer
+           pass
+    if session:
+        q = LibertySessionDump.objects.filter(django_session_key = session.django_session_key)
+        if not q:
+            logging.warning(_('SLO/SOAP: No session dump for this session'))
+            finishSingleLogoutSOAP(logout)
+        logging.warning('SLO/SOAP from %s, for session index %s and session %s' % (logout.remoteProviderId, session_index, session.id))
+        logout.setSessionFromDump(q[0].session_dump)
+    else:
+        logging.warning(_('SLO/SOAP: No Liberty session found'))
+        finishSingleLogoutSOAP(logout)
+#    authentic.identities.get_store().load_identities()
+#    try:
+#       identity = authentic.identities.get_store().get_identity(session.user)
+#    except KeyError:
+#        pass
+#    else:
+#        if identity.lasso_dump:
+#            logout.setIdentityFromDump(identity.lasso_dump)
+#    if session.proxied_idp:
+#        self.proxy_slo_soap(session, identity)
+#        logout.setSessionFromDump(session.lasso_session_dump)
+    try:
+        logout.validateRequest()
+    except lasso.Error, error:
+        handled_errors = (lasso.PROFILE_ERROR_MISSING_REMOTE_PROVIDERID,
+                          lasso.DS_ERROR_INVALID_SIGNATURE,
+                          lasso.DS_ERROR_SIGNATURE_NOT_FOUND,
+                          lasso.LOGOUT_ERROR_UNSUPPORTED_PROFILE,
+                          lasso.LOGOUT_ERROR_FEDERATION_NOT_FOUND,
+                          lasso.PROFILE_ERROR_FEDERATION_NOT_FOUND,
+                          lasso.PROFILE_ERROR_SESSION_NOT_FOUND)
+        if error[0] in handled_errors:
+            logging.warning(_('SLO/SOAP: Error while validating request: %s' % error[1]))
+            finishSingleLogoutSOAP(logout)
+        else:
+            import sys
+            logging.warning(_('SLO/SOAP: Unknown error while validating request%s' % sys.exc_info()[0]))
+            finishSingleLogoutSOAP(logout)
+    else:
+        django_session_key = session.django_session_key
+        session.delete()
+        q[0].delete()
+        from django.contrib.sessions.models import Session
+        try:
+            ss = Session.objects.all()
+            for s in ss:
+                if s.session_key == django_session_key:
+                    session_django = s
+        except:
+            import sys
+            logging.warning(_('SLO/SOAP: Unable to log django session: %s' % sys.exc_info()[0]))
+            finishSingleLogoutSOAP(logout)
+        try:
+            session_django.delete()
+        except:
+            import sys
+            logging.warning(_('SLO/SOAP: Unable to log django session: %s' % sys.exc_info()[0]))
+            finishSingleLogoutSOAP(logout)
+    finishSingleLogoutSOAP(logout)
+
+def finishSingleLogoutSOAP(logout):
+    logout.buildResponseMsg()
+    return logout.msgBody
+
+###
+ # singleLogout
+ # @request
+ #
+ # Single Logout Redirect IdP initiated
+ ###
+def singleLogout(request):
+
+    if not is_sp_configured():
+        return error_page(request, _('SLO/Redirect: Service provider not configured'))
+
+    query = get_saml2_query_request(request)
+    if not query:
+        return error_page(request, _('SLO/Redirect: Unable to handle Single Logout by Redirect without request'))
+
+    server = build_service_provider(request)
+    if not server:
+        return error_page(_('SLO/Redirect: Service provider not configured'))
+
+    logout = lasso.Logout(server)
+    try:
+        logout.processRequestMsg(query)
+    except lasso.Error, error:
+        if error[0] == lasso.DS_ERROR_INVALID_SIGNATURE:
+            logging.warning(_('SLO/Redirect from %s: Invalid Signature' % logout.remoteProviderId))
+        else:
+            import sys
+            return error_page(_('SLO/Redirect from %s: Unknown error%s' % (logout.remoteProviderId, sys.exc_info()[0])))
+        return slo_return_response(logout)
+
+    logging.warning(_('SLO/Redirect from %s:' % logout.remoteProviderId))
+
+    load_session(request, logout)
+
+    try:
+        logout.validateRequest()
+    except lasso.Error, error:
+        handled_errors = (lasso.PROFILE_ERROR_MISSING_REMOTE_PROVIDERID,
+                          lasso.DS_ERROR_INVALID_SIGNATURE,
+                          lasso.DS_ERROR_SIGNATURE_NOT_FOUND,
+                          lasso.LOGOUT_ERROR_UNSUPPORTED_PROFILE,
+                          lasso.LOGOUT_ERROR_FEDERATION_NOT_FOUND,
+                          lasso.PROFILE_ERROR_FEDERATION_NOT_FOUND,
+                          lasso.PROFILE_ERROR_SESSION_NOT_FOUND)
+        if error[0] in handled_errors:
+            #print 'SLO/Redirect: Error while validating request: %s' % error[1]
+            logging.warning(_('SLO/Redirect: Error while validating request: %s' % error[1]))
+            slo_return_response(logout)
+        else:
+            import sys
+            #print 'SLO/Redirect: Unknown error while validating request%s' % sys.exc_info()[0]
+            logging.warning(_('SLO/Redirect: Unknown error while validating request%s' % sys.exc_info()[0]))
+            slo_return_response(logout)
+
+    if logout.isSessionDirty:
+        if logout.session:
+            save_session(request, logout)
+        else:
+            delete_session(request)
+    remove_liberty_session_sp(request)
+    auth_logout(request)
+
+    # TODO: we cannot call slo_return_response, else django raise an error due an httpresponse return missing
+    try:
+        logout.buildResponseMsg()
+    except lasso.Error, error:
+        if error[0] == lasso.PROFILE_ERROR_UNKNOWN_PROFILE_URL:
+            # metadata didn't contain logout return url, stay here.
+            return error_page(_('SLO/Response from %s: Error unknown profile URL' % remoteProviderId))
+        elif error[0] == lasso.SERVER_ERROR_PROVIDER_NOT_FOUND:
+            return error_page(_('SLO/Response from %s: Provider not found' % remoteProviderId))
+        else:
+            import sys
+            return error_page(_('SLO/Redirect from %s: Unknown error%s' % (logout.remoteProviderId, sys.exc_info()[0])))
+    else:
+        return HttpResponseRedirect(logout.msgUrl)
+
+def slo_return_response(logout):
+    try:
+        logout.buildResponseMsg()
+    except lasso.Error, error:
+        if error[0] == lasso.PROFILE_ERROR_UNKNOWN_PROFILE_URL:
+            # metadata didn't contain logout return url, stay here.
+            return error_page(_('SLO/Response from %s: Error unknown profile URL' % remoteProviderId))
+        elif error[0] == lasso.SERVER_ERROR_PROVIDER_NOT_FOUND:
+            return error_page(_('SLO/Response from %s: Provider not found' % remoteProviderId))
+        else:
+            import sys
+            return error_page(_('SLO/Redirect from %s: Unknown error%s' % (logout.remoteProviderId, sys.exc_info()[0])))
+    else:
+        return HttpResponseRedirect(logout.msgUrl)
 
 ###
  # federationTermination
