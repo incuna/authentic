@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 
 from authentic.saml.models import *
 from authentic.saml.common import *
+from interaction import consent
 
 def fill_assertion(request, saml_request, assertion, provider_id):
     '''Stuff an assertion with information extracted from the user record
@@ -48,13 +49,6 @@ def metadata(request):
     '''Return ID-FFv1.2 metadata for our IdP'''
     return HttpResponse(get_idff12_metadata(request, reverse(metadata)),
             mimetype = 'text/xml')
-
-def consent(request, id = None, next = id, provider_id = id):
-   '''On a GET produce a form asking for consentment,
-
-       On a POST handle the form and redirect to next'''
-   # TODO: implement me
-   raise NotImplementedError('Implement consent')
 
 def save_artifact(request, login):
     LibertyArtifact(artifact = login.assertionArtifact,
