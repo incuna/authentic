@@ -128,8 +128,8 @@ def create_crumb(title, url=None):
             """ > """ \
             """</span>"""
     if url:
-        crumb = "%s<a href='%s'>%s</a>" % (crumb, url, title)
+        crumb = "%s <a href='%s'>%s</a>" % (crumb, url, title)
     else:
-        crumb = "%s&nbsp;&nbsp;%s" % (crumb, title)
+        crumb = "%s %s" % (crumb, title)
 
     return crumb
