@@ -1,8 +1,8 @@
 from authentic.idp import register_service_list
-from authentic.saml.models import LibertyServiceProvider
 import urllib
 
 def saml_service_list(request):
+    from authentic.saml.models import LibertyServiceProvider
     q = LibertyServiceProvider.objects.filter(enabled = True, idp_initiated_sso = True)
     list = []
     for service_provider in q:
