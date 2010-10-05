@@ -15,10 +15,11 @@ def getlogger():
 
     formatter = logging.Formatter('[%(asctime)s] %(levelname)-8s"%(message)s"','%Y-%m-%d %a %H:%M:%S') 
     
-    log_handler = logging.FileHandler(settings.LOG_FILENAME)
-    log_handler.setFormatter(formatter)
-    log_handler.setLevel(settings.LOG_FILE_LEVEL)
-    logger.addHandler(log_handler)
+    if settings.LOG_FILENAME:
+        log_handler = logging.FileHandler(settings.LOG_FILENAME)
+        log_handler.setFormatter(formatter)
+        log_handler.setLevel(settings.LOG_FILE_LEVEL)
+        logger.addHandler(log_handler)
     
     if settings.LOG_SYSLOG:
         syslog_handler = SysLogHandler(address = '/dev/log')
