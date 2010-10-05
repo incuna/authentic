@@ -119,6 +119,8 @@ class LibertyServiceProvider(models.Model):
     # TODO: add clean method which checks that the LassoProvider we can create
     # with the metadata file support the SP role
     # i.e. provider.roles & lasso.PROVIDER_ROLE_SP != 0
+    ask_user_consent = models.BooleanField(
+        verbose_name = _('Ask user for consent when creating a federation'), default = False)
 
 # According to: saml-profiles-2.0-os
 # The HTTP Redirect binding MUST NOT be used, as the response will typically exceed the URL length permitted by most user agents.
