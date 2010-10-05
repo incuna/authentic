@@ -29,7 +29,7 @@ from authentic.saml.models import *
 
 
 def metadata(request):
-    return HttpResponse(get_saml2_metadata(request), mimetype = 'text/xml')
+    return HttpResponse(get_saml2_metadata(request, request.path), mimetype = 'text/xml')
 
 @login_required
 def sso(request):
