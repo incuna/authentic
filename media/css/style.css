@@ -225,21 +225,21 @@ a.openid_large_btn:focus {
 }
 
 li.indented {
-    margin-left: 50px;
+	margin-left: 50px;
 }
 
 ul.NoBullet {
-    list-style-type: none;
+	list-style-type: none;
 }
 
-div#content h4{
-    margin-bottom: 5px;
-    margin-top: 30px;
+div#content h4 {
+	margin-bottom: 5px;
+	margin-top: 30px;
 }
 
 div.errors {
-    margin: 0;
-    padding: 0;
-    color: #e80404;
-    list-style: none;
+	margin: 0;
+	padding: 0;
+	color: #e80404;
+	list-style: none;
 }
