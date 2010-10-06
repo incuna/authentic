@@ -464,7 +464,7 @@ msgid ""
 "\n"
 "             You are authenticated as %(username)s.\n"
 "             "
-msgstr "Vous êtes identifié en tant que %(username)s."
+msgstr "\nVous êtes identifié en tant que %(username)s."
 
 #: templates/error_ssl.html:4
 msgid "Error: authentication failure"
