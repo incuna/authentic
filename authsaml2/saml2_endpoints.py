@@ -502,6 +502,7 @@ def slo_return(request, logout, message):
  # @request
  #
  # Single Logout SOAP IdP initiated
+ # TODO: Manage valid soap responses on error (else error 500)
  ###
 @csrf_exempt
 def singleLogoutSOAP(request):
@@ -732,9 +733,9 @@ def slo_return_response(logout):
     except lasso.Error, error:
         if error[0] == lasso.PROFILE_ERROR_UNKNOWN_PROFILE_URL:
             # metadata didn't contain logout return url, stay here.
-            return error_page(_('SLO/Response from %s: Error unknown profile URL' % remoteProviderId))
+            return error_page(_('SLO/Response from %s: Error unknown profile URL' % logout.remoteProviderId))
         elif error[0] == lasso.SERVER_ERROR_PROVIDER_NOT_FOUND:
-            return error_page(_('SLO/Response from %s: Provider not found' % remoteProviderId))
+            return error_page(_('SLO/Response from %s: Provider not found' % logout.remoteProviderId))
         else:
             import sys
             return error_page(_('SLO/Redirect from %s: Unknown error%s' % (logout.remoteProviderId, sys.exc_info()[0])))
@@ -873,6 +874,7 @@ def manage_name_id_return(request, manage, message):
  # @request
  #
  # Federation termination: request from SOAP IdP initiated
+ # TODO: Manage valid soap responses on error (else error 500)
  ###
 @csrf_exempt
 def manageNameIdSOAP(request):
@@ -936,7 +938,51 @@ def manageNameIdSOAP(request):
  # Federation termination: request from Redirect IdP initiated
  ###
 def manageNameId(request):
-    return error_page(request, _('manageNameId'))
+    if not is_sp_configured():
+        return error_page(request, _('SLO/Redirect: Service provider not configured'))
+
+    query = get_saml2_query_request(request)
+    if not query:
+        return error_page(request, _('SLO/Redirect: Unable to handle Single Logout by Redirect without request'))
+
+    server = build_service_provider(request)
+    if not server:
+        return error_page(_('SLO/Redirect: Service provider not configured'))
+
+    manage = lasso.NameIdManagement(server)
+    try:
+        manage.processRequestMsg(query)
+    except lasso.Error, error:
+        handled_errors = (lasso.PROFILE_ERROR_MISSING_REMOTE_PROVIDERID,
+                          lasso.DS_ERROR_INVALID_SIGNATURE,
+                          lasso.DS_ERROR_SIGNATURE_NOT_FOUND)
+        if error[0] in handled_errors:
+            return error_page(request, _('SLO/SOAP: Error while processing request %s' % error[1]))
+        else:
+            return error_page(request, _('SLO/SOAP: Unknown error while processing request'))
+
+    fed = lookup_federation_by_name_identifier(manage)
+    load_federation(request, manage, fed.user)
+    try:
+        manage.validateRequest()
+    except lasso.Error, error:
+        logging.warning(_('SLO/SOAP: Unable to validate request'))
+        return
+    fed.delete()
+
+    try:
+        manage.buildResponseMsg()
+    except lasso.Error, error:
+        if error[0] == lasso.PROFILE_ERROR_UNKNOWN_PROFILE_URL:
+            # metadata didn't contain logout return url, stay here.
+            return error_page(_('SLO/Response from %s: Error unknown profile URL' % manage.remoteProviderId))
+        elif error[0] == lasso.SERVER_ERROR_PROVIDER_NOT_FOUND:
+            return error_page(_('SLO/Response from %s: Provider not found' % manage.remoteProviderId))
+        else:
+            import sys
+            return error_page(_('SLO/Redirect from %s: Unknown error%s' % (manage.remoteProviderId, sys.exc_info()[0])))
+    else:
+        return HttpResponseRedirect(manage.msgUrl)
 
 #############################################
 # Helper functions 
