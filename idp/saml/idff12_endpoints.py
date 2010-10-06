@@ -70,7 +70,7 @@ def sso(request):
     login = lasso.Login(server)
     while True:
         try:
-            logging.debug(_('ID-FFv1.2: processing sso request %r') % message)
+            logging.debug('ID-FFv1.2: processing sso request %r' % message)
             login.processAuthnRequestMsg(message)
             break
         except lasso.ProfileInvalidMsgError:
@@ -88,8 +88,7 @@ def sso(request):
             # not load any provider in the Server object
             provider_id = login.remoteProviderId
             # 2. Lookup the ProviderID
-            logging.info(_('ID-FFv1.2: AuthnRequest from %r')
-                    % provider_id)
+            logging.info('ID-FFv1.2: AuthnRequest from %r' % provider_id)
             provider_loaded = load_provider(request, login, provider_id)
             if not provider_loaded:
                 consent_obtained = False
@@ -191,7 +190,7 @@ def artifact_resolve(request, soap_message):
         login.processRequestMsg(soap_message)
     except:
         raise
-    logging.debug(_('ID-FFv1.2 artifact resolve %r') % soap_message)
+    logging.debug('ID-FFv1.2 artifact resolve %r' % soap_message)
     liberty_artifact = LibertyArtifact.objects.get(
             artifact = login.assertionArtifact)
     if liberty_artifact:
@@ -200,11 +199,10 @@ def artifact_resolve(request, soap_message):
         load_provider(request, login, provider_id)
         load_session(request, login,
                 session_key = liberty_artifact.django_session_key)
-        logging.info(
-                _('ID-FFv1.2 artifact resolve from %r for artifact %r') %
-                (provider_id, login.assertionArtifact))
+        logging.info('ID-FFv1.2 artifact resolve from %r for artifact %r' % (
+                        provider_id, login.assertionArtifact))
     else:
-         logging.warning(_('ID-FFv1.2 no artifact found for %r') % login.assertionArtifact)
+         logging.warning('ID-FFv1.2 no artifact found for %r' % login.assertionArtifact)
          provider_id = None
     return finish_artifact_resolve(request, login, provider_id,
             session_key = liberty_artifact.django_session_key)
@@ -259,15 +257,15 @@ def idp_sso(request, provider_id, user_id = None):
     if user_id:
         user = User.get(id = user_id)
         if not check_delegated_authentication_permission(request):
-            logging.warning(_('ID-FFv1.2: %r tried to log as %r on %r but was forbidden') %
-                    (request.user, user, provider_id))
+            logging.warning('ID-FFv1.2: %r tried to log as %r on %r but was forbidden' % (
+                                    request.user, user, provider_id))
             return HttpResponseForbidden('You must be superuser to log as another user')
     else:
         user = request.user
     load_federation(request, login, user)
     if not liberty_provider:
         message = _('ID-FFv1.2: provider %r unknown') % provider_id
-        logging.warning(message)
+        logging.warning('ID-FFv1.2: provider %r unknown' % provider_id)
         return HttpResponseForbidden(message)
     login.initIdpInitiatedAuthnRequest(provider_id)
     if binding == 'art':

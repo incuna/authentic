@@ -20,7 +20,7 @@ def get_service_provider_settings():
     return s[0]
 
 def error_page(request, message):
-    logging.error(_('Error returned: %r') % message)
+    logging.error('Error returned: %r' % message)
     return render_to_response('error_authsaml2.html', {'error': message},
         context_instance=RequestContext(request))
 

@@ -63,7 +63,7 @@ def log_info_authn_request_details(login):
                 'format': nameIdPolicy.format,
                 'spNameQualifier': nameIdPolicy.spNameQualifier }
 
-    logging.info(_('SAMLv2 authn request details: %r') % details)
+    logging.info('SAMLv2 authn request details: %r' % details)
 
 @csrf_exempt
 def sso(request):
@@ -79,25 +79,25 @@ def sso(request):
     message = get_idff12_request_message(request)
     if not message:
         return HttpResponseForbidden('SAMLv2 sso need a query string')
-    logging.debug(_('SAMLv2: processing sso request %r') % message)
+    logging.debug('SAMLv2: processing sso request %r' % message)
     while True:
         try:
             login.processAuthnRequestMsg(message)
             break
         except (lasso.ProfileInvalidMsgError,
             lasso.ProfileMissingIssuerError,), e:
-            logging.error(_('SAMLv2: invalid message for WebSSO profile with HTTP-'
-            'Redirect binding: %r exception: %s') % (message, e))
+            logging.error('SAMLv2: invalid message for WebSSO profile with '
+                          'HTTP-Redirect binding: %r exception: %s' % (message, e))
             return HttpResponseBadRequest(_('SAMLv2: invalid message for '
                 'WebSSO profile with HTTP-Redirect binding: %r') % message)
         except lasso.ProfileInvalidProtocolProfileError:
             log_info_authn_request_details(login)
-            message = _('SAMLv2: sso request cannot be answered because no valid protocol binding could be found')
+            message = N_('SAMLv2: sso request cannot be answered because no valid protocol binding could be found')
             logging.error(message)
-            return HttpResponseBadRequest(message)
+            return HttpResponseBadRequest(_(message))
         except lasso.DsError:
             log_info_authn_request_details(login)
-            logging.error(_('SAMLv2: sso request signature validation failed: %s') % e)
+            logging.error('SAMLv2: sso request signature validation failed: %s' % e)
             return finish_sso(request, login)
         except (lasso.ServerProviderNotFoundError, lasso.ProfileUnkownProviderError):
             log_info_authn_request_details(login)
@@ -131,7 +131,7 @@ def continue_sso(request):
     nonce = request.REQUEST.get(NONCE, '')
     login, consent_obtained, save = load_login_object(nonce)
     if not login:
-        logging.debug(_('SAMLv2: continue sso nonce %r not found') % nonce)
+        logging.debug('SAMLv2: continue sso nonce %r not found' % nonce)
         return HttpResponseBadRequest()
     return sso_after_process_request(request, login,
             consent_obtained = consent_obtained, save = True)

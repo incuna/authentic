@@ -509,23 +509,23 @@ def singleLogoutSOAP(request):
     try:
         soap_message = get_soap_message(request)
     except:
-        logging.warning(_('SLO/SOAP: Bad SOAP message'))
+        logging.warning('SLO/SOAP: Bad SOAP message')
         return
     if not soap_message:
-        logging.warning(_('SLO/SOAP: Bad SOAP message'))
+        logging.warning('SLO/SOAP: Bad SOAP message')
         return
 
     request_type = lasso.getRequestTypeFromSoapMsg(soap_message)
     if request_type != lasso.REQUEST_TYPE_LOGOUT:
-        logging.warning(_('SLO/SOAP: SOAP message is not a slo message'))
+        logging.warning('SLO/SOAP: SOAP message is not a slo message')
         return
 
     if not is_sp_configured():
-        logging.warning(_('SLO/SOAP: Service provider not configured'))
+        logging.warning('SLO/SOAP: Service provider not configured')
         return
     server = build_service_provider(request)
     if not server:
-        logging.warning(_('SLO/SOAP: Service provider not configured'))
+        logging.warning('SLO/SOAP: Service provider not configured')
         return
     logout = lasso.Logout(server)
 
@@ -539,7 +539,7 @@ def singleLogoutSOAP(request):
             logging.warning('SLO/SOAP: Error %s while processing request' % error[1])
             return
         else:
-            logging.warning(_('SLO/SOAP: Unknown error while processing request'))
+            logging.warning('SLO/SOAP: Unknown error while processing request')
             return
 
     # Look for a session index
@@ -550,7 +550,7 @@ def singleLogoutSOAP(request):
 
     fed = lookup_federation_by_name_identifier(logout)
     if not fed:
-        logging.warning(_('SLO/SOAP: Error while processing request %s' % error[1]))
+        logging.warning('SLO/SOAP: Error while processing request %s' % error[1])
         return
 
     session = None
@@ -582,12 +582,12 @@ def singleLogoutSOAP(request):
     if session:
         q = LibertySessionDump.objects.filter(django_session_key = session.django_session_key)
         if not q:
-            logging.warning(_('SLO/SOAP: No session dump for this session'))
+            logging.warning('SLO/SOAP: No session dump for this session')
             finishSingleLogoutSOAP(logout)
         logging.warning('SLO/SOAP from %s, for session index %s and session %s' % (logout.remoteProviderId, session_index, session.id))
         logout.setSessionFromDump(q[0].session_dump)
     else:
-        logging.warning(_('SLO/SOAP: No Liberty session found'))
+        logging.warning('SLO/SOAP: No Liberty session found')
         finishSingleLogoutSOAP(logout)
 #    authentic.identities.get_store().load_identities()
 #    try:
@@ -611,11 +611,11 @@ def singleLogoutSOAP(request):
                           lasso.PROFILE_ERROR_FEDERATION_NOT_FOUND,
                           lasso.PROFILE_ERROR_SESSION_NOT_FOUND)
         if error[0] in handled_errors:
-            logging.warning(_('SLO/SOAP: Error while validating request: %s' % error[1]))
+            logging.warning('SLO/SOAP: Error while validating request: %s' % error[1])
             finishSingleLogoutSOAP(logout)
         else:
             import sys
-            logging.warning(_('SLO/SOAP: Unknown error while validating request%s' % sys.exc_info()[0]))
+            logging.warning('SLO/SOAP: Unknown error while validating request%s' % sys.exc_info()[0])
             finishSingleLogoutSOAP(logout)
     else:
         django_session_key = session.django_session_key
@@ -629,13 +629,13 @@ def singleLogoutSOAP(request):
                     session_django = s
         except:
             import sys
-            logging.warning(_('SLO/SOAP: Unable to log django session: %s' % sys.exc_info()[0]))
+            logging.warning('SLO/SOAP: Unable to log django session: %s' % sys.exc_info()[0])
             finishSingleLogoutSOAP(logout)
         try:
             session_django.delete()
         except:
             import sys
-            logging.warning(_('SLO/SOAP: Unable to log django session: %s' % sys.exc_info()[0]))
+            logging.warning('SLO/SOAP: Unable to log django session: %s' % sys.exc_info()[0])
             finishSingleLogoutSOAP(logout)
     return finishSingleLogoutSOAP(logout)
 
@@ -674,7 +674,7 @@ def singleLogout(request):
         logout.processRequestMsg(query)
     except lasso.Error, error:
         if error[0] == lasso.DS_ERROR_INVALID_SIGNATURE:
-            logging.warning(_('SLO/Redirect from %s: Invalid Signature' % logout.remoteProviderId))
+            logging.warning('SLO/Redirect from %s: Invalid Signature' % logout.remoteProviderId)
         else:
             import sys
             return error_page(
@@ -684,7 +684,7 @@ def singleLogout(request):
                                 'error': sys.exc_info()[0]})
         return slo_return_response(logout)
 
-    logging.warning(_('SLO/Redirect from %s:' % logout.remoteProviderId))
+    logging.warning('SLO/Redirect from %s:' % logout.remoteProviderId)
 
     load_session(request, logout)
 
@@ -700,12 +700,12 @@ def singleLogout(request):
                           lasso.PROFILE_ERROR_SESSION_NOT_FOUND)
         if error[0] in handled_errors:
             #print 'SLO/Redirect: Error while validating request: %s' % error[1]
-            logging.warning(_('SLO/Redirect: Error while validating request: %s' % error[1]))
+            logging.warning('SLO/Redirect: Error while validating request: %s' % error[1])
             slo_return_response(logout)
         else:
             import sys
             #print 'SLO/Redirect: Unknown error while validating request%s' % sys.exc_info()[0]
-            logging.warning(_('SLO/Redirect: Unknown error while validating request%s' % sys.exc_info()[0]))
+            logging.warning('SLO/Redirect: Unknown error while validating request%s' % sys.exc_info()[0])
             slo_return_response(logout)
 
     if logout.isSessionDirty:
@@ -727,7 +727,10 @@ def singleLogout(request):
             return error_page(_('SLO/Response from %s: Provider not found' % remoteProviderId))
         else:
             import sys
-            return error_page(_('SLO/Redirect from %s: Unknown error%s' % (logout.remoteProviderId, sys.exc_info()[0])))
+            return error_page(_('SLO/Redirect from %(remote_provider_id)s: '
+                                'Unknown error (%(error)s)') % {
+                                        'remote_provider_id': logout.remoteProviderId,
+                                        'error': sys.exc_info()[0]})
     else:
         return HttpResponseRedirect(logout.msgUrl)
 
@@ -737,12 +740,15 @@ def slo_return_response(logout):
     except lasso.Error, error:
         if error[0] == lasso.PROFILE_ERROR_UNKNOWN_PROFILE_URL:
             # metadata didn't contain logout return url, stay here.
-            return error_page(_('SLO/Response from %s: Error unknown profile URL' % logout.remoteProviderId))
+            return error_page(_('SLO/Response from %s: Error unknown profile URL') % logout.remoteProviderId)
         elif error[0] == lasso.SERVER_ERROR_PROVIDER_NOT_FOUND:
-            return error_page(_('SLO/Response from %s: Provider not found' % logout.remoteProviderId))
+            return error_page(_('SLO/Response from %s: Provider not found') % logout.remoteProviderId)
         else:
             import sys
-            return error_page(_('SLO/Redirect from %s: Unknown error%s' % (logout.remoteProviderId, sys.exc_info()[0])))
+            return error_page(_('SLO/Redirect from %(remote_provider_id)s: '
+                                'Unknown error (%(error)s)') % {
+                                        'remote_provider_id': logout.remoteProviderId,
+                                        'error': sys.exc_info()[0]})
     else:
         return HttpResponseRedirect(logout.msgUrl)
 
@@ -885,24 +891,24 @@ def manageNameIdSOAP(request):
     try:
         soap_message = get_soap_message(request)
     except:
-        logging.warning(_('SLO/SOAP: Bad SOAP message'))
+        logging.warning('SLO/SOAP: Bad SOAP message')
         return
     if not soap_message:
-        logging.warning(_('SLO/SOAP: Bad SOAP message'))
+        logging.warning('SLO/SOAP: Bad SOAP message')
         return
 
     request_type = lasso.getRequestTypeFromSoapMsg(soap_message)
     if request_type != lasso.REQUEST_TYPE_NAME_ID_MANAGEMENT:
-        logging.warning(_('SLO/SOAP: SOAP message is not a slo message'))
+        logging.warning('SLO/SOAP: SOAP message is not a slo message')
         return
 
     if not is_sp_configured():
-        logging.warning(_('SLO/SOAP: Service provider not configured'))
+        logging.warning('SLO/SOAP: Service provider not configured')
         return
         return error_page(request, _('Service provider not configured'))
     server = build_service_provider(request)
     if not server:
-        logging.warning(_('SLO/SOAP: Service provider not configured'))
+        logging.warning('SLO/SOAP: Service provider not configured')
         return
     manage = lasso.NameIdManagement(server)
     try:
@@ -912,17 +918,17 @@ def manageNameIdSOAP(request):
                           lasso.DS_ERROR_INVALID_SIGNATURE,
                           lasso.DS_ERROR_SIGNATURE_NOT_FOUND)
         if error[0] in handled_errors:
-            logging.warning(_('SLO/SOAP: Error while processing request %s' % error[1]))
+            logging.warning('SLO/SOAP: Error while processing request %s' % error[1])
             return
         else:
-            logging.warning(_('SLO/SOAP: Unknown error while processing request'))
+            logging.warning('SLO/SOAP: Unknown error while processing request')
             return
     fed = lookup_federation_by_name_identifier(manage)
     load_federation(request, manage, fed.user)
     try:
         manage.validateRequest()
     except lasso.Error, error:
-        logging.warning(_('SLO/SOAP: Unable to validate request'))
+        logging.warning('SLO/SOAP: Unable to validate request')
         return
     fed.delete()
     try:
@@ -970,7 +976,7 @@ def manageNameId(request):
     try:
         manage.validateRequest()
     except lasso.Error, error:
-        logging.warning(_('SLO/SOAP: Unable to validate request'))
+        logging.warning('SLO/SOAP: Unable to validate request')
         return
     fed.delete()
 
@@ -979,12 +985,14 @@ def manageNameId(request):
     except lasso.Error, error:
         if error[0] == lasso.PROFILE_ERROR_UNKNOWN_PROFILE_URL:
             # metadata didn't contain logout return url, stay here.
-            return error_page(_('SLO/Response from %s: Error unknown profile URL' % manage.remoteProviderId))
+            return error_page(_('SLO/Response from %s: Error unknown profile URL') % manage.remoteProviderId)
         elif error[0] == lasso.SERVER_ERROR_PROVIDER_NOT_FOUND:
-            return error_page(_('SLO/Response from %s: Provider not found' % manage.remoteProviderId))
+            return error_page(_('SLO/Response from %s: Provider not found') % manage.remoteProviderId)
         else:
             import sys
-            return error_page(_('SLO/Redirect from %s: Unknown error%s' % (manage.remoteProviderId, sys.exc_info()[0])))
+            return error_page(_('SLO/Redirect from %(remote_provider_id)s: Unknown error (%(error)s)') % {
+                                    'remote_provider_id': manage.remoteProviderId,
+                                    'error': sys.exc_info()[0]})
     else:
         return HttpResponseRedirect(manage.msgUrl)
 
@@ -1018,5 +1026,5 @@ def add_idp_to_sp(request, sp, p):
              p.public_key.read(),
              None)
     except:
-        logging.error(_('Unable to load provider %r') % p.entity_id)
+        logging.error('Unable to load provider %r' % p.entity_id)
         pass
