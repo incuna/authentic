@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-01 11:00+0200\n"
+"POT-Creation-Date: 2010-10-06 17:00+0200\n"
 "PO-Revision-Date: 2010-06-01 11:03+0200\n"
 "Last-Translator: Frederic Peters <fpeters@0d.be>\n"
 "Language-Team: None\n"
@@ -18,125 +18,1306 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: settings.py:46
+#: settings.py:50
 msgid "English"
-msgstr ""
+msgstr "Anglais"
 
-#: settings.py:47
+#: settings.py:51
 msgid "French"
+msgstr "Français"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/forms.py:44
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/forms.py:112
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/views.py:75
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:44
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:112
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/views.py:75
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/forms.py:44
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/forms.py:112
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/views.py:75
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:44
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:112
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/views.py:75
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/forms.py:44
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/forms.py:112
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/views.py:75
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/forms.py:44
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/forms.py:112
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/views.py:75
+#: 3rdparty/django-authopenid/django_authopenid/forms.py:44
+#: 3rdparty/django-authopenid/django_authopenid/forms.py:112
+#: 3rdparty/django-authopenid/django_authopenid/views.py:75
+msgid "i-names are not supported"
 msgstr ""
 
-#: templates/base.html:13
-msgid "Home"
-msgstr "Accueil"
-
-#: templates/base.html:16
-msgid "Logged in"
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/forms.py:65
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:65
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/forms.py:65
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:65
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/forms.py:65
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/forms.py:65
+#: 3rdparty/django-authopenid/django_authopenid/forms.py:65
+msgid ""
+"Usernames can only contain                     letters, numbers and "
+"underscores"
 msgstr ""
 
-#: templates/base.html:17
-msgid "Log out"
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/forms.py:78
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:78
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/forms.py:78
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:78
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/forms.py:78
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/forms.py:78
+#: 3rdparty/django-authopenid/django_authopenid/forms.py:78
+msgid "This username is already                 taken. Please choose another."
 msgstr ""
 
-#: templates/base.html:18
-msgid "Change password"
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/forms.py:92
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:92
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/forms.py:92
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:92
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/forms.py:92
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/forms.py:92
+#: 3rdparty/django-authopenid/django_authopenid/forms.py:92
+msgid ""
+"This email is already                 registered in our database. Please "
+"choose another."
 msgstr ""
 
-#: templates/base.html:20 templates/registration/activate.html:14
-#: templates/registration/login.html:5 templates/registration/login.html:12
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/forms.py:120
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:120
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/forms.py:120
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:120
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/forms.py:120
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/forms.py:120
+#: 3rdparty/django-authopenid/django_authopenid/forms.py:120
+msgid ""
+"This openid is already                     registered in our database by "
+"another account. Please choose another."
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/forms.py:123
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:123
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/forms.py:123
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/forms.py:123
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/forms.py:123
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/forms.py:123
+#: 3rdparty/django-authopenid/django_authopenid/forms.py:123
+msgid "You already associated this openid to your account."
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/models.py:65
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/models.py:65
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/models.py:65
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/models.py:65
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/models.py:65
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/models.py:65
+#: 3rdparty/django-authopenid/django_authopenid/models.py:65
+msgid "OpenID URL"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/models.py:66
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/models.py:66
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/models.py:66
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/models.py:66
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/models.py:66
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/models.py:66
+#: 3rdparty/django-authopenid/django_authopenid/models.py:66
+msgid "User"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/models.py:91
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/models.py:91
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/models.py:91
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/models.py:91
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/models.py:91
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/models.py:91
+#: 3rdparty/django-authopenid/django_authopenid/models.py:91
+msgid "user association"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/models.py:92
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/models.py:92
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/models.py:92
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/models.py:92
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/models.py:92
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/models.py:92
+#: 3rdparty/django-authopenid/django_authopenid/models.py:92
+msgid "user associations"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/views.py:81
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/views.py:81
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/views.py:81
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/views.py:81
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/views.py:81
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/views.py:81
+#: 3rdparty/django-authopenid/django_authopenid/views.py:81
+#, python-format
+msgid "The OpenID %s was invalid"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/views.py:433
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/views.py:433
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/views.py:433
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/views.py:433
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/views.py:433
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/views.py:433
+#: 3rdparty/django-authopenid/django_authopenid/views.py:433
+#: templates/registration/logout.html:9
+msgid "Logged out"
+msgstr "Déconnecté"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/views.py:490
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/views.py:490
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/views.py:490
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/views.py:490
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/views.py:490
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/views.py:490
+#: 3rdparty/django-authopenid/django_authopenid/views.py:490
+#: templates/registration/password_change_done.html:9
+msgid "Password changed"
+msgstr "Mot de passe modifié"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/views.py:610
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/views.py:610
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/views.py:610
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/views.py:610
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/views.py:610
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/views.py:610
+#: 3rdparty/django-authopenid/django_authopenid/views.py:610
+msgid "You can't remove this openid. You should set a password first."
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/views.py:621
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/views.py:621
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/views.py:621
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/views.py:621
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/views.py:621
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/views.py:621
+#: 3rdparty/django-authopenid/django_authopenid/views.py:621
+#, python-format
+msgid "%s is not associated to your account"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/views.py:627
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/views.py:627
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/views.py:627
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/views.py:627
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/views.py:627
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/views.py:627
+#: 3rdparty/django-authopenid/django_authopenid/views.py:627
+msgid "openid removed."
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/django_authopenid/views.py:633
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/django_authopenid/views.py:633
+#: 3rdparty/django-authopenid-1.0.1/build/lib/django_authopenid/views.py:633
+#: 3rdparty/django-authopenid/build/lib.linux-x86_64-2.6/django_authopenid/views.py:633
+#: 3rdparty/django-authopenid/build/lib/django_authopenid/views.py:633
+#: 3rdparty/django-authopenid/debian/python-django-authopenid/usr/share/pyshared/django_authopenid/views.py:633
+#: 3rdparty/django-authopenid/django_authopenid/views.py:633
+msgid "Invalid OpenID url."
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/settings.py:32
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/settings.py:32
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/settings.py:32
+#: 3rdparty/django-authopenid-1.0.1/example/settings.py:32
+#: 3rdparty/django-authopenid/example/settings.py:32
+msgid "account/"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/settings.py:32
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/settings.py:32
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/settings.py:32
+#: 3rdparty/django-authopenid-1.0.1/example/settings.py:32
+#: 3rdparty/django-authopenid/example/settings.py:32
+msgid "signin/"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/home.html:42
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/signin.html:36
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/home.html:42
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/signin.html:36
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/home.html:42
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/signin.html:36
+#: 3rdparty/django-authopenid-1.0.1/example/templates/home.html:42
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/signin.html:36
+#: 3rdparty/django-authopenid/example/templates/home.html:42
+#: 3rdparty/django-authopenid/example/templates/authopenid/signin.html:36
+msgid "Sign In Using Your Account ID"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/home.html:43
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/signin.html:37
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/home.html:43
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/signin.html:37
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/home.html:43
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/signin.html:37
+#: 3rdparty/django-authopenid-1.0.1/example/templates/home.html:43
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/signin.html:37
+#: 3rdparty/django-authopenid/example/templates/home.html:43
+#: 3rdparty/django-authopenid/example/templates/authopenid/signin.html:37
+#: authsaml2/templates/account_linking.html:17
+#: authsaml2/templates/account_linking.html:24
+#: templates/registration/login.html:15 templates/registration/login.html:22
+msgid "Username:"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/home.html:44
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:67
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/signin.html:38
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/home.html:44
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:67
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/signin.html:38
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/home.html:44
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:67
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/signin.html:38
+#: 3rdparty/django-authopenid-1.0.1/example/templates/home.html:44
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:67
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/signin.html:38
+#: 3rdparty/django-authopenid/example/templates/home.html:44
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:67
+#: 3rdparty/django-authopenid/example/templates/authopenid/signin.html:38
+#: templates/authopenid/complete.html:72
+msgid "Password"
+msgstr "Mot de passe"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/home.html:46
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/signin.html:40
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/home.html:46
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/signin.html:40
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/home.html:46
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/signin.html:40
+#: 3rdparty/django-authopenid-1.0.1/example/templates/home.html:46
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/signin.html:40
+#: 3rdparty/django-authopenid/example/templates/home.html:46
+#: 3rdparty/django-authopenid/example/templates/authopenid/signin.html:40
+msgid "Sign in"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/home.html:54
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/signin.html:48
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/home.html:54
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/signin.html:48
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/home.html:54
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/signin.html:48
+#: 3rdparty/django-authopenid-1.0.1/example/templates/home.html:54
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/signin.html:48
+#: 3rdparty/django-authopenid/example/templates/home.html:54
+#: 3rdparty/django-authopenid/example/templates/authopenid/signin.html:48
+msgid "Sign In Using Your OpenID URL"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/home.html:60
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/associate.html:25
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/signin.html:54
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/home.html:60
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/associate.html:25
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/signin.html:54
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/home.html:60
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/associate.html:25
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/signin.html:54
+#: 3rdparty/django-authopenid-1.0.1/example/templates/home.html:60
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/associate.html:25
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/signin.html:54
+#: 3rdparty/django-authopenid/example/templates/home.html:60
+#: 3rdparty/django-authopenid/example/templates/authopenid/associate.html:25
+#: 3rdparty/django-authopenid/example/templates/authopenid/signin.html:54
+#: templates/authopenid/associate.html:49 templates/authopenid/signin.html:50
+msgid "OpenId URL :"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/home.html:61
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/signin.html:55
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/home.html:61
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/signin.html:55
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/home.html:61
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/signin.html:55
+#: 3rdparty/django-authopenid-1.0.1/example/templates/home.html:61
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/signin.html:55
+#: 3rdparty/django-authopenid/example/templates/home.html:61
+#: 3rdparty/django-authopenid/example/templates/authopenid/signin.html:55
+#: templates/authopenid/signin.html:51
+msgid "Sign in with OpenID"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/associate.html:19
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/associate.html:19
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/associate.html:19
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/associate.html:19
+#: 3rdparty/django-authopenid/example/templates/authopenid/associate.html:19
+msgid "Add a new OpenID URL"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/associate.html:26
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/associate.html:26
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/associate.html:26
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/associate.html:26
+#: 3rdparty/django-authopenid/example/templates/authopenid/associate.html:26
+#: templates/authopenid/associate.html:50
+msgid "Add OpenID"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:12
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:12
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:12
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:12
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:12
+#: templates/authopenid/complete.html:18
+msgid "Your OpenID is verified! "
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:13
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:13
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:13
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:13
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:13
+#: templates/authopenid/complete.html:19
+msgid ""
+"\n"
+"\t<p>Your OpenID can now be associated with a new or existing membership. "
+"You can change the association later in your preferences.</p>\n"
+"\t"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:17
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:17
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:17
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:17
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:17
+#: templates/authopenid/complete.html:23
+msgid "Associate your OpenID"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:18
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:18
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:18
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:18
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:18
+#: templates/authopenid/complete.html:24
+msgid ""
+"\n"
+"\t<p>If you're joining <strong>Sitename</strong>, associate your OpenID with "
+"a new account. If you're already a member, associate with your existing "
+"account.</p>\n"
+"\t"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:26
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:36
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/signin.html:10
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:26
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:36
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/signin.html:10
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:26
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:36
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/signin.html:10
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:26
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:36
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/signin.html:10
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:26
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:36
+#: 3rdparty/django-authopenid/example/templates/authopenid/signin.html:10
+#: templates/authopenid/complete.html:31 templates/authopenid/complete.html:41
+#: templates/authopenid/signin.html:22
+msgid "Please correct errors below:"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:50
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:50
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:50
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:50
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:50
+#: templates/authopenid/complete.html:55
+msgid "A new account"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:51
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:66
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:51
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:66
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:51
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:66
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:51
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:66
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:51
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:66
+#: templates/authopenid/complete.html:56 templates/authopenid/complete.html:71
+msgid "Username"
+msgstr "Identifiant"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:52
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:52
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:52
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:52
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:52
+#: templates/authopenid/complete.html:57
+msgid "Email"
+msgstr "Courriel"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:53
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:53
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:53
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:53
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:53
+#: templates/authopenid/complete.html:58
+msgid "Create account"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:65
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:65
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:65
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:65
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:65
+#: templates/authopenid/complete.html:70
+msgid "An existing account"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/complete.html:68
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/complete.html:68
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/complete.html:68
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/complete.html:68
+#: 3rdparty/django-authopenid/example/templates/authopenid/complete.html:68
+#: templates/authopenid/complete.html:73
+msgid "Verify"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/dissociate.html:21
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/dissociate.html:21
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/dissociate.html:21
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/dissociate.html:21
+#: 3rdparty/django-authopenid/example/templates/authopenid/dissociate.html:21
+#: templates/authopenid/associate.html:27
+#: templates/authopenid/dissociate.html:30
+msgid "Dissociate OpenID URL"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/dissociate.html:23
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/dissociate.html:23
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/dissociate.html:23
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/dissociate.html:23
+#: 3rdparty/django-authopenid/example/templates/authopenid/dissociate.html:23
+#: templates/authopenid/dissociate.html:32
+msgid "Dissociate OpenID"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/password_change_form.html:11
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/password_change_form.html:11
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/password_change_form.html:11
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/password_change_form.html:11
+#: 3rdparty/django-authopenid/example/templates/authopenid/password_change_form.html:11
+#: templates/index.html:15 templates/authopenid/password_change_form.html:6
+#: templates/authopenid/password_change_form.html:25
+#, fuzzy
+msgid "Set password"
+msgstr "Mot de passe oublié"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/password_change_form.html:12
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/password_change_form.html:12
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/password_change_form.html:12
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/password_change_form.html:12
+#: 3rdparty/django-authopenid/example/templates/authopenid/password_change_form.html:12
+#: templates/authopenid/password_change_form.html:26
+msgid ""
+"Please enter your new password twice so we can verify you typed it in "
+"correctly."
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/password_change_form.html:16
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/password_change_form.html:32
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/password_change_form.html:16
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/password_change_form.html:32
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/password_change_form.html:16
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/password_change_form.html:32
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/password_change_form.html:16
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/password_change_form.html:32
+#: 3rdparty/django-authopenid/example/templates/authopenid/password_change_form.html:16
+#: 3rdparty/django-authopenid/example/templates/authopenid/password_change_form.html:32
+#: templates/authopenid/password_change_form.html:30
+#: templates/authopenid/password_change_form.html:46
+msgid "New password:"
+msgstr "Nouveau mot de passe :"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/password_change_form.html:18
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/password_change_form.html:34
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/password_change_form.html:18
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/password_change_form.html:34
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/password_change_form.html:18
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/password_change_form.html:34
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/password_change_form.html:18
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/password_change_form.html:34
+#: 3rdparty/django-authopenid/example/templates/authopenid/password_change_form.html:18
+#: 3rdparty/django-authopenid/example/templates/authopenid/password_change_form.html:34
+#: templates/authopenid/password_change_form.html:32
+#: templates/authopenid/password_change_form.html:48
+msgid "Confirm password:"
+msgstr "Confirmation du mot de passe :"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/password_change_form.html:19
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/password_change_form.html:36
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/password_change_form.html:19
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/password_change_form.html:36
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/password_change_form.html:19
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/password_change_form.html:36
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/password_change_form.html:19
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/password_change_form.html:36
+#: 3rdparty/django-authopenid/example/templates/authopenid/password_change_form.html:19
+#: 3rdparty/django-authopenid/example/templates/authopenid/password_change_form.html:36
+#: templates/authopenid/password_change_form.html:33
+#: templates/authopenid/password_change_form.html:50
+#, fuzzy
+msgid "Change my password"
+msgstr "Modifier son mot de passe"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/password_change_form.html:24
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/password_change_form.html:24
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/password_change_form.html:24
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/password_change_form.html:24
+#: 3rdparty/django-authopenid/example/templates/authopenid/password_change_form.html:24
+#: templates/authopenid/password_change_form.html:38
+#, fuzzy
+msgid "Password change"
+msgstr "Mot de passe modifié"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/password_change_form.html:25
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/password_change_form.html:25
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/password_change_form.html:25
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/password_change_form.html:25
+#: 3rdparty/django-authopenid/example/templates/authopenid/password_change_form.html:25
+#: templates/authopenid/password_change_form.html:39
+msgid ""
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/authopenid/password_change_form.html:30
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/authopenid/password_change_form.html:30
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/authopenid/password_change_form.html:30
+#: 3rdparty/django-authopenid-1.0.1/example/templates/authopenid/password_change_form.html:30
+#: 3rdparty/django-authopenid/example/templates/authopenid/password_change_form.html:30
+#: templates/authopenid/password_change_form.html:44
+msgid "Old password:"
+msgstr "Ancien mot de passe :"
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/registration/activate.html:12
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/registration/activate.html:12
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/registration/activate.html:12
+#: 3rdparty/django-authopenid-1.0.1/example/templates/registration/activate.html:12
+#: 3rdparty/django-authopenid/example/templates/registration/activate.html:12
+msgid ""
+"\n"
+"<h1>Activation</h1>\n"
+"<p>Your account is now activated. Go <a href=\"/\">here</a> to continue.</"
+"p>\n"
+"\n"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/registration/registration_complete.html:12
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/registration/registration_complete.html:12
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/registration/registration_complete.html:12
+#: 3rdparty/django-authopenid-1.0.1/example/templates/registration/registration_complete.html:12
+#: 3rdparty/django-authopenid/example/templates/registration/registration_complete.html:12
+msgid ""
+"\n"
+"<h1>Thank you</h1>\n"
+"<p>An email has been sent to you. You need to click link in it to activate "
+"your account.</p>\n"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/registration/registration_form.html:24
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/registration/registration_form.html:24
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/registration/registration_form.html:24
+#: 3rdparty/django-authopenid-1.0.1/example/templates/registration/registration_form.html:24
+#: 3rdparty/django-authopenid/example/templates/registration/registration_form.html:24
+msgid "Create a new account"
+msgstr ""
+
+#: 3rdparty/django-authopenid-1.0.1.orig/example/templates/registration/registration_form.html:28
+#: 3rdparty/django-authopenid-1.0.1/build/lib.linux-x86_64-2.6/example/templates/registration/registration_form.html:28
+#: 3rdparty/django-authopenid-1.0.1/build/lib/example/templates/registration/registration_form.html:28
+#: 3rdparty/django-authopenid-1.0.1/example/templates/registration/registration_form.html:28
+#: 3rdparty/django-authopenid/example/templates/registration/registration_form.html:28
+msgid "Sign up"
+msgstr ""
+
+#: authsaml2/models.py:7
+#, fuzzy
+msgid "Account linking by authentication"
+msgstr "Activation de compte"
+
+#: authsaml2/models.py:11
+msgid "Create new user only with a certified persistent nameID"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:40 authsaml2/saml2_endpoints.py:48
+#: authsaml2/saml2_endpoints.py:96 authsaml2/saml2_endpoints.py:135
+#: authsaml2/saml2_endpoints.py:254 authsaml2/saml2_endpoints.py:323
+#: authsaml2/saml2_endpoints.py:375 authsaml2/saml2_endpoints.py:380
+#: authsaml2/saml2_endpoints.py:459 authsaml2/saml2_endpoints.py:462
+#: authsaml2/saml2_endpoints.py:481 authsaml2/saml2_endpoints.py:772
+#: authsaml2/saml2_endpoints.py:779 authsaml2/saml2_endpoints.py:845
+#: authsaml2/saml2_endpoints.py:908
+msgid "Service provider not configured"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:44
+msgid "Error handling session"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:112
+msgid "Failure to communicate with identity provider"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:118 authsaml2/saml2_endpoints.py:151
+#, fuzzy
+msgid "Unknown authentication failure"
+msgstr "Échec à l'activation du compte"
+
+#: authsaml2/saml2_endpoints.py:120 authsaml2/saml2_endpoints.py:153
+msgid "Request from unknown provider ID"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:122 authsaml2/saml2_endpoints.py:124
+#: authsaml2/saml2_endpoints.py:126 authsaml2/saml2_endpoints.py:155
+#: authsaml2/saml2_endpoints.py:157 authsaml2/saml2_endpoints.py:159
+msgid "Error checking signature"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:127 authsaml2/saml2_endpoints.py:160
+msgid "Unknown error processing authn response message"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:146
+msgid "No message given."
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:179
+msgid "Assertion missing"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:181
+msgid "Response identifier does not match with request"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:188
+msgid "SubjectConfirmation Recipient Mismatch"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:190
+msgid "Errot checking SubjectConfirmation Recipient"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:195
+msgid "Unknown SubjectConfirmation Method"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:197
+msgid "Error checking SubjectConfirmation Method"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:203 authsaml2/saml2_endpoints.py:206
+msgid "Incorrect AudienceRestriction"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:208
+msgid "Error checking AudienceRestriction"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:215
+msgid "Assertion received too early"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:217
+msgid "Assertion expired"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:219
+msgid "Error checking Assertion Time"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:234
+msgid "Erreur adding new federation for this user"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:283
+msgid "Not yet implemented"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:328
+msgid "Error loading session."
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:332
+msgid "Error adding new federation for this user"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:348
+msgid "Unable to perform federation"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:377
+msgid "Unable to logout a not logged user!"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:386
+msgid "No session for global logout."
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:391
+msgid "Session malformed."
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:443 authsaml2/saml2_endpoints.py:834
+msgid "Unknown HTTP method."
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:448 authsaml2/saml2_endpoints.py:485
+msgid ""
+"Could not send logout request to the identity provider.\n"
+" Only local logout performed."
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:465 authsaml2/saml2_endpoints.py:666
+#: authsaml2/saml2_endpoints.py:956
+msgid ""
+"SLO/Redirect: Unable to handle Single Logout by Redirect without request"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:662 authsaml2/saml2_endpoints.py:670
+#: authsaml2/saml2_endpoints.py:952 authsaml2/saml2_endpoints.py:960
+msgid "SLO/Redirect: Service provider not configured"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:681 authsaml2/saml2_endpoints.py:730
+#: authsaml2/saml2_endpoints.py:748 authsaml2/saml2_endpoints.py:993
+#, python-format
+msgid "SLO/Redirect from %(remote_provider_id)s: Unknown error (%(error)s)"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:725 authsaml2/saml2_endpoints.py:743
+#: authsaml2/saml2_endpoints.py:988
+#, python-format
+msgid "SLO/Response from %s: Error unknown profile URL"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:727 authsaml2/saml2_endpoints.py:745
+#: authsaml2/saml2_endpoints.py:990
+#, python-format
+msgid "SLO/Response from %s: Provider not found"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:774
+msgid "No provider for defederation"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:776
+msgid "Unable to defederate a not logged user!"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:784
+msgid "No such identity provider."
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:790
+msgid "Not a valid federation"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:798
+msgid "fedTerm/SP: Unable to init defederation request"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:806 authsaml2/saml2_endpoints.py:832
+msgid "fedTerm/SOAP SP: Unable to perform SOAP defederation request"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:817
+msgid "fedTerm/Redirect SP: Unable to init defederation request"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:825
+msgid "fedTerm/SOAP SP: Unable to init defederation request"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:851
+msgid "Error managing manage dump"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:858 authsaml2/saml2_endpoints.py:875
+msgid "Defederation failed"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:970
+#, python-format
+msgid "SLO/SOAP: Error while processing request %s"
+msgstr ""
+
+#: authsaml2/saml2_endpoints.py:972
+msgid "SLO/SOAP: Unknown error while processing request"
+msgstr ""
+
+#: authsaml2/templates/account_linking.html:5
+msgid "Log in to link your account"
+msgstr ""
+
+#: authsaml2/templates/account_linking.html:9
+msgid "Log in to link with your existing account"
+msgstr ""
+
+#: authsaml2/templates/account_linking.html:20
+#: authsaml2/templates/account_linking.html:28
+#: templates/registration/login.html:18 templates/registration/login.html:26
+msgid "Password:"
+msgstr "Mot de passe :"
+
+#: authsaml2/templates/account_linking.html:32
+#: templates/registration/activate.html:14 templates/registration/login.html:5
+#: templates/registration/login.html:30
 #: templates/registration/password_reset_complete.html:12
 msgid "Log in"
+msgstr "S'identifier"
+
+#: authsaml2/templates/error_authsaml2.html:5
+msgid "Error"
+msgstr "Erreur"
+
+#: authsaml2/templates/idp_select.html:6
+msgid "Identity Provider Selection"
+msgstr ""
+
+#: authsaml2/templates/idp_select.html:10 templates/index.html:34
+#: templates/index.html.py:51 templates/registration/login.html:57
+msgid "Tell me where!"
+msgstr ""
+
+#: idp/saml/idff12_endpoints.py:77
+#, python-format
+msgid "Invalid SAML 1.1 AuthnRequest: %r"
+msgstr ""
+
+#: idp/saml/idff12_endpoints.py:81
+#, python-format
+msgid "Invalid signature on SAML 1.1 AuthnRequest: %r"
+msgstr ""
+
+#: idp/saml/idff12_endpoints.py:95 idp/saml/idff12_endpoints.py:267
+#, python-format
+msgid "ID-FFv1.2: provider %r unknown"
+msgstr ""
+
+#: idp/saml/idff12_endpoints.py:182
+#, fuzzy
+msgid "Authentication response"
+msgstr "Administration d'Authentic"
+
+#: idp/saml/idff12_endpoints.py:240
+#, python-format
+msgid "ID-FFv1.2: soap request type %r is currently not supported"
+msgstr ""
+
+#: idp/saml/idff12_endpoints.py:282
+#, python-format
+msgid "ID-FFv1.2: default nameIdPolicy unsupported %r"
+msgstr ""
+
+#: idp/saml/saml2_endpoints.py:91
+#, python-format
+msgid ""
+"SAMLv2: invalid message for WebSSO profile with HTTP-Redirect binding: %r"
+msgstr ""
+
+#: idp/saml/saml2_endpoints.py:108
+#, python-format
+msgid "SAMLv2: provider %r unknown"
+msgstr ""
+
+#: saml/admin.py:34
+msgid "Metadata files"
+msgstr ""
+
+#: saml/common.py:22
+msgid "Only SOAP messages here"
+msgstr ""
+
+#: saml/models.py:50
+msgid "Bad metadata file"
+msgstr ""
+
+#: saml/models.py:62
+msgid "Internal nickname for the service provider"
+msgstr ""
+
+#: saml/models.py:89 saml/models.py:128
+msgid "Artifact binding"
+msgstr ""
+
+#: saml/models.py:90
+msgid "Post binding"
+msgstr ""
+
+#: saml/models.py:97 saml/models.py:146
+msgid "Enabled"
+msgstr ""
+
+#: saml/models.py:100
+msgid "Encrypt NameID"
+msgstr ""
+
+#: saml/models.py:102
+msgid "Encrypt Assertion"
+msgstr ""
+
+#: saml/models.py:104
+msgid "AuthnRequest signed"
+msgstr ""
+
+#: saml/models.py:106
+msgid "Allow IdP initiated SSO"
+msgstr ""
+
+#: saml/models.py:116
+msgid "Persistent"
+msgstr ""
+
+#: saml/models.py:117
+msgid "Transient"
+msgstr ""
+
+#: saml/models.py:118
+msgid "Email (only supported by SAMLv2)"
+msgstr ""
+
+#: saml/models.py:123
+msgid "Ask user for consent when creating a federation"
+msgstr ""
+
+#: saml/models.py:129
+msgid "POST binding"
+msgstr ""
+
+#: saml/models.py:132
+msgid "Redirect binding"
+msgstr ""
+
+#: saml/models.py:133
+msgid "SOAP binding"
+msgstr ""
+
+#: saml/models.py:148
+msgid ""
+"Binding for Authnresponse (taken from metadata by the IdP if not enabled)"
+msgstr ""
+
+#: saml/models.py:154
+msgid ""
+"HTTP method for single logout request (taken from metadata if not enabled)"
+msgstr ""
+
+#: saml/models.py:160
+msgid ""
+"HTTP method for federation termination request (taken from metadata if not "
+"enabled)"
+msgstr ""
+
+#: saml/models.py:166
+msgid "Want AuthnRequest signed"
+msgstr ""
+
+#: saml/models.py:227
+msgid "Qualifier"
+msgstr ""
+
+#: saml/models.py:229
+msgid "NameIDFormat"
+msgstr ""
+
+#: saml/models.py:231
+msgid "NameID"
+msgstr ""
+
+#: saml/models.py:233
+msgid "SPNameQualifier"
+msgstr ""
+
+#: saml/models.py:236
+msgid "Liberty federation"
+msgstr ""
+
+#: saml/models.py:237
+msgid "Liberty federations"
+msgstr ""
+
+#: templates/404.html:4 templates/404.html.py:8
+msgid "Error: page not found"
+msgstr ""
+
+#: templates/404.html:10
+msgid "The page you requested has not been found on this server."
+msgstr ""
+
+#: templates/500.html:4
+msgid "Error: server error (500)"
+msgstr ""
+
+#: templates/500.html:8
+msgid "Server Error"
+msgstr ""
+
+#: templates/500.html:10
+msgid "We're sorry but a server error has occurred."
+msgstr ""
+
+#: templates/base.html:35
+#, python-format
+msgid ""
+"\n"
+"             You are authenticated as %(username)s.\n"
+"             "
+msgstr ""
+
+#: templates/error_ssl.html:4
+msgid "Error: authentication failure"
+msgstr ""
+
+#: templates/error_ssl.html:8
+#, fuzzy
+msgid "Authentication failure"
+msgstr "Échec à l'activation du compte"
+
+#: templates/error_ssl.html:10
+msgid "The SSL authentication has failed"
+msgstr ""
+
+#: templates/index.html:5
+#, fuzzy
+msgid "Authentic"
+msgstr "Administration du site Authentic"
+
+#: templates/index.html:11
+#, fuzzy
+msgid "Account Management"
+msgstr "Activation de compte"
+
+#: templates/index.html:17 templates/authopenid/password_change_form.html:8
+msgid "Change password"
+msgstr "Modifier son mot de passe"
+
+#: templates/index.html:19
+msgid "Log out"
+msgstr "Déconnexion"
+
+#: templates/index.html:20
+msgid "Associate your account with an OpenID"
+msgstr ""
+
+#: templates/index.html:22
+msgid "Manage your openid identities"
+msgstr ""
+
+#: templates/index.html:28
+msgid "Federate your identity"
+msgstr ""
+
+#: templates/index.html:45
+msgid "Defederate your identity"
+msgstr ""
+
+#: templates/index.html:62
+msgid "Global Logout"
+msgstr ""
+
+#: templates/index.html:70
+msgid "Services"
 msgstr ""
 
 #: templates/admin/base_site.html:4
 msgid "Authentic site admin"
-msgstr ""
+msgstr "Administration du site Authentic"
 
 #: templates/admin/base_site.html:7
 msgid "Authentic administration"
+msgstr "Administration d'Authentic"
+
+#: templates/admin/log_view.html:4
+msgid "Logs"
+msgstr ""
+
+#: templates/admin/log_view.html:6
+msgid "Home"
+msgstr "Accueil"
+
+#: templates/admin/log_view.html:10
+msgid "Logs page"
+msgstr ""
+
+#: templates/authopenid/associate.html:5
+msgid "Associate OpenID"
+msgstr ""
+
+#: templates/authopenid/associate.html:20
+msgid "OpenID URL:"
+msgstr ""
+
+#: templates/authopenid/associate.html:43
+msgid "Add a new OpenID account"
+msgstr ""
+
+#: templates/authopenid/associate.html:45
+msgid "Please click your account provider:"
+msgstr ""
+
+#: templates/authopenid/dissociate.html:33
+msgid "Cancel"
+msgstr ""
+
+#: templates/authopenid/signin.html:5
+msgid "OpenID Signin"
+msgstr ""
+
+#: templates/authopenid/signin.html:45
+msgid "Please click on your account provider:"
+msgstr ""
+
+#: templates/authopenid/signin.html:49
+msgid "Or enter your OpenID identity:"
+msgstr ""
+
+#: templates/django_openid_provider/manage_id.html:5
+#: templates/django_openid_provider/manage_id_confirm.html:5
+msgid "Manage OpenID"
+msgstr ""
+
+#: templates/django_openid_provider/manage_id.html:23
+msgid "Your current OpenID"
+msgstr ""
+
+#: templates/django_openid_provider/manage_id.html:52
+msgid "Add a new OpenID identity"
+msgstr ""
+
+#: templates/django_openid_provider/manage_trustroot.html:5
+msgid "Manage trusted site"
+msgstr ""
+
+#: templates/django_openid_provider/manage_trustroot.html:17
+msgid "Your trusted site"
 msgstr ""
 
 #: templates/registration/activate.html:5
 msgid "Account activation"
-msgstr ""
+msgstr "Activation de compte"
 
 #: templates/registration/activate.html:12
 msgid "Account successfully activated"
-msgstr ""
+msgstr "Compte activé avec succès."
 
 #: templates/registration/activate.html:18
 msgid "Account activation failed"
+msgstr "Échec à l'activation du compte"
+
+#: templates/registration/login.html:35
+msgid "Forgot password?"
+msgstr "Mot de passe oublié ?"
+
+#: templates/registration/login.html:35
+#, fuzzy
+msgid "Reset it!"
+msgstr "Réinitialiser"
+
+#: templates/registration/login.html:36
+msgid "Not a member?"
+msgstr "Pas un membre ?"
+
+#: templates/registration/login.html:36
+#, fuzzy
+msgid "Register!"
+msgstr "Inscription"
+
+#: templates/registration/login.html:41
+msgid "Login with SSL"
 msgstr ""
 
-#: templates/registration/login.html:16
-msgid "Forgot password"
-msgstr ""
+#: templates/registration/login.html:44
+msgid "Login with OpenID"
+msgstr "S'identifier avec OpenID"
 
-#: templates/registration/login.html:16
-msgid "Reset it"
-msgstr ""
-
-#: templates/registration/login.html:17
-msgid "Not member"
-msgstr ""
-
-#: templates/registration/login.html:17
-msgid "Register"
+#: templates/registration/login.html:51
+msgid "Log in with a federated account?"
 msgstr ""
 
 #: templates/registration/logout.html:5
 msgid "Logging out"
-msgstr ""
+msgstr "Déconnexion"
 
-#: templates/registration/logout.html:9
-msgid "Logged out"
-msgstr ""
+#: templates/registration/logout.html:10
+msgid "Back"
+msgstr "Retour"
 
 #: templates/registration/password_change_done.html:5
 #: templates/registration/password_change_form.html:5
 msgid "Changing password"
-msgstr ""
-
-#: templates/registration/password_change_done.html:9
-msgid "Password changed"
-msgstr ""
+msgstr "Modification du mot de passe"
 
 #: templates/registration/password_change_form.html:12
 #: templates/registration/password_reset_confirm.html:15
-#: templates/registration/password_reset_form.html:12
-#: templates/registration/registration_form.html:12
+#: templates/registration/password_reset_form.html:15
+#: templates/registration/registration_form.html:21
 msgid "Submit"
-msgstr ""
+msgstr "Transmettre"
 
 #: templates/registration/password_reset_complete.html:5
 #: templates/registration/password_reset_complete.html:10
 msgid "Password reset successfully"
-msgstr ""
+msgstr "Mot de passe réinitialisé avec succès"
 
 #: templates/registration/password_reset_confirm.html:5
 #: templates/registration/password_reset_done.html:5
 #: templates/registration/password_reset_form.html:5
+#: templates/registration/password_reset_form.html:10
 #: templates/registration/registration_complete.html:5
 msgid "Resetting password"
-msgstr ""
+msgstr "Réinitialisation du mot de passe"
 
 #: templates/registration/password_reset_confirm.html:20
 msgid "Password reset failed"
-msgstr ""
+msgstr "Échec à la réinitialisation du mot de passe"
 
 #: templates/registration/password_reset_done.html:10
 msgid "Email with password reset instructions has been sent."
 msgstr ""
+"Un courriel avec les instructions de réinitialisation du mot de passe a été "
+"envoyé."
 
 #: templates/registration/password_reset_email.html:2
 #, python-format
 msgid "Reset password at %(site_name)s"
-msgstr ""
+msgstr "Réinitialisation du mot de passe sur %(site_name)s"
 
 #: templates/registration/registration_complete.html:9
 msgid "You are now registered. Activation email sent."
-msgstr ""
+msgstr "Vous êtes maintenant inscrit. Un courriel d'activation a été envoyé."
 
 #: templates/registration/registration_form.html:5
+#: templates/registration/registration_form.html:16
 msgid "Registration"
+msgstr "Inscription"
+
+#: templates/saml/post_form.html:10
+msgid "You should be automaticaly redirected to the identity provider."
 msgstr ""
+
+#: templates/saml/post_form.html:11
+msgid "If this page is still visible after a few seconds, press the"
+msgstr ""
+
+#: templates/saml/post_form.html:11
+msgid "Send"
+msgstr ""
+
+#: templates/saml/post_form.html:11
+msgid "button below."
+msgstr ""
+
+#~ msgid "Logged in"
+#~ msgstr "Identifié"
