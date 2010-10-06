@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.simple import direct_to_template
 from authentic.idp import homepage
 import authentic.idp.views
+import authentic.idp.login_views
 import settings
 
 admin.autodiscover()
@@ -46,6 +47,7 @@ urlpatterns += patterns('',
     (r'^accounts/logout/', 'idp.views.AuthLogout'),
     (r'^accounts/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
     (r'^accounts/password/change/$','idp.views.password_change'),
+    url(r'^accounts/login', authentic.idp.login_views.login, name='auth_login'),
     (r'^accounts/', include('registration.urls')),
 )
 
