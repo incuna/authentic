@@ -31,7 +31,11 @@
         </div>
 
         {% if not request.user.username == '' %}
-        <div id="user"><p>You are authenticated as {{ request.user.username }}</p></div>
+        <div id="user">
+          <p>{% blocktrans with request.user.username as username %}
+             You are authenticated as {{ username }}.
+             {% endblocktrans %}</p>
+        </div>
         {% endif %}
         {% block content %}{% endblock %}
     </div>
