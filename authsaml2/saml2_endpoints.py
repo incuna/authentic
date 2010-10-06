@@ -536,7 +536,7 @@ def singleLogoutSOAP(request):
                           lasso.DS_ERROR_INVALID_SIGNATURE,
                           lasso.DS_ERROR_SIGNATURE_NOT_FOUND)
         if error[0] in handled_errors:
-            logging.warning(_('SLO/SOAP: Error while processing request %s' % error[1]))
+            logging.warning('SLO/SOAP: Error %s while processing request' % error[1])
             return
         else:
             logging.warning(_('SLO/SOAP: Unknown error while processing request'))
@@ -677,7 +677,11 @@ def singleLogout(request):
             logging.warning(_('SLO/Redirect from %s: Invalid Signature' % logout.remoteProviderId))
         else:
             import sys
-            return error_page(_('SLO/Redirect from %s: Unknown error%s' % (logout.remoteProviderId, sys.exc_info()[0])))
+            return error_page(
+                            _('SLO/Redirect from %(remote_provider_id)s: '
+                              'Unknown error (%(error)s)') % {
+                                'remote_provider_id': logout.remoteProviderId,
+                                'error': sys.exc_info()[0]})
         return slo_return_response(logout)
 
     logging.warning(_('SLO/Redirect from %s:' % logout.remoteProviderId))
