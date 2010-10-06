@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-06 17:12+0200\n"
+"POT-Creation-Date: 2010-10-06 17:21+0200\n"
 "PO-Revision-Date: 2010-06-01 11:03+0200\n"
 "Last-Translator: Frederic Peters <fpeters@0d.be>\n"
 "Language-Team: None\n"
@@ -825,16 +825,16 @@ msgstr ""
 "Vous devriez être automatiquement redirigé vers le fournisseur d'identités."
 
 #: templates/saml/post_form.html:11
-msgid "If this page is still visible after a few seconds, press the"
+msgid ""
+"If this page is still visible after a few seconds, press the Send button "
+"below."
 msgstr ""
+"Si cette page est encore visible après quelques secondes, cliquez sur le "
+"bouton Envoyer ci-dessous."
 
-#: templates/saml/post_form.html:11
+#: templates/saml/post_form.html:15
 msgid "Send"
-msgstr ""
-
-#: templates/saml/post_form.html:11
-msgid "button below."
-msgstr ""
+msgstr "Envoyer"
 
 #, fuzzy
 #~ msgid "User"
