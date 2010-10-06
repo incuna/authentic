@@ -2,7 +2,7 @@ from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import *
 from django.views.generic.simple import direct_to_template
 from django.template import RequestContext
 from django.contrib.auth import get_user
@@ -514,10 +514,6 @@ def singleLogoutSOAP(request):
         logging.warning(_('SLO/SOAP: Bad SOAP message'))
         return
 
-#        response = get_response()
-#        response.set_content_type('text/xml')
-#        session_index = None
-
     request_type = lasso.getRequestTypeFromSoapMsg(soap_message)
     if request_type != lasso.REQUEST_TYPE_LOGOUT:
         logging.warning(_('SLO/SOAP: SOAP message is not a slo message'))
@@ -526,7 +522,6 @@ def singleLogoutSOAP(request):
     if not is_sp_configured():
         logging.warning(_('SLO/SOAP: Service provider not configured'))
         return
-        return error_page(request, _('Service provider not configured'))
     server = build_service_provider(request)
     if not server:
         logging.warning(_('SLO/SOAP: Service provider not configured'))
@@ -641,11 +636,18 @@ def singleLogoutSOAP(request):
             import sys
             logging.warning(_('SLO/SOAP: Unable to log django session: %s' % sys.exc_info()[0]))
             finishSingleLogoutSOAP(logout)
-    finishSingleLogoutSOAP(logout)
+    return finishSingleLogoutSOAP(logout)
 
 def finishSingleLogoutSOAP(logout):
-    logout.buildResponseMsg()
-    return logout.msgBody
+    try:
+        logout.buildResponseMsg()
+    except:
+        pass
+    django_response = HttpResponse()
+    django_response.status_code = 200
+    django_response.content_type = 'text/xml'
+    django_response.content = logout.msgBody
+    return django_response
 
 ###
  # singleLogout
@@ -872,8 +874,60 @@ def manage_name_id_return(request, manage, message):
  #
  # Federation termination: request from SOAP IdP initiated
  ###
+@csrf_exempt
 def manageNameIdSOAP(request):
-    return error_page(request, _('manageNameIdSOAP'))
+    try:
+        soap_message = get_soap_message(request)
+    except:
+        logging.warning(_('SLO/SOAP: Bad SOAP message'))
+        return
+    if not soap_message:
+        logging.warning(_('SLO/SOAP: Bad SOAP message'))
+        return
+
+    request_type = lasso.getRequestTypeFromSoapMsg(soap_message)
+    if request_type != lasso.REQUEST_TYPE_NAME_ID_MANAGEMENT:
+        logging.warning(_('SLO/SOAP: SOAP message is not a slo message'))
+        return
+
+    if not is_sp_configured():
+        logging.warning(_('SLO/SOAP: Service provider not configured'))
+        return
+        return error_page(request, _('Service provider not configured'))
+    server = build_service_provider(request)
+    if not server:
+        logging.warning(_('SLO/SOAP: Service provider not configured'))
+        return
+    manage = lasso.NameIdManagement(server)
+    try:
+        manage.processRequestMsg(soap_message)
+    except lasso.Error, error:
+        handled_errors = (lasso.PROFILE_ERROR_MISSING_REMOTE_PROVIDERID,
+                          lasso.DS_ERROR_INVALID_SIGNATURE,
+                          lasso.DS_ERROR_SIGNATURE_NOT_FOUND)
+        if error[0] in handled_errors:
+            logging.warning(_('SLO/SOAP: Error while processing request %s' % error[1]))
+            return
+        else:
+            logging.warning(_('SLO/SOAP: Unknown error while processing request'))
+            return
+    fed = lookup_federation_by_name_identifier(manage)
+    load_federation(request, manage, fed.user)
+    try:
+        manage.validateRequest()
+    except lasso.Error, error:
+        logging.warning(_('SLO/SOAP: Unable to validate request'))
+        return
+    fed.delete()
+    try:
+        manage.buildResponseMsg()
+    except:
+        pass
+    django_response = HttpResponse()
+    django_response.status_code = 200
+    django_response.content_type = 'text/xml'
+    django_response.content = manage.msgBody
+    return django_response
 
 ###
  # manageNameIdSOAP
