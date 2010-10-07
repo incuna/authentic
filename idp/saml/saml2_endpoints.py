@@ -1,18 +1,22 @@
 import datetime
-import lasso
 import logging
 
-from authentic.saml.common import *
+import lasso
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import *
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
-from authentic.saml.models import *
-from common import redirect_to_login, get_nonce_dict
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import BACKEND_SESSION_KEY
+
+from authentic.saml.models import *
+from authentic.saml.common import *
+from authentic.idp.models import AuthenticationEvent
+from common import redirect_to_login, NONCE
 
 '''SAMLv2 IdP implementation
 
@@ -37,7 +41,7 @@ def fill_assertion(request, saml_request, assertion, provider_id):
        and from the session, and eventually from transactions linked to the
        request, i.e. a login event or a consent event.'''
     # Use assertion ID as session index
-    assertion.authenticationStatement.sessionIndex = assertion.assertionId
+    assertion.authnStatement[0].sessionIndex = assertion.id
     # TODO: add attributes from user account
     # TODO: determine and add attributes from the session, for anonymous
     # users (pseudonymous federation, openid without accoutns)
@@ -55,7 +59,29 @@ def build_assertion(request, login):
     # 1 minute in the future
     notOnOrAfter = now+datetime.timedelta(0,60)
     # TODO: find authn method from login event or from session
-    login.buildAssertion(lasso.LIB_AUTHN_CONTEXT_CLASS_REF_PREVIOUS_SESSION,
+    use_user_backend = True
+    if use_user_backend:
+        backend = request.session[BACKEND_SESSION_KEY]
+        if backend in ('django.contrib.auth.backends.ModelBackend',
+                'authentic.idp.auth_backends.LogginBackend'):
+            if request.environ.has_key('HTTPS'):
+                authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD_PROTECTED_TRANSPORT
+            else:
+                authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD
+        elif backend == 'authentic.sslauth.backends.SSLAuthBackend':
+            authn_context = lasso.LASSO_SAML2_AUTHN_CONTEXT_X509
+        else:
+            raise Exception('unknown backend: ' + backend)
+    else:
+        try:
+            auth_event = AuthenticationEvent.objects.get(nonce = login.request.id)
+            if auth_event.how == 'password':
+                authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD
+            elif auth_event.how == 'password-on-https':
+                authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD_PROTECTED_TRANSPORT
+        except ObjectDoesNotExist:
+            authn_context = lasso.SAML2_AUTHN_CONTEXT_PREVIOUS_SESSION
+    login.buildAssertion(authn_context,
             now.isoformat()+'Z',
             'unused', # reauthenticateOnOrAfter is only for ID-FF 1.2
             notBefore.isoformat()+'Z',
@@ -94,7 +120,6 @@ def sso(request):
     server = create_saml2_server(request, reverse(metadata))
     login = lasso.Login(server)
     # 1. Process the request, separate POST and GET treatment
-    message = get_idff12_request_message(request)
     if not message:
         return HttpResponseForbidden('SAMLv2 sso need a query string')
     logging.debug('SAMLv2: processing sso request %r' % message)
@@ -113,9 +138,9 @@ def sso(request):
             message = N_('SAMLv2: sso request cannot be answered because no valid protocol binding could be found')
             logging.error(message)
             return HttpResponseBadRequest(_(message))
-        except lasso.DsError:
+        except lasso.DsError, e:
             log_info_authn_request_details(login)
-            logging.error('SAMLv2: sso request signature validation failed: %s' % e)
+            logging.error('SAMLv2: cryptographic error: %s' % e)
             return finish_sso(request, login)
         except (lasso.ServerProviderNotFoundError, lasso.ProfileUnknownProviderError):
             log_info_authn_request_details(login)
@@ -131,28 +156,32 @@ def sso(request):
     return sso_after_process_request(request, login,
         consent_obtained = consent_obtained)
 
-def need_login(request, login, consent_obtained):
-    '''Redirect to the login page with a nonce parameter to verify later that the login form was submitted'''
+def need_login(request, login, consent_obtained, save):
+    '''Redirect to the login page with a nonce parameter to verify later that
+       the login form was submitted'''
     nonce = login.request.id
-    save_login_object(login, consent_obtained, nonce)
-    return redirect_to_login(request.get_full_path(),
-            other_keys = { NONCE : nonce })
+    save_key_values(nonce, login.dump(), consent_obtained, save)
+    return redirect_to_login(reverse(continue_sso)+'?%s=%s' % (NONCE, nonce),
+            other_keys={'nonce': nonce})
 
-def need_consent(request, login, consent_obtained):
+def need_consent(request, login, consent_obtained, save):
     nonce = login.request.id
-    save_login_object(login, consent_obtained, nonce)
-    return HttpResponseRedirect('%s?id=%s&next=%s' %
-            ( reverse(consent), nonce,
-                urllib.quote(request.get_full_path())) )
+    save_key_values(nonce, login, consent_obtained, save)
+    return HttpResponseRedirect('%s?%s=%s&next=%s' % (reverse(consent), NONCE,
+        nonce, urllib.quote(request.get_full_path())) )
 
 def continue_sso(request):
     nonce = request.REQUEST.get(NONCE, '')
-    login, consent_obtained, save = load_login_object(nonce)
+    login_dump, consent_obtained, save = get_and_delete_key_values(nonce)
+    server = create_saml2_server(request, reverse(metadata))
+    login = lasso.Login.newFromDump(server, login_dump)
+    if not load_provider(request, login, login.remoteProviderId):
+        return HttpResponseBadRequest('Unknown provider')
     if not login:
         logging.debug('SAMLv2: continue sso nonce %r not found' % nonce)
         return HttpResponseBadRequest()
     return sso_after_process_request(request, login,
-            consent_obtained = consent_obtained, save = True)
+            consent_obtained = consent_obtained)
 
 def sso_after_process_request(request, login,
         consent_obtained = True, user = None, save = True):
@@ -163,44 +192,16 @@ def sso_after_process_request(request, login,
        save: whether to save the result of this transaction or not.
     '''
     nonce = login.request.id
-    nonce_dict = get_nonce_dict(nonce)
-    if nonce_dict and not nonce_dict.has_key('cancelled'):
-        if user is None:
-            user = request.user
-        # Flags possible:
-        # - consent
-        # - isPassive
-        # - forceAuthn
-        #
-        # 3. TODO: Check for permission
-        if request.user.anonymous:
-            return need_login(request, login)
-        if login.mustAuthenticate():
-            # TODO:
-            # check that it exists a login transaction for this request id
-            #  - if there is, then provoke one with a redirect to
-            #  login?next=<current_url>
-            #  - if there is then set user_authenticated to the result of the
-            #  login event
-            # Work around lack of informations returned by mustAuthenticate()
-            if login.request.forceAuthn and not nonce_dict.get('authentified','') == request.user:
-                return need_login(request, login)
-        # TODO: for autoloaded providers always ask for consent
-        if login.mustAskForConsent() or not consent_obtained:
-            # TODO: replace False by check against request id
-            if nonce_dict.has_key('consent'):
-                consent_obtained = True
-            elif nonce_dict.has_key('forbid'):
-                consent_obtained = False
-            # i.e. redirect to /idp/consent?id=requestId
-            # then check that Consent(id=requestId) exists in the database
-            else:
-                return need_consent(request, login, consent_obtained)
-    # 4. Validate the request, passing authentication and consent status
-    # TODO: remove the following hack
-    user_authenticated = True
+    user = user or request.user
+    did_auth = AuthenticationEvent.objects.filter(nonce=nonce).exists()
+    force_authn = login.request.forceAuthn
+    passive = login.request.isPassive
+
+    if not passive and (user.is_anonymous() or (force_authn and not did_auth)):
+        return need_login(request, login, consent_obtained, save)
+    # TODO: implement consent
     try:
-        login.validateRequestMsg(user_authenticated, consent_obtained)
+        login.validateRequestMsg(not user.is_anonymous(), consent_obtained)
     except lasso.LoginRequestDeniedError:
         do_federation = False
     except:
@@ -216,6 +217,58 @@ def sso_after_process_request(request, login,
         build_assertion(request, login)
     return finish_sso(request, login, user = user, save = save)
 
+def finish_sso(request, login, user = None, save = False):
+    if user is None:
+        user=request.user
+    if login.protocolProfile == lasso.LOGIN_PROTOCOL_PROFILE_BRWS_ART:
+        login.buildArtifactMsg(lasso.HTTP_METHOD_ARTIFACT_GET)
+        save_artifact(request, login)
+    elif login.protocolProfile == lasso.LOGIN_PROTOCOL_PROFILE_BRWS_POST:
+        login.buildAuthnResponseMsg()
+    else:
+        raise NotImplementedError()
+    if save:
+        #save_federation(request, login)
+        # save_session(request, login)
+        pass
+    return return_saml2_response(login, title = _('Authentication response'))
+
+def save_artifact(request, login):
+    '''Remember an artifact message for later retrieving'''
+    LibertyArtifact(artifact=login.artifact,
+            content=login.artifactMessage,
+            django_session_key=request.session.session_key,
+            provider_id=login.remoteProviderId).save()
+
+def reload_artifact(login):
+    try:
+        art = LibertyArtifact.objects.get(artifact=login.artifact)
+        login.artifactMessage = art.content
+        art.delete()
+    except ObjectDoesNotExist:
+        pass
+
+@csrf_exempt
+def artifact(request):
+    '''Resolve a SAMLv2 ArtifactResolve request
+    '''
+    soap_message = get_soap_message(request)
+    server = create_saml2_server(request, reverse(metadata))
+    login = lasso.Login(server)
+    try:
+        login.processRequestMsg(soap_message)
+    except (lasso.ProfileUnknownProviderError, lasso.ParamError):
+        if not load_provider(request, login, login.remoteProviderId):
+            raise
+        login.processRequestMsg(soap_message)
+    logging.debug('SAMLv2 artifact resolve %r' % soap_message)
+    reload_artifact(login)
+    try:
+        login.buildResponseMsg(None)
+    except:
+        raise
+    return return_saml_soap_response(login)
+
 @csrf_exempt
 def slo(request):
     """Endpoint for receiving saml2:AuthnRequests by POST, Redirect or SOAP.
@@ -229,5 +282,7 @@ urlpatterns = patterns('',
     (r'^metadata$', metadata),
     (r'^sso', sso),
     (r'^slo', slo),
+    (r'^artifact', artifact),
+    (r'^continue', continue_sso)
 )
 
