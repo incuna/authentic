@@ -133,6 +133,16 @@ HTTP_METHOD = (
     (lasso.HTTP_METHOD_SOAP, _('SOAP binding'))
 )
 
+USER_CONSENT = (
+    ('urn:oasis:names:tc:SAML:2.0:consent:unspecified', _('Unspecified')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:obtained', _('Obtained')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:prior', _('Prior')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:current-explicit', _('Explicit')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:current-implicit', _('Implicit')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:unavailable', _('Unavailable')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:inapplicable', _('Inapplicable'))
+)
+
 # TODO: The choice for requests must be restricted by the IdP metadata
 # The SP then chooses the binding in this list.
 # For response, if the requester uses a (a)synchronous binding, the responder uses the same.
@@ -162,6 +172,14 @@ class LibertyIdentityProvider(models.Model):
             max_length = 60, choices = HTTP_METHOD,
             verbose_name = '',
             default = lasso.HTTP_METHOD_SOAP)
+    user_consent = models.CharField(
+            max_length = 100, choices = USER_CONSENT,
+            verbose_name = _("Ask user consent"),
+            default = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit')
+    want_force_authn_request = models.BooleanField(
+            verbose_name = _("Force authentication"))
+    want_is_passive_authn_request = models.BooleanField(
+            verbose_name = _("Passive authentication"))
     want_authn_request_signed = models.BooleanField(
             verbose_name = _("Want AuthnRequest signed"))
     # Mapping to use to get User attributes from the assertion
