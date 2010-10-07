@@ -504,16 +504,6 @@ def get_provider_of_active_session(request):
     except:
         return None
 
-def get_soap_message(request):
-    ctype = request.environ.get('CONTENT_TYPE')
-    if not ctype:
-        logging.warning('SOAP Endpoint got a message without content-type')
-        raise SOAPException()
-    if ctype != 'text/xml':
-        logging.warning('SOAP Endpoint got a message with wrong content-type (%s)' % ctype)
-        raise SOAPException()
-    return request.raw_post_data
-
 class SOAPException(Exception):
     url = None
     def __init__(self, url):
