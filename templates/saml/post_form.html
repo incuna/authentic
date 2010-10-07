@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block title %} {{ title }} {% endblock %}
-{% block bodyargs %}document.forms[0].submit(){% endblock %}
+{% block bodyargs %}onload="document.forms[0].submit()"{% endblock %}
 
 {% block content %}
 <h2>{{ title }}</h2>

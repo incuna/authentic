@@ -127,7 +127,7 @@ def return_saml2(profile, field_name, title = ''):
     '''Helper to handle SAMLv2 bindings to emit request and responses'''
     if profile.msgBody:
         if profile.msgUrl:
-            render_to_response('saml/post_form.html',{
+            return render_to_response('saml/post_form.html',{
                         'title': title,
                         'url': profile.msgUrl,
                         'fieldname': field_name,
@@ -137,7 +137,7 @@ def return_saml2(profile, field_name, title = ''):
     elif profile.msgUrl:
         return HttpResponseRedirect(profile.msgUrl)
     else:
-        return TypeError('profile do not contain a response')
+        raise TypeError('profile do not contain a response')
 
 # ID-FF 1.2 methods
 def get_idff12_metadata(request, metadata):
