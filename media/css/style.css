@@ -258,3 +258,9 @@ div#breadcrumb {
 	font-size: 80%;
 	margin-bottom: 1em;
 }
+
+div#user {
+	position: absolute;
+	right: 12px;
+	top: 98px;
+}
