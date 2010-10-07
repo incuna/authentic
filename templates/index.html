@@ -24,11 +24,8 @@
 </ul>
 
 {% if providers_list_not_federated %}
-<div id="login-actions">
+<div class="login-actions">
 {% trans "Federate your identity" %}
-</div>
-<br/>
-<div>
 <form>
     <select name="list_providers" size="1" onChange="redirect_from_list(this.form)">
     <option selected="selected">{% trans "Tell me where!" %}</option>  
@@ -46,11 +43,8 @@ function redirect_from_list(f) { if (f.list_providers.selectedIndex != 0) locati
 {% endif %} {# end of providers_list_not_federated #}
 
 {% if providers_list_federated %}
-<div id="login-actions">
+<div class="login-actions">
 {% trans "Defederate your identity" %}
-</div>
-<br/>
-<div>
 <form>
     <select name="list_providers" size="1" onChange="redirect_from_list_defederation(this.form)">
     <option selected="selected">{% trans "Tell me where!" %}</option>  
