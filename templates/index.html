@@ -38,8 +38,13 @@
     </select>
 </form>
 </div>
-<br/>
-{% endif %}
+
+<script type="text/javascript">
+function redirect_from_list(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/selectProvider/' + f.list_providers.options[f.list_providers.selectedIndex].value; }
+</script>
+
+{% endif %} {# end of providers_list_not_federated #}
+
 {% if providers_list_federated %}
 <div id="login-actions">
 {% trans "Defederate your identity" %}
@@ -55,14 +60,19 @@
     </select>
 </form>
 </div>
-<br/>
-{% endif %}
+
+<script type="text/javascript">
+function redirect_from_list_defederation(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/federationTermination/' + f.list_providers.options[f.list_providers.selectedIndex].value; }
+</script>
+
+{% endif %} {# end of providers_list_federated #}
+
 {% if provider_active_session %}
 <div id="login-actions">
 {% trans "Global Logout" %}
 <a href="/authsaml2/logout">{{ provider_active_session.entity_id }}</a>
 </div>
-{% endif %}
+{% endif %} {# end of provider_active_session #}
 
 
 {% if authorized_services %}
@@ -75,12 +85,6 @@
   {% endfor %}
   </ul>
   </div>
-{% endif %}
+{% endif %} {# end of authorized_services #}
 
-<script type="text/javascript">
-function redirect_from_list(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/selectProvider/' + f.list_providers.options[f.list_providers.selectedIndex].value; }
-</script>
-<script type="text/javascript">
-function redirect_from_list_defederation(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/federationTermination/' + f.list_providers.options[f.list_providers.selectedIndex].value; }
-</script>
 {% endblock %}
