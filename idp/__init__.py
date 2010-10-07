@@ -90,6 +90,7 @@ def LogAuthLoginOI(sender, openid_url, state, **kwargs):
 def admin_service(request):
     if request.user.is_staff:
         return (('/admin', _('Authentic administration')),)
+    return []
 
 register_service_list(admin_service)
 
