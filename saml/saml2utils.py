@@ -93,6 +93,8 @@ class Saml2Metadata(object):
     idp_services = ( SINGLE_SIGN_ON_SERVICE, NAME_ID_MAPPING_SERVICE,
             ASSERTION_ID_REQUEST_SERVICE )
     sp_services = ( ASSERTION_CONSUMER_SERVICE, )
+    indexed_endpoints = ( ARTIFACT_RESOLUTION_SERVICE,
+            ASSERTION_CONSUMER_SERVICE )
 
     def __init__(self, entity_id, url_prefix = '', valid_until = None,
             cache_duration = None):
@@ -169,7 +171,12 @@ class Saml2Metadata(object):
                             'Location': self.url_prefix + row[2] }
                     if len(row) == 4:
                         attribs['ResponseLocation'] = self.url_prefix + row[3]
-                    if service == self.ASSERTION_CONSUMER_SERVICE:
+                    if service in self.indexed_endpoints:
+                        if len(row) == 5:
+                            if row[4] is True:
+                                attribs['isDefault'] = 'true'
+                            if row[4] is False:
+                                attribs['isDefault'] = 'false'
                         attribs['index'] = str(assertion_consumer_idx)
                         assertion_consumer_idx += 1
                     self.tb.start(service, attribs)
