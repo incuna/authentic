@@ -1,5 +1,6 @@
 from django.template import RequestContext
 from django.shortcuts import render_to_response
+from django.utils.translation import ugettext as _
 from signals import auth_login
 from signals import auth_logout
 from signals import auth_oidlogin
@@ -85,6 +86,12 @@ def LogAuthLoginOI(sender, openid_url, state, **kwargs):
     elif state is 'setup_needed':
         msg += ' setup_needed'
     info(msg)
+
+def admin_service(request):
+    if request.user.is_staff:
+        return (('/admin', _('Authentic administration')),)
+
+register_service_list(admin_service)
 
 auth_login.connect(LogAuthLogin, dispatch_uid = "authentic.idp")
 auth_logout.connect(LogAuthLogout, dispatch_uid = "authentic.idp")
