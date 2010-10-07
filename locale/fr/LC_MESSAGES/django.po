@@ -485,7 +485,7 @@ msgstr "Authentic"
 
 #: templates/index.html:11
 msgid "Account Management"
-msgstr "Gestion du compte"
+msgstr "Gestion de votre compte"
 
 #: templates/index.html:15 templates/authopenid/password_change_form.html:6
 #: templates/authopenid/password_change_form.html:25
@@ -495,7 +495,7 @@ msgstr "Mot de passe oublié"
 
 #: templates/index.html:17 templates/authopenid/password_change_form.html:8
 msgid "Change password"
-msgstr "Modifier son mot de passe"
+msgstr "Modifier votre mot de passe"
 
 #: templates/index.html:19
 msgid "Log out"
