@@ -50,3 +50,4 @@ if settings.DEBUG:
     admin.site.register(LibertyIdentityDump)
     admin.site.register(LibertyFederation)
     admin.site.register(LibertySessionSP)
+    admin.site.register(KeyValue)
