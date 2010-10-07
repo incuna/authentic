@@ -217,7 +217,8 @@ class LibertyManageDump(models.Model):
     manage_dump = models.TextField(blank = True)
 
 class LibertyArtifact(models.Model):
-    """Store an artifact"""
+    """Store an artifact and the associated XML content"""
+    creation = models.DateTimeField(auto_now=True)
     artifact = models.CharField(max_length = 40, primary_key = True)
     content = models.TextField()
     django_session_key = models.CharField(max_length = 40)
