@@ -65,16 +65,17 @@
 {% endif %}
 
 
-<br/>
-<div id="login-actions">
-<h2>{% trans "Services" %}</h2>
+{% if authorized_services %}
+  <div id="login-actions">
+  <h2>{% trans "Services" %}</h2>
 
-<ul>
-{% for service in authorized_services %}
-<li><a href="{{ service.0 }}">{{ service.1 }}</a></li>
-{% endfor %}
-</ul>
-</div>
+  <ul>
+  {% for service in authorized_services %}
+    <li><a href="{{ service.0 }}">{{ service.1 }}</a></li>
+  {% endfor %}
+  </ul>
+  </div>
+{% endif %}
 
 <script type="text/javascript">
 function redirect_from_list(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/selectProvider/' + f.list_providers.options[f.list_providers.selectedIndex].value; }
