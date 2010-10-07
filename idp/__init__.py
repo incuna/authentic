@@ -47,7 +47,7 @@ def LogRegistered(sender, user, **kwargs):
     info(msg)
 
 def LogActivated(sender, user, **kwargs):
-    msg = user.username + ' has activated his acount'
+    msg = user.username + ' has activated his account'
     info(msg)
 
 def LogRegisteredOI(sender, openid, **kwargs):
@@ -56,19 +56,19 @@ def LogRegisteredOI(sender, openid, **kwargs):
     info(msg)
 
 def LogAssociatedOI(sender, user, openid, **kwargs):
-    msg = user.username + ' has associated is user with ' + openid
+    msg = user.username + ' has associated his user with ' + openid
     info(msg)
 
 def LogAuthLogin(sender, user, successful, **kwargs):
     if successful:
-        msg = user.username + ' has login with success'
+        msg = user.username + ' has logged in with success'
     else:    
-        msg = user + ' try to login without success'
+        msg = user + ' has tried to login without success'
     info(msg)
 
 def LogAuthLogout(sender, user, **kwargs):
     msg = str(user) 
-    msg += ' has logout'
+    msg += ' has logged out'
     info(msg)
 
 def LogAuthLoginOI(sender, openid_url, state, **kwargs):
