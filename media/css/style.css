@@ -9,6 +9,7 @@ html, body {
 
 html {
 	background: #F9F9F7 url(../images/a1.gif) repeat-x;
+	color: #8c8c73;
 }
 
 a
@@ -83,6 +84,15 @@ div#content {
 div#content h2 {
 	margin-top: 0;
 	font-weight: normal;
+	color: #656551;
+	font-size: 18px;
+	letter-spacing: -1px;
+	line-height: 25px;
+	margin-bottom: 20px;
+	padding: 0 0 10px 15px;
+	position: relative;
+	top: 4px;
+	background: url(../images/a22.gif) bottom repeat-x;
 }
 
 #footer
