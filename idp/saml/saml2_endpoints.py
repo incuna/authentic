@@ -4,12 +4,13 @@ import logging
 
 from authentic.saml.common import *
 from django.conf.urls.defaults import *
+from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.http import *
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
 from authentic.saml.models import *
-from common import redirect_to_login
+from common import redirect_to_login, get_nonce_dict
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.contrib.auth.decorators import login_required
 
@@ -45,8 +46,25 @@ def fill_assertion(request, saml_request, assertion, provider_id):
     # TODO: use information from the consent event to specialize release of
     # attributes (user only authorized to give its email for email)
 
+def build_assertion(request, login):
+    '''After a successfully validated authentication request, build an
+       authentication assertion'''
+    now = datetime.datetime.utcnow()
+    # 1 minute ago
+    notBefore = now-datetime.timedelta(0,60)
+    # 1 minute in the future
+    notOnOrAfter = now+datetime.timedelta(0,60)
+    # TODO: find authn method from login event or from session
+    login.buildAssertion(lasso.LIB_AUTHN_CONTEXT_CLASS_REF_PREVIOUS_SESSION,
+            now.isoformat()+'Z',
+            'unused', # reauthenticateOnOrAfter is only for ID-FF 1.2
+            notBefore.isoformat()+'Z',
+            notOnOrAfter.isoformat()+'Z')
+    assertion = login.assertion
+    fill_assertion(request, login.request, assertion, login.remoteProviderId)
+
 def metadata(request):
-    return HttpResponse(get_saml2_metadata(request), mimetype = 'text/xml')
+    return HttpResponse(get_saml2_metadata(request, request.path), mimetype = 'text/xml')
 
 
 def log_info_authn_request_details(login):
@@ -73,7 +91,7 @@ def sso(request):
     if request.method != 'GET':
         return HttpResponseForbidden('SAMLv2 sso endpoint only support HTTP-Redirect binding')
     message = get_saml2_request_message(request)
-    server = create_saml2_server(request)
+    server = create_saml2_server(request, reverse(metadata))
     login = lasso.Login(server)
     # 1. Process the request, separate POST and GET treatment
     message = get_idff12_request_message(request)
@@ -90,7 +108,7 @@ def sso(request):
                           'HTTP-Redirect binding: %r exception: %s' % (message, e))
             return HttpResponseBadRequest(_('SAMLv2: invalid message for '
                 'WebSSO profile with HTTP-Redirect binding: %r') % message)
-        except lasso.ProfileInvalidProtocolProfileError:
+        except lasso.ProfileInvalidProtocolprofileError:
             log_info_authn_request_details(login)
             message = N_('SAMLv2: sso request cannot be answered because no valid protocol binding could be found')
             logging.error(message)
@@ -99,7 +117,7 @@ def sso(request):
             log_info_authn_request_details(login)
             logging.error('SAMLv2: sso request signature validation failed: %s' % e)
             return finish_sso(request, login)
-        except (lasso.ServerProviderNotFoundError, lasso.ProfileUnkownProviderError):
+        except (lasso.ServerProviderNotFoundError, lasso.ProfileUnknownProviderError):
             log_info_authn_request_details(login)
             provider_id = login.remoteProviderId
             provider_loaded = load_provider(request, login, provider_id)
@@ -146,7 +164,7 @@ def sso_after_process_request(request, login,
     '''
     nonce = login.request.id
     nonce_dict = get_nonce_dict(nonce)
-    if not nonce_dict.has_key('cancelled'):
+    if nonce_dict and not nonce_dict.has_key('cancelled'):
         if user is None:
             user = request.user
         # Flags possible:
@@ -179,6 +197,8 @@ def sso_after_process_request(request, login,
             else:
                 return need_consent(request, login, consent_obtained)
     # 4. Validate the request, passing authentication and consent status
+    # TODO: remove the following hack
+    user_authenticated = True
     try:
         login.validateRequestMsg(user_authenticated, consent_obtained)
     except lasso.LoginRequestDeniedError:
@@ -196,9 +216,18 @@ def sso_after_process_request(request, login,
         build_assertion(request, login)
     return finish_sso(request, login, user = user, save = save)
 
+@csrf_exempt
+def slo(request):
+    """Endpoint for receiving saml2:AuthnRequests by POST, Redirect or SOAP.
+       For SOAP a session must be established previously through the login page. No authentication through the SOAP request is supported.
+    """
+    message = get_saml2_request_message(request)
+    server = create_saml2_server(request, get_saml2_metadata(request, reverse(metadata)))
+    login = lasso.Logout(server)
 
 urlpatterns = patterns('',
     (r'^metadata$', metadata),
     (r'^sso', sso),
+    (r'^slo', slo),
 )
 

@@ -11,6 +11,7 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
 from models import *
+from saml.models import *
 
 SAML_PRIVATE_KEY = settings.SAML_PRIVATE_KEY
 
@@ -52,7 +53,10 @@ def get_saml2_metadata(request, metadata):
             url_prefix = get_base_path(request, metadata))
     synchronous_bindings = [ lasso.SAML2_METADATA_BINDING_REDIRECT,
                     lasso.SAML2_METADATA_BINDING_POST ]
-    map = (('SingleSignOnService', synchronous_bindings , '/sso'),)
+    map = (('SingleSignOnService', synchronous_bindings , '/sso'),
+            #('SingleLogoutService', synchronous_bindings , '/slo'),
+            ('SingleLogoutService', lasso.SAML2_METADATA_BINDING_SOAP, '/slo')
+            )
     options = { 'signing_key': SAML_PRIVATE_KEY }
     metagen.add_idp_descriptor(map, options)
     return str(metagen)
@@ -285,8 +289,9 @@ def load_provider(request, login, provider_id, sp_or_idp = 'sp'):
     '''Look up a provider in the database, and verify it handles wanted
        role be it sp or idp.
     '''
-    liberty_provider = LibertyProvider.objects.get(entity_id = provider_id)
-    if not liberty_provider:
+    try:
+        liberty_provider = LibertyProvider.objects.get(entity_id = provider_id)
+    except LibertyProvider.DoesNotExist:
         return False
     if sp_or_idp == 'sp':
         try:
