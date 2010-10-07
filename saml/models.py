@@ -326,6 +326,9 @@ class KeyValue(models.Model):
     key = models.CharField(max_length=40, primary_key=True)
     value = PickledObjectField()
 
+    def __unicode__(self):
+        return self.key
+
 def save_key_values(key, *values):
     KeyValue(key = key, value = values).save()
 
