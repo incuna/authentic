@@ -11,24 +11,16 @@
 
 <body {% block bodyargs %}{% endblock %} >
   <div id="wrap">
-    <div id="header">
+    <a href="/"><div id="header">
       {% block header %}
       <h1>Authentic</h1>
       <span>Identity Server</span>
       {% endblock %}
-    </div>
+    </div></a>
 
     <div id="splash"></div>
 
-
     <div id="content">
-
-        <div id="breadcrumb">
-        {% load breadcrumbs %}
-        {% block breadcrumbs %}
-        {% breadcrumb_url 'Home' index %}
-        {% endblock %}
-        </div>
 
         {% if not request.user.username == '' %}
         <div id="user">
