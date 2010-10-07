@@ -148,9 +148,6 @@ USER_CONSENT = (
 # The SP then chooses the binding in this list.
 # For response, if the requester uses a (a)synchronous binding, the responder uses the same.
 # However, the responder can choose which asynchronous binding it employs.
-# TODO: Add checkbox to enable protocol binding definition for responses.
-# - Not checked, not specified in request, the IdP take from the SP metadata
-# - Checked, The SP defines in its request the binding for response
 class LibertyIdentityProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True, related_name = 'identity_provider')
@@ -174,7 +171,7 @@ class LibertyIdentityProvider(models.Model):
             verbose_name = '',
             default = lasso.HTTP_METHOD_SOAP)
     user_consent = models.CharField(
-            max_length = 100, choices = USER_CONSENT,
+            max_length = 60, choices = USER_CONSENT,
             verbose_name = _("Ask user consent"),
             default = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit')
     want_force_authn_request = models.BooleanField(
