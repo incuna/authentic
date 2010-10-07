@@ -219,57 +219,51 @@ def load_federation(request, login, user = None):
     '''Load an identity dump from the database'''
     if not user:
         user = request.user
-    q = LibertyIdentityDump.objects.filter(user = user)
-    if not q:
-        return
-    login.setIdentityFromDump(q[0].identity_dump)
+    try:
+        q = LibertyIdentityDump.objects.get(user = user)
+        login.setIdentityFromDump(q.identity_dump)
+    except ObjectDoesNotExist:
+        pass
+
 
 def load_session(request, login, session_key = None):
     '''Load a session dump from the database'''
     if not session_key:
         session_key = request.session.session_key
-    q = LibertySessionDump.objects.filter(django_session_key = session_key)
-    if not q:
-        return
-    login.setSessionFromDump(q[0].session_dump)
-    return q[0]
+    try:
+        q = LibertySessionDump.objects.get(django_session_key = session_key)
+        login.setSessionFromDump(q.session_dump)
+    except ObjectDoesNotExist:
+        pass
 
 def save_federation(request, login, user = None):
     '''Save identity dump to database'''
     if not user:
         user = request.user
     if login.isIdentityDirty:
-        q = LibertyIdentityDump.objects.filter(user = user)
-        if q:
-            if login.identity:
-                q[0].identity_dump = login.identity.dump()
-            else:
-                q[0].identity_dump = None
-            q[0].save()
-        elif login.identity:
-            LibertyIdentityDump(user = request.user,
-                    identity_dump = login.identity.dump()).save()
+        q, creation = LibertyIdentityDump.objects.get_or_create(user = user)
+        if login.identity:
+            q.identity_dump = login.identity.dump()
+        else:
+            q.identity_dump = None
+        q.save()
 
 def save_session(request, login, session_key = None):
     '''Save session dump to database'''
     if not session_key:
         session_key = request.session.session_key
     if login.isSessionDirty:
-        q = LibertySessionDump.objects.filter(
+        q, creation = LibertySessionDump.objects.get_or_create(
                 django_session_key = session_key)
-        if q:
-            if login.session:
-                q[0].session_dump = login.session.dump()
-            else:
-                q[0].session_dump = None
-            q[0].save()
-        elif login.session:
-            LibertySessionDump(django_session_key = request.session.session_key,
-                    session_dump = login.session.dump()).save()
+        if login.session:
+            q.session_dump = login.session.dump()
+        else:
+            q.session_dump = None
+        q.save()
 
 def delete_session(request):
     '''Delete all liberty sessions for a django session'''
-    ss = LibertySessionDump.objects.filter(django_session_key = request.session.session_key)
+    ss = LibertySessionDump.objects.get(django_session_key = request.session.session_key)
     for s in ss:
         s.delete()
 
