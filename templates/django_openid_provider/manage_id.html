@@ -22,7 +22,7 @@
 <fieldset>
 <legend>{% trans "Your current OpenID" %}</legend>
 <p> Choose your identities to remove, be careful this will remove all the trusted site for these identities.
-<br> You can change your default OpenID by clicking on "Make Default"
+You can change your default OpenID by clicking on "Make Default"
 </p>
 <form action="." id="form1" method="post">
 {% for key,value in openids.items %}
@@ -34,13 +34,12 @@
     {% for key2, value2 in value.trustroot.items %}
         <li class="indented"> {{ value2 }} </li>
     {% empty %}
-    There is no trusted site for this identity<br>
+    There is no trusted site for this identity.
     {% endfor %}
     {% if not value.Default %}
         <input type = "submit" name= {{ value.caption }} value = "Make default" />
     {% endif %}
     <input type = "submit" name = {{ value.caption }} value = "Remove"/>
-    <br>
 </p>
 {% endfor %}
 </form>
@@ -54,10 +53,8 @@
 <form action = "/openid/addopenid/" id = "form2" method = "post">
     <p> Leave blank to create an anonymous OpenID</p>
     {{ uri }}{{ oipath }}/{{ form.openid }}/
-    <br>
     {{ form.Default }}
     Check if you want this OpenID account become your default OpenID account.
-    <br>
     <input type = "submit" value = "Add" />
     </p>
 </form>

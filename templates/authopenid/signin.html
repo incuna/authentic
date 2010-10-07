@@ -19,7 +19,7 @@
 	</ul>
 {% endif %}
 {% if form2.errors %}
-<div class="errors"><p>{% trans "Please correct errors below:" %}<br />
+<div class="errors"><p>{% trans "Please correct errors below:" %}
 	{% if form2.username.errors %} 
 		<span class="error">{{ form2.username.errors|join:", " }}</span>
 	{% endif %}
@@ -27,14 +27,13 @@
 		<span class="error">{{ form2.password.errors|join:", " }}</span>
 	{% endif %}
 </p></div>
-<br>
+
 {% endif %}
 
 {% if form1.errors %}
 <div class="errors">
     <p><span class="error">{{ form1.openid_url.errors|join:", " }}</span></p>
 </div>
-<br>
 {% endif %}
 <div class="login">
 

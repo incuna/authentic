@@ -19,7 +19,6 @@
 	{% blocktrans %}
 	<p>Your OpenID can now be associated with a new or existing membership. You can change the association later in your preferences.</p>
 	{% endblocktrans %}
-	<br /><br />
 	<h3>{% trans "Associate your OpenID" %}</h3>
 	{% blocktrans %}
 	<p>If you're joining <strong>Sitename</strong>, associate your OpenID with a new account. If you're already a member, associate with your existing account.</p>
@@ -28,7 +27,7 @@
 
 		
 	{% if form1.errors %}
-	<p class="errors">{% trans "Please correct errors below:" %}<br />
+	<p class="errors">{% trans "Please correct errors below:" %}
 		{% if form1.username.errors %} 
             <ul class="errorlist">{{ form1.username.errors|join:", " }}</ul>
 		{% endif %}
@@ -38,7 +37,7 @@
     </p>
 	{% endif %}
 	{% if form2.errors %}
-	<p class="errors">{% trans "Please correct errors below:" %}<br />
+	<p class="errors">{% trans "Please correct errors below:" %}
 		{% if form2.username.errors %} 
             <ul class="errorlist">{{ form2.username.errors|join:", " }}</ul>
 		{% endif %}
@@ -53,8 +52,8 @@
             <input type="hidden" name="next" value="{{ next }}" />
 			<fieldset>
 				<legend>{% trans "A new account" %}</legend>
-				<div class="form-row"><label for="id_username">{% trans "Username" %}</label><br />{{ form1.username }}</div>
-				<div class="form-row"><label for="id_email">{% trans "Email" %}</label><br />{{ form1.email }}</div>
+				<div class="form-row"><label for="id_username">{% trans "Username" %}</label> {{ form1.username }}</div>
+				<div class="form-row"><label for="id_email">{% trans "Email" %}</label> {{ form1.email }}</div>
 				<div class="submit-row"><input type="submit" name="bnewaccount" value="{% trans "Create account" %}"></div>
 				<hr class="clear" />
             	</fieldset>
@@ -68,8 +67,8 @@
             <input type="hidden" name="next" value="{{ next }}" />
 			<fieldset>
 				<legend>{% trans "An existing account" %}</legend>
-				<div class="form-row"><label for="id_username">{% trans "Username" %}</label><br />{{ form2.username }}</div>
-				<div class="form-row"><label for="id_passwordl">{% trans "Password" %}</label><br />{{ form2.password }}</div>
+				<div class="form-row"><label for="id_username">{% trans "Username" %}</label> {{ form2.username }}</div>
+				<div class="form-row"><label for="id_passwordl">{% trans "Password" %}</label> {{ form2.password }}</div>
 				<div class="submit-row"><input type="submit" name="bverify" value="{% trans "Verify" %}"></div>
 			</fieldset>
 		</form>
