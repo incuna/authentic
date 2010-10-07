@@ -53,9 +53,10 @@ def get_saml2_metadata(request, metadata):
             url_prefix = get_base_path(request, metadata))
     synchronous_bindings = [ lasso.SAML2_METADATA_BINDING_REDIRECT,
                     lasso.SAML2_METADATA_BINDING_POST ]
-    map = (('SingleSignOnService', synchronous_bindings , '/sso'),
+    map = ((metagen.SINGLE_SIGN_ON_SERVICE, synchronous_bindings , '/sso'),
             #('SingleLogoutService', synchronous_bindings , '/slo'),
-            ('SingleLogoutService', lasso.SAML2_METADATA_BINDING_SOAP, '/slo')
+            (metagen.SINGLE_LOGOUT_SERVICE, lasso.SAML2_METADATA_BINDING_SOAP, '/slo'),
+            (metagen.ARTIFACT_RESOLUTION_SERVICE, lasso.SAML2_METADATA_BINDING_SOAP, '/artifact')
             )
     options = { 'signing_key': SAML_PRIVATE_KEY }
     metagen.add_idp_descriptor(map, options)
