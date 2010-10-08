@@ -120,7 +120,7 @@ class LibertyServiceProvider(models.Model):
             blank = True, null = True)
     # XXX: format in the metadata file, should be suffixed with a star to mark
     # them as special
-    default_name_id_format = models.CharField(max_length = 80,
+    default_name_id_format = models.CharField(max_length = 20,
             default = DEFAULT_NAME_ID_FORMAT,
             choices = NAME_ID_FORMATS)
     # TODO: add clean method which checks that the LassoProvider we can create
