@@ -249,9 +249,12 @@ def finish_sso(request, login, user = None, save = False):
     if user is None:
         user=request.user
     if login.protocolProfile == lasso.LOGIN_PROTOCOL_PROFILE_BRWS_ART:
+        logging.info('SAMLv2 finish_sso send Artifact to %r' % login.msgUrl)
         login.buildArtifactMsg(lasso.HTTP_METHOD_ARTIFACT_GET)
         save_artifact(request, login)
     elif login.protocolProfile == lasso.LOGIN_PROTOCOL_PROFILE_BRWS_POST:
+        logging.info('SAMLv2 finish_sso send POST to %r' % login.msgUrl)
+        logging.debug('SAMLv2 finish_sso POST content %r' % login.msgBody)
         login.buildAuthnResponseMsg()
     else:
         raise NotImplementedError()
