@@ -34,9 +34,8 @@ def homepage(request):
     tpl_parameters = {}
     tpl_parameters['authorized_services'] = service_list(request)
     if authentic.authsaml2.utils.is_sp_configured():
-        tpl_parameters['providers_list_federated'] = authentic.saml.common.get_idp_user_federated_list(request)
-        tpl_parameters['providers_list_not_federated'] = authentic.saml.common.get_idp_user_not_federated_list(request)
         tpl_parameters['provider_active_session'] = authentic.saml.common.get_provider_of_active_session(request)
+        tpl_parameters['provider_name'] = authentic.saml.common.get_provider_of_active_session_name(request)
     if settings.IDP_OPENID:
         tpl_parameters['openid'] = request.user.openid_set
         tpl_parameters['IDP_OPENID'] = settings.IDP_OPENID

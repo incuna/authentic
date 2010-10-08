@@ -23,48 +23,12 @@
  {% endif  %}
 </ul>
 
-{% if providers_list_not_federated %}
-<div class="login-actions">
-{% trans "Federate your identity" %}
-<form>
-    <select name="list_providers" size="1" onChange="redirect_from_list(this.form)">
-    <option selected="selected">{% trans "Tell me where!" %}</option>  
-    {% for p in providers_list_not_federated %}
-        <option>{{ p.entity_id }}</option>
-    {% endfor %}
-    </select>
-</form>
-</div>
-
-<script type="text/javascript">
-function redirect_from_list(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/selectProvider/' + f.list_providers.options[f.list_providers.selectedIndex].value; }
-</script>
-
-{% endif %} {# end of providers_list_not_federated #}
-
-{% if providers_list_federated %}
-<div class="login-actions">
-{% trans "Defederate your identity" %}
-<form>
-    <select name="list_providers" size="1" onChange="redirect_from_list_defederation(this.form)">
-    <option selected="selected">{% trans "Tell me where!" %}</option>  
-    {% for p in providers_list_federated %}
-        <option>{{ p.entity_id }}</option>
-    {% endfor %}
-    </select>
-</form>
-</div>
-
-<script type="text/javascript">
-function redirect_from_list_defederation(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/federationTermination/' + f.list_providers.options[f.list_providers.selectedIndex].value; }
-</script>
-
-{% endif %} {# end of providers_list_federated #}
-
 {% if provider_active_session %}
 <div id="login-actions">
-{% trans "Global Logout" %}
-<a href="/authsaml2/logout">{{ provider_active_session.entity_id }}</a>
+<ul>
+<li><a href="/authsaml2/logout">{% trans "Global Logout" %}</a></li>
+<li><a href="/authsaml2/federationTermination/{{ provider_active_session.entity_id }}">{% trans "Remove the link with " %}{{ provider_name }}</a></li>
+</ul>
 </div>
 {% endif %} {# end of provider_active_session #}
 

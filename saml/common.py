@@ -498,6 +498,15 @@ def get_provider_of_active_session(request):
     except:
         return None
 
+def get_provider_of_active_session_name(request):
+    if not request:
+        return None
+    p = get_provider_of_active_session(request)
+    if not p:
+        return None
+    from urlparse import urlparse
+    return urlparse(p.entity_id)[1]
+
 class SOAPException(Exception):
     url = None
     def __init__(self, url):
