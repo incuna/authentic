@@ -89,6 +89,7 @@ class LibertyProvider(models.Model):
 
 # TODO: Remove this in LibertyServiceProvider
 ASSERTION_CONSUMER_PROFILES = (
+        ('meta', _('Use the default from the metadata file')),
         ('art', _('Artifact binding')),
         ('post', _('Post binding')))
 
@@ -103,6 +104,7 @@ class LibertyServiceProvider(models.Model):
             primary_key = True, related_name = 'service_provider')
     enabled = models.BooleanField(verbose_name = _('Enabled'))
     prefered_assertion_consumer_binding = models.CharField(
+            default = 'meta',
             max_length = 4, choices = ASSERTION_CONSUMER_PROFILES)
     encrypt_nameid = models.BooleanField(verbose_name = _("Encrypt NameID"))
     encrypt_assertion = models.BooleanField(
