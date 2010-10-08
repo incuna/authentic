@@ -532,3 +532,10 @@ def soap_call(url, msg, client_cert = None):
         logging.warning('SOAP error (%s) (on %s)' % (response.status, url))
         raise SOAPException(url)
     return data
+
+def set_saml2_response_responder_status_code(response, code):
+    response.status = lasso.Samlp2Status()
+    response.status.statusCode = lasso.Samlp2StatusCode()
+    response.status.statusCode.value = lasso.SAML2_STATUS_CODE_RESPONDER
+    response.status.statusCode.statusCode = lasso.Samlp2StatusCode()
+    response.status.statusCode.value = code
