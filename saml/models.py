@@ -92,6 +92,10 @@ ASSERTION_CONSUMER_PROFILES = (
         ('art', _('Artifact binding')),
         ('post', _('Post binding')))
 
+DEFAULT_NAME_ID_FORMAT = 'persistent'
+NAME_ID_FORMATS = (("persistent", _("Persistent")),
+                   ("transient",  _("Transient")),
+                   ("email",      _("Email (only supported by SAMLv2)")))
 # TODO: The IdP must look to the preferred binding order for sso in the SP metadata (AssertionConsumerService)
 # expect if the protocol for response is defined in the request (ProtocolBinding attribute)
 class LibertyServiceProvider(models.Model):
@@ -115,10 +119,8 @@ class LibertyServiceProvider(models.Model):
     # XXX: format in the metadata file, should be suffixed with a star to mark
     # them as special
     default_name_id_format = models.CharField(max_length = 80,
-            default = "persistent",
-            choices = (("persistent", _("Persistent")),
-                ("transient", _("Transient")),
-                ("email", _("Email (only supported by SAMLv2)"))))
+            default = DEFAULT_NAME_ID_FORMAT,
+            choices = NAME_ID_FORMATS)
     # TODO: add clean method which checks that the LassoProvider we can create
     # with the metadata file support the SP role
     # i.e. provider.roles & lasso.PROVIDER_ROLE_SP != 0
