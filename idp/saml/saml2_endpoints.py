@@ -300,6 +300,57 @@ def artifact(request):
         raise
     return return_saml_soap_response(login)
 
+def check_delegated_authentication_permission(request):
+    return request.user.is_superuser()
+
+@login_required
+def idp_sso(request, provider_id, user_id = None, nid_format = None):
+    '''Initiate an SSO toward provider_id without a prior AuthnRequest
+    '''
+    assert provider_id, 'You must call idp_initiated_sso with a provider_id parameter'
+    logging.info('SAMLv2 idp_sso to %(provider_id)s' % { 'provider_id': provider_id })
+    if user_id:
+        logging.info('SAMLv2 idp_sso as %s' % user_id)
+    server = create_saml2_server(request, reverse(metadata))
+    login = lasso.Login(server)
+    liberty_provider = load_provider(request, login, provider_id)
+    if not liberty_provider:
+        logging.info('SAMLv2 idp_sso for an unknown provider %s' % provider_id)
+        raise Http404('Provider %s is unknown' % provider_id)
+    service_provider = liberty_provider.service_provider
+    if user_id:
+        user = User.get(id = user_id)
+        if not check_delegated_authentication_permission(request):
+            logging.warning('SAMLv2 idp_sso %r tried to log as %r on %r but was forbidden' % (
+                                    request.user, user, provider_id))
+            return HttpResponseForbidden('You must be superuser to log as another user')
+    else:
+        user = request.user
+    load_federation(request, login, user)
+    login.initIdpInitiatedAuthnRequest(provider_id)
+    # Control assertion consumer binding
+    binding = service_provider.prefered_assertion_consumer_binding
+    if binding == 'meta':
+        pass
+    elif binding == 'art':
+        login.request.protocolProfile = lasso.SAML2_METADATA_BINDING_ARTIFACT
+    elif binding == 'post':
+        login.request.protocolProfile = lasso.SAML2_METADATA_BINDING_POST
+    else:
+        logging.error('SAMLv2 idp_sso unsupported protocol binding %r' % binding)
+        raise NotImplementedError()
+    # Control nid format policy
+    if nid_format:
+        if not nid_format in service_provider.accepted_name_id_format:
+            loggin.error('SAMLv2 idp_sso name id format %r is not supported by %r' % (nid_format, provider_id))
+            raise Http404('Provider %r does not support this name id format' % provider_id)
+    if not nid_format:
+        nid_format = service_provider.default_name_id_format
+    login.processAuthnRequestMsg(None)
+
+    return sso_after_process_request(request, login,
+            consent_obtained = True, user = user, save = False, nid_format = nid_format)
+
 @csrf_exempt
 def slo(request):
     """Endpoint for receiving saml2:AuthnRequests by POST, Redirect or SOAP.
@@ -314,6 +365,10 @@ urlpatterns = patterns('',
     (r'^sso', sso),
     (r'^slo', slo),
     (r'^artifact', artifact),
-    (r'^continue', continue_sso)
+    (r'^continue', continue_sso),
+    (r'^idp_sso/(.*)$', idp_sso),
+    (r'^idp_sso/([^/]*)/([^/]*)$', idp_sso),
+    (r'^idp_sso/([^/]*)/([^/]*)/([^/]*)$', idp_sso),
+
 )
 
