@@ -12,7 +12,7 @@ def saml_service_list(request):
             protocol = 'idff12'
         else:
             protocol = 'saml2'
-        uri = '/idp/%s/idp_sso/%s' % (protocol, urllib.quote(entity_id))
+        uri = '/idp/%s/idp_sso/%s' % (protocol, urllib.quote(entity_id, ''))
         name = liberty_provider.name
         list.append((uri, name))
     return list
