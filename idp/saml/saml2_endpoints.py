@@ -359,6 +359,7 @@ def slo(request):
     message = get_saml2_request_message(request)
     server = create_saml2_server(request, get_saml2_metadata(request, reverse(metadata)))
     login = lasso.Logout(server)
+    raise NotImplementedError()
 
 urlpatterns = patterns('',
     (r'^metadata$', metadata),
