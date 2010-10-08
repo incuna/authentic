@@ -36,21 +36,33 @@ from common import redirect_to_login, NONCE
      - assertionIDRequest
 '''
 
-def fill_assertion(request, saml_request, assertion, provider_id):
+def fill_assertion(request, saml_request, assertion, provider_id, nid_format):
     '''Stuff an assertion with information extracted from the user record
        and from the session, and eventually from transactions linked to the
-       request, i.e. a login event or a consent event.'''
-    # Use assertion ID as session index
-    assertion.authnStatement[0].sessionIndex = assertion.id
-    # TODO: add attributes from user account
-    # TODO: determine and add attributes from the session, for anonymous
-    # users (pseudonymous federation, openid without accoutns)
+       request, i.e. a login event or a consent event.
+
+       No check on the request must be done here, the sso method should have
+       verified that the request can be answered and match any policy for the
+       given provider or modified the request to match the identity provider
+       policy.
+
+    TODO: add attributes from user account
+    TODO: determine and add attributes from the session, for anonymous users
+    (pseudonymous federation, openid without accounts)
     # TODO: add information from the login event, of the session or linked
     # to the request id
     # TODO: use information from the consent event to specialize release of
     # attributes (user only authorized to give its email for email)
+       '''
+    # Use assertion ID as session index
+    assertion.authnStatement[0].sessionIndex = assertion.id
+    # NameID
+    if nid_format in ('persistent', 'transient'):
+        pass
+    elif nid_format == 'email':
+        assertion.subject.nameID.content = request.user.email
 
-def build_assertion(request, login):
+def build_assertion(request, login, nid_format = 'transient'):
     '''After a successfully validated authentication request, build an
        authentication assertion'''
     now = datetime.datetime.utcnow()
@@ -87,7 +99,7 @@ def build_assertion(request, login):
             notBefore.isoformat()+'Z',
             notOnOrAfter.isoformat()+'Z')
     assertion = login.assertion
-    fill_assertion(request, login.request, assertion, login.remoteProviderId)
+    fill_assertion(request, login.request, assertion, login.remoteProviderId, nid_format)
 
 def metadata(request):
     return HttpResponse(get_saml2_metadata(request, request.path), mimetype = 'text/xml')
@@ -153,8 +165,24 @@ def sso(request):
                 return HttpResponseForbidden(message)
             else:
                 consent_obtained = not provider_loaded.service_provider.ask_user_consent
+    # Check NameIDPolicy or force the NameIDPolicy
+    name_id_policy = login.request.nameIdPolicy
+    if name_id_policy.format and \
+            name_id_policy.format != \
+                lasso.SAML2_NAME_IDENTIFIER_FORMAT_UNSPECIFIED:
+        nid_format = saml2_urn_to_nidformat(name_id_policy.format)
+        accepted_nid_format = \
+                provider_loaded.service_provider.accepted_name_id_format
+        if not nid_format or nid_format not in accepted_nid_format:
+            set_saml2_response_responder_status_code(login.response,
+                lasso.SAML2_STATUS_CODE_INVALID_NAME_ID_POLICY)
+            return finish_sso(request, login)
+    else:
+        nid_format = provider_loaded.service_provider.default_name_id_format
+        name_id_policy.format = nidformat_to_saml2_urn(nid_format)
+
     return sso_after_process_request(request, login,
-        consent_obtained = consent_obtained)
+        consent_obtained = consent_obtained, nid_format = nid_format)
 
 def need_login(request, login, consent_obtained, save):
     '''Redirect to the login page with a nonce parameter to verify later that
@@ -184,7 +212,7 @@ def continue_sso(request):
             consent_obtained = consent_obtained)
 
 def sso_after_process_request(request, login,
-        consent_obtained = True, user = None, save = True):
+        consent_obtained = True, user = None, save = True, nid_format = 'transient'):
     '''Common path for sso and idp_initiated_sso.
 
        consent_obtained: whether the user has given his consent to this federation
@@ -214,7 +242,7 @@ def sso_after_process_request(request, login,
         load_federation(request, login, user)
         load_session(request, login)
         # 3. Build and assertion, fill attributes
-        build_assertion(request, login)
+        build_assertion(request, login, nid_format = nid_format)
     return finish_sso(request, login, user = user, save = save)
 
 def finish_sso(request, login, user = None, save = False):
@@ -228,8 +256,8 @@ def finish_sso(request, login, user = None, save = False):
     else:
         raise NotImplementedError()
     if save:
-        #save_federation(request, login)
-        # save_session(request, login)
+        save_federation(request, login)
+        save_session(request, login)
         pass
     return return_saml2_response(login, title = _('Authentication response'))
 
