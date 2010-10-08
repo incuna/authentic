@@ -1,7 +1,7 @@
 import os.path
 import time
-import lasso
 
+import lasso
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -94,9 +94,38 @@ ASSERTION_CONSUMER_PROFILES = (
         ('post', _('Post binding')))
 
 DEFAULT_NAME_ID_FORMAT = 'persistent'
-NAME_ID_FORMATS = (("persistent", _("Persistent")),
-                   ("transient",  _("Transient")),
-                   ("email",      _("Email (only supported by SAMLv2)")))
+
+# Supported name id formats
+NAME_ID_FORMATS = {
+        'persistent': { 'caption': _('Persistent'),
+            'samlv2': lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT,
+            'idff12': lasso.LIB_NAMEID_POLICY_TYPE_FEDERATED },
+        'transient': { 'caption': _("Transient"),
+            'samlv2': lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT,
+            'idff12': lasso.LIB_NAMEID_POLICY_TYPE_ONE_TIME },
+        'email': { 'caption': _("Email (only supported by SAMLv2)"),
+            'samlv2': lasso.SAML2_NAME_IDENTIFIER_FORMAT_EMAIL,
+            'idff12': None }}
+
+NAME_ID_FORMATS_CHOICES = \
+        tuple([(x, y['caption']) for x, y in NAME_ID_FORMATS.iteritems()])
+
+ACCEPTED_NAME_ID_FORMAT_LENGTH = \
+        sum([len(x) for x, y in NAME_ID_FORMATS.iteritems()]) + \
+        len(NAME_ID_FORMATS) - 1
+
+def saml2_urn_to_nidformat(urn):
+    for x, y in NAME_ID_FORMATS.iteritems():
+        if y['samlv2'] == urn:
+            return x
+    return None
+
+def nidformat_to_saml2_urn(key):
+    return NAME_ID_FORMATS.get(key, {}).get('samlv2')
+
+def nidformat_to_idff12_urn(key):
+    return NAME_ID_FORMATS.get(key, {}).get('idff12')
+
 # TODO: The IdP must look to the preferred binding order for sso in the SP metadata (AssertionConsumerService)
 # expect if the protocol for response is defined in the request (ProtocolBinding attribute)
 class LibertyServiceProvider(models.Model):
@@ -122,7 +151,10 @@ class LibertyServiceProvider(models.Model):
     # them as special
     default_name_id_format = models.CharField(max_length = 20,
             default = DEFAULT_NAME_ID_FORMAT,
-            choices = NAME_ID_FORMATS)
+            choices = NAME_ID_FORMATS_CHOICES)
+    accepted_name_id_format = MultiSelectField(
+            max_length=ACCEPTED_NAME_ID_FORMAT_LENGTH,
+            blank=True, choices=NAME_ID_FORMATS_CHOICES)
     # TODO: add clean method which checks that the LassoProvider we can create
     # with the metadata file support the SP role
     # i.e. provider.roles & lasso.PROVIDER_ROLE_SP != 0
