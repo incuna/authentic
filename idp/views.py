@@ -1,50 +1,51 @@
-from django.contrib.auth.views  import logout
-from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.forms import AuthenticationForm
-from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response as render
-from django.http import HttpResponseRedirect
-from django.utils.encoding import smart_unicode
-from django.conf import settings
-from signals import auth_logout
-from signals import auth_oidlogin
-
-from django_authopenid import DjangoOpenIDStore
-from django_authopenid.forms import OpenidSigninForm
-from django_authopenid.views import _build_context, signin_success, signin_failure, not_authenticated
-from django_authopenid.utils import *
-from openid.yadis import xri
-from openid.consumer.discover import DiscoveryFailure
-from openid.consumer.consumer import Consumer, \
-    SUCCESS, CANCEL, FAILURE, SETUP_NEEDED
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import PasswordChangeForm
-from django.template import RequestContext
-from django.shortcuts import render_to_response
 import urllib
+
+from django_authopenid.forms import OpenidDissociateForm, AssociateOpenID
+from django_authopenid.forms import OpenidSigninForm
+from django_authopenid import DjangoOpenIDStore
+from django_authopenid.models import UserAssociation
+from django_authopenid.utils import *
+from django_authopenid.views import associate_failure, complete
+from django_authopenid.views import _build_context, signin_success, signin_failure, not_authenticated
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response as render
+from django.template import RequestContext
+from django.utils.encoding import smart_unicode
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.generic.simple import redirect_to
+from openid.consumer.consumer import Consumer, SUCCESS, CANCEL, FAILURE, SETUP_NEEDED
+from openid.consumer.discover import DiscoveryFailure
+from openid.yadis import xri
+import signals
 
 import authentic.saml.common
 import authentic.authsaml2.utils
-
-from django_authopenid.forms import OpenidDissociateForm, AssociateOpenID
-from django_authopenid.models import UserAssociation
-from django_authopenid.views import associate_failure, complete
-from django.views.generic.simple import redirect_to
 
 OPENID_PROVIDER = ['https://me.yahoo.com//','http://openid.aol.com/','http://.myopenid.com/',
                     'http://.livejournal.com/','http://www.flickr.com/photos//','http://.wordpress.com/'
                     'http://.blogspot.com/','http://.pip.verisignlabs.com/','http://.myvidoop.com/'
                     'http://.pip.verisignlabs.com/','http://claimid.com/']
 
-def service_list(request):
-    '''Compute the service list to show on user homepage'''
+def accumulate_from_backends(request, method_name):
     from authentic.idp import get_backends
     list = []
     for backend in get_backends():
-        if callable(getattr(backend, 'service_list', None)):
-            list += backend.service_list(request)
+        method = getattr(backend, method_name, None)
+        if callable(method):
+            list += method(request)
     return list
+
+def service_list(request):
+    '''Compute the service list to show on user homepage'''
+    return accumulate_from_backends(request, 'service_list')
 
 def homepage(request):
     '''Homepage of the IdP'''
@@ -65,21 +66,33 @@ def authsaml2_login_page(request):
         return {}
     return {'providers_list': authentic.saml.common.get_idp_list()}
 
-def AuthLogout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME):
+def logout_list(request):
+    '''Return logout links from idp backends'''
+    return accumulate_from_backends(request, 'logout_list')
+
+def logout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME,
+        template = 'idp/logout.html'):
     "Logs out the user and displays 'You are logged out' message."
-
-    auth_logout.send(sender = None, user = request.user)
-    from django.contrib.auth import logout
-    logout(request)
-
-    if next_page is None or next_page == '/':
-        redirect_to = request.REQUEST.get(redirect_field_name, '')
-        if len(redirect_to) != 0:
-            return HttpResponseRedirect(redirect_to)
-        else:
-            return HttpResponseRedirect(next_page or request.path)
+    signals.auth_logout.send(sender = None, user = request.user)
+    do_local = request.REQUEST.has_key('local')
+    l = logout_list(request)
+    context = RequestContext(request)
+    context['redir_timeout'] = 600
+    if l and not do_local:
+        # Full logout
+        next_page = '?local&next=%s' % urllib.quote(next_page)
+        context['logout_list'] = l
+        context['next_page'] = next_page
+        return render_to_response(template, context_instance = context)
     else:
-        return HttpResponseRedirect(next_page or request.path)
+        # Local logout
+        auth_logout(request)
+        redirect_to = request.REQUEST.get(redirect_field_name, None)
+        if redirect_to:
+            next_page = redirect_to
+        context['next_page'] = next_page
+        context['message'] = 'You are logged out'
+        return render_to_response(template, context_instance = context)
 
 
 @csrf_exempt
@@ -98,17 +111,17 @@ def mycomplete(request, on_success=None, on_failure=None, return_to=None,
         _openid_url = request.GET['openid.identity']
 
     if openid_response.status == SUCCESS:
-        auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'success')
+        signals.auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'success')
         return on_success(request, openid_response.identity_url,
                 openid_response, **kwargs)
     elif openid_response.status == CANCEL:
-        auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'cancel')
+        signals.auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'cancel')
         return on_failure(request, 'The request was canceled', **kwargs)
     elif openid_response.status == FAILURE:
-        auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'failure')
+        signals.auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'failure')
         return on_failure(request, openid_response.message, **kwargs)
     elif openid_response.status == SETUP_NEEDED:
-        auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'setup_needed')
+        signals.auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'setup_needed')
         return on_failure(request, 'Setup needed', **kwargs)
     else:
         assert False, "Bad openid status: %s" % openid_response.status
@@ -140,14 +153,14 @@ def ask_openid(request, openid_url, redirect_to, on_failure=None):
             settings, 'OPENID_DISALLOW_INAMES', False
     ):
         msg = ("i-names are not supported")
-        auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'not_supported')
+        signals.auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'not_supported')
         return on_failure(request, msg)
     consumer = Consumer(request.session, DjangoOpenIDStore())
     try:
         auth_request = consumer.begin(openid_url)
     except DiscoveryFailure:
         msg = ("The OpenID %s was invalid") % openid_url
-        auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'invalid')
+        signals.auth_oidlogin.send(sender = None, openid_url = _openid_url, state = 'invalid')
         return on_failure(request, msg)
     
     # get capabilities
@@ -236,13 +249,13 @@ def password_change(request, template = 'authopenid/password_change_form.html',
             return HttpResponseRedirect(post_change_redirect)
     else:
         form = password_change_form(user=request.user)
-    
+
     if request.user.password == '!':
         context = RequestContext(request)
         context['set_password'] = True 
     else:
         context = RequestContext(request)
-    
+
     return render_to_response(template, {
         'form': form,
     }, context_instance=context)

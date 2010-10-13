@@ -4,16 +4,19 @@
 {% block title %}
 {% trans "Logout" %}
 {% endblock %}
-
-{% block bodyargs %}onload="document.location='{{ next }}'"{% endblock %}
+{% block bodyargs %}onload="setTimeout(function () { window.location='{{ next_page }}' }, {{ redir_timeout }})"{% endblock %}
 
 {% block content %}
 
 <h1>{% trans "Logging out" %}</h1>
-<ul class="service-list">
-    {% for fragment in service_list %}
+<ul class="logout-list">
+    {% for fragment in logout_list %}
         {{ fragment }}
     {% endfor %}
 </ul>
+
+<div id="message">{% trans message %}</div>
+
+<div id="continue-link"><a href="{{ next_page }}">{% trans "Continue logout" %}</div>
 
 {% endblock %}

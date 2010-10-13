@@ -17,3 +17,6 @@ class SamlBackend(object):
             name = liberty_provider.name
             list.append((uri, name))
         return list
+
+    def logout_list(self, request):
+        return [ ]
