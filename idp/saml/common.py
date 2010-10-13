@@ -1,5 +1,7 @@
+from django.shortcuts import render_to_response
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.utils.http import *
+from django.utils.html import escape
 from django.conf import settings
 from django.http import *
 

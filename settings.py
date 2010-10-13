@@ -174,6 +174,10 @@ AUTHENTICATION_BACKENDS = (
     'authentic.sslauth.backends.SSLAuthBackend',
 )
 
+# IDP
+IDP_BACKENDS = [ 'authentic.idp.saml.backend.SamlBackend',
+        'authentic.idp.AdminBackend' ]
+
 #AuthSAML2 Configuration
 INSTALLED_APPS += ('authentic.authsaml2',)
 SAML2_BACKEND = 'authentic.authsaml2.backends.AuthSAML2Backend'

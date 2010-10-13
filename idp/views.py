@@ -37,6 +37,29 @@ OPENID_PROVIDER = ['https://me.yahoo.com//','http://openid.aol.com/','http://.my
                     'http://.blogspot.com/','http://.pip.verisignlabs.com/','http://.myvidoop.com/'
                     'http://.pip.verisignlabs.com/','http://claimid.com/']
 
+def service_list(request):
+    '''Compute the service list to show on user homepage'''
+    from authentic.idp import get_backends
+    list = []
+    for backend in get_backends():
+        if callable(getattr(backend, 'service_list', None)):
+            list += backend.service_list(request)
+    return list
+
+def homepage(request):
+    '''Homepage of the IdP'''
+    import authentic.saml.common
+    import authentic.authsaml2.utils
+    tpl_parameters = {}
+    tpl_parameters['authorized_services'] = service_list(request)
+    if authentic.authsaml2.utils.is_sp_configured():
+        tpl_parameters['provider_active_session'] = authentic.saml.common.get_provider_of_active_session(request)
+        tpl_parameters['provider_name'] = authentic.saml.common.get_provider_of_active_session_name(request)
+    if settings.IDP_OPENID:
+        tpl_parameters['openid'] = request.user.openid_set
+        tpl_parameters['IDP_OPENID'] = settings.IDP_OPENID
+    return render_to_response('index.html', tpl_parameters, RequestContext(request))
+
 def authsaml2_login_page(request):
     if not authentic.authsaml2.utils.is_sp_configured():
         return {}
@@ -377,4 +400,3 @@ def get_associate_openid(user):
     associated_openids = [rel.openid_url for rel in rels]
     nb_associated_openids = len(associated_openids)
     return nb_associated_openids, associated_openids
-

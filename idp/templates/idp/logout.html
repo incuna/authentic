@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Logout" %}
+{% endblock %}
+
+{% block bodyargs %}onload="document.location='{{ next }}'"{% endblock %}
+
+{% block content %}
+
+<h1>{% trans "Logging out" %}</h1>
+<ul class="service-list">
+    {% for fragment in service_list %}
+        {{ fragment }}
+    {% endfor %}
+</ul>
+
+{% endblock %}

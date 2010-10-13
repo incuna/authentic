@@ -7,39 +7,31 @@ from signals import auth_oidlogin
 from django.conf import settings
 from admin_log_view.models import info
 from django.contrib.auth.models import User
-import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.importlib import import_module
 
-REGISTERED_SERVICE_LIST = []
+def load_backend(path):
+    '''Load an IdP backend by its module path'''
+    i = path.rfind('.')
+    module, attr = path[:i], path[i+1:]
+    try:
+        mod = import_module(module)
+    except ImportError, e:
+        raise ImproperlyConfigured('Error importing idp backend %s: "%s"' % (module, e))
+    except ValueError, e:
+        raise ImproperlyConfigured('Error importing idp backends. Is IDP_BACKENDS a correctly defined list or tuple?')
+    try:
+        cls = getattr(mod, attr)
+    except AttributeError:
+        raise ImproperlyConfigured('Module "%s" does not define a "%s" idp backend' % (module, attr))
+    return cls()
 
-def register_service_list(list_or_callable):
-    '''Register a list of tuple (uri, name) to present in user service list, or
-       a callable which will receive the request object and return a list of tuples.
-    '''
-    REGISTERED_SERVICE_LIST.append(list_or_callable)
-
-def service_list(request):
-    '''Compute the service list to show on user homepage'''
-    list = []
-    for list_or_callable in REGISTERED_SERVICE_LIST:
-        if callable(list_or_callable):
-            list += list_or_callable(request)
-        else:
-            list += list_or_callable
-    return list
-
-def homepage(request):
-    '''Homepage of the IdP'''
-    import authentic.saml.common
-    import authentic.authsaml2.utils
-    tpl_parameters = {}
-    tpl_parameters['authorized_services'] = service_list(request)
-    if authentic.authsaml2.utils.is_sp_configured():
-        tpl_parameters['provider_active_session'] = authentic.saml.common.get_provider_of_active_session(request)
-        tpl_parameters['provider_name'] = authentic.saml.common.get_provider_of_active_session_name(request)
-    if settings.IDP_OPENID:
-        tpl_parameters['openid'] = request.user.openid_set
-        tpl_parameters['IDP_OPENID'] = settings.IDP_OPENID
-    return render_to_response('index.html', tpl_parameters, RequestContext(request))
+def get_backends():
+    '''Return the list of IdP backends'''
+    backends = []
+    for backend_path in settings.IDP_BACKENDS:
+        backends.append(load_backend(backend_path))
+    return backends
 
 def LogRegistered(sender, user, **kwargs):
     msg = user.username + ' is now registered'
@@ -86,12 +78,11 @@ def LogAuthLoginOI(sender, openid_url, state, **kwargs):
         msg += ' setup_needed'
     info(msg)
 
-def admin_service(request):
-    if request.user.is_staff:
-        return (('/admin', _('Authentic administration')),)
-    return []
-
-register_service_list(admin_service)
+class AdminBackend(object):
+    def service_list(self, request):
+        if request.user.is_staff:
+            return (('/admin', _('Authentic administration')),)
+        return []
 
 auth_login.connect(LogAuthLogin, dispatch_uid = "authentic.idp")
 auth_logout.connect(LogAuthLogout, dispatch_uid = "authentic.idp")

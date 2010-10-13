@@ -2,7 +2,6 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.views.generic.simple import direct_to_template
-from authentic.idp import homepage
 import authentic.idp.views
 import authentic.idp.login_views
 import settings
@@ -13,7 +12,7 @@ urlpatterns = patterns('',
     (r'^admin/admin_log_view/log/', 'admin_log_view.views.admin_view'),
     (r'^admin/', include(admin.site.urls)),
     (r'^idp/', include('authentic.idp.urls')),
-    (r'^$', login_required(homepage), {}, 'index'),
+    (r'^$', login_required(authentic.idp.views.homepage), {}, 'index'),
 )
 
 if settings.IDP_OPENID:
