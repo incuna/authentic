@@ -1,7 +1,10 @@
+import logging
+
 from django.shortcuts import render_to_response
-from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth import REDIRECT_FIELD_NAME, SESSION_KEY
 from django.utils.http import *
 from django.utils.html import escape
+from django.utils.importlib import import_module
 from django.conf import settings
 from django.http import *
 
@@ -21,3 +24,13 @@ def save_login_object(login, consent_obtained, nonce):
 
 def load_login_object(nonce):
     raise NotImplementedError()
+
+def kill_django_sessions(session_key):
+    engine = import_module(settings.SESSION_ENGINE)
+    try:
+        for key in session_key:
+            store = engine.SessionStore(key)
+            logging.debug('Killing session %s of user %s' % (key, store[SESSION_KEY]))
+            store.delete()
+    except Exception, e:
+        logging.error(e)
