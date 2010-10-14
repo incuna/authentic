@@ -184,23 +184,24 @@ def sso(request):
     return sso_after_process_request(request, login,
         consent_obtained = consent_obtained, nid_format = nid_format)
 
-def need_login(request, login, consent_obtained, save):
+def need_login(request, login, consent_obtained, save, nid_format):
     '''Redirect to the login page with a nonce parameter to verify later that
        the login form was submitted'''
     nonce = login.request.id
-    save_key_values(nonce, login.dump(), consent_obtained, save)
+    save_key_values(nonce, login.dump(), consent_obtained, save, nid_format)
     return redirect_to_login(reverse(continue_sso)+'?%s=%s' % (NONCE, nonce),
             other_keys={'nonce': nonce})
 
-def need_consent(request, login, consent_obtained, save):
+def need_consent(request, login, consent_obtained, save, nid_format):
     nonce = login.request.id
-    save_key_values(nonce, login, consent_obtained, save)
+    save_key_values(nonce, login.dump(), consent_obtained, save, nid_format)
     return HttpResponseRedirect('%s?%s=%s&next=%s' % (reverse(consent), NONCE,
         nonce, urllib.quote(request.get_full_path())) )
 
 def continue_sso(request):
     nonce = request.REQUEST.get(NONCE, '')
-    login_dump, consent_obtained, save = get_and_delete_key_values(nonce)
+    login_dump, consent_obtained, save, nid_format = \
+            get_and_delete_key_values(nonce)
     server = create_saml2_server(request, reverse(metadata))
     login = lasso.Login.newFromDump(server, login_dump)
     if not load_provider(request, login, login.remoteProviderId):
@@ -209,7 +210,7 @@ def continue_sso(request):
         logging.debug('SAMLv2: continue sso nonce %r not found' % nonce)
         return HttpResponseBadRequest()
     return sso_after_process_request(request, login,
-            consent_obtained = consent_obtained)
+            consent_obtained = consent_obtained, nid_format = nid_format)
 
 def sso_after_process_request(request, login,
         consent_obtained = True, user = None, save = True, nid_format = 'transient'):
@@ -226,7 +227,7 @@ def sso_after_process_request(request, login,
     passive = login.request.isPassive
 
     if not passive and (user.is_anonymous() or (force_authn and not did_auth)):
-        return need_login(request, login, consent_obtained, save)
+        return need_login(request, login, consent_obtained, save, nid_format)
     # TODO: implement consent
     try:
         login.validateRequestMsg(not user.is_anonymous(), consent_obtained)
