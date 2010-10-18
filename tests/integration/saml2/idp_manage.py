@@ -1,6 +1,17 @@
 from django.core.management import *
+import os
+
+TEST_PATH = os.path.dirname(os.path.abspath(__file__))
+
 try:
-    import idp_settings as settings
+    import authentic.settings as settings
+    settings.DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(TEST_PATH, 'idp.db'),
+        },
+    }
+
 except ImportError:
     import sys
     sys.stderr.write("Error: Unable to import settings from %s!\n" % __file__)
