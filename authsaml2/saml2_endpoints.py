@@ -1,3 +1,8 @@
+import datetime, time
+import logging
+
+import lasso
+from django.conf import settings
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
@@ -11,13 +16,9 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import ugettext as _
-import settings
-import datetime, time
-import logging
-import lasso
-from saml.common import *
-from saml.models import *
-from utils import *
+from authentic.saml.common import *
+from authentic.saml.models import *
+from authentic.authsaml2.utils import *
 
 '''SAMLv2 SP implementation'''
 
