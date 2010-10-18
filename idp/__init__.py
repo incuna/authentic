@@ -1,3 +1,5 @@
+import logging
+
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
@@ -9,6 +11,8 @@ from admin_log_view.models import info
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
+
+logging.basicConfig()
 
 def load_backend(path):
     '''Load an IdP backend by its module path'''
