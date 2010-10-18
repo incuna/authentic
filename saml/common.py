@@ -79,6 +79,16 @@ def get_saml2_query_request(request):
 def get_saml2_soap_request(request):
     return get_soap_message(request)
 
+def get_saml2_request_message_async_binding(request):
+    '''Return SAMLv2 message whatever the HTTP binding used'''
+    binding = get_http_binding(request)
+    if binding == 'GET':
+        return get_saml2_query_request(request)
+    elif binding == 'POST':
+        return get_saml2_post_request(request)
+    else:
+        raise Http404('This endpoint is only for asynchornous bindings')
+
 def get_saml2_request_message(request):
     '''Return SAMLv2 message whatever the HTTP binding used'''
     binding = get_http_binding(request)
