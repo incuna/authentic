@@ -105,6 +105,19 @@ def build_assertion(request, login, nid_format = 'transient'):
             notOnOrAfter.isoformat()+'Z')
     assertion = login.assertion
     fill_assertion(request, login.request, assertion, login.remoteProviderId, nid_format)
+    # Save federation and new session
+    if login.assertion.subject.nameID.format == lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
+        federation = LibertyFederation(saml2_assertion=login.assertion)
+        federation.save()
+    else:
+        federation = None
+    lib_assertion = LibertyAssertion(saml2_assertion=login.assertion)
+    lib_assertion.save()
+    LibertySession(saml2_assertion=login.assertion,assertion=lib_assertion,
+            django_session_key=request.session.session_key,
+            provider_id=login.remoteProviderId,
+            federation=federation).save()
+
 
 def log_info_authn_request_details(login):
     '''Push to logs details abour the received AuthnRequest'''
