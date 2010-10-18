@@ -94,9 +94,11 @@ def logout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME,
         context['message'] = 'You are logged out'
         return render_to_response(template, context_instance = context)
 
+def redirect_to_logout(request, next_page='/'):
+    return HttpResponseRedirect('%s?next=%s' % (reverse(logout), urllib.quote(next_page)))
 
 @csrf_exempt
-def mycomplete(request, on_success=None, on_failure=None, return_to=None, 
+def mycomplete(request, on_success=None, on_failure=None, return_to=None,
     **kwargs):
     on_success = on_success or default_on_success
     on_failure = on_failure or default_on_failure
