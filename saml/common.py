@@ -77,7 +77,7 @@ def get_saml2_query_request(request):
     return request.META.get('QUERY_STRING', '')
 
 def get_saml2_soap_request(request):
-    return request.raw_post_data
+    return get_soap_message(request)
 
 def get_saml2_request_message(request):
     '''Return SAMLv2 message whatever the HTTP binding used'''
