@@ -15,8 +15,8 @@ find 'dministration'
     twill.commands.reset_browser()
     twill.execute_string('''
 go http://localhost:10000
-fv 1 username user2
-fv 1 password user2
+fv 1 username user1
+fv 1 password user1
 submit
 url http://localhost:10000
 find 'You are authenticated'
