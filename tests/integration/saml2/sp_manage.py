@@ -4,7 +4,7 @@ import os
 TEST_PATH = os.path.dirname(os.path.abspath(__file__))
 
 try:
-    import authentic.settings as settings
+    import settings
     settings.DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
