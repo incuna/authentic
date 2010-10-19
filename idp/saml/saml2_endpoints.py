@@ -41,6 +41,19 @@ def metadata(request):
     '''Endpoint to retrieve the metadata file'''
     return HttpResponse(get_metadata(request, request.path))
 
+#####
+# SSO
+#####
+def register_new_saml2_session(request, login, federation=None):
+    '''Persist the newly created session for emitted assertion'''
+    lib_assertion = LibertyAssertion(saml2_assertion=login.assertion)
+    lib_assertion.save()
+    lib_session = LibertySession(provider_id=login.remoteProviderId,
+            saml2_assertion=login.assertion, federation=federation,
+            django_session_key=request.session.session_key,
+            assertion=lib_assertion)
+    lib_session.save()
+
 def fill_assertion(request, saml_request, assertion, provider_id, nid_format):
     '''Stuff an assertion with information extracted from the user record
        and from the session, and eventually from transactions linked to the
@@ -119,13 +132,7 @@ def build_assertion(request, login, nid_format = 'transient'):
         federation.save()
     else:
         federation = None
-    lib_assertion = LibertyAssertion(saml2_assertion=login.assertion)
-    lib_assertion.save()
-    LibertySession(saml2_assertion=login.assertion,assertion=lib_assertion,
-            django_session_key=request.session.session_key,
-            provider_id=login.remoteProviderId,
-            federation=federation).save()
-
+    register_new_saml2_session(request, login, federation=federation)
 
 def log_info_authn_request_details(login):
     '''Push to logs details abour the received AuthnRequest'''
