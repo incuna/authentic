@@ -79,11 +79,12 @@ def build_assertion(request, login, nid_format = 'transient'):
     notBefore = now-datetime.timedelta(0,__delta)
     # 1 minute in the future
     notOnOrAfter = now+datetime.timedelta(0,__delta)
+    ssl = request.environ.has_key('HTTPS')
     if __user_backend_from_session:
         backend = request.session[BACKEND_SESSION_KEY]
         if backend in ('django.contrib.auth.backends.ModelBackend',
                 'authentic.idp.auth_backends.LogginBackend'):
-            if request.environ.has_key('HTTPS'):
+            if ssl:
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD_PROTECTED_TRANSPORT
             else:
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD
@@ -98,7 +99,12 @@ def build_assertion(request, login, nid_format = 'transient'):
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD
             elif auth_event.how == 'password-on-https':
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD_PROTECTED_TRANSPORT
+            elif auth_event.how == 'ssl':
+                authn_context = lasso.LASSO_SAML2_AUTHN_CONTEXT_X509
+            else:
+                raise NotImplementedError('Unknown authentication method %r' % auth_event.how)
         except ObjectDoesNotExist:
+            # TODO: previous session over secure transport (ssl) ?
             authn_context = lasso.SAML2_AUTHN_CONTEXT_PREVIOUS_SESSION
     login.buildAssertion(authn_context,
             now.isoformat()+'Z',
