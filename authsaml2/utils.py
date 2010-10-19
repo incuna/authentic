@@ -19,11 +19,6 @@ def get_service_provider_settings():
        return None
     return s[0]
 
-def error_page(request, message):
-    logging.error('Error returned: %r' % message)
-    return render_to_response('error_authsaml2.html', {'error': message},
-        context_instance=RequestContext(request))
-
 def register_next_target(request, url=None):
     session_ext = None
     try:

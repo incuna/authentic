@@ -1,17 +1,19 @@
 import urlparse
 import os.path
-import lasso
-import saml2utils
-import saml11utils
 import urllib
 import httplib
 import logging
+
+import lasso
+from django.template import RequestContext
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
-from models import *
+
 from saml.models import *
+import saml.saml2utils as saml2utils
+import saml.saml11utils as saml11utils
 
 AUTHENTIC_STATUS_CODE_NS = "http://authentic.entrouvert.org/status_code/"
 AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER = AUTHENTIC_STATUS_CODE_NS + \
@@ -542,3 +544,9 @@ def set_saml2_response_responder_status_code(response, code):
     response.status.statusCode.value = lasso.SAML2_STATUS_CODE_RESPONDER
     response.status.statusCode.statusCode = lasso.Samlp2StatusCode()
     response.status.statusCode.value = code
+
+def error_page(request, message):
+    logging.error('Error returned: %r' % message)
+    return render_to_response('error_authsaml2.html', {'error': message},
+        context_instance=RequestContext(request))
+
