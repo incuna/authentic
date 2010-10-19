@@ -254,38 +254,57 @@ class LibertyManageDump(models.Model):
 
 class LibertyArtifact(models.Model):
     """Store an artifact and the associated XML content"""
-    creation = models.DateTimeField(auto_now=True)
+    creation = models.DateTimeField(auto_now_add=True)
     artifact = models.CharField(max_length = 40, primary_key = True)
     content = models.TextField()
     django_session_key = models.CharField(max_length = 40)
     provider_id = models.CharField(max_length = 80)
 
-class LibertySession(models.Model):
-    """Store the link between a Django session and a Liberty session"""
-    django_session_key = models.CharField(max_length = 40)
+def nameid2kwargs(name_id):
+    return { 'name_id_qualifier': name_id.nameQualifier,
+        'name_id_sp_name_qualifier': name_id.spNameQualifier,
+        'name_id_content': name_id.content,
+        'name_id_format': name_id.format }
 
-# When we receive a logout request, we lookup the LibertyAssertions, then the
-# LibertySession and the the real DjangoSession
-class LibertyAssertions(models.Model):
-    assertion_id = models.CharField(max_length = 50, unique = True)
-    liberty_session = models.ForeignKey(LibertySession,
-            related_name = "assertions")
+class LibertyAssertion(models.Model):
+    assertion_id = models.CharField(max_length = 50)
+    provider_id = models.CharField(max_length = 80)
     session_index = models.CharField(max_length = 80, )
     assertion = models.TextField()
-    emission_time = models.DateTimeField(auto_now = True, )
+    creation = models.DateTimeField(auto_now_add=True)
+
+    def __init__(self, *args, **kwargs):
+        saml2_assertion = kwargs.pop('saml2_assertion', None)
+        if saml2_assertion:
+            kwargs['assertion_id'] = saml2_assertion.id
+            kwargs['session_index'] = \
+                    saml2_assertion.authnStatement[0].sessionIndex
+            kwargs['assertion'] = saml2_assertion.exportToXml()
+        models.Model.__init__(self, *args, **kwargs)
 
 class LibertyFederation(models.Model):
     """Store a federation, i.e. an identifier shared with another provider, be
        it IdP or SP"""
     user = models.ForeignKey(User)
+    idp_id = models.CharField(max_length=80)
+    sp_id = models.CharField(max_length=80)
     name_id_qualifier = models.CharField(max_length = 150,
-            verbose_name = _("Qualifier"))
+            verbose_name = "NameQualifier")
     name_id_format = models.CharField(max_length = 100,
-            verbose_name = _("NameIDFormat"))
+            verbose_name = "NameIDFormat")
     name_id_content = models.CharField(max_length = 100,
-            verbose_name = _("NameID"))
+            verbose_name = "NameID")
     name_id_sp_name_qualifier = models.CharField(max_length = 100,
-            verbose_name = _("SPNameQualifier"))
+            verbose_name = "SPNameQualifier")
+    name_id_sp_provided_id = models.CharField(max_length=100,
+            verbose_name="SPProvidedID")
+
+    def __init__(self, *args, **kwargs):
+        saml2_assertion = kwargs.pop('saml2_assertion', None)
+        if saml2_assertion:
+            name_id = saml2_assertion.subject.nameID
+            kwargs.update(nameid2kwargs(name_id))
+        models.Model.__init__(self, *args, **kwargs)
 
     class Meta:
         verbose_name = _("Liberty federation")
@@ -294,6 +313,43 @@ class LibertyFederation(models.Model):
         # federation), add user to this list
         unique_together = (("name_id_qualifier", "name_id_format",
             "name_id_content", "name_id_sp_name_qualifier"))
+
+class LibertySession(models.Model):
+    """Store the link between a Django session and a Liberty session"""
+    django_session_key = models.CharField(max_length = 40)
+    session_index = models.CharField(max_length = 80)
+    provider_id = models.CharField(max_length = 80)
+    federation = models.ForeignKey(LibertyFederation, null = True)
+    assertion = models.ForeignKey(LibertyAssertion, null = True)
+    name_id_qualifier = models.CharField(max_length = 150,
+            verbose_name = _("Qualifier"), null = True)
+    name_id_format = models.CharField(max_length = 100,
+            verbose_name = _("NameIDFormat"), null = True)
+    name_id_content = models.CharField(max_length = 100,
+            verbose_name = _("NameID"))
+    name_id_sp_name_qualifier = models.CharField(max_length = 100,
+            verbose_name = _("SPNameQualifier"), null = True)
+    creation = models.DateTimeField(auto_now_add=True)
+
+    def __init__(self, *args, **kwargs):
+        saml2_assertion = kwargs.pop('saml2_assertion', None)
+        if saml2_assertion:
+            kwargs['session_index'] = \
+                saml2_assertion.authnStatement[0].sessionIndex
+            name_id = saml2_assertion.subject.nameID
+            kwargs.update(nameid2kwargs(name_id))
+        models.Model.__init__(self, *args, **kwargs)
+
+    def set_nid(self, name_id):
+        self.__dict__.update(nameid2kwargs(name_id))
+
+    @classmethod
+    def get_for_nameid_and_session_indexes(cls, name_id, session_indexes):
+        kwargs = nameid2kwargs(name_id)
+        return LibertySession.objects.filter(session_index__in = session_indexes, **kwargs)
+
+    def __unicode__(self):
+        return '<LibertySession %s>' % self.__dict__
 
 class LibertySessionSP(models.Model):
     """Store the link between a Django session and a Liberty session on the SP"""

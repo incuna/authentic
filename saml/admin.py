@@ -49,5 +49,7 @@ if settings.DEBUG:
     admin.site.register(LibertySessionDump)
     admin.site.register(LibertyIdentityDump)
     admin.site.register(LibertyFederation)
+    admin.site.register(LibertySession)
+    admin.site.register(LibertyAssertion)
     admin.site.register(LibertySessionSP)
     admin.site.register(KeyValue)
