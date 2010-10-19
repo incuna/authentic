@@ -76,10 +76,9 @@ def build_assertion(request, login, nid_format = 'transient'):
        authentication assertion'''
     now = datetime.datetime.utcnow()
     # 1 minute ago
-    notBefore = now-datetime.timedelta(0,60)
+    notBefore = now-datetime.timedelta(0,__delta)
     # 1 minute in the future
-    notOnOrAfter = now+datetime.timedelta(0,60)
-    # TODO: find authn method from login event or from session
+    notOnOrAfter = now+datetime.timedelta(0,__delta)
     use_user_backend = True
     if use_user_backend:
         backend = request.session[BACKEND_SESSION_KEY]
