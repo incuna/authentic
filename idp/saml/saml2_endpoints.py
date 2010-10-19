@@ -402,14 +402,15 @@ def create_server(request, provider_id=None):
     The built lasso.Server is cached for later use it should work until
     multithreading is used, then thread local storage should be used.
     '''
+    global __cached_server
     if __cached_server:
         # clear loaded providers
         __cached_server.providers = {}
-        return _cached_server
+        return __cached_server
     provider_id, options = get_provider_id_and_options(request, provider_id)
     __cached_server = create_saml2_server(request, provider_id,
             idp_map=metadata_map, options=options)
-    return _cached_server
+    return __cached_server
 
 urlpatterns = patterns('',
     (r'^metadata$', metadata),
