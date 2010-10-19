@@ -20,3 +20,6 @@ class SamlBackend(object):
 
     def logout_list(self, request):
         return [ ]
+
+    def can_synchronous_logout(self, django_sessions_keys):
+        return True
