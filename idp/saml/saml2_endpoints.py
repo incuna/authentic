@@ -79,8 +79,7 @@ def build_assertion(request, login, nid_format = 'transient'):
     notBefore = now-datetime.timedelta(0,__delta)
     # 1 minute in the future
     notOnOrAfter = now+datetime.timedelta(0,__delta)
-    use_user_backend = True
-    if use_user_backend:
+    if __user_backend_from_session:
         backend = request.session[BACKEND_SESSION_KEY]
         if backend in ('django.contrib.auth.backends.ModelBackend',
                 'authentic.idp.auth_backends.LogginBackend'):
