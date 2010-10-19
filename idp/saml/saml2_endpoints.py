@@ -134,22 +134,6 @@ def build_assertion(request, login, nid_format = 'transient'):
         federation = None
     register_new_saml2_session(request, login, federation=federation)
 
-def log_info_authn_request_details(login):
-    '''Push to logs details abour the received AuthnRequest'''
-    request = login.request
-    details = { 'issuer': login.request.issuer and login.request.issuer.content,
-            'forceAuthn': login.request.forceAuthn,
-            'isPassive': login.request.isPassive,
-            'protocolBinding': login.request.protocolBinding }
-    nameIdPolicy = request.nameIdPolicy
-    if nameIdPolicy:
-        details['nameIdPolicy'] = {
-                'allowCreate': nameIdPolicy.allowCreate,
-                'format': nameIdPolicy.format,
-                'spNameQualifier': nameIdPolicy.spNameQualifier }
-
-    logging.info('SAMLv2 authn request details: %r' % details)
-
 @csrf_exempt
 def sso(request):
     """Endpoint for receiving saml2:AuthnRequests by POST, Redirect or SOAP.
@@ -439,6 +423,23 @@ def create_server(request, provider_id=None):
     __cached_server = create_saml2_server(request, provider_id,
             idp_map=metadata_map, options=options)
     return __cached_server
+
+def log_info_authn_request_details(login):
+    '''Push to logs details abour the received AuthnRequest'''
+    request = login.request
+    details = { 'issuer': login.request.issuer and login.request.issuer.content,
+            'forceAuthn': login.request.forceAuthn,
+            'isPassive': login.request.isPassive,
+            'protocolBinding': login.request.protocolBinding }
+    nameIdPolicy = request.nameIdPolicy
+    if nameIdPolicy:
+        details['nameIdPolicy'] = {
+                'allowCreate': nameIdPolicy.allowCreate,
+                'format': nameIdPolicy.format,
+                'spNameQualifier': nameIdPolicy.spNameQualifier }
+
+    logging.info('SAMLv2 authn request details: %r' % details)
+
 
 urlpatterns = patterns('',
     (r'^metadata$', metadata),
