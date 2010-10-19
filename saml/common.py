@@ -13,6 +13,16 @@ from django.utils.translation import ugettext as _
 from models import *
 from saml.models import *
 
+AUTHENTIC_STATUS_CODE_NS = "http://authentic.entrouvert.org/status_code/"
+AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER = AUTHENTIC_STATUS_CODE_NS + \
+    "UnknownProvider"
+AUTHENTIC_STATUS_CODE_MISSING_NAMEID= AUTHENTIC_STATUS_CODE_NS + \
+    "MissingNameID"
+AUTHENTIC_STATUS_CODE_MISSING_SESSION_INDEX = AUTHENTIC_STATUS_CODE_NS + \
+    "MissingSessionIndex"
+AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION = AUTHENTIC_STATUS_CODE_NS + \
+    "UnknownSession"
+
 def get_soap_message(request, on_error_raise = True):
     '''Verify that POST content looks like a SOAP message and returns it'''
     if request.method != 'POST' or \
