@@ -55,7 +55,7 @@ def validate_metadata(value):
 def metadata_field(prefix, suffix, validators = [], blank = True):
     '''Adapt a FileField to the need of metadata saving'''
     return models.FileField(
-            upload_to = FilenameGenerator("metadata", '.xml'),
+            upload_to = FilenameGenerator(prefix, suffix),
             storage = metadata_store,
             validators = validators, blank = blank)
 
