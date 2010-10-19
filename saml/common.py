@@ -543,7 +543,7 @@ def set_saml2_response_responder_status_code(response, code):
     response.status.statusCode = lasso.Samlp2StatusCode()
     response.status.statusCode.value = lasso.SAML2_STATUS_CODE_RESPONDER
     response.status.statusCode.statusCode = lasso.Samlp2StatusCode()
-    response.status.statusCode.value = code
+    response.status.statusCode.statusCode.value = code
 
 def error_page(request, message):
     logging.error('Error returned: %r' % message)
