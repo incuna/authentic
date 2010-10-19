@@ -13,8 +13,6 @@ from django.utils.translation import ugettext as _
 from models import *
 from saml.models import *
 
-SAML_PRIVATE_KEY = settings.SAML_PRIVATE_KEY
-
 def get_soap_message(request, on_error_raise = True):
     '''Verify that POST content looks like a SOAP message and returns it'''
     if request.method != 'POST' or \
@@ -48,50 +46,27 @@ def get_entity_id(request, metadata):
     '''
     return request.build_absolute_uri(metadata)
 
-def get_saml2_metadata(request, metadata):
+asynchronous_bindings = [ lasso.SAML2_METADATA_BINDING_REDIRECT,
+                lasso.SAML2_METADATA_BINDING_POST ]
+soap_bindings = [ lasso.SAML2_METADATA_BINDING_SOAP ]
+all_bindings = asynchronous_bindings + [ lasso.SAML2_METADATA_BINDING_SOAP ]
+
+def get_saml2_metadata(request, metadata, idp_map=None, sp_map=None, options={}):
     metagen = saml2utils.Saml2Metadata(get_entity_id(request, metadata),
             url_prefix = get_base_path(request, metadata))
-    synchronous_bindings = [ lasso.SAML2_METADATA_BINDING_REDIRECT,
-                    lasso.SAML2_METADATA_BINDING_POST ]
-    map = ((metagen.SINGLE_SIGN_ON_SERVICE, synchronous_bindings , '/sso'),
-            #('SingleLogoutService', synchronous_bindings , '/slo'),
-            (metagen.SINGLE_LOGOUT_SERVICE, lasso.SAML2_METADATA_BINDING_SOAP, '/slo'),
-            (metagen.ARTIFACT_RESOLUTION_SERVICE, lasso.SAML2_METADATA_BINDING_SOAP, '/artifact')
-            )
-    options = { 'signing_key': SAML_PRIVATE_KEY }
-    metagen.add_idp_descriptor(map, options)
+    if idp_map:
+        metagen.add_idp_descriptor(idp_map, options)
+    if sp_map:
+        metagen.add_sp_descriptor(sp_map, options)
     return str(metagen)
 
-def create_saml2_server(request, metadata):
+def create_saml2_server(request, metadata, idp_map=None, sp_map=None, options={}):
     '''Create a lasso Server object for using with a profile'''
-    server = lasso.Server.newFromBuffers(get_saml2_metadata(request, metadata),
-            SAML_PRIVATE_KEY)
+    signing_key = options.get('signing_key')
+    server = lasso.Server.newFromBuffers(get_saml2_metadata(request, metadata,
+        idp_map=idp_map, sp_map=sp_map, options=options), signing_key)
     if not server:
         raise Exception('Cannot create LassoServer object')
-    return server
-
-def get_saml2_sp_metadata(request, metadata):
-    metagen = saml2utils.Saml2Metadata(get_entity_id(request, metadata),
-            url_prefix = get_base_path(request, metadata))
-    # TODO: add isDefault for the assertionConsumerService
-    map = (('AssertionConsumerService', lasso.SAML2_METADATA_BINDING_ARTIFACT , '/singleSignOnArtifact'),
-        ('AssertionConsumerService', lasso.SAML2_METADATA_BINDING_POST , '/singleSignOnPost'),
-        ('SingleLogoutService', lasso.SAML2_METADATA_BINDING_REDIRECT , '/singleLogout', '/singleLogoutReturn'),
-        ('SingleLogoutService', lasso.SAML2_METADATA_BINDING_SOAP , '/singleLogoutSOAP'),
-        ('ManageNameIDService', lasso.SAML2_METADATA_BINDING_SOAP , '/manageNameIdSOAP'),
-        ('ManageNameIDService', lasso.SAML2_METADATA_BINDING_REDIRECT , '/manageNameId', '/manageNameIdReturn'),
-    )
-    options = { 'signing_key': SAML_PRIVATE_KEY }
-    metagen.add_sp_descriptor(map, options)
-    return str(metagen)
-
-def create_saml2_sp_server(request, metadata):
-    '''Create a lasso Server object for using with a profile'''
-    server = lasso.Server.newFromBuffers(get_saml2_sp_metadata(request, metadata),
-            SAML_PRIVATE_KEY)
-    if not server:
-        #raise Exception('Cannot create LassoServer object')
-        return None
     return server
 
 def get_saml2_post_request(request):

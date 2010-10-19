@@ -23,7 +23,9 @@ from authentic.authsaml2.utils import *
 '''SAMLv2 SP implementation'''
 
 def metadata(request):
-    return HttpResponse(get_saml2_sp_metadata(request, reverse(metadata)), mimetype = 'text/xml')
+    '''Endpoint to retrieve the metadata file'''
+    return HttpResponse(get_metadata(request, request.path),
+            mimetype='text/xml')
 
 ###
  # sso
@@ -1008,6 +1010,33 @@ def manageNameId(request):
 # Helper functions 
 #############################################
 
+metadata_map = (('AssertionConsumerService', lasso.SAML2_METADATA_BINDING_ARTIFACT , '/singleSignOnArtifact'),
+    ('AssertionConsumerService', lasso.SAML2_METADATA_BINDING_POST , '/singleSignOnPost'),
+    ('SingleLogoutService', lasso.SAML2_METADATA_BINDING_REDIRECT , '/singleLogout', '/singleLogoutReturn'),
+    ('SingleLogoutService', lasso.SAML2_METADATA_BINDING_SOAP , '/singleLogoutSOAP'),
+    ('ManageNameIDService', lasso.SAML2_METADATA_BINDING_SOAP , '/manageNameIdSOAP'),
+    ('ManageNameIDService', lasso.SAML2_METADATA_BINDING_REDIRECT , '/manageNameId', '/manageNameIdReturn'),
+)
+metadata_options = { 'signing_key': settings.SAML_PRIVATE_KEY }
+
+def get_provider_id_and_options(provider_id):
+    if not provider_id:
+        provider_id=reverse(metadata)
+    options = metadata_options
+    if getattr(settings, 'AUTHSAML2_METADATA_OPTIONS', None):
+        options.update(settings.AUTHSAML2_METADATA_OPTIONS)
+    return provider_id, options
+
+def get_metadata(request, provider_id=None):
+    provider_id, options = get_provider_id_and_options(provider_id)
+    return get_saml2_metadata(request, provider_id, sp_map=metadata_map,
+            options=options)
+
+def create_server(request, provider_id=None):
+    provider_id, options = get_provider_id_and_options(provider_id)
+    return create_saml2_server(request, provider_id, sp_map=metadata_map,
+            options=options)
+
 def http_response_bad_request(message):
     logging.error(message)
     return HttpResponseBadRequest(_(message))
@@ -1024,7 +1053,7 @@ def check_response_id(login):
     return True
 
 def build_service_provider(request):
-    sp = create_saml2_sp_server(request, reverse(metadata))
+    sp = create_server(request, reverse(metadata))
     if not sp:
         return None
     providers_list = get_idp_list()

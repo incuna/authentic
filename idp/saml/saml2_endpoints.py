@@ -15,6 +15,7 @@ from django.contrib.auth import BACKEND_SESSION_KEY
 
 from authentic.saml.models import *
 from authentic.saml.common import *
+import authentic.saml.saml2utils as saml2utils
 from authentic.idp.models import AuthenticationEvent
 from common import redirect_to_login, NONCE
 
@@ -35,6 +36,10 @@ from common import redirect_to_login, NONCE
      - manageNameIdResponse
      - assertionIDRequest
 '''
+
+def metadata(request):
+    '''Endpoint to retrieve the metadata file'''
+    return HttpResponse(get_metadata(request, request.path))
 
 def fill_assertion(request, saml_request, assertion, provider_id, nid_format):
     '''Stuff an assertion with information extracted from the user record
@@ -101,10 +106,6 @@ def build_assertion(request, login, nid_format = 'transient'):
     assertion = login.assertion
     fill_assertion(request, login.request, assertion, login.remoteProviderId, nid_format)
 
-def metadata(request):
-    return HttpResponse(get_saml2_metadata(request, request.path), mimetype = 'text/xml')
-
-
 def log_info_authn_request_details(login):
     '''Push to logs details abour the received AuthnRequest'''
     request = login.request
@@ -129,7 +130,7 @@ def sso(request):
     if request.method != 'GET':
         return HttpResponseForbidden('SAMLv2 sso endpoint only support HTTP-Redirect binding')
     message = get_saml2_request_message(request)
-    server = create_saml2_server(request, reverse(metadata))
+    server = create_server(request)
     login = lasso.Login(server)
     # 1. Process the request, separate POST and GET treatment
     if not message:
@@ -202,7 +203,7 @@ def continue_sso(request):
     nonce = request.REQUEST.get(NONCE, '')
     login_dump, consent_obtained, save, nid_format = \
             get_and_delete_key_values(nonce)
-    server = create_saml2_server(request, reverse(metadata))
+    server = create_server(request)
     login = lasso.Login.newFromDump(server, login_dump)
     if not load_provider(request, login, login.remoteProviderId):
         return HttpResponseBadRequest('Unknown provider')
@@ -285,7 +286,7 @@ def artifact(request):
     '''Resolve a SAMLv2 ArtifactResolve request
     '''
     soap_message = get_soap_message(request)
-    server = create_saml2_server(request, reverse(metadata))
+    server = create_server(request)
     login = lasso.Login(server)
     try:
         login.processRequestMsg(soap_message)
@@ -312,7 +313,7 @@ def idp_sso(request, provider_id, user_id = None, nid_format = None):
     logging.info('SAMLv2 idp_sso to %(provider_id)s' % { 'provider_id': provider_id })
     if user_id:
         logging.info('SAMLv2 idp_sso as %s' % user_id)
-    server = create_saml2_server(request, reverse(metadata))
+    server = create_server(request)
     login = lasso.Login(server)
     liberty_provider = load_provider(request, login, provider_id)
     if not liberty_provider:
@@ -357,10 +358,59 @@ def slo(request):
     """Endpoint for receiving saml2:AuthnRequests by POST, Redirect or SOAP.
        For SOAP a session must be established previously through the login page. No authentication through the SOAP request is supported.
     """
-    message = get_saml2_request_message(request)
-    server = create_saml2_server(request, get_saml2_metadata(request, reverse(metadata)))
-    login = lasso.Logout(server)
-    raise NotImplementedError()
+    pass
+
+# Helpers
+
+# SAMLv2 IdP settings variables
+__local_options = getattr(settings, 'IDP_SAML2_METADATA_OPTIONS', {})
+__user_backend_from_session = getattr(settings,
+        'IDP_SAML2_AUTHN_CONTEXT_FROM_SESSION', True)
+__delta = getattr(settings, 'IDP_SECONDS_TOLERANCE', 60)
+
+# Mapping to generate the metadata file, must be kept in sync with the url
+# dispatcher
+metadata_map = ((saml2utils.Saml2Metadata.SINGLE_SIGN_ON_SERVICE, asynchronous_bindings , '/sso'),
+        (saml2utils.Saml2Metadata.SINGLE_LOGOUT_SERVICE, asynchronous_bindings, '/slo', '/return_slo'),
+        (saml2utils.Saml2Metadata.SINGLE_LOGOUT_SERVICE, soap_bindings, '/slo/soap'),
+        (saml2utils.Saml2Metadata.ARTIFACT_RESOLUTION_SERVICE, lasso.SAML2_METADATA_BINDING_SOAP, '/artifact'))
+
+metadata_options = { 'signing_key': settings.SAML_PRIVATE_KEY }
+
+def get_provider_id_and_options(request, provider_id):
+    if not provider_id:
+        provider_id=reverse(metadata)
+    options = metadata_options
+    options.update(__local_options)
+    return provider_id, options
+
+def get_metadata(request, provider_id=None):
+    '''Generate the metadata XML file
+
+       Metadata options can be overriden by setting IDP_METADATA_OPTIONS in
+       settings.py.
+    '''
+    print 'coin'
+    provider_id, options = get_provider_id_and_options(request, provider_id)
+    return get_saml2_metadata(request, request.path, idp_map=metadata_map,
+            options=metadata_options)
+
+
+__cached_server = None
+def create_server(request, provider_id=None):
+    '''Build a lasso.Server object using current settings for the IdP
+
+    The built lasso.Server is cached for later use it should work until
+    multithreading is used, then thread local storage should be used.
+    '''
+    if __cached_server:
+        # clear loaded providers
+        __cached_server.providers = {}
+        return _cached_server
+    provider_id, options = get_provider_id_and_options(request, provider_id)
+    __cached_server = create_saml2_server(request, provider_id,
+            idp_map=metadata_map, options=options)
+    return _cached_server
 
 urlpatterns = patterns('',
     (r'^metadata$', metadata),
