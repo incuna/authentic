@@ -66,6 +66,10 @@ def fill_assertion(request, saml_request, assertion, provider_id, nid_format):
         pass
     elif nid_format == 'email':
         assertion.subject.nameID.content = request.user.email
+    else:
+        # It should not happen as the nid_format has been checked
+        # before
+        assert False
 
 def build_assertion(request, login, nid_format = 'transient'):
     '''After a successfully validated authentication request, build an
