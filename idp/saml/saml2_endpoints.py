@@ -390,7 +390,6 @@ def get_metadata(request, provider_id=None):
        Metadata options can be overriden by setting IDP_METADATA_OPTIONS in
        settings.py.
     '''
-    print 'coin'
     provider_id, options = get_provider_id_and_options(request, provider_id)
     return get_saml2_metadata(request, request.path, idp_map=metadata_map,
             options=metadata_options)
