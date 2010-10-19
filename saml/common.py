@@ -528,6 +528,14 @@ def soap_call(url, msg, client_cert = None):
         raise SOAPException(url)
     return data
 
+def send_soap_request(request, profile):
+    '''Send the SOAP request hold by the profile'''
+    if not profile.msgUrl or not profile.msgBody:
+        raise SOAPException('Missing body or url')
+    p = LibertyProvider.objects.get(entity_id=profile.remoteProviderId)
+    return soap_call(profile.msgUrl, profile.msgBody, p.ssl_certificate)
+
+
 def set_saml2_response_responder_status_code(response, code):
     response.status = lasso.Samlp2Status()
     response.status.statusCode = lasso.Samlp2StatusCode()
