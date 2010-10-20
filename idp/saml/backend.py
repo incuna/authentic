@@ -1,6 +1,10 @@
 import urllib
 
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
+
 import authentic.saml.models as models
+import authentic.idp.saml.saml2_endpoints as saml2_endpoints
 
 class SamlBackend(object):
     def service_list(self, request):
@@ -19,7 +23,23 @@ class SamlBackend(object):
         return list
 
     def logout_list(self, request):
-        return [ ]
+        all_sessions = models.LibertySession.objects.filter(
+                django_session_key=request.session.session_key)
+        provider_ids = set([s.provider_id for s in all_sessions])
+        result = []
+        for pid in provider_ids:
+            name = pid
+            try:
+                name = models.LibertyProvider.objects.get(entity_id=pid).name
+            except models.LibertyProvider.DoesNotExist:
+                pass
+            code = '<div>'
+            code += _('Sending logout to %(pid)s....') % { 'pid': pid }
+            code += '<iframe src="%s" marginwidth="0" marginheight="0" \
+scrolling="no" style="border: none" width="16" height="16"></iframe></div>' % \
+                    reverse(saml2_endpoints.idp_slo, args=[pid])
+            result.append(code)
+        return result
 
     def can_synchronous_logout(self, django_sessions_keys):
         return True
