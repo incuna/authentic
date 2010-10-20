@@ -11,7 +11,7 @@
 <h1>{% trans "Logging out" %}</h1>
 <ul class="logout-list">
     {% for fragment in logout_list %}
-        {{ fragment }}
+        {{ fragment|safe }}
     {% endfor %}
 </ul>
 
