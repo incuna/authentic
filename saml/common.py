@@ -24,6 +24,10 @@ AUTHENTIC_STATUS_CODE_MISSING_SESSION_INDEX = AUTHENTIC_STATUS_CODE_NS + \
     "MissingSessionIndex"
 AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION = AUTHENTIC_STATUS_CODE_NS + \
     "UnknownSession"
+AUTHENTIC_STATUS_CODE_MISSING_DESTINATION = AUTHENTIC_STATUS_CODE_NS + \
+    "MissingDestination"
+AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR = AUTHENTIC_STATUS_CODE_NS + \
+    "InternalServerError"
 
 def get_soap_message(request, on_error_raise = True):
     '''Verify that POST content looks like a SOAP message and returns it'''
