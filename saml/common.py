@@ -554,3 +554,13 @@ def error_page(request, message):
     return render_to_response('error_authsaml2.html', {'error': message},
         context_instance=RequestContext(request))
 
+def soap_fault(request, faultcode='soap:Client', faultstring=None):
+    if faultstring:
+        faultstring = '\n        <faultstring>%s</faultstring>\n' % faultstring
+    content = '''<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body><soap:Fault>
+       <faultcode>%(faultcode)s</faultcode>%(faultstring)s
+    </soap:Fault></soap:Body>
+</soap:Envelope>''' % locals()
+    return HttpResponse(content, mimetype = "text/xml")
+
