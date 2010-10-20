@@ -34,6 +34,8 @@ OPENID_PROVIDER = ['https://me.yahoo.com//','http://openid.aol.com/','http://.my
                     'http://.blogspot.com/','http://.pip.verisignlabs.com/','http://.myvidoop.com/'
                     'http://.pip.verisignlabs.com/','http://claimid.com/']
 
+__logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
+
 def accumulate_from_backends(request, method_name):
     from authentic.idp import get_backends
     list = []
@@ -72,12 +74,13 @@ def logout_list(request):
 
 def logout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME,
         template = 'idp/logout.html'):
+    global __logout_redirection_timeout
     "Logs out the user and displays 'You are logged out' message."
     signals.auth_logout.send(sender = None, user = request.user)
     do_local = request.REQUEST.has_key('local')
     l = logout_list(request)
     context = RequestContext(request)
-    context['redir_timeout'] = 600
+    context['redir_timeout'] = __logout_redirection_timeout
     if l and not do_local:
         # Full logout
         next_page = '?local&next=%s' % urllib.quote(next_page)
