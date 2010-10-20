@@ -43,7 +43,7 @@ if settings.AUTH_OPENID:
     )
 
 urlpatterns += patterns('',
-    (r'^accounts/logout/', 'idp.views.logout'),
+    (r'^accounts/logout/', 'authentic.idp.views.logout'),
     (r'^accounts/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
     (r'^accounts/password/change/$','idp.views.password_change'),
     url(r'^accounts/login', authentic.idp.login_views.login, name='auth_login'),
