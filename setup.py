@@ -3,85 +3,12 @@
 # Setup script for Authentic
 #
 # It started as a copy of ReviewBoard setup.py file, thanks to them, and for
-# the record they themselves gave a big thanks to Django project for some of
-# the fixes used in here for MacOS X and data files installation.
-
-import os
-import shutil
-import sys
-
-from ez_setup import use_setuptools
-use_setuptools()
-
-from setuptools import setup, find_packages
-from setuptools.command.build_py import build_py
-from distutils.command.install_data import install_data
-from distutils.command.install import INSTALL_SCHEMES
-
-
-# Make sure we're actually in the directory containing setup.py.
-root_dir = os.path.dirname(__file__)
-
-if root_dir != "":
-    os.chdir(root_dir)
-
-
-# Tell distutils to put the data_files in platform-specific installation
-# locations. See here for an explanation:
-# http://groups.google.com/group/comp.lang.python/browse_thread/thread/35ec7b2fed36eaec/2105ee4d9e8042cb
-for scheme in INSTALL_SCHEMES.values():
-    scheme['data'] = scheme['purelib']
-
-
-class osx_install_data(install_data):
-    # On MacOS, the platform-specific lib dir is
-    # /System/Library/Framework/Python/.../
-    # which is wrong. Python 2.5 supplied with MacOS 10.5 has an
-    # Apple-specific fix for this in distutils.command.install_data#306. It
-    # fixes install_lib but not install_data, which is why we roll our own
-    # install_data class.
-
-    def finalize_options(self):
-        # By the time finalize_options is called, install.install_lib is
-        # set to the fixed directory, so we set the installdir to install_lib.
-        # The # install_data class uses ('install_data', 'install_dir') instead.
-        self.set_undefined_options('install', ('install_lib', 'install_dir'))
-        install_data.finalize_options(self)
-
-
-if sys.platform == "darwin":
-    cmdclasses = {'install_data': osx_install_data}
-else:
-    cmdclasses = {'install_data': install_data}
-
-# We only want to do this if it's not an sdist build, which means there will
-# be a PKG-INFO.
-if not os.path.exists("PKG-INFO"):
-    if os.path.exists("authentic"):
-        shutil.rmtree("authentic")
-
-    print "Copying tree to staging area..."
-    shutil.copytree(".", "authentic", True)
-
-    # Clean up things that shouldn't be in there...
-    shutil.rmtree("authentic/Authentic.egg-info", ignore_errors=True)
-    shutil.rmtree("authentic/build", ignore_errors=True)
-    shutil.rmtree("authentic/dist", ignore_errors=True)
-    os.unlink("authentic/setup.py")
-    os.unlink("authentic/ez_setup.py")
-
-    if os.path.exists("authentic/local_settings.py"):
-        os.unlink("authentic/local_settings.py")
-
-    if os.path.exists("authentic/local_settings.pyc"):
-        os.unlink("authentic/local_settings.pyc")
-
-# Import this now, since authentic is in the right place now.
-from authentic2 import VERSION
+import distutils.core
+import authentic2
 
 # Build the authentic package.
-setup(name="authentic2",
-      version=VERSION,
+distutils.core.setup(name="authentic2",
+      version=authentic2.VERSION,
       license="GPLv2 or later",
       description="Authentic, a versatile identity server",
       url="http://authentic.labs.libre-entreprise.org/",
@@ -90,25 +17,22 @@ setup(name="authentic2",
       maintainer="Benjamin Dauvergne",
       maintainer_email="bdauvergne@entrouvert.com",
       py_modules=['manage'],
-      cmdclass=cmdclasses,
-      install_requires=[
-          'Django>=1.2.0',
-          'django-registration>=0.7',
-          'django-debug-toolbar',
-          'django-authopenid>=1.0',
+      packages=[ 'authentic2',
+            'authentic2/django_openid_provider',
+            'authentic2/core',
+            'authentic2/sslauth',
+            'authentic2/saml',
+            'authentic2/authsaml2',
+            'authentic2/admin_log_view',
+            'authentic2/idp',
+            'authentic2/idp/templatetags',
+            'authentic2/idp/saml'],
+      package_data={ '': ['fixtures/*.json',
+          'templates/*.html','templates/*/*.html'] },
+      requires=[
+          'django (>=1.2.0)',
+          'registration (>=0.7)',
+          'debug_toolbar',
+          'django_authopenid (>=1.0)',
       ],
-      zip_safe=False,
-      classifiers=[
-          "Development Status :: 2 - Pre-Alpha",
-          "Environment :: Web Environment",
-          "Framework :: Django",
-          "Intended Audience :: System Administrators",
-          "License :: OSI Approved :: GNU General Public License (GPL)",
-          "Operating System :: OS Independent",
-          "Programming Language :: Python",
-          "Topic :: System :: Systems Administration :: Authentication/Directory",
-      ]
 )
-
-if not os.path.exists("PKG-INFO"):
-    shutil.rmtree("authentic")
