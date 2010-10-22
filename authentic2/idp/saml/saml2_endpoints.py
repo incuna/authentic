@@ -682,7 +682,6 @@ def idp_slo(request, provider_id):
         try:
             soap_response = send_soap_request(request, logout)
         except:
-            raise
             logging.exception('SAMLv2 idp_slo SOAP failure')
             return redirect_next(request, next) or ko_icon(request)
         return process_logout_response(request, logout, soap_response, next)
