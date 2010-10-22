@@ -26,8 +26,8 @@ from openid.consumer.discover import DiscoveryFailure
 from openid.yadis import xri
 import signals
 
-import authentic.saml.common
-import authentic.authsaml2.utils
+import authentic2.saml.common
+import authentic2.authsaml2.utils
 
 OPENID_PROVIDER = ['https://me.yahoo.com//','http://openid.aol.com/','http://.myopenid.com/',
                     'http://.livejournal.com/','http://www.flickr.com/photos//','http://.wordpress.com/'
@@ -37,7 +37,7 @@ OPENID_PROVIDER = ['https://me.yahoo.com//','http://openid.aol.com/','http://.my
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
 
 def accumulate_from_backends(request, method_name):
-    from authentic.idp import get_backends
+    from authentic2.idp import get_backends
     list = []
     for backend in get_backends():
         method = getattr(backend, method_name, None)
@@ -51,22 +51,22 @@ def service_list(request):
 
 def homepage(request):
     '''Homepage of the IdP'''
-    import authentic.saml.common
-    import authentic.authsaml2.utils
+    import authentic2.saml.common
+    import authentic2.authsaml2.utils
     tpl_parameters = {}
     tpl_parameters['authorized_services'] = service_list(request)
-    if authentic.authsaml2.utils.is_sp_configured():
-        tpl_parameters['provider_active_session'] = authentic.saml.common.get_provider_of_active_session(request)
-        tpl_parameters['provider_name'] = authentic.saml.common.get_provider_of_active_session_name(request)
+    if authentic2.authsaml2.utils.is_sp_configured():
+        tpl_parameters['provider_active_session'] = authentic2.saml.common.get_provider_of_active_session(request)
+        tpl_parameters['provider_name'] = authentic2.saml.common.get_provider_of_active_session_name(request)
     if settings.IDP_OPENID:
         tpl_parameters['openid'] = request.user.openid_set
         tpl_parameters['IDP_OPENID'] = settings.IDP_OPENID
     return render_to_response('index.html', tpl_parameters, RequestContext(request))
 
 def authsaml2_login_page(request):
-    if not authentic.authsaml2.utils.is_sp_configured():
+    if not authentic2.authsaml2.utils.is_sp_configured():
         return {}
-    return {'providers_list': authentic.saml.common.get_idp_list()}
+    return {'providers_list': authentic2.saml.common.get_idp_list()}
 
 def logout_list(request):
     '''Return logout links from idp backends'''

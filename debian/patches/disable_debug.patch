@@ -1,7 +1,7 @@
-diff --git a/settings.py b/settings.py
+diff --git a/authentic2/settings.py b/authentic2/settings.py
 index e65f7ae..cb8faec 100644
---- a/settings.py
-+++ b/settings.py
+--- a/authentic2/settings.py
++++ b/authentic2/settings.py
 @@ -4,8 +4,8 @@ import os
  
  gettext_noop = lambda s: s
@@ -12,4 +12,3 @@ index e65f7ae..cb8faec 100644
 +USE_DEBUG_TOOLBAR = False
  STATIC_SERVE = True
  TEMPLATE_DEBUG = DEBUG
- PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))

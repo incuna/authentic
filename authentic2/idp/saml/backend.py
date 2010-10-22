@@ -3,8 +3,8 @@ import urllib
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
-import authentic.saml.models as models
-import authentic.idp.saml.saml2_endpoints as saml2_endpoints
+import authentic2.saml.models as models
+import authentic2.idp.saml.saml2_endpoints as saml2_endpoints
 
 class SamlBackend(object):
     def service_list(self, request):

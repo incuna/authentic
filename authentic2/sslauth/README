@@ -32,7 +32,7 @@ Add a file django.wsgi, e.g.:
 """
 import os
 sys.path.append('/Donnees/devs/Authentic/')
-os.environ['DJANGO_SETTINGS_MODULE'] = 'authentic.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 import django.core.handlers.wsgi
 application = django.core.handlers.wsgi.WSGIHandler()
 """
@@ -43,7 +43,7 @@ Give rights to Apache on your Authentic directory
 
 Configure Authentic
 ===================
-in authentic/settings.py:
+in settings.py:
 Set AUTH_SSL = True
 To create a user with the mail adress as identifier:
 SSLAUTH_CREATE_USER = True

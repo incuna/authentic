@@ -16,9 +16,9 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import ugettext as _
-from authentic.saml.common import *
-from authentic.saml.models import *
-from authentic.authsaml2.utils import *
+from authentic2.saml.common import *
+from authentic2.saml.models import *
+from authentic2.authsaml2.utils import *
 
 '''SAMLv2 SP implementation'''
 

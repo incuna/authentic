@@ -14,12 +14,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import BACKEND_SESSION_KEY
 
 
-import authentic.idp as idp
-import authentic.idp.views as idp_views
-from authentic.saml.models import *
-from authentic.saml.common import *
-import authentic.saml.saml2utils as saml2utils
-from authentic.idp.models import AuthenticationEvent
+import authentic2.idp as idp
+import authentic2.idp.views as idp_views
+from authentic2.saml.models import *
+from authentic2.saml.common import *
+import authentic2.saml.saml2utils as saml2utils
+from authentic2.idp.models import AuthenticationEvent
 from common import redirect_to_login, NONCE, kill_django_sessions
 
 '''SAMLv2 IdP implementation
@@ -99,12 +99,12 @@ def build_assertion(request, login, nid_format = 'transient'):
     if __user_backend_from_session:
         backend = request.session[BACKEND_SESSION_KEY]
         if backend in ('django.contrib.auth.backends.ModelBackend',
-                'authentic.idp.auth_backends.LogginBackend'):
+                'authentic2.idp.auth_backends.LogginBackend'):
             if ssl:
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD_PROTECTED_TRANSPORT
             else:
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD
-        elif backend == 'authentic.sslauth.backends.SSLAuthBackend':
+        elif backend == 'authentic2.sslauth.backends.SSLAuthBackend':
             authn_context = lasso.LASSO_SAML2_AUTHN_CONTEXT_X509
         else:
             raise Exception('unknown backend: ' + backend)

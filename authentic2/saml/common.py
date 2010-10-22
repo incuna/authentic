@@ -11,9 +11,9 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
 
-from saml.models import *
-import saml.saml2utils as saml2utils
-import saml.saml11utils as saml11utils
+from models import *
+import saml2utils
+import saml11utils
 
 AUTHENTIC_STATUS_CODE_NS = "http://authentic.entrouvert.org/status_code/"
 AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER = AUTHENTIC_STATUS_CODE_NS + \
@@ -551,7 +551,7 @@ def set_saml2_response_responder_status_code(response, code):
 
 def error_page(request, message):
     logging.error('Error returned: %r' % message)
-    return render_to_response('error_authsaml2.html', {'error': message},
+    return render_to_response('error.html', {'msg': message},
         context_instance=RequestContext(request))
 
 def soap_fault(request, faultcode='soap:Client', faultstring=None):

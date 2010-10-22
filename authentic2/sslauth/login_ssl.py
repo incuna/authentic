@@ -2,6 +2,8 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout, get_user
 from django.contrib.auth.models import AnonymousUser
 
+from authentic2.saml.common import error_page
+
 # Use of existing application sslauth
 from util import SSLInfo, settings_get
 
@@ -11,16 +13,13 @@ def process_request(request):
 
     # Check certificate validity
     if not ssl_info.verify:
-        return HttpResponseRedirect("/error_ssl/")
+        return error_page('SSL CGI variable VERIFY is missing')
 
     # Kill another active session
     logout(request)
 
     # return a known user else an anonymous one
     user = authenticate(ssl_info=ssl_info) or AnonymousUser()
-
-    if user is None:
-       return HttpResponseRedirect("/error_ssl/")
 
     # Add user entry if unknown
     # TODO: With Admin set SSLAUTH_CREATE_USER
@@ -43,14 +42,12 @@ def process_request(request):
             if SSLAuthBackend().create_user(ssl_info):
                 user = authenticate(ssl_info=ssl_info)
         else:
-            return HttpResponseRedirect("/error_ssl/")
+            return error_page('User unknown for the current SSL context')
 
     # Check if the user is activated
     if not user.is_authenticated() or not user.is_active:
-        return HttpResponseRedirect("/error_ssl/")
+        return error_page('User %s is inactive' % user.username)
 
     # Log user in
     login(request, user)
     return HttpResponseRedirect("/")
-
-

@@ -1,12 +1,12 @@
-diff --git a/settings.py b/settings.py
+diff --git a/authentic2/settings.py b/authentic2/settings.py
 index e65f7ae..3919505 100644
---- a/settings.py
-+++ b/settings.py
+--- a/authentic2/settings.py
++++ b/authentic2/settings.py
 @@ -19,7 +19,7 @@ MANAGERS = ADMINS
  DATABASES = {
      'default': {
          'ENGINE': 'django.db.backends.sqlite3',
--        'NAME': os.path.join(PROJECT_PATH, 'authentic.db'),
+-        'NAME': 'authentic.db',
 +        'NAME': '/var/lib/authentic/authentic.db',
      }
  }

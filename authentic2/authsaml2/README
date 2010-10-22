@@ -43,7 +43,8 @@ and the back url is the one of calling of the defederation function.
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth import views as auth_views
-import authsaml2.saml2_endpoints
+import authentic2.authsaml2.saml2_endpoints
+
 def login(request):
     authsaml2.saml2_endpoints.register_next_target(request)
     return auth_views.login(request)
@@ -65,8 +66,9 @@ def login(request):
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth import views as auth_views
-import authsaml2.saml2_endpoints
-import authsaml2.saml.common
+import authentic2.authsaml2.saml2_endpoints
+import authentic2.authsaml2.saml.common
+
 def inside(request):
     authsaml2.saml2_endpoints.register_next_target(request, '/in')
     return render_to_response('in.html', {'providers_list_federated': authsaml2.saml.common.get_idp_user_federated_list(request),

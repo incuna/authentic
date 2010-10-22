@@ -1,4 +1,4 @@
-from authentic.sslauth.models import DistinguishedName, ClientCertificate
+from authentic2.sslauth.models import DistinguishedName, ClientCertificate
 from django.contrib import admin  
    
 admin.site.register(DistinguishedName)  

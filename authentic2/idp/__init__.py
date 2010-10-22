@@ -7,7 +7,7 @@ from signals import auth_login
 from signals import auth_logout
 from signals import auth_oidlogin
 from django.conf import settings
-from admin_log_view.models import info
+from authentic2.admin_log_view.models import info
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
@@ -88,13 +88,13 @@ class AdminBackend(object):
             return (('/admin', _('Authentic administration')),)
         return []
 
-auth_login.connect(LogAuthLogin, dispatch_uid = "authentic.idp")
-auth_logout.connect(LogAuthLogout, dispatch_uid = "authentic.idp")
-auth_oidlogin.connect(LogAuthLoginOI, dispatch_uid ="authentic.idp")
+auth_login.connect(LogAuthLogin, dispatch_uid = "authentic2.idp")
+auth_logout.connect(LogAuthLogout, dispatch_uid = "authentic2.idp")
+auth_oidlogin.connect(LogAuthLoginOI, dispatch_uid ="authentic2.idp")
 
 if settings.AUTH_OPENID:
     from django_authopenid.signals import oid_register
     from django_authopenid.signals import oid_associate
-    oid_register.connect(LogRegisteredOI, dispatch_uid = "authentic.idp")
-    oid_associate.connect(LogAssociatedOI, dispatch_uid = "authentic.idp")
+    oid_register.connect(LogRegisteredOI, dispatch_uid = "authentic2.idp")
+    oid_associate.connect(LogAssociatedOI, dispatch_uid = "authentic2.idp")
 

@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-d=$(CURDIR)/debian/authentic
+d=$(CURDIR)/debian/authentic2
 
 %:
 	dh --with quilt --with python-central $@
@@ -10,8 +10,7 @@ override_dh_install:
 
 override_dh_pycentral:
 	dh_pycentral
-	touch $(d)/etc/authentic/local_settings.py
-	ln -s /etc/authentic/local_settings.py $(d)/usr/share/pyshared/authentic/local_settings.py
+	touch $(d)/etc/authentic2/local_settings.py
 	cp $(CURDIR)/debian/apache2.conf $(d)/usr/share/authentic/
 	cp $(CURDIR)/debian/authentic.wsgi $(d)/usr/share/authentic/
 

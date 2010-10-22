@@ -1,8 +1,8 @@
 from django.db import transaction
 from django.contrib.auth.models import User, UserManager
-import settings
+from django.conf import settings
 from saml2_endpoints import *
-from saml.common import *
+from authentic2.saml.common import *
 
 class AuthenticationError(Exception):
     pass

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Postinst script for authentic
+# Postinst script for authentic2
 #
 
 set -e
@@ -25,9 +25,9 @@ case "$1" in
             echo "..done"
         fi
 
-        mkdir -p /var/lib/authentic
-        chmod 755 /var/lib/authentic
-        chown $AUTHENTIC_USER:$AUTHENTIC_GROUP /var/lib/authentic
+        mkdir -p /var/lib/authentic2
+        chmod 755 /var/lib/authentic2
+        chown $AUTHENTIC_USER:$AUTHENTIC_GROUP /var/lib/authentic2
 
         ;;
 
@@ -40,18 +40,18 @@ case "$1" in
         ;;
 esac
 
-rm -f /var/lib/pycentral/authentic.pkgremove
+rm -f /var/lib/pycentral/authentic2.pkgremove
 if which pycentral >/dev/null 2>&1; then
-	pycentral pkginstall authentic
-	if grep -qs '^authentic$' /var/lib/pycentral/delayed-pkgs; then
-		sed -i '/^authentic$/d' /var/lib/pycentral/delayed-pkgs
+	pycentral pkginstall authentic2
+	if grep -qs '^authentic2$' /var/lib/pycentral/delayed-pkgs; then
+		sed -i '/^authentic2$/d' /var/lib/pycentral/delayed-pkgs
 	fi
 fi
 
 case "$1" in
     configure)
         if [ -z "$2" ]; then
-            su authentic -p -c "django-admin syncdb --settings authentic.settings --noinput"
+            su authentic -p -c "django-admin syncdb --settings authentic2.settings --noinput"
         fi
         ;;
 esac

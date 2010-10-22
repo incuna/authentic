@@ -76,23 +76,11 @@ if not os.path.exists("PKG-INFO"):
     if os.path.exists("authentic/local_settings.pyc"):
         os.unlink("authentic/local_settings.pyc")
 
-# Since we don't actually keep our directories in a authentic directory
-# like we really should, we have to fake it. Prepend "authentic." here,
-# set package_dir below.
-authentic_dirs = []
-
-for dirname in os.listdir("."):
-    if os.path.isdir(dirname) and dirname != 'authentic':
-        authentic_dirs.append(dirname)
-        authentic_dirs.append(dirname + ".*")
-
-packages = [ package_name for package_name in find_packages(exclude=authentic_dirs) ]
-
 # Import this now, since authentic is in the right place now.
-from authentic import VERSION
+from authentic2 import VERSION
 
 # Build the authentic package.
-setup(name="authentic",
+setup(name="authentic2",
       version=VERSION,
       license="GPLv2 or later",
       description="Authentic, a versatile identity server",
@@ -101,7 +89,7 @@ setup(name="authentic",
       author_email="authentic-devel@lists.labs.libre-entreprise.org",
       maintainer="Benjamin Dauvergne",
       maintainer_email="bdauvergne@entrouvert.com",
-      packages=packages,
+      py_modules=['manage'],
       cmdclass=cmdclasses,
       install_requires=[
           'Django>=1.2.0',
@@ -109,7 +97,6 @@ setup(name="authentic",
           'django-debug-toolbar',
           'django-authopenid>=1.0',
       ],
-      include_package_data=True,
       zip_safe=False,
       classifiers=[
           "Development Status :: 2 - Pre-Alpha",

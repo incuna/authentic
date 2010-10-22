@@ -4,11 +4,11 @@ import os
 
 gettext_noop = lambda s: s
 
-DEBUG = True
-USE_DEBUG_TOOLBAR = True
+DEBUG = False
+USE_DEBUG_TOOLBAR = False
 STATIC_SERVE = True
 TEMPLATE_DEBUG = DEBUG
-PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -19,7 +19,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(PROJECT_PATH, 'authentic.db'),
+        'NAME': 'authentic.db',
     }
 }
 
@@ -57,7 +57,7 @@ USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join(PROJECT_PATH, 'media')
+MEDIA_ROOT = os.path.join(_PROJECT_PATH, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -86,7 +86,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.media',
     'django.core.context_processors.request',
     'django.contrib.messages.context_processors.messages',
-    'authentic.core.context_processors.auth_settings',
+    'authentic2.core.context_processors.auth_settings',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -97,14 +97,14 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'authentic.admin_log_view.middleware.LoggerMiddleware',
-    'authentic.idp.middleware.DebugMiddleware'
+    'authentic2.admin_log_view.middleware.LoggerMiddleware',
+    'authentic2.idp.middleware.DebugMiddleware'
 )
 
-ROOT_URLCONF = 'authentic.urls'
+ROOT_URLCONF = 'authentic2.urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_PATH, 'templates'),
+    os.path.join(_PROJECT_PATH, 'templates'),
 )
 
 INSTALLED_APPS = (
@@ -114,12 +114,12 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'django.contrib.sites',
-    'authentic.saml',
-    'authentic.idp',
-    'authentic.idp.saml',
+    'authentic2.saml',
+    'authentic2.idp',
+    'authentic2.idp.saml',
     'registration',
-    'authentic.sslauth',
-    'authentic.admin_log_view',
+    'authentic2.sslauth',
+    'authentic2.admin_log_view',
 )
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
@@ -164,26 +164,26 @@ gmsgaiMCgYB/nrTk89Fp7050VKCNnIt1mHAcO9cBwDV8qrJ5O3rIVmrg1T6vn0aY
 wRiVcNacaP+BivkrMjr4BlsUM6yH4MOBsNhLURiiCL+tLJV7U0DWlCse/doWij4U
 TKX6tp6oI+7MIJE6ySZ0cBqOiydAkBePZhu57j6ToBkTa0dbHjn1WA==
 -----END RSA PRIVATE KEY-----'''
-SAML_METADATA_ROOT = os.path.join(PROJECT_PATH, 'metadata')
+SAML_METADATA_ROOT = 'metadata'
 
 # SSL settings
 AUTH_SSL = True
 SSLAUTH_CREATE_USER = True
 AUTHENTICATION_BACKENDS = (
-    'authentic.idp.auth_backends.LogginBackend',
+    'authentic2.idp.auth_backends.LogginBackend',
     'django.contrib.auth.backends.ModelBackend',
-    'authentic.sslauth.backends.SSLAuthBackend',
+    'authentic2.sslauth.backends.SSLAuthBackend',
 )
 
 # IDP
-IDP_BACKENDS = [ 'authentic.idp.saml.backend.SamlBackend',
-        'authentic.idp.AdminBackend' ]
+IDP_BACKENDS = [ 'authentic2.idp.saml.backend.SamlBackend',
+        'authentic2.idp.AdminBackend' ]
 
 #AuthSAML2 Configuration
-INSTALLED_APPS += ('authentic.authsaml2',)
-SAML2_BACKEND = 'authentic.authsaml2.backends.AuthSAML2Backend'
+INSTALLED_APPS += ('authentic2.authsaml2',)
+SAML2_BACKEND = 'authentic2.authsaml2.backends.AuthSAML2Backend'
 AUTHENTICATION_BACKENDS += (SAML2_BACKEND,)
-TEMPLATE_CONTEXT_PROCESSORS += ('authentic.idp.views.authsaml2_login_page',)
+TEMPLATE_CONTEXT_PROCESSORS += ('authentic2.idp.views.authsaml2_login_page',)
 
 # OpenID settings
 AUTH_OPENID = True
@@ -214,6 +214,3 @@ if AUTH_OPENID:
 if IDP_OPENID:
     INSTALLED_APPS += ('django_openid_provider',
                     'openid_provider',)
-    TEMPLATE_DIRS = (
-        os.path.join(PROJECT_PATH, 'templates/django_openid_provider'),
-    )

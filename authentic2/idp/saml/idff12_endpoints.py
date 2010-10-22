@@ -10,8 +10,8 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 
-from authentic.saml.models import *
-from authentic.saml.common import *
+from authentic2.saml.models import *
+from authentic2.saml.common import *
 from interaction import consent
 
 def fill_assertion(request, saml_request, assertion, provider_id):
