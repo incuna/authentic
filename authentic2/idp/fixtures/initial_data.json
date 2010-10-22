@@ -1,0 +1,7 @@
+[
+  {
+"pk": 1, "model": "auth.user", "fields":{
+"username": "admin", "first_name": "John", "last_name": "Doe", "is_active": true, "is_superuser": true, "is_staff": true, "password": "sha1$382b0$b488ee910bd27517a3c35857a768d5a9556a00a5", "email": "root@localhost"}
+  }
+
+]
