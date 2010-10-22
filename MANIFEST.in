@@ -1,8 +1,8 @@
 recursive-include locale *
-recusrive-include tests *.dp *.py
+recursive-include tests *.db *.py
 recursive-include templates *.html *.txt *.js yadis.xrdf
 recursive-include media *.css *.js *.ico *.gif *.png *.jpg README
-recursive-include authentic2 README *.html
+recursive-include authentic2 README fixtures/*.json templates/*.html templates/*/*.html
 include authentic2/sslauth/authentic_ssl.vhost
 include ez_setup.py
 include COPYING
