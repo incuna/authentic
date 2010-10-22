@@ -4,8 +4,8 @@ import os
 
 gettext_noop = lambda s: s
 
-DEBUG = False
-USE_DEBUG_TOOLBAR = False
+DEBUG = True
+USE_DEBUG_TOOLBAR = True
 STATIC_SERVE = True
 TEMPLATE_DEBUG = DEBUG
 _PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
