@@ -102,3 +102,9 @@ def inside(request):
 {% else %}
 <a href="{% url auth_logout %}">{% trans "Log out" %}</a>
 {% endif %}
+
+Now in idp/__init__.py
+
+        tpl_parameters['providers_list_federated'] = authentic.saml.common.get_idp_user_federated_list(request)
+        tpl_parameters['providers_list_not_federated'] = authentic.saml.common.get_idp_user_not_federated_list(request)
+
