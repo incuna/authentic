@@ -15,7 +15,7 @@ class WithNonceAuthenticationForm(AuthenticationForm):
     def clean(self):
         res = AuthenticationForm.clean(self)
         # create an authentication event
-        if self.cleaned_data.has_key('nonce'):
+        if self.user_cache and self.cleaned_data.has_key('nonce'):
             how = 'password'
             if self.request and self.request.environ.has_key('HTTPS'):
                 how = 'password-on-https'
