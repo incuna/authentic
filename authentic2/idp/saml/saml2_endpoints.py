@@ -198,9 +198,11 @@ def sso(request):
             name_id_policy.format != \
                 lasso.SAML2_NAME_IDENTIFIER_FORMAT_UNSPECIFIED:
         nid_format = saml2_urn_to_nidformat(name_id_policy.format)
+        default_nid_format = provider_loaded.service_provider.default_name_id_format
         accepted_nid_format = \
                 provider_loaded.service_provider.accepted_name_id_format
-        if not nid_format or nid_format not in accepted_nid_format:
+        if (not nid_format or nid_format not in accepted_nid_format) and \
+           default_nid_format != nid_format:
             set_saml2_response_responder_status_code(login.response,
                 lasso.SAML2_STATUS_CODE_INVALID_NAME_ID_POLICY)
             return finish_sso(request, login)
@@ -788,7 +790,8 @@ def check_destination(request, req_or_res):
     '''Check that a SAML message Destination has the proper value'''
     destination = request.build_absolute_uri(request.path)
     result = req_or_res.destination == destination
-    logging.error('SAMLv2 check_destination failed, expected: %s got: %s ' % (destination, req_or_res.destination))
+    if not result:
+        logging.error('SAMLv2 check_destination failed, expected: %s got: %s ' % (destination, req_or_res.destination))
     return result
 
 
