@@ -264,9 +264,9 @@ def save_session(request, login, session_key = None):
 
 def delete_session(request):
     '''Delete all liberty sessions for a django session'''
-    ss = LibertySessionDump.objects.get(django_session_key = request.session.session_key)
-    for s in ss:
-        s.delete()
+    all_sessions = LibertySessionDump.objects.get(django_session_key = request.session.session_key)
+    if all_sessions.exists():
+        all_sessions.delete()
 
 def save_manage(request, manage):
     if not request or not manage:
@@ -527,7 +527,11 @@ def soap_call(url, msg, client_cert = None):
     except Exception, err:
         logging.error('SOAP error (on %s): %s' % (url, err))
         raise SOAPException(url)
-    data = response.read()
+    try:
+        data = response.read()
+    except Exception, err:
+        logging.error('SOAP error (on %s): %s' % (url, err))
+        raise SOAPException(url)
     conn.close()
     if response.status not in (200, 204): # 204 ok for federation termination
         logging.warning('SOAP error (%s) (on %s)' % (response.status, url))
