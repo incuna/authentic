@@ -297,7 +297,7 @@ def load_provider(request, login, provider_id, sp_or_idp = 'sp'):
         if not service_provider.enabled:
             return False
         login.server.addProviderFromBuffer(lasso.PROVIDER_ROLE_SP,
-                liberty_provider.metadata.read())
+                liberty_provider.metadata
     elif sp_or_idp == 'idp':
         try:
             identity_provider = liberty_provider.identity_provider
@@ -306,7 +306,7 @@ def load_provider(request, login, provider_id, sp_or_idp = 'sp'):
         if not identity_provider.enabled:
             return False
         login.server.addProviderFromBuffer(lasso.PROVIDER_ROLE_IDP,
-                liberty_provider.metadata.read())
+                liberty_provider.metadata
     else:
         raise Exception('unsupported option sp_or_idp = %r' % sp_or_idp)
 

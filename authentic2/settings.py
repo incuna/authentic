@@ -165,6 +165,7 @@ wRiVcNacaP+BivkrMjr4BlsUM6yH4MOBsNhLURiiCL+tLJV7U0DWlCse/doWij4U
 TKX6tp6oI+7MIJE6ySZ0cBqOiydAkBePZhu57j6ToBkTa0dbHjn1WA==
 -----END RSA PRIVATE KEY-----'''
 SAML_METADATA_ROOT = 'metadata'
+SAML_METADATA_AUTOLOAD = True
 
 # SSL settings
 AUTH_SSL = True

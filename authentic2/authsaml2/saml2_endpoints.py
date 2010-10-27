@@ -1066,11 +1066,8 @@ def build_service_provider(request):
 
 def add_idp_to_sp(request, sp, p):
     try:
-         sp.addProviderFromBuffer(
-             lasso.PROVIDER_ROLE_IDP,
-             p.metadata.read(),
-             p.public_key.read(),
-             None)
+         sp.addProviderFromBuffer(lasso.PROVIDER_ROLE_IDP, p.metadata,
+                 p.public_key, None)
     except:
         logging.error('Unable to load provider %r' % p.entity_id)
         pass
