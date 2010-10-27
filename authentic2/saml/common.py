@@ -265,8 +265,15 @@ def save_session(request, login, session_key = None):
 def delete_session(request):
     '''Delete all liberty sessions for a django session'''
     all_sessions = LibertySessionDump.objects.get(django_session_key = request.session.session_key)
-    if all_sessions.exists():
+    try:
         all_sessions.delete()
+    except:
+        try:
+            for s in all_sessions:
+                s.delete()
+        except:
+            pass
+
 
 def save_manage(request, manage):
     if not request or not manage:
