@@ -226,9 +226,10 @@ def sso_after_response(request, login, relay_state = None):
         now = datetime.datetime.utcnow()
         not_before = assertion.subject.subjectConfirmation.subjectConfirmationData.notBefore
         not_on_or_after = assertion.subject.subjectConfirmation.subjectConfirmationData.notOnOrAfter
-        if not_before and now < datetime.datetime.fromtimestamp(time.mktime(time.strptime(not_before,"%Y-%m-%dT%H:%M:%SZ"))):
+        # TODO: Make a smart parsing to not fail if the date is not as much precise
+        if not_before and now < datetime.datetime.fromtimestamp(time.mktime(time.strptime(not_before,"%Y-%m-%dT%H:%M:%S.%fZ"))):
             return error_page(request, _('SSO/sso_after_response: Assertion received too early'))
-        if not_on_or_after and now > datetime.datetime.fromtimestamp(time.mktime(time.strptime(not_on_or_after,"%Y-%m-%dT%H:%M:%SZ"))):
+        if not_on_or_after and now > datetime.datetime.fromtimestamp(time.mktime(time.strptime(not_on_or_after,"%Y-%m-%dT%H:%M:%S.%fZ"))):
             return error_page(request, _('SSO/sso_after_response: Assertion expired'))
     except:
         return error_page(request, _('SSO/sso_after_response: Error checking Assertion Time'))
