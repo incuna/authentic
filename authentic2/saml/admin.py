@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.utils.translation import ugettext as _
 from django.conf import settings
+from django.forms import ModelForm
+from django.forms.widgets import MultiWidget
+import django.forms
 from models import *
 
 class LibertyServiceProviderInline(admin.StackedInline):
@@ -24,7 +27,45 @@ class LibertyIdentityProviderInline(admin.StackedInline):
             }),
     )
 
+class TextAndFileWidget(django.forms.widgets.MultiWidget):
+    def __init__(self, attrs=None):
+        widgets = (django.forms.widgets.Textarea(),
+                django.forms.widgets.FileInput(),)
+        super(TextAndFileWidget, self).__init__(widgets, attrs)
+
+    def decompress(self, value):
+        return (value, None)
+
+    def value_from_datadict(self, data, files, name):
+        # If there is a file input use it
+        file = self.widgets[1].value_from_datadict(data, files, name + '_1')
+        if file:
+            file = file.read(file.size)
+        if file:
+            value = file
+        else:
+            value = self.widgets[0].value_from_datadict(data, files, name + '_0')
+        return value
+
+    def render(self, name, value, attrs=None):
+        if attrs is None:
+            attrs = {}
+        if isinstance(value, (str, unicode)):
+            attrs['rows'] = value.count('\n') + 5
+            attrs['cols'] = max((len(x) for x in value.split('\n')))
+        return super(TextAndFileWidget, self).render(name, value, attrs)
+
+
+class LibertyProviderForm(ModelForm):
+    metadata = django.forms.CharField(required=True,widget=TextAndFileWidget)
+    public_key = django.forms.CharField(required=False,widget=TextAndFileWidget)
+    ssl_certificate = django.forms.CharField(required=False,widget=TextAndFileWidget)
+    ca_cert_chain = django.forms.CharField(required=False,widget=TextAndFileWidget)
+    class Meta:
+        model = LibertyProvider
+
 class LibertyProviderAdmin(admin.ModelAdmin):
+    form = LibertyProviderForm
     list_display = ('name', 'entity_id', 'protocol_conformance')
     list_display_links = ('entity_id',)
     list_editable = ('name',)

@@ -16,24 +16,6 @@ from fields import *
 ATTRIBUTE_VALUE_FORMATS = (
         (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, 'SAMLv2 URI'),)
 
-metadata_store = FileSystemStorage(location=settings.SAML_METADATA_ROOT)
-
-def fix_name(name):
-    return name.replace(' ', '_').replace('/', '_')
-
-class FilenameGenerator(object):
-    '''Generate a filename to store in media directory'''
-    def __init__(self, prefix = '', suffix = ''):
-        self.prefix = prefix
-        self.suffix = suffix
-
-    def __call__(self, instance, filename):
-        path = "%s_%s_%s%s" % (self.prefix,
-                    fix_name(instance.entity_id),
-                    time.strftime("%Y%m%dT%H:%M:%SZ", time.gmtime()),
-                    self.suffix)
-        return path
-
 class LibertyAttributeMap(models.Model):
     name = models.CharField(max_length = 40, unique = True)
     def __unicode__(self):
@@ -45,19 +27,10 @@ class LibertyAttributeMapping(models.Model):
     attribute_name = models.CharField(max_length = 40)
     map = models.ForeignKey(LibertyAttributeMap)
 
-def validate_metadata(value):
-    value.open()
-    meta=value.read()
+def metadata_validator(meta):
     provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_ANY, meta)
     if not provider:
         raise ValidationError(_('Bad metadata file'))
-
-def metadata_field(prefix, suffix, validators = [], blank = True):
-    '''Adapt a FileField to the need of metadata saving'''
-    return models.FileField(
-            upload_to = FilenameGenerator(prefix, suffix),
-            storage = metadata_store,
-            validators = validators, blank = blank)
 
 class LibertyProvider(models.Model):
     entity_id = models.URLField(unique = True)
@@ -68,24 +41,14 @@ class LibertyProvider(models.Model):
                        (1, 'SAML 1.1'),
                        (2, 'SAML 1.2'),
                        (3, 'SAML 2.0')))
-    metadata = metadata_field("metadata", '.xml',
-            [ validate_metadata ], blank = False)
-    public_key = metadata_field("public_key", '.pem')
-    ssl_certificate = metadata_field("ssl_certificate", '.pem')
-    ca_cert_chain = metadata_field('ca_cert_chain', '.pem')
+    metadata = models.TextField(validators = [ metadata_validator ])
+    # All following field must be PEM formatted textual data
+    public_key = models.TextField(blank=True)
+    ssl_certificate = models.TextField(blank=True)
+    ca_cert_chain = models.TextField(blank=True)
 
     def __unicode__(self):
         return self.name
-
-    def clean(self):
-        models.Model.clean(self)
-        if self.metadata:
-            self.metadata.open()
-            meta = self.metadata.read()
-            provider = lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_ANY, meta)
-            if provider:
-                self.entity_id = provider.providerId
-                self.protocol_conformance = provider.protocolConformance
 
 # TODO: Remove this in LibertyServiceProvider
 ASSERTION_CONSUMER_PROFILES = (
