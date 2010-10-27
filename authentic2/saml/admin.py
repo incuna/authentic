@@ -52,7 +52,7 @@ class TextAndFileWidget(django.forms.widgets.MultiWidget):
             attrs = {}
         if isinstance(value, (str, unicode)):
             attrs['rows'] = value.count('\n') + 5
-            attrs['cols'] = max((len(x) for x in value.split('\n')))
+            attrs['cols'] = min(max((len(x) for x in value.split('\n'))), 150)
         return super(TextAndFileWidget, self).render(name, value, attrs)
 
 
