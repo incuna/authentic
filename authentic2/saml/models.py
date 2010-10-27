@@ -78,7 +78,6 @@ def organization_name(provider):
         if o_name:
             return get_prefered_content(o_name)
     except:
-        raise
         return provider.providerId
     else:
         return provider.providerId

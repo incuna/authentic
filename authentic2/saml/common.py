@@ -280,15 +280,54 @@ def get_manage_dump(request):
     d = LibertyManageDump.objects.filter(django_session_key = request.session.session_key)
     return d
 
-# TODO: handle autoloading of metadatas
+def retrieve_metadata_and_create(request, login, provider_id, sp_or_idp):
+    if not provider_id.startswith('http'):
+        return None
+    # Try the WKL
+    try:
+        metadata = urllib.urlopen(provider_id).read()
+    except:
+        logging.error('SAML metadata autoload: failure to retrieve metadata \
+for entity id %r' % provider_id)
+        return None
+    try:
+        metadata = unicode(metadata, 'utf8')
+    except:
+        logging.error('SAML metadata autoload: retrieved metadata \
+for entity id %r is not UTF-8' % provider_id)
+        return None
+    p = LibertyProvider(metadata=metadata)
+    try:
+        p.clean()
+    except ValidationError:
+        logging.error('SAML metadata autoload: retrieved metadata \
+for entity id %r are invalid' % provider_id)
+        return None
+    except:
+        logging.exception('SAML metadata autoload: retrieved metadata validation raised an unknown exception')
+        return None
+    p.save()
+    if sp_or_idp == 'sp':
+        s = LibertyServiceProvider(liberty_provider=p, enabled=True, ask_user_consent=True)
+        s.save()
+    elif sp_or_idp == 'idp':
+        raise NotImplementedError()
+    return p
+
 def load_provider(request, login, provider_id, sp_or_idp = 'sp'):
     '''Look up a provider in the database, and verify it handles wanted
        role be it sp or idp.
     '''
     try:
-        liberty_provider = LibertyProvider.objects.get(entity_id = provider_id)
+        liberty_provider = LibertyProvider.objects.get(entity_id=provider_id)
     except LibertyProvider.DoesNotExist:
-        return False
+        autoload = getattr(settings, 'SAML_METADATA_AUTOLOAD', 'none')
+        if autoload == 'sp' or autoload == 'both':
+            liberty_provider = retrieve_metadata_and_create(request, login, provider_id, sp_or_idp)
+            if not liberty_provider:
+                return False
+        else:
+            return False
     if sp_or_idp == 'sp':
         try:
             service_provider = liberty_provider.service_provider
