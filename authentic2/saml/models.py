@@ -1,5 +1,6 @@
 import os.path
 import time
+import xml.etree.ElementTree as etree
 
 import lasso
 from django.db import models
@@ -28,14 +29,65 @@ class LibertyAttributeMapping(models.Model):
     map = models.ForeignKey(LibertyAttributeMap)
 
 def metadata_validator(meta):
-    provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_ANY, meta)
+    provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_ANY, meta.encode('utf8'))
     if not provider:
         raise ValidationError(_('Bad metadata file'))
+XML_NS = 'http://www.w3.org/XML/1998/namespace'
+
+def get_lang(etree):
+    return etree.get('{%s}lang' % XML_NS)
+
+def ls_find(ls, value):
+    try:
+        return ls.index(value)
+    except ValueError:
+        return -1
+
+def get_prefered_content(etrees, languages = [None, 'en']):
+    '''Sort XML nodes by their xml:lang attribute using languages as the
+    ascending partial order of language identifiers
+
+       Default is to prefer english, then no lang declaration, to anything
+       else.
+    '''
+    best = None
+    for tree in etrees:
+        if best is not None:
+            i = ls_find(languages, get_lang(tree))
+            if i > best_score:
+                best = tree
+                best_score = ls_find(languages, get_lang(tree))
+        else:
+            best = tree
+            best_score = ls_find(languages, get_lang(tree))
+    return best.text
+
+def organization_name(provider):
+    '''Extract an organization name from a SAMLv2 metadata organization XML
+       fragment.
+    '''
+    try:
+        organization_xml = provider.organization
+        organization = etree.XML(organization_xml)
+        o_display_name = organization.findall('{%s}OrganizationDisplayName' %
+                lasso.SAML2_METADATA_HREF)
+        if o_display_name:
+            return get_prefered_content(o_display_name)
+        o_name = organization.findall('{%s}OrganizationName' %
+                lasso.SAML2_METADATA_HREF)
+        if o_name:
+            return get_prefered_content(o_name)
+    except:
+        raise
+        return provider.providerId
+    else:
+        return provider.providerId
 
 class LibertyProvider(models.Model):
     entity_id = models.URLField(unique = True)
     name = models.CharField(max_length = 40, unique = True,
-            help_text = _("Internal nickname for the service provider"))
+            help_text = _("Internal nickname for the service provider"),
+            blank = True)
     protocol_conformance = models.IntegerField(max_length = 10,
             choices = ((0, 'SAML 1.0'),
                        (1, 'SAML 1.1'),
@@ -49,6 +101,18 @@ class LibertyProvider(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def clean(self):
+        super(LibertyProvider, self).clean()
+        if self.metadata:
+            p = lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_ANY, self.metadata.encode('utf8'))
+            if p:
+                self.entity_id = p.providerId
+                if not self.name:
+                    self.name = organization_name(p)
+                self.protocol_conformance = p.protocolConformance
+        else:
+            print 'coin'
 
 # TODO: Remove this in LibertyServiceProvider
 ASSERTION_CONSUMER_PROFILES = (
