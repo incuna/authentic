@@ -415,7 +415,11 @@ def finish_slo(request):
     if all_sessions.exists():
         all_sessions.delete()
         return return_logout_error(logout, lasso.SAML2_STATUS_CODE_PARTIAL_LOGOUT)
-    logout.buildResponseMsg()
+    try:
+        logout.buildResponseMsg()
+    except:
+        logging.exception('SAMLv2 slo failure to build reponse msg')
+        raise NotImplementedError()
     return return_saml2_response(logout)
 
 def return_logout_error(logout, error):
