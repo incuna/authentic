@@ -16,10 +16,11 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+_DATABASE_NAME = os.path.join(_PROJECT_PATH, 'authentic.db')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'authentic.db',
+        'NAME': _DATABASE_NAME,
     }
 }
 
@@ -195,7 +196,7 @@ IDP_OPENID = False
 IDPOI_PATH = ''
 
 # Logging settings
-LOG_FILENAME = 'log.log'
+LOG_FILENAME = os.path.join(_PROJECT_PATH, 'log.log')
 LOG_FILE_LEVEL = 10 #CRITICAL 50 ERROR 40 WARNING 30 INFO 20 DEBUG 10
 LOG_SYSLOG = True
 LOG_SYS_LEVEL = 10
