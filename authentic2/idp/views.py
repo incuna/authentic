@@ -81,6 +81,7 @@ def logout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME,
     l = logout_list(request)
     context = RequestContext(request)
     context['redir_timeout'] = __logout_redirection_timeout
+    next_page = request.REQUEST.get(redirect_field_name, next_page)
     if l and not do_local:
         # Full logout
         next_page = '?local&next=%s' % urllib.quote(next_page)
@@ -90,9 +91,6 @@ def logout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME,
     else:
         # Local logout
         auth_logout(request)
-        redirect_to = request.REQUEST.get(redirect_field_name, None)
-        if redirect_to:
-            next_page = redirect_to
         context['next_page'] = next_page
         context['message'] = 'You are logged out'
         return render_to_response(template, context_instance = context)
