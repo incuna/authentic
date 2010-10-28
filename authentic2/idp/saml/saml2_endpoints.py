@@ -105,7 +105,7 @@ def build_assertion(request, login, nid_format = 'transient'):
             else:
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD
         elif backend == 'authentic2.sslauth.backends.SSLAuthBackend':
-            authn_context = lasso.LASSO_SAML2_AUTHN_CONTEXT_X509
+            authn_context = lasso.SAML2_AUTHN_CONTEXT_X509
         else:
             raise Exception('unknown backend: ' + backend)
     else:
@@ -116,7 +116,7 @@ def build_assertion(request, login, nid_format = 'transient'):
             elif auth_event.how == 'password-on-https':
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD_PROTECTED_TRANSPORT
             elif auth_event.how == 'ssl':
-                authn_context = lasso.LASSO_SAML2_AUTHN_CONTEXT_X509
+                authn_context = lasso.SAML2_AUTHN_CONTEXT_X509
             else:
                 raise NotImplementedError('Unknown authentication method %r' % auth_event.how)
         except ObjectDoesNotExist:
