@@ -579,7 +579,7 @@ not support it %s' % [ s.provider_id for s in lib_sessions])
     return return_saml2_response(logout)
 
 @csrf_exempt
-@login_required
+#@login_required
 def slo(request):
     """Endpoint for receiving saml2:AuthnRequests by POST, Redirect.
        For SOAP a session must be established previously through the login page. No authentication through the SOAP request is supported.
@@ -653,8 +653,8 @@ def idp_slo(request, provider_id):
     to this URL, otherwise redirect to an icon symbolizing failure or success
     of the request
 
-     provider_id - entity id of the service provider to log out
-     all - if present, logout all sessions by omitting the SessionIndex element
+    provider_id - entity id of the service provider to log out
+    all - if present, logout all sessions by omitting the SessionIndex element
     '''
     all = request.REQUEST.get('all')
     next = request.REQUEST.get('next')
