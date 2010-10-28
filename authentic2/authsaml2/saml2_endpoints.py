@@ -127,7 +127,10 @@ def singleSignOnArtifact(request):
 
     # TODO: Client certificate
     client_cert = None
-    soap_answer = soap_call(login.msgUrl, login.msgBody, client_cert = client_cert)
+    try:
+        soap_answer = soap_call(login.msgUrl, login.msgBody, client_cert = client_cert)
+    except:
+        return error_page(request, _('SSO/Artifact: Failure to communicate with identity provider'))
     if not soap_answer:
         return error_page(request, _('SSO/Artifact: Failure to communicate with identity provider'))
 
@@ -430,8 +433,7 @@ def logout(request):
             logout.initRequest(None, lasso.HTTP_METHOD_ANY)
         except lasso.Error, error:
             localLogout(request, error)
-
-        if logout.msgBody:
+        if not logout.msgBody:
             try:
                 logout.buildRequestMsg()
             except lasso.Error, error:
