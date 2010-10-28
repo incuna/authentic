@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout, get_user
 from django.contrib.auth.models import AnonymousUser
+from django.utils.translation import ugettext as _
 
 from authentic2.saml.common import error_page
 
@@ -13,7 +14,7 @@ def process_request(request):
 
     # Check certificate validity
     if not ssl_info.verify:
-        return error_page('SSL CGI variable VERIFY is missing')
+        return error_page(request, _('SSL CGI variable VERIFY is missing'))
 
     # Kill another active session
     logout(request)
@@ -42,11 +43,11 @@ def process_request(request):
             if SSLAuthBackend().create_user(ssl_info):
                 user = authenticate(ssl_info=ssl_info)
         else:
-            return error_page('User unknown for the current SSL context')
+            return error_page(request, _('User unknown for the current SSL context'))
 
     # Check if the user is activated
     if not user.is_authenticated() or not user.is_active:
-        return error_page('User %s is inactive' % user.username)
+        return error_page(request, _('User %s is inactive') %user.username)
 
     # Log user in
     login(request, user)
