@@ -13,7 +13,8 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-
+from authentic2.saml.common import *
+import logging
 import models
 
 class WithNonceAuthenticationForm(AuthenticationForm):
@@ -78,13 +79,17 @@ def login(request, template_name='registration/login.html',
         current_site = RequestSite(request)
 
     methods = []
-    if settings.AUTH_SSL:
+    if settings.AUTH_SSL and request.environ.has_key('HTTPS'):
         methods.append({ 'url': '%s?%s' % (reverse('user_signin_ssl'), urlencode(request.GET)),
                          'caption': 'Login with SSL' })
+        logging.info('Activation of authentication with SSL')
+    if settings.AUTH_SSL and not request.environ.has_key('HTTPS'):
+        logging.error('Authentication with SSL is not activated because the server is not running over HTTPS')
 
     if settings.AUTH_OPENID:
         methods.append({ 'url': '%s?%s' % (reverse('user_signin'), urlencode(request.GET)),
                          'caption': 'Login with OpenID' })
+        logging.info('Activation of authentication with OpenID')
 
     return render_to_response(template_name, {
         'form': form,
@@ -92,6 +97,7 @@ def login(request, template_name='registration/login.html',
         redirect_field_name: redirect_to,
         'site': current_site,
         'site_name': current_site.name,
+        'providers_list' : get_idp_list(),
     }, context_instance=RequestContext(request))
 
 
