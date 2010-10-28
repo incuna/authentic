@@ -5,6 +5,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from authentic2.saml.common import error_page
+from authentic2.auth.views import login
 
 # Use of existing application sslauth
 from util import SSLInfo, settings_get
@@ -17,7 +18,8 @@ def process_request(request):
 
     # Check certificate validity
     if not ssl_info.verify:
-        return error_page(request, _('SSL CGI variable VERIFY is missing'))
+        logging.error('SSL Client Authentication failed: SSL CGI variable VERIFY is missing')
+        return login(request)
 
     # Kill another active session
     logout(request)
@@ -46,17 +48,21 @@ def process_request(request):
             if SSLAuthBackend().create_user(ssl_info):
                 user = authenticate(ssl_info=ssl_info)
         else:
-            return error_page(request, _('User unknown for the current SSL context'))
+            logging.error('SSL Client Authentication failed: User unknown for the current SSL context')
+            return login(request)
 
     # Check if the user is activated
     if not user.is_authenticated() or not user.is_active:
-        return error_page(request, _('User %s is inactive') %user.username)
+        logging.error('SSL Client Authentication failed: User %s is inactive' %user.username)
+        return login(request)
 
     # Log user in
     login(request, user)
 
     redirect_to = request.REQUEST.get(REDIRECT_FIELD_NAME, '')
     if redirect_to:
+        logging.info('Successful SSL Client Authentication - redirection to %s' %redirect_to)
         return HttpResponseRedirect(redirect_to)
 
+    logging.info('Successful SSL Client Authentication - redirection to /')
     return HttpResponseRedirect("/")
