@@ -2,11 +2,14 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout, get_user
 from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import ugettext as _
+from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from authentic2.saml.common import error_page
 
 # Use of existing application sslauth
 from util import SSLInfo, settings_get
+
+import logging
 
 def process_request(request):
 
@@ -51,4 +54,9 @@ def process_request(request):
 
     # Log user in
     login(request, user)
+
+    redirect_to = request.REQUEST.get(REDIRECT_FIELD_NAME, '')
+    if redirect_to:
+        return HttpResponseRedirect(redirect_to)
+
     return HttpResponseRedirect("/")
