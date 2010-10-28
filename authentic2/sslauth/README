@@ -4,7 +4,7 @@ Enable SSL Client authentication
 
 Intro
 =====
-Tested with Apache and mod_ssl.
+Tested with Apache 2 and mod_ssl.
 Django over mod_wsgi. From http://docs.djangoproject.com/en/dev/howto/deployment/modwsgi/
 "Deploying Django with Apache and mod_wsgi is the recommended way to get Django into production."
 
@@ -31,15 +31,79 @@ Configure Apache and WSGI
 Add a file django.wsgi, e.g.:
 """
 import os
-sys.path.append('/Donnees/devs/Authentic/')
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+import sys
+
+sys.path.append("/usr/local/lib/python2.6/site-packages/")
+try:
+    import lasso
+except:
+    print >> sys.stderr, "Unable to import Lasso."
+
+apache_configuration= os.path.dirname(__file__)
+project = os.path.dirname(apache_configuration)
+sys.path.append(project)
+try:
+    import authentic2.settings
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'authentic2.settings'
+except:
+    print >> sys.stderr, "Unable to import settings."
+
 import django.core.handlers.wsgi
 application = django.core.handlers.wsgi.WSGIHandler()
 """
-Add a Apache vhost for SSL. The "Login with SSL" redirects to the location "/sslauth/" containing the instruction "SSLVerifyClient require".
-Add instruction WSGIScriptAlias / /path-to/django.wsgi
-For a quick start, set path in authentic_ssl.vhost and run it.
-Give rights to Apache on your Authentic directory
+
+Activate apache2 modules:
+* a2enmod wsgi
+* a2enmod ssl
+
+Add a Apache vhost for SSL.
+"""
+<IfModule mod_ssl.c>
+<VirtualHost *:444>
+
+LimitInternalRecursion 1000
+ServerAdmin webmaster@entrouvert.org
+ServerName localhost
+
+#Alias /media/ /Donnees/devs/Authentic/authentic/media/
+Alias /media/admin/ /usr/local/lib/python2.6/dist-packages/django/contrib/admin/media/
+
+WSGIScriptAlias / /Donnees/devs/authentic/apache/django.wsgi
+
+<Directory /Donnees/devs/authentic/>
+
+SSLVerifyClient require
+
+Options Indexes MultiViews FollowSymLinks
+AllowOverride None
+Order deny,allow
+Allow from all
+
+</Directory>
+
+SSLEngine on
+SSLCipherSuite HIGH:MEDIUM
+SSLProtocol all -SSLv2
+
+SSLCertificateFile /Donnees/devs/authentic/apache/key_mat/server.crt
+SSLCertificateKeyFile /Donnees/devs/authentic/apache/key_mat/server.key
+
+SSLCertificateChainFile /Donnees/devs/authentic/apache/key_mat/ca.crt
+SSLCACertificateFile /Donnees/devs/authentic/apache/key_mat/ca.crt
+
+SSLOptions +StdEnvVars +ExportCertData
+
+BrowserMatch "MSIE [2-6]" \
+	nokeepalive ssl-unclean-shutdown \
+	downgrade-1.0 force-response-1.0
+BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
+
+</VirtualHost>
+</IfModule>
+"""
+
+Give rights to Apache on your Authentic directory.
+Reload Apache.
 
 Configure Authentic
 ===================
