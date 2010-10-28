@@ -491,18 +491,26 @@ def logout(request):
 
         # TODO: Client cert
         client_cert = None
+        soap_answer = None
         try:
             soap_answer = soap_call(logout.msgUrl, logout.msgBody, client_cert = client_cert)
         except SOAPException, error:
             localLogout(request, error)
 
-        return slo_return(request, logout, soap_answer)
+        if not soap_answer:
+            remove_liberty_session_sp(request)
+            auth_logout(request)
+            return error_page(request, _('SLO/SP UI: SOAP error -  Only local logout performed.'))
+
+        slo_return(request, logout, soap_answer)
 
     return error_page(request, _('SLO/SP UI: Unknown HTTP method.'))
 
 def localLogout(request, error):
     remove_liberty_session_sp(request)
     auth_logout(request)
+    if error.url:
+        return error_page(request, _('SLO/SP UI: SOAP error with %s -  Only local logout performed.') %error.url)
     return error_page(request, _('SLO/SP UI: %s -  Only local logout performed.') %lasso.strError(error[0]))
 
 ###
