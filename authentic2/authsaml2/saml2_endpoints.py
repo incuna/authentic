@@ -19,6 +19,9 @@ from django.utils.translation import ugettext as _
 from authentic2.saml.common import *
 from authentic2.saml.models import *
 from authentic2.authsaml2.utils import *
+import signals
+
+__logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
 
 '''SAMLv2 SP implementation'''
 
@@ -536,28 +539,34 @@ def singleLogoutReturn(request):
  # Post-response processing
  ###
 def slo_return(request, logout, message):
-    s = get_service_provider_settings()
-    if not s:
-        return error_page(request, _('SLO/SP slo_return: Service provider not configured'))
-
     try:
         logout.processResponseMsg(message)
     except lasso.Error, error:
-        return error_page(request, _('SLO/SP slo_return: %s -  Only local logout performed') %lasso.strError(error[0]))
-
+        # Silent local logout
+        return local_logout(request)
     if logout.isSessionDirty:
         if logout.session:
             save_session(request, logout)
         else:
             delete_session(request)
     remove_liberty_session_sp(request)
-    auth_logout(request)
-    try:
-        if s.back_url:
-            return HttpResponseRedirect(s.back_url)
-    except:
-        pass
-    return HttpResponseRedirect('/')
+    return local_logout(request)
+
+def local_logout(request):
+        global __logout_redirection_timeout
+        "Logs out the user and displays 'You are logged out' message."
+        signals.auth_logout.send(sender = None, user = request.user)
+        context = RequestContext(request)
+        context['redir_timeout'] = __logout_redirection_timeout
+        context['message'] = 'You are logged out'
+        template = 'idp/logout.html'
+        s = get_service_provider_settings()
+        if not s or not s.back_url:
+            context['next_page'] = '/'
+        else:
+            context['next_page'] = s.back_url
+        auth_logout(request)
+        return render_to_response(template, context_instance = context)
 
 ###
  # singleLogoutSOAP
