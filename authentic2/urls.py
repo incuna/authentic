@@ -3,7 +3,6 @@ from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.views.generic.simple import direct_to_template
 import authentic2.idp.views
-import authentic2.idp.login_views
 import settings
 
 admin.autodiscover()
