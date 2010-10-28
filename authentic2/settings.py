@@ -120,9 +120,12 @@ INSTALLED_APPS = (
     'registration',
     'authentic2.sslauth',
     'authentic2.admin_log_view',
+    'authentic2.auth'
 )
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+LOGIN_URL = '/login'
 
 # Registration settings
 ACCOUNT_ACTIVATION_DAYS = 2
@@ -172,7 +175,6 @@ SAML_METADATA_AUTOLOAD = 'none'
 AUTH_SSL = True
 SSLAUTH_CREATE_USER = True
 AUTHENTICATION_BACKENDS = (
-    'authentic2.idp.auth_backends.LogginBackend',
     'django.contrib.auth.backends.ModelBackend',
     'authentic2.sslauth.backends.SSLAuthBackend',
 )

@@ -30,12 +30,9 @@
 </div>
 
 <div id="alt-methods">
-{% if HAS_AUTH_SSL %}
-<p><a href="{% url user_signin_ssl %}">{% trans "Login with SSL" %}</a></p>
-{% endif %}
-{% if HAS_AUTH_OPENID %}
-<p><a href="{% url user_signin %}">{% trans "Login with OpenID" %}</a></p>
-{% endif %}
+{% for method in alt_methods %}
+<p><a href="{{ method.url }}">{% trans method.caption %}</a></p>
+{% endfor %}
 </div>
 
 {% if providers_list %}

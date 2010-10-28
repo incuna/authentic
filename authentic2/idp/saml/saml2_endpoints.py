@@ -19,7 +19,7 @@ import authentic2.idp.views as idp_views
 from authentic2.saml.models import *
 from authentic2.saml.common import *
 import authentic2.saml.saml2utils as saml2utils
-from authentic2.idp.models import AuthenticationEvent
+from authentic2.auth.models import AuthenticationEvent
 from common import redirect_to_login, NONCE, kill_django_sessions
 
 '''SAMLv2 IdP implementation

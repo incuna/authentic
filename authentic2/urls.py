@@ -9,9 +9,13 @@ import settings
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^', include('authentic2.auth.urls')),
+    (r'^accounts/', include('registration.urls')),
+    url(r'^logout$', 'authentic2.idp.views.logout', name='auth_logout'),
     (r'^admin/admin_log_view/log/', 'authentic2.admin_log_view.views.admin_view'),
     (r'^admin/', include(admin.site.urls)),
     (r'^idp/', include('authentic2.idp.urls')),
+    (r'^logout$', 'authentic2.idp.views.logout'),
     (r'^$', login_required(authentic2.idp.views.homepage), {}, 'index'),
 )
 
@@ -28,27 +32,6 @@ if settings.IDP_OPENID:
             (r'^openid/',include('openid_provider.urls')),
             url(r'^(?P<id>[a-zA-Z0-9,_,]*/?)/$', openid_provider.views.openid_xrds, {'identity': True}, name='openid-provider-identity'),
     )
-
-if settings.AUTH_OPENID:
-    import django_authopenid
-    urlpatterns += patterns('',
-            (r'^accounts/openid/complete/associate/$', authentic2.idp.views.complete_associate,{}, 'user_complete_myassociate'),
-            (r'^accounts/openid/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
-            (r'^accounts/openid/signin/complete/signin/', authentic2.idp.views.complete_signin,{} ,'user_complete_signin'),
-            (r'^accounts/openid/dissociate/$', authentic2.idp.views.dissociate,{} ,'user-dissociate'),#
-            (r'^accounts/openid/associate/$', authentic2.idp.views.associate,{} ,'user-associate'),#
-            (r'^accounts/openid/password/change/$', django_authopenid.views.password_change, {}, 'authopenid_password_change'),
-            (r'^accounts/openid/signin/complete/', include ('django_authopenid.urls')),
-            (r'^accounts/openid/signin/',authentic2.idp.views.signin,{} ,'user_signin'),
-    )
-
-urlpatterns += patterns('',
-    (r'^accounts/logout/', 'authentic2.idp.views.logout'),
-    (r'^accounts/$', 'django.views.generic.simple.redirect_to', {'url': '..'}),
-    (r'^accounts/password/change/$','authentic2.idp.views.password_change'),
-    url(r'^accounts/login', authentic2.idp.login_views.login, name='auth_login'),
-    (r'^accounts/', include('registration.urls')),
-)
 
 urlpatterns += patterns('',
     (r'^authsaml2/', include('authentic2.authsaml2.urls')),
