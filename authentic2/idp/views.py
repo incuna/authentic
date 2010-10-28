@@ -63,11 +63,6 @@ def homepage(request):
         tpl_parameters['IDP_OPENID'] = settings.IDP_OPENID
     return render_to_response('index.html', tpl_parameters, RequestContext(request))
 
-def authsaml2_login_page(request):
-    if not authentic2.authsaml2.utils.is_sp_configured():
-        return {}
-    return {'providers_list': authentic2.saml.common.get_idp_list()}
-
 def logout_list(request):
     '''Return logout links from idp backends'''
     return accumulate_from_backends(request, 'logout_list')
