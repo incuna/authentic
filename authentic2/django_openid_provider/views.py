@@ -57,7 +57,7 @@ def openid_server(req):
                 elif 'kvform' in response.whichEncoding():
                     encoded_response = response.encodeToKVForm()
                 return HttpResponseBadRequest(encoded_response)
-    except ProtocolError as p:
+    except ProtocolError, p:
         if p.whichEncoding() is not None:
             p.whichEncoding()
             if 'URL/redirect' in p.whichEncoding():
