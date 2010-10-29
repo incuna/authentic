@@ -6,11 +6,11 @@ from django_authopenid import DjangoOpenIDStore
 from django_authopenid.models import UserAssociation
 from django_authopenid.utils import *
 from django_authopenid.views import associate_failure, complete
-from django_authopenid.views import _build_context, signin_success, signin_failure, not_authenticated
+from django_authopenid.views import _build_context, signin_failure, not_authenticated
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth import REDIRECT_FIELD_NAME, login
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -27,6 +27,45 @@ OPENID_PROVIDER = ['https://me.yahoo.com//','http://openid.aol.com/','http://.my
                     'http://.livejournal.com/','http://www.flickr.com/photos//','http://.wordpress.com/'
                     'http://.blogspot.com/','http://.pip.verisignlabs.com/','http://.myvidoop.com/'
                     'http://.pip.verisignlabs.com/','http://claimid.com/']
+
+def signin_success(request, identity_url, openid_response,
+        redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
+    """
+    openid signin success.
+
+    If the openid is already registered, the user is redirected to 
+    url set par next or in settings with OPENID_REDIRECT_NEXT variable.
+    If none of these urls are set user is redirectd to /.
+
+    if openid isn't registered user is redirected to register page.
+    """
+
+    openid_ = from_openid_response(openid_response)
+
+    openids = request.session.get('openids', [])
+    openids.append(openid_)
+    request.session['openids'] = openids
+    request.session['openid'] = openid_
+    redirect_to = request.REQUEST.get(redirect_field_name, '')
+    try:
+        rel = UserAssociation.objects.get(openid_url__exact = str(openid_))
+    except:
+        # try to register this new user
+        if not redirect_to: # or '//' in redirect_to or ' ' in redirect_to:
+            redirect_to = settings.LOGIN_REDIRECT_URL
+        params = urllib.urlencode({ redirect_field_name: redirect_to })
+        redirect_to = "%s?%s" % (reverse('user_register'), params)
+        if getattr(settings, 'AUTHENTIC2_USE_IFRAME', False):
+            redirect_to = '/redirect/%s' % urllib.quote(redirect_to)
+        return HttpResponseRedirect(redirect_to)
+    user_ = rel.user
+    if user_.is_active:
+        user_.backend = "django.contrib.auth.backends.ModelBackend"
+        login(request, user_)
+
+    if not redirect_to: # or '//' in redirect_to or ' ' in redirect_to:
+        redirect_to = settings.LOGIN_REDIRECT_URL
+    return HttpResponseRedirect(redirect_to)
 
 def mycomplete(request, on_success=None, on_failure=None, return_to=None,
     **kwargs):
