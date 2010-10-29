@@ -3,6 +3,7 @@ import os.path
 import urllib
 import httplib
 import logging
+import re
 
 import lasso
 from django.template import RequestContext
@@ -599,10 +600,24 @@ def set_saml2_response_responder_status_code(response, code):
     response.status.statusCode.statusCode = lasso.Samlp2StatusCode()
     response.status.statusCode.statusCode.value = code
 
-def error_page(request, message):
-    logging.error('Error returned: %r' % message)
-    return render_to_response('error.html', {'msg': message},
-        context_instance=RequestContext(request))
+__root_refererer_re = re.compile('^(https?://[^/]*/?)')
+def error_page(request, message, back = None):
+    '''View that show a simple error page to the user with a back link.
+
+         back - url for the back link, if None, return to root of the referer
+                or the local root.
+    '''
+    logging.error('Showing message %r on an error page' % message)
+    if back is None:
+        referer = request.META.get('HTTP_REFERER')
+        if referer:
+            root_referer = __root_refererer_re.match(referer)
+            if root_referer:
+                back = root_referer.group(1)
+        if back is None:
+            back = '/'
+    return render_to_response('error.html', {'msg': message, 'back': back},
+            context_instance=RequestContext(request))
 
 def soap_fault(request, faultcode='soap:Client', faultstring=None):
     if faultstring:
