@@ -9,6 +9,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^', include('authentic2.auth.urls')),
+    (r'^redirect/(.*)', 'authentic2.views.redirect'),
     (r'^accounts/', include('registration.urls')),
     url(r'^logout$', 'authentic2.idp.views.logout', name='auth_logout'),
     (r'^admin/admin_log_view/log/', 'authentic2.admin_log_view.views.admin_view'),
