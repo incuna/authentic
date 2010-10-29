@@ -59,26 +59,22 @@ Activate apache2 modules:
 Add a Apache vhost for SSL.
 """
 <IfModule mod_ssl.c>
-<VirtualHost *:444>
+<VirtualHost *:443>
 
 LimitInternalRecursion 1000
 ServerAdmin webmaster@entrouvert.org
 ServerName localhost
 
-#Alias /media/ /Donnees/devs/Authentic/authentic/media/
 Alias /media/admin/ /usr/local/lib/python2.6/dist-packages/django/contrib/admin/media/
 
 WSGIScriptAlias / /Donnees/devs/authentic/apache/django.wsgi
 
 <Directory /Donnees/devs/authentic/>
-
-SSLVerifyClient require
-
+SSLVerifyClient optional_no_ca
 Options Indexes MultiViews FollowSymLinks
 AllowOverride None
 Order deny,allow
 Allow from all
-
 </Directory>
 
 SSLEngine on
