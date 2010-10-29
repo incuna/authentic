@@ -6,6 +6,15 @@
 {% endblock %}
 
 {% block content %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
 <form id="login-form" method="post" action=".">
   <ul class="errorlist">
     {% for error in form.non_field_errors %}

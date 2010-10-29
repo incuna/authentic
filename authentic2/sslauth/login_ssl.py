@@ -5,7 +5,8 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from authentic2.saml.common import error_page
-from authentic2.auth.views import login
+from django.contrib.auth.views import redirect_to_login
+from django.contrib import messages
 
 # Use of existing application sslauth
 from util import SSLInfo, settings_get
@@ -19,7 +20,8 @@ def process_request(request):
     # Check certificate validity
     if not ssl_info.verify:
         logging.error('SSL Client Authentication failed: SSL CGI variable VERIFY is missing')
-        return login(request)
+        messages.add_message(request, messages.INFO, 'SSL Client Authentication failed.')
+        return redirect_to_login('/')
 
     # Kill another active session
     logout(request)
@@ -49,15 +51,22 @@ def process_request(request):
                 user = authenticate(ssl_info=ssl_info)
         else:
             logging.error('SSL Client Authentication failed: User unknown for the current SSL context')
-            return login(request)
+            messages.add_message(request, messages.INFO, 'SSL Client Authentication failed.')
+            return redirect_to_login('/')
 
     # Check if the user is activated
     if not user.is_authenticated() or not user.is_active:
         logging.error('SSL Client Authentication failed: User %s is inactive' %user.username)
-        return login(request)
+        messages.add_message(request, messages.INFO, 'SSL Client Authentication failed.')
+        return redirect_to_login('/')
 
     # Log user in
-    login(request, user)
+    try:
+        login(request, user)
+    except:
+        logging.error('SSL Client Authentication failed: login() failed')
+        messages.add_message(request, messages.INFO, 'SSL Client Authentication failed.')
+        return redirect_to_login('/')
 
     redirect_to = request.REQUEST.get(REDIRECT_FIELD_NAME, '')
     if redirect_to:
