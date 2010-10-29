@@ -433,18 +433,18 @@ def logout(request):
             logout.initRequest(None, lasso.HTTP_METHOD_ANY)
         except lasso.Error, error:
             localLogout(request, error)
-        if not logout.msgBody:
+        if logout.msgBody:
             try:
                 logout.buildRequestMsg()
             except lasso.Error, error:
-                localLogout(request, error)
+                return localLogout(request, error)
 
             # TODO: Client cert
             client_cert = None
             try:
                 soap_answer = soap_call(logout.msgUrl, logout.msgBody, client_cert = client_cert)
             except SOAPException:
-                localLogout(request, error)
+                return localLogout(request, error)
 
             return slo_return(request, logout, soap_answer)
 
@@ -456,7 +456,7 @@ def logout(request):
             try:
                 logout.buildRequestMsg()
             except lasso.Error, error:
-                localLogout(request, error)
+                return localLogout(request, error)
 
             return HttpResponseRedirect(logout.msgUrl)
 
@@ -465,7 +465,7 @@ def logout(request):
         try:
             logout.initRequest(None, lasso.HTTP_METHOD_REDIRECT)
         except lasso.Error, error:
-            localLogout(request, error)
+            return localLogout(request, error)
 
         session_index = get_session_index(request)
         if session_index:
@@ -474,7 +474,7 @@ def logout(request):
         try:
             logout.buildRequestMsg()
         except lasso.Error, error:
-            localLogout(request, error)
+            return localLogout(request, error)
 
         return HttpResponseRedirect(logout.msgUrl)
 
@@ -482,12 +482,12 @@ def logout(request):
         try:
            logout.initRequest(None, lasso.HTTP_METHOD_SOAP)
         except lasso.Error, error:
-            localLogout(request, error)
+            return localLogout(request, error)
 
         try:
             logout.buildRequestMsg()
         except lasso.Error, error:
-            localLogout(request, error)
+            return localLogout(request, error)
 
         # TODO: Client cert
         client_cert = None
@@ -495,14 +495,14 @@ def logout(request):
         try:
             soap_answer = soap_call(logout.msgUrl, logout.msgBody, client_cert = client_cert)
         except SOAPException, error:
-            localLogout(request, error)
+            return localLogout(request, error)
 
         if not soap_answer:
             remove_liberty_session_sp(request)
             auth_logout(request)
             return error_page(request, _('SLO/SP UI: SOAP error -  Only local logout performed.'))
 
-        slo_return(request, logout, soap_answer)
+        return slo_return(request, logout, soap_answer)
 
     return error_page(request, _('SLO/SP UI: Unknown HTTP method.'))
 
@@ -785,7 +785,7 @@ def slo_return_response(logout):
  # For response, if the requester uses a (a)synchronous binding, the responder uses the same.
  # Else, the grabs the preferred method from the metadata.
  # By default we do not break the session.
- # TODO: Define in admin a parameter to indicate if the federation termination implies a local logout (IDP and SP initiated)
+ # TODO: Define in admin a parameter to indicate if the federation termination implies a local logout (IDP and SP initiated) - Should not logout.
  # TODO: Clean tables of all dumps about this user
  ###
 def federationTermination(request, entity_id):
