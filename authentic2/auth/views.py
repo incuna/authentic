@@ -82,14 +82,19 @@ def login(request, template_name='registration/login.html',
     if settings.AUTH_SSL and request.environ.has_key('HTTPS'):
         methods.append({ 'url': '%s?%s' % (reverse('user_signin_ssl'), urlencode(request.GET)),
                          'caption': 'Login with SSL' })
-        logging.info('Activation of authentication with SSL')
+
     if settings.AUTH_SSL and not request.environ.has_key('HTTPS'):
-        logging.error('Authentication with SSL is not activated because the server is not running over HTTPS')
+        # FIXME: find a way to show this warning just one time, maybe send a
+        # mail to the admin
+        logging.warning('Authentication with SSL is not activated because the server is not running over HTTPS')
 
     if settings.AUTH_OPENID:
-        methods.append({ 'url': '%s?%s' % (reverse('user_signin'), urlencode(request.GET)),
-                         'caption': 'Login with OpenID' })
-        logging.info('Activation of authentication with OpenID')
+        method = { 'url': '%s?%s' % (reverse('user_signin'), urlencode(request.GET)),
+                'caption': 'Login with OpenID' , 'class': ''}
+        if getattr(settings, 'AUTHENTIC2_USE_IFRAME', False):
+            method['class'] = 'popup-link'
+            method['url'] += '&iframe'
+        methods.append(method)
 
     return render_to_response(template_name, {
         'form': form,

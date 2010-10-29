@@ -40,7 +40,7 @@
 
 <div id="alt-methods">
 {% for method in alt_methods %}
-<p><a class="absoluteIframeDOMWindow" href="{{ method.url }}&iframe">{% trans method.caption %}</a></p>
+<p><a class="{{ method.class }}" href="{{ method.url }}">{% trans method.caption %}</a></p>
 {% endfor %}
 </div>
 
@@ -70,7 +70,7 @@ var width = 600;
 var left = (document.width - width)/2;
 var height = 250;
 var _top = (document.height - height)/2;
-$('.absoluteIframeDOMWindow').openDOMWindow({
+$('.popup-link').openDOMWindow({
 positionType:'absolute',
 height:height,
 width:width,
