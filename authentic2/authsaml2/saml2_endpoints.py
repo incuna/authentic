@@ -433,7 +433,7 @@ def logout(request):
             logout.initRequest(None, lasso.HTTP_METHOD_ANY)
         except lasso.Error, error:
             localLogout(request, error)
-        if logout.msgBody:
+        if not logout.msgBody:
             try:
                 logout.buildRequestMsg()
             except lasso.Error, error:
