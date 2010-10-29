@@ -136,10 +136,14 @@ def signin(request, template_name='authopenid/signin.html',
         on_failure = signin_failure
 
     redirect_to = request.REQUEST.get(redirect_field_name, '')
+    if request.GET.has_key('iframe'):
+        template_name = 'authopenid/signin-iframe.html'
+        redirect_to = '/redirect/' + urllib.quote(redirect_to)
+
     form1 = openid_form()
     form2 = auth_form()
     if request.POST:
-        if not redirect_to or '//' in redirect_to or ' ' in redirect_to:
+        if not redirect_to or '://' in redirect_to or ' ' in redirect_to:
             redirect_to = settings.LOGIN_REDIRECT_URL     
         if 'openid_url' in request.POST.keys():
             form1 = openid_form(data=request.POST)
@@ -242,7 +246,7 @@ def associate(request, template_name='authopenid/associate.html',
                         'nb_associated_openids' : nb_associated_openids,
                         'msg':msg,
                         }, context_instance=_build_context(request, extra_context=extra_context))     
-                if not redirect_to or '//' in redirect_to or ' ' in redirect_to:
+                if not redirect_to or '://' in redirect_to or ' ' in redirect_to:
                     redirect_to = settings.LOGIN_REDIRECT_URL
                 redirect_url = "%s%s?%s" % (
                         get_url_host(request),

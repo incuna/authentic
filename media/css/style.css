@@ -7,6 +7,10 @@ html, body {
 	font-family: sans-serif;
 }
 
+body#iframe {
+    background: white;
+}
+
 html {
 	background: #F9F9F7 url(../images/a1.gif) repeat-x;
 	color: #8c8c73;

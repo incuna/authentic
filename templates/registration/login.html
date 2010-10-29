@@ -40,7 +40,7 @@
 
 <div id="alt-methods">
 {% for method in alt_methods %}
-<p><a href="{{ method.url }}">{% trans method.caption %}</a></p>
+<p><a class="absoluteIframeDOMWindow" href="{{ method.url }}&iframe">{% trans method.caption %}</a></p>
 {% endfor %}
 </div>
 
@@ -51,7 +51,7 @@
 <div>
 <form>
     <select name="list_providers" size="1" onChange="redirect_from_list(this.form)">
-    <option selected="selected">{% trans "Tell me where!" %}</option>  
+    <option selected="selected">{% trans "Tell me where!" %}</option>
     {% for p in providers_list %}
         <option><a href="/authsaml2/selectProvider/{{ p.entity_id }}" >{{ p.entity_id }}</a></option>
     {% endfor %}
@@ -65,7 +65,30 @@ document.getElementById('id_username').focus();
 </script>
 
 <script type="text/javascript">
-function redirect_from_list(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/selectProvider/' + f.list_providers.options[f.list_providers.selectedIndex].value; }
+function redirect_from_list(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/selectProvider/' + f.list_providers.options[f.list_providers.selectedIndex].value; };
+var width = 600;
+var left = (document.width - width)/2;
+var height = 250;
+var _top = (document.height - height)/2;
+$('.absoluteIframeDOMWindow').openDOMWindow({
+positionType:'absolute',
+height:height,
+width:width,
+positionLeft:left,
+positionTop:_top,
+eventType:'click',
+windowSource:'iframe',
+windowPadding:10,
+loader:1,
+loaderImagePath:'animationProcessing.gif',
+loaderHeight:16,
+loaderWidth:17
+});
 </script>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.DOMWindow.js"></script>
 {% endblock %}
