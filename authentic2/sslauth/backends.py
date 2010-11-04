@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.db import transaction
 from django.contrib.auth.models import User, UserManager
+import logging
 
 from util import settings_get
 from models import ClientCertificate, DistinguishedName
@@ -44,7 +45,10 @@ class SSLAuthBackend:
         if settings_get('SSLAUTH_STRICT_MATCH'):
             # compare complete certificate in strict match
             if not ssl_info.cert:
-                raise EnvironmentError, 'SSLAuth: strict match required but PEM encoded certificate not found in environment. Check your server settings'
+                logging.error('SSLAuth: strict match required but PEM encoded \
+certificate not found in environment. Check your server \
+settings')
+                return None
             query = Q(cert=ssl_info.cert)
         else:
             # compare according to SSLAUTH_SUBJECT_MATCH_KEYS
@@ -56,7 +60,8 @@ class SSLAuthBackend:
             query_args = {}
             for key in match_keys:
                 if not ssl_info.get(key):
-                    raise AuthenticationError, 'key %s is missing from ssl_info' % key
+                    logging.error('SSLAuth: key %s is missing from ssl_info' % key)
+                    return None
                 query_args[key.replace('_', '__')] = ssl_info.get(key)
 
             query = Q(**query_args)
