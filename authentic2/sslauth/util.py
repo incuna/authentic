@@ -62,40 +62,43 @@ class SSLInfo(object):
             raise EnvironmentError, 'SSLAuth currently only works with mod_python or wsgi requests'
         self.read_env(env);
         pass
-    
+
     def read_env(self, env):
         for attr,key in X509_KEYS.iteritems():
             if env.has_key(key) and env[key]:
                 self.__dict__[attr] = env[key]
             else:
                 self.__dict__[attr] = None
-                
+
         if self.__dict__['verify'] == 'SUCCESS':
             self.__dict__['verify'] = True
         else:
             self.__dict__['verify'] = False
-    
+
     def get(self, attr):
         return self.__getattr__(attr)
-    
+
     def get_dict(self, prefix):
         dict = {}
         for key in X509_KEYS.keys():
             if key.startswith(prefix):
                 dict[key] = self.__dict__[key]
         return dict
-    
+
     def get_subject(self):
         return self.get_dict('subject_')
-    
+
     def get_issuer(self):
         return self.get_dict('issuer_')
-    
+
     def __getattr__(self, attr):
         if attr in self.__dict__:
             return self.__dict__[attr]
         else:
             raise AttributeError, 'SSLInfo does not contain key %s' % attr
-        
+
     def __setattr__(self, attr, value):
         raise AttributeError, 'SSL vars are read only!'
+
+    def __repr__(self):
+        return '<SSLInfo %s>' % self.__dict__

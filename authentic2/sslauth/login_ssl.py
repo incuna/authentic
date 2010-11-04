@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login, logout, get_user
 from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import ugettext as _
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from authentic2.saml.common import error_page
 from django.contrib.auth.views import redirect_to_login
@@ -10,18 +12,24 @@ from django.contrib import messages
 
 # Use of existing application sslauth
 from util import SSLInfo, settings_get
+import views
 
 import logging
 
-def process_request(request):
-
+def process_request(request,):
+    next = request.GET.get(REDIRECT_FIELD_NAME,settings.LOGIN_REDIRECT_URL)
     ssl_info  = SSLInfo(request)
-
     # Check certificate validity
-    if not ssl_info.verify:
-        logging.error('SSL Client Authentication failed: SSL CGI variable VERIFY is missing')
-        messages.add_message(request, messages.INFO, 'SSL Client Authentication failed.')
-        return redirect_to_login('/')
+    accept_self_signed = getattr(settings, 'SSLAUTH_ACCEPT_SELF_SIGNED', False)
+
+    if not ssl_info.cert:
+        logging.error('SSL Client Authentication failed: SSL CGI variable CERT is missing')
+        messages.add_message(request, messages.ERROR, _('SSL Client Authentication failed. No client certificate found.'))
+        return redirect_to_login(next)
+    elif not accept_self_signed and not ssl_info.verify:
+        logging.error('SSL Client Authentication failed: SSL CGI variable VERIFY is not SUCCESS')
+        messages.add_message(request, messages.ERROR, _('SSL Client Authentication failed. Your client certificate is not valid.'))
+        return redirect_to_login(next)
 
     # Kill another active session
     logout(request)
@@ -46,32 +54,31 @@ def process_request(request):
     # else 'subject_email', 'subject_cn', 'subject_o'
     if not user.is_authenticated():
         if settings_get('SSLAUTH_CREATE_USER'):
-            from backends import SSLAuthBackend
-            if SSLAuthBackend().create_user(ssl_info):
-                user = authenticate(ssl_info=ssl_info)
+            if accept_self_signed:
+                url = '%s?next=%s' % (reverse(views.register), next)
+                return HttpResponseRedirect(url)
+            else:
+                from backends import SSLAuthBackend
+                if SSLAuthBackend().create_user(ssl_info):
+                    user = authenticate(ssl_info=ssl_info)
         else:
             logging.error('SSL Client Authentication failed: User unknown for the current SSL context')
-            messages.add_message(request, messages.INFO, 'SSL Client Authentication failed.')
-            return redirect_to_login('/')
+            messages.add_message(request, messages.ERROR, _('SSL Client Authentication failed. No user matches your certificate.'))
+            return redirect_to_login(next)
 
     # Check if the user is activated
     if not user.is_authenticated() or not user.is_active:
         logging.error('SSL Client Authentication failed: User %s is inactive' %user.username)
-        messages.add_message(request, messages.INFO, 'SSL Client Authentication failed.')
-        return redirect_to_login('/')
+        messages.add_message(request, messages.ERROR, 'SSL Client Authentication failed. Your user is inactive.')
+        return redirect_to_login(next)
 
     # Log user in
     try:
         login(request, user)
     except:
         logging.error('SSL Client Authentication failed: login() failed')
-        messages.add_message(request, messages.INFO, 'SSL Client Authentication failed.')
-        return redirect_to_login('/')
+        messages.add_message(request, messages.ERROR, _('SSL Client Authentication failed. Internal server error.'))
+        return redirect_to_login(next)
 
-    redirect_to = request.REQUEST.get(REDIRECT_FIELD_NAME, '')
-    if redirect_to:
-        logging.info('Successful SSL Client Authentication - redirection to %s' %redirect_to)
-        return HttpResponseRedirect(redirect_to)
-
-    logging.info('Successful SSL Client Authentication - redirection to /')
-    return HttpResponseRedirect("/")
+    logging.info('Successful SSL Client Authentication - redirection to %s' % next)
+    return HttpResponseRedirect(next)

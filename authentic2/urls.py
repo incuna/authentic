@@ -42,6 +42,8 @@ if settings.AUTH_SSL:
         url(r'^sslauth/$',
             'authentic2.sslauth.login_ssl.process_request',
             name='user_signin_ssl'),
+        url(r'^sslauth/register/$',
+            'authentic2.sslauth.views.register'),
         url(r'^error_ssl/$', direct_to_template,
             {'template': 'error_ssl.html'}, 'error_ssl'),
     )
