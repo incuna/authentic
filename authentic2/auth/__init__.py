@@ -1,5 +1,7 @@
 from django.dispatch import Signal
 
+NONCE_FIELD_NAME = 'nonce'
+
 auth_login = Signal(providing_args = ["user","successful"])
 auth_logout =  Signal(providing_args = ["user"])
 

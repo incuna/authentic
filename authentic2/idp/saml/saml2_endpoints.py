@@ -20,7 +20,8 @@ from authentic2.saml.models import *
 from authentic2.saml.common import *
 import authentic2.saml.saml2utils as saml2utils
 from authentic2.auth.models import AuthenticationEvent
-from common import redirect_to_login, NONCE, kill_django_sessions
+from common import redirect_to_login, kill_django_sessions
+from authentic2.auth import NONCE_FIELD_NAME
 
 '''SAMLv2 IdP implementation
 
@@ -218,17 +219,17 @@ def need_login(request, login, consent_obtained, save, nid_format):
        the login form was submitted'''
     nonce = login.request.id
     save_key_values(nonce, login.dump(), consent_obtained, save, nid_format)
-    return redirect_to_login(reverse(continue_sso)+'?%s=%s' % (NONCE, nonce),
-            other_keys={'nonce': nonce})
+    return redirect_to_login(reverse(continue_sso)+'?%s=%s' % (NONCE_FIELD_NAME, nonce),
+            other_keys={NONCE_FIELD_NAME: nonce})
 
 def need_consent(request, login, consent_obtained, save, nid_format):
     nonce = login.request.id
     save_key_values(nonce, login.dump(), consent_obtained, save, nid_format)
-    return HttpResponseRedirect('%s?%s=%s&next=%s' % (reverse(consent), NONCE,
+    return HttpResponseRedirect('%s?%s=%s&next=%s' % (reverse(consent), NONCE_FIELD_NAME,
         nonce, urllib.quote(request.get_full_path())) )
 
 def continue_sso(request):
-    nonce = request.REQUEST.get(NONCE, '')
+    nonce = request.REQUEST.get(NONCE_FIELD_NAME, '')
     login_dump, consent_obtained, save, nid_format = \
             get_and_delete_key_values(nonce)
     server = create_server(request)

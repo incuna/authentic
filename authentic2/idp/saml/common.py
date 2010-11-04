@@ -8,8 +8,6 @@ from django.utils.importlib import import_module
 from django.conf import settings
 from django.http import *
 
-NONCE = 'nonce'
-
 def redirect_to_login(next, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME, other_keys = {}):
     "Redirects the user to the login page, passing the given 'next' page"
     if not login_url:

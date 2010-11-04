@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import login as auth_login
@@ -13,8 +15,9 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+
 from authentic2.saml.common import *
-import logging
+from authentic2.auth import NONCE_FIELD_NAME
 import models
 
 class WithNonceAuthenticationForm(AuthenticationForm):
@@ -23,18 +26,18 @@ class WithNonceAuthenticationForm(AuthenticationForm):
 
     def __init__(self, request = None, **kwargs):
         AuthenticationForm.__init__(self, request, **kwargs)
-        if request and request.REQUEST.has_key('nonce'):
-            self.initial['nonce'] = request.REQUEST.get('nonce')
+        if request and request.REQUEST.has_key(NONCE_FIELD_NAME):
+            self.initial[NONCE_FIELD_NAME] = request.REQUEST.get(NONCE_FIELD_NAME)
 
     def clean(self):
         res = AuthenticationForm.clean(self)
         # create an authentication event
-        if self.user_cache and self.cleaned_data.has_key('nonce'):
+        if self.user_cache and self.cleaned_data.has_key(NONCE_FIELD_NAME):
             how = 'password'
             if self.request and self.request.environ.has_key('HTTPS'):
                 how = 'password-on-https'
-            models.AuthenticationEvent(who = self.user_cache.username,
-                    how = how, nonce = self.cleaned_data['nonce']).save()
+            models.AuthenticationEvent(who=self.user_cache.username,
+                    how=how, nonce=self.cleaned_data[NONCE_FIELD_NAME]).save()
         return res
 
 @csrf_protect

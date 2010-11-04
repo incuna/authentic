@@ -13,6 +13,8 @@ from django.contrib import messages
 # Use of existing application sslauth
 from util import SSLInfo, settings_get
 import views
+import authentic2.auth.models as auth_models
+from authentic2.auth import NONCE_FIELD_NAME
 
 import logging
 
@@ -75,6 +77,8 @@ def process_request(request,):
     # Log user in
     try:
         login(request, user)
+        auth_models.AuthenticationEvent.objects.create(who=user.username,
+                how='ssl', nonce=request.GET.get(NONCE_FIELD_NAME,''))
     except:
         logging.error('SSL Client Authentication failed: login() failed')
         messages.add_message(request, messages.ERROR, _('SSL Client Authentication failed. Internal server error.'))
