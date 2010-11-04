@@ -150,6 +150,16 @@ form p textarea {
 	margin-left: 10px;
 }
 
+ul.messages {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+ul.messages li.error {
+	color: #e80404;
+}
+
 ul.errorlist {
 	margin: 0;
 	padding: 0;
