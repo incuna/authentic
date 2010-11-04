@@ -6,6 +6,7 @@ import authentic2.idp.views
 import settings
 
 admin.autodiscover()
+handler500 = 'authentic2.views.server_error'
 
 urlpatterns = patterns('',
     (r'^', include('authentic2.auth.urls')),
