@@ -16,17 +16,6 @@
 {% endif %}
 
 <form id="login-form" method="post" action=".">
-  <ul class="errorlist">
-    {% for error in form.non_field_errors %}
-      <li>{{ error|escape }}</li>
-    {% endfor %}
-    {% for error in form.username.errors %}
-      <li>{% trans "Username:" %} {{ error|escape }}</li>
-    {% endfor %}
-    {% for error in form.password.errors %}
-      <li>{% trans "Password:" %} {{ error|escape }}</li>
-    {% endfor %}
-  </ul>
    {{ form.as_p }}
 
   <input type="submit" value="{% trans 'Log in' %}" class="submit" />
