@@ -25,13 +25,7 @@ class DistinguishedName(models.Model):
 
 class ClientCertificate(models.Model):
     serial = models.CharField(max_length=255, blank=True)
-    subject = models.ForeignKey(DistinguishedName, related_name='subject')
+    subject = models.ForeignKey(DistinguishedName, related_name='subject', blank=True, null=True)
     issuer = models.ForeignKey(DistinguishedName, related_name='issuer', blank=True, null=True)
     cert = models.TextField(blank=True)
     user = models.ForeignKey(User)
-    
-    def __unicode__(self):
-        return "%s, %s, %s" % (self.subject.cn, self.subject.email, self.subject.o)
-    
-    class Admin:
-        pass
