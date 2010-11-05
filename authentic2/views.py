@@ -5,6 +5,8 @@ import logging
 def redirect(request, next, template_name='redirect.html'):
     '''Show a simple page which does a javascript redirect, closing any popup
        enclosing us'''
+    if not next.startswith('http'):
+        next = '/%s%s' % (request.get_host(), next)
     logging.info('Redirect to %r' % next)
     return render_to_response(template_name, { 'next': next })
 
