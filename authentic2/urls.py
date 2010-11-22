@@ -5,12 +5,20 @@ from django.views.generic.simple import direct_to_template
 import authentic2.idp.views
 import settings
 
+from forms import AuthenticRegistrationForm
+
 admin.autodiscover()
 handler500 = 'authentic2.views.server_error'
+
 
 urlpatterns = patterns('',
     (r'^', include('authentic2.auth.urls')),
     (r'^redirect/(.*)', 'authentic2.views.redirect'),
+    url(r'^accounts/register',
+       'registration.views.register',
+       { 'form_class': AuthenticRegistrationForm },
+       name='registration_register',
+       ),
     (r'^accounts/', include('registration.urls')),
     url(r'^logout$', 'authentic2.idp.views.logout', name='auth_logout'),
     (r'^admin/admin_log_view/log/', 'authentic2.admin_log_view.views.admin_view'),
