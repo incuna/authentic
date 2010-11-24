@@ -81,7 +81,6 @@ def login(request, template_name='auth/login.html',
         return HttpResponseRedirect(redirect_to)
 
     if request.method == "POST":
-        print request.POST
         if 'cancel' in request.POST:
             redirect_to = add_arg(redirect_to, 'cancel')
             return HttpResponseRedirect(redirect_to)
