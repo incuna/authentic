@@ -86,7 +86,7 @@ def login(request, template_name='auth/login.html',
             return HttpResponseRedirect(redirect_to)
         else:
             forms = ((b.name(), { 'form': b.form()(data=request.POST),
-                                       'backend': b }) for b in backends)
+                                       'backend': b }) for b in backends if b.enabled())
             for name, value in forms:
                 if name in request.POST:
                     form = value['form']
@@ -97,7 +97,7 @@ def login(request, template_name='auth/login.html',
                                 redirect_to)
     else:
         forms = ((b.name(), { 'form': b.form()(), 'backend': b }) \
-                for b in backends)
+                for b in backends if b.enabled())
 
     rendered_forms = [ (name,
             render_to_string(d['backend'].template(),

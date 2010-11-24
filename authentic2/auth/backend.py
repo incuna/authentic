@@ -10,6 +10,9 @@ import authentic2.auth.models as models
 
 
 class LoginPasswordBackend(object):
+    def enabled(self):
+        return True
+
     def name(self):
         return gettext_noop('Password')
 
@@ -33,6 +36,9 @@ class LoginPasswordBackend(object):
         return 'auth/login_form.html'
 
 class SSLFrontend(object):
+    def enabled(self):
+        return True
+
     def name(self):
         return gettext_noop('SSL with certificates')
 

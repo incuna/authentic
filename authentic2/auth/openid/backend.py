@@ -11,6 +11,9 @@ from authentic2.auth import NONCE_FIELD_NAME
 from views import ask_openid, signin_failure
 
 class OpenIDFrontend(object):
+    def enabled(self):
+        return True
+
     def name(self):
         return 'OpenID'
 
