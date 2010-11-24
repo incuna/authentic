@@ -1,14 +1,17 @@
+import urllib
 
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
+from django.utils.translation import gettext_noop
 from django.http import HttpResponseRedirect
+import django.forms
 
 import authentic2.auth.models as models
 
 
 class LoginPasswordBackend(object):
     def name(self):
-        return 'Password'
+        return gettext_noop('Password')
 
     def form(self):
         return AuthenticationForm
@@ -28,3 +31,16 @@ class LoginPasswordBackend(object):
 
     def template(self):
         return 'auth/login_form.html'
+
+class SSLFrontend(object):
+    def name(self):
+        return gettext_noop('SSL with certificates')
+
+    def form(self):
+        return django.forms.Form
+
+    def post(self, request, form, nonce, next):
+        return HttpResponseRedirect('/sslauth?next=%s' % urllib.quote(next))
+
+    def template(self):
+        return 'auth/login_form_ssl.html'

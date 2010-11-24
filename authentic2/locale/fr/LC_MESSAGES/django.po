@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-22 16:22+0100\n"
+"POT-Creation-Date: 2010-11-24 16:07+0100\n"
 "PO-Revision-Date: 2010-06-01 11:03+0200\n"
 "Last-Translator: Frederic Peters <fpeters@0d.be>\n"
 "Language-Team: None\n"
@@ -34,6 +34,14 @@ msgstr "Anglais"
 #: authentic2/settings.py:52
 msgid "French"
 msgstr "Français"
+
+#: authentic2/auth/backend.py:14 templates/authopenid/complete.html:71
+msgid "Password"
+msgstr "Mot de passe"
+
+#: authentic2/auth/backend.py:37
+msgid "SSL with certificates"
+msgstr "Certificats SSL"
 
 #: authentic2/auth/models.py:12
 #, python-format
@@ -320,8 +328,9 @@ msgid "Password:"
 msgstr "Mot de passe :"
 
 #: authentic2/authsaml2/templates/account_linking.html:32
-#: templates/auth/login.html:5 templates/auth/login_form.html:6
-#: templates/auth/login_form_openid.html:16
+#: templates/auth/login.html:5 templates/auth/login_form.html:5
+#: templates/auth/login_form_openid.html:15
+#: templates/auth/login_form_ssl.html:5
 #: templates/registration/activate.html:14 templates/registration/login.html:5
 #: templates/registration/login.html:21
 #: templates/registration/password_reset_complete.html:12
@@ -693,7 +702,7 @@ msgstr ""
 msgid "We're sorry but a server error has occurred."
 msgstr ""
 
-#: templates/base.html:27
+#: templates/base.html:28
 #, python-format
 msgid ""
 "\n"
@@ -735,41 +744,42 @@ msgstr "Accueil"
 msgid "Logs page"
 msgstr "Page des traces"
 
-#: templates/auth/login.html:21 templates/registration/login.html:26
-msgid "Forgot password?"
-msgstr "Mot de passe oublié ?"
-
-#: templates/auth/login.html:21 templates/registration/login.html:26
-msgid "Reset it!"
-msgstr "Le réinitialiser !"
-
-#: templates/auth/login.html:22 templates/registration/login.html:27
-msgid "Not a member?"
-msgstr "Pas un membre ?"
-
-#: templates/auth/login.html:22 templates/registration/login.html:27
-msgid "Register!"
-msgstr "S'inscrire !"
-
-#: templates/auth/login_form.html:8 templates/auth/login_form_openid.html:22
+#: templates/auth/login_form.html:7 templates/auth/login_form_openid.html:21
+#: templates/auth/login_form_ssl.html:7
 #: templates/authopenid/dissociate.html:32
 msgid "Cancel"
 msgstr "Annuler"
 
-#: templates/auth/login_form_openid.html:13
+#: templates/auth/login_form.html:13 templates/registration/login.html:26
+msgid "Forgot password?"
+msgstr "Mot de passe oublié ?"
+
+#: templates/auth/login_form.html:13 templates/registration/login.html:26
+msgid "Reset it!"
+msgstr "Le réinitialiser !"
+
+#: templates/auth/login_form.html:14 templates/registration/login.html:27
+msgid "Not a member?"
+msgstr "Pas un membre ?"
+
+#: templates/auth/login_form.html:14 templates/registration/login.html:27
+msgid "Register!"
+msgstr "S'inscrire !"
+
+#: templates/auth/login_form_openid.html:12
 #: templates/authopenid/associate.html:42
 #: templates/authopenid/signin-iframe.html:38
 #: templates/authopenid/signin.html:44
 msgid "Please select your account provider:"
 msgstr "Si vous avez un compte sur un de ces sites, connectez-vous avec:"
 
-#: templates/auth/login_form_openid.html:18
+#: templates/auth/login_form_openid.html:17
 #: templates/authopenid/signin-iframe.html:42
 #: templates/authopenid/signin.html:48
 msgid "Or enter your OpenID identity:"
 msgstr "Ou entrez une identité OpenIDL (URL):"
 
-#: templates/auth/login_form_openid.html:19
+#: templates/auth/login_form_openid.html:18
 #: templates/authopenid/associate.html:46
 #: templates/authopenid/signin-iframe.html:43
 #: templates/authopenid/signin.html:49
@@ -847,10 +857,6 @@ msgstr ""
 #: templates/authopenid/complete.html:69
 msgid "An existing account"
 msgstr ""
-
-#: templates/authopenid/complete.html:71
-msgid "Password"
-msgstr "Mot de passe"
 
 #: templates/authopenid/complete.html:72
 msgid "Verify"
@@ -1008,11 +1014,11 @@ msgstr "Inscription"
 #~ msgid "Defederate your identity"
 #~ msgstr "Défédérer votre identité"
 
-msgid "Login with SSL"
-msgstr "S'identifier avec SSL"
+#~ msgid "Login with SSL"
+#~ msgstr "S'identifier avec SSL"
 
-msgid "Login with OpenID"
-msgstr "S'identifier avec OpenID"
+#~ msgid "Login with OpenID"
+#~ msgstr "S'identifier avec OpenID"
 
 #, fuzzy
 #~ msgid "User"

@@ -139,7 +139,9 @@ DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
 
 # SAML settings
 # Only RSA private keys are currently supported
-AUTH_FRONTENDS = ( 'authentic2.auth.backend.LoginPasswordBackend', 'authentic2.auth.openid.backend.OpenIDFrontend')
+AUTH_FRONTENDS = ( 'authentic2.auth.backend.LoginPasswordBackend',
+        'authentic2.auth.openid.backend.OpenIDFrontend',
+        'authentic2.auth.backend.SSLFrontend')
 IDP_SAML2 = True
 IDP_IDFF12 = True
 SAML_PRIVATE_KEY = '''-----BEGIN RSA PRIVATE KEY-----
