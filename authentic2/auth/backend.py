@@ -16,6 +16,9 @@ class LoginPasswordBackend(object):
     def name(self):
         return gettext_noop('Password')
 
+    def id(self):
+        return 'password'
+
     def form(self):
         return AuthenticationForm
 
@@ -38,6 +41,9 @@ class LoginPasswordBackend(object):
 class SSLFrontend(object):
     def enabled(self):
         return True
+
+    def id(self):
+        return 'ssl'
 
     def name(self):
         return gettext_noop('SSL with certificates')

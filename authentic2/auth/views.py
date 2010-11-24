@@ -85,16 +85,19 @@ def login(request, template_name='auth/login.html',
             redirect_to = add_arg(redirect_to, 'cancel')
             return HttpResponseRedirect(redirect_to)
         else:
-            forms = [(b.name(), { 'form': b.form()(data=request.POST),
-                                       'backend': b }) for b in backends if b.enabled()]
-            for name, value in forms:
-                if name in request.POST:
-                    form = value['form']
+            forms = []
+            for b in backends:
+                if not b.enabled():
+                    continue
+                if 'submit-%s' % b.id() in request.POST:
+                    form = b.form()(data=request.POST)
                     if form.is_valid():
                         if request.session.test_cookie_worked():
                             request.session.delete_test_cookie()
-                        return value['backend'].post(request, form, nonce,
-                                redirect_to)
+                        return b.post(request, form, nonce, redirect_to)
+                    forms.append((b.name(), {'form': form, 'backend': b}))
+                else:
+                    forms.append((b.name(), {'form': b.form()(), 'backend': b}))
     else:
         forms = [(b.name(), { 'form': b.form()(), 'backend': b }) \
                 for b in backends if b.enabled()]
@@ -102,7 +105,7 @@ def login(request, template_name='auth/login.html',
     rendered_forms = [ (name,
             render_to_string(d['backend'].template(),
                 RequestContext(request, { 'cancel': nonce is not None,
-                  'submit_name': name,
+                  'submit_name': 'submit-%s' % d['backend'].id(),
                   'form': d['form'] }))) \
                         for name, d in forms ]
 

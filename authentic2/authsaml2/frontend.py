@@ -16,6 +16,9 @@ class AuthSAML2Frontend(object):
     def enabled(self):
         return bool(saml_common.get_idp_list())
 
+    def id(self):
+        return 'saml2'
+
     def name(self):
         return gettext_noop('SAML 2.0')
 

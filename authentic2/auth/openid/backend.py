@@ -14,6 +14,9 @@ class OpenIDFrontend(object):
     def enabled(self):
         return True
 
+    def id(self):
+        return 'openid'
+
     def name(self):
         return 'OpenID'
 
