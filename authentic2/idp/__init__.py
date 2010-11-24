@@ -26,10 +26,10 @@ def load_backend(path):
         raise ImproperlyConfigured('Module "%s" does not define a "%s" idp backend' % (module, attr))
     return cls()
 
-def get_backends():
+def get_backends(setting_name='IDP_BACKENDS'):
     '''Return the list of IdP backends'''
     backends = []
-    for backend_path in settings.IDP_BACKENDS:
+    for backend_path in getattr(settings, setting_name, ()):
         backends.append(load_backend(backend_path))
     return backends
 

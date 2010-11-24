@@ -53,31 +53,9 @@
 document.getElementById('id_username').focus();
 </script>
 
-<script type="text/javascript">
-function redirect_from_list(f) { if (f.list_providers.selectedIndex != 0) location.href = '/authsaml2/selectProvider/' + f.list_providers.options[f.list_providers.selectedIndex].value; };
-var width = 600;
-var left = (document.width - width)/2;
-var height = 250;
-var _top = (document.height - height)/2;
-$('.popup-link').openDOMWindow({
-positionType:'absolute',
-height:height,
-width:width,
-positionLeft:left,
-positionTop:_top,
-eventType:'click',
-windowSource:'iframe',
-windowPadding:10,
-loader:1,
-loaderImagePath:'animationProcessing.gif',
-loaderHeight:16,
-loaderWidth:17
-});
-</script>
-
 {% endblock %}
 
 {% block extra_scripts %}
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
-<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.DOMWindow.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui.js"></script>
 {% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Log in" %}
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div id="tabs">
+<ul>
+{% for name, content in methods %}
+<li><a href="#tabs-{{ forloop.counter }}">{% trans name %}</a></li>
+{% endfor %}
+</ul>
+{% for name, content in methods %}
+<div id="tabs-{{ forloop.counter }}">
+{{ content|safe }}
+</div>
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui.js"></script>
+<script type="text/javascript">
+	$(function() {
+			$( "#tabs" ).tabs({event: "mouseover"});
+	});
+</script>
+{% endblock %}

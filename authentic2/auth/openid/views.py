@@ -55,8 +55,6 @@ def signin_success(request, identity_url, openid_response,
             redirect_to = settings.LOGIN_REDIRECT_URL
         params = urllib.urlencode({ redirect_field_name: redirect_to })
         redirect_to = "%s?%s" % (reverse('user_register'), params)
-        if getattr(settings, 'AUTHENTIC2_USE_IFRAME', False):
-            redirect_to = '/redirect/%s' % urllib.quote(redirect_to)
         return HttpResponseRedirect(redirect_to)
     user_ = rel.user
     if user_.is_active:
@@ -175,10 +173,6 @@ def signin(request, template_name='authopenid/signin.html',
         on_failure = signin_failure
 
     redirect_to = request.REQUEST.get(redirect_field_name, '')
-    if request.GET.has_key('iframe'):
-        template_name = 'authopenid/signin-iframe.html'
-        redirect_to = '/redirect/' + urllib.quote(redirect_to)
-
     form1 = openid_form()
     form2 = auth_form()
     if request.POST:

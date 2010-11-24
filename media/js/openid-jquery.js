@@ -167,7 +167,7 @@ var openid = {
     if (url) {
       url = url.replace('{username}', $('#openid_username').val());
       openid.setOpenIdUrl(url);
-    } 
+    }
     return true;
   },
   
@@ -228,11 +228,11 @@ var openid = {
       value = 'http://';
       style = 'background:#FFF url('+this.img_path+'openid-inputicon.gif) no-repeat scroll 0 50%; padding-left:18px;';
     }
-    html += '<input id="'+id+'" type="text" style="'+style+'" name="'+name+'" value="'+value+'" size = 40/>' + 
-    '<input id="openid_submit" type="submit" value="Sign-In"/>';
+   html += '<input id="'+id+'" type="text" style="'+style+'" name="'+name+'" value="'+value+'" size = 40/>' + 
+  '<input id="openid_submit" type="submit" value="Sign-In"/>';
 
-    input_area.empty();
-    input_area.append(html);
+  input_area.empty();
+  input_area.append(html);
 
     $('#'+id).focus();
   }

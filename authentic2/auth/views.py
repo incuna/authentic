@@ -1,4 +1,5 @@
 import logging
+import urllib
 
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import PasswordChangeForm
@@ -15,9 +16,11 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.template.loader import render_to_string
 
 from authentic2.saml.common import *
 from authentic2.auth import NONCE_FIELD_NAME
+from authentic2.idp import get_backends
 import models
 
 class WithNonceAuthenticationForm(AuthenticationForm):
@@ -40,39 +43,69 @@ class WithNonceAuthenticationForm(AuthenticationForm):
                     how=how, nonce=self.cleaned_data[NONCE_FIELD_NAME]).save()
         return res
 
+def add_arg(url, key, value = None):
+    '''Add a parameter to an URL'''
+    key = urllib.quote(key)
+    if value is not None:
+        add = '%s=%s' % (key, urllib.quote(value))
+    else:
+        add = key
+    if '?' in url:
+        return '%s&%s' % (url, add)
+    else:
+        return '%s?%s' % (url, add)
+
 @csrf_protect
 @never_cache
-def login(request, template_name='registration/login.html',
+def login(request, template_name='auth/login.html',
+          login_form_template='auth/login_form.html',
           redirect_field_name=REDIRECT_FIELD_NAME,
           authentication_form=WithNonceAuthenticationForm):
     """Displays the login form and handles the login action."""
 
-    redirect_to = request.REQUEST.get(redirect_field_name, '')
+    redirect_to = request.REQUEST.get(redirect_field_name)
+    if not redirect_to or ' ' in redirect_to:
+        redirect_to = settings.LOGIN_REDIRECT_URL
+    # Heavier security check -- redirects to http://example.com should 
+    # not be allowed, but things like /view/?param=http://example.com 
+    # should be allowed. This regex checks if there is a '//' *before* a
+    # question mark.
+    elif '//' in redirect_to and re.match(r'[^\?]*//', redirect_to):
+            redirect_to = settings.LOGIN_REDIRECT_URL
+    nonce = request.REQUEST.get(NONCE_FIELD_NAME)
+
+    backends = get_backends('AUTH_FRONTENDS')
+
+    # If already logged, leave now
+    if not request.user.is_anonymous():
+        return HttpResponseRedirect(redirect_to)
 
     if request.method == "POST":
-        form = authentication_form(data=request.POST)
-        if form.is_valid():
-            # Light security check -- make sure redirect_to isn't garbage.
-            if not redirect_to or ' ' in redirect_to:
-                redirect_to = settings.LOGIN_REDIRECT_URL
-
-            # Heavier security check -- redirects to http://example.com should 
-            # not be allowed, but things like /view/?param=http://example.com 
-            # should be allowed. This regex checks if there is a '//' *before* a
-            # question mark.
-            elif '//' in redirect_to and re.match(r'[^\?]*//', redirect_to):
-                    redirect_to = settings.LOGIN_REDIRECT_URL
-
-            # Okay, security checks complete. Log the user in.
-            auth_login(request, form.get_user())
-
-            if request.session.test_cookie_worked():
-                request.session.delete_test_cookie()
-
+        print request.POST
+        if 'cancel' in request.POST:
+            redirect_to = add_arg(redirect_to, 'cancel')
             return HttpResponseRedirect(redirect_to)
-
+        else:
+            forms = ((b.name(), { 'form': b.form()(data=request.POST),
+                                       'backend': b }) for b in backends)
+            for name, value in forms:
+                if name in request.POST:
+                    form = value['form']
+                    if form.is_valid():
+                        if request.session.test_cookie_worked():
+                            request.session.delete_test_cookie()
+                        return value['backend'].post(request, form, nonce,
+                                redirect_to)
     else:
-        form = authentication_form(request)
+        forms = ((b.name(), { 'form': b.form()(), 'backend': b }) \
+                for b in backends)
+
+    rendered_forms = [ (name,
+            render_to_string(d['backend'].template(),
+                RequestContext(request, { 'cancel': nonce is not None,
+                  'submit_name': name,
+                  'form': d['form'] }))) \
+                        for name, d in forms ]
 
     request.session.set_test_cookie()
 
@@ -81,31 +114,11 @@ def login(request, template_name='registration/login.html',
     else:
         current_site = RequestSite(request)
 
-    methods = []
-    if settings.AUTH_SSL and request.environ.has_key('HTTPS'):
-        methods.append({ 'url': '%s?%s' % (reverse('user_signin_ssl'), urlencode(request.GET)),
-                         'caption': 'Login with SSL' })
-
-    if settings.AUTH_SSL and not request.environ.has_key('HTTPS'):
-        # FIXME: find a way to show this warning just one time, maybe send a
-        # mail to the admin
-        logging.warning('Authentication with SSL is not activated because the server is not running over HTTPS')
-
-    if settings.AUTH_OPENID:
-        method = { 'url': '%s?%s' % (reverse('user_signin'), urlencode(request.GET)),
-                'caption': 'Login with OpenID' , 'class': ''}
-        if getattr(settings, 'AUTHENTIC2_USE_IFRAME', False):
-            method['class'] = 'popup-link'
-            method['url'] += '&iframe'
-        methods.append(method)
-
     return render_to_response(template_name, {
-        'form': form,
-        'alt_methods': methods,
+        'methods': rendered_forms,
         redirect_field_name: redirect_to,
         'site': current_site,
         'site_name': current_site.name,
-        'providers_list' : get_idp_list(),
     }, context_instance=RequestContext(request))
 
 

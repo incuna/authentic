@@ -1,0 +1,15 @@
+{% load i18n %}
+<div>
+<form method="post" action="">
+{{ form.as_p }}
+<input type="submit" name="{{ submit_name }}" value="{% trans "Log in" %}"/>
+{% if cancel %}
+<input type="submit" name="cancel" value="{% trans 'Cancel' %}"/>
+{% endif %}
+</form>
+</div>
+
+<div class="login-actions">
+<p>→ {% trans "Forgot password?" %} <a href="{% url auth_password_reset %}">{% trans "Reset it!" %}</a></p>
+<p>→ {% trans "Not a member?" %} <a href="{% url registration_register %}">{% trans "Register!" %}</a></p>
+</div>

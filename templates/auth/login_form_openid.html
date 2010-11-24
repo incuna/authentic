@@ -1,0 +1,33 @@
+{% load i18n %}
+<div class="login">
+{% if form.errors %}
+<div class="errors">
+    <p><span class="error">{{ form.openid_url.errors|join:", " }}</span></p>
+</div>
+{% endif %}
+
+<form id="openid_form" method="post" action="">
+<input type="hidden" name="action" value="verify" />
+<div id="openid_choice">
+	<p>{% trans "Please select your account provider:" %}</p>
+	<div id="openid_btns"></div>
+</div>
+<input type="hidden" name="{{ submit_name }}" value="{% trans "Log in" %}"/>
+<div id="openid_input_area">
+	<p>{% trans "Or enter your OpenID identity:" %}</p>
+	<label for="id_openid_url">{% trans "OpenId URL :" %}</label>{{ form.openid_url }}
+
+{% if cancel %}
+<input type="submit" name="cancel" value="{% trans 'Cancel' %}"/>
+{% endif %}
+</div>
+
+</form>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/openid-jquery.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    openid.init('id_openid_url');
+});
+</script>
+</div>
+

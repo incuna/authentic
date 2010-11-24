@@ -277,3 +277,6 @@ div#user {
 	right: 12px;
 	top: 98px;
 }
+.ui-tabs .ui-tabs-hide {
+     display: none;
+}

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-22 14:19+0100\n"
+"POT-Creation-Date: 2010-11-22 16:22+0100\n"
 "PO-Revision-Date: 2010-06-01 11:03+0200\n"
 "Last-Translator: Frederic Peters <fpeters@0d.be>\n"
 "Language-Team: None\n"
@@ -17,6 +17,16 @@ msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
+#: authentic2/forms.py:11 authentic2/sslauth/forms.py:32
+msgid "username"
+msgstr "Identifiant"
+
+#: authentic2/forms.py:12
+msgid "your username must contain only letters, numbers and no spaces"
+msgstr ""
+"Votre nom d'utilisateur peut contenir des lettres et des chiffres mais aucun "
+"espace."
+
 #: authentic2/settings.py:51
 msgid "English"
 msgstr "Anglais"
@@ -24,16 +34,6 @@ msgstr "Anglais"
 #: authentic2/settings.py:52
 msgid "French"
 msgstr "Français"
-
-#: authentic2/urls.py:17 authentic2/sslauth/forms.py:32
-msgid "username"
-msgstr "Identifiant"
-
-#: authentic2/urls.py:18
-msgid "your username must contain only letters, numbers and no spaces"
-msgstr ""
-"Votre nom d'utilisateur peut contenir des lettres et des chiffres mais aucun "
-"espace."
 
 #: authentic2/auth/models.py:12
 #, python-format
@@ -1008,11 +1008,11 @@ msgstr "Inscription"
 #~ msgid "Defederate your identity"
 #~ msgstr "Défédérer votre identité"
 
-#~ msgid "Login with SSL"
-#~ msgstr "S'identifier avec SSL"
+msgid "Login with SSL"
+msgstr "S'identifier avec SSL"
 
-#~ msgid "Login with OpenID"
-#~ msgstr "S'identifier avec OpenID"
+msgid "Login with OpenID"
+msgstr "S'identifier avec OpenID"
 
 #, fuzzy
 #~ msgid "User"
