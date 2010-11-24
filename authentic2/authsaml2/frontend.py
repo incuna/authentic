@@ -26,7 +26,7 @@ class AuthSAML2Frontend(object):
         return AuthSAML2Form
 
     def post(self, request, form, nonce, next):
-        provider_id = fom.cleaned_data['provider_id']
+        provider_id = form.cleaned_data['provider_id']
         return HttpResponseRedirect('/authsaml2/selectProvider/%s' %
                 urllib.quote(provider_id))
 
