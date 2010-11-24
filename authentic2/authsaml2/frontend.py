@@ -1,5 +1,6 @@
 from django.utils.translation import gettext_noop
 import django.forms as forms
+from django.http import HttpResponseRedirect
 
 import authentic2.saml.common as saml_common
 
