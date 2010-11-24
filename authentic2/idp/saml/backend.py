@@ -17,13 +17,13 @@ class SamlBackend(object):
                 protocol = 'idff12'
             else:
                 protocol = 'saml2'
-            uri = '/idp/%s/idp_sso/%s' % (protocol, urllib.quote(entity_id, ''))
+            uri = '/idp/%s/idp_sso/%s' % (protocol, entity_id)
             name = liberty_provider.name
             list.append((uri, name))
             if models.LibertySession.objects.filter(
                     django_session_key=request.session.session_key,
                     provider_id=entity_id).exists():
-                uri = '/idp/%s/idp_slo/%s?next=/' % (protocol, urllib.quote(entity_id, ''))
+                uri = '/idp/%s/idp_slo/%s?next=/' % (protocol, entity_id)
                 name = liberty_provider.name + ' logout'
                 list.append((uri, name))
         return list
