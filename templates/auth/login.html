@@ -27,15 +27,13 @@
 </div>
 {% endfor %}
 </div>
+<script type="text/javascript">
+$( "#tabs" ).tabs({cookie: {path: '/'}});
+</script>
 {% endblock %}
 
 {% block extra_scripts %}
 <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.cookie.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-ui.js"></script>
-<script type="text/javascript">
-	$(function() {
-			$( "#tabs" ).tabs({cookie: {path: '/'}});
-	});
-</script>
 {% endblock %}
