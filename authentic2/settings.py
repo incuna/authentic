@@ -198,7 +198,7 @@ TEMPLATE_CONTEXT_PROCESSORS += (
 # OpenID settings
 AUTH_OPENID = True
 IDP_OPENID = False
-IDPOI_PATH = ''
+IDPOI_PATH = '/o8/'
 
 # Logging settings
 LOG_FILENAME = os.path.join(_PROJECT_PATH, 'log.log')
