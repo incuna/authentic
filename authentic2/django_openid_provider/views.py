@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse
 import re
 from openid_provider.views import get_base_uri
 from django.template import RequestContext
-import settings
+from django.conf import settings
 from openid.server.server import ProtocolError, CheckIDRequest, Message
 from django.core.cache import cache
 
