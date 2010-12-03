@@ -25,7 +25,6 @@ from django.views.generic.simple import redirect_to
 from openid.consumer.consumer import Consumer, SUCCESS, CANCEL, FAILURE, SETUP_NEEDED
 from openid.consumer.discover import DiscoveryFailure
 from openid.yadis import xri
-import signals
 
 import authentic2.saml.common
 import authentic2.authsaml2.utils
@@ -67,7 +66,6 @@ def logout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME,
         template = 'idp/logout.html'):
     global __logout_redirection_timeout
     "Logs out the user and displays 'You are logged out' message."
-    signals.auth_logout.send(sender = None, user = request.user)
     do_local = request.REQUEST.has_key('local')
     l = logout_list(request)
     context = RequestContext(request)
