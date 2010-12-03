@@ -513,10 +513,10 @@ def get_only_last_session(name_id, session_indexes, but_provider):
 def build_session_dump(elements):
     '''Build a session dump from a list of pairs
        (provider_id,assertion_content)'''
-    session = ['<Session xmlns="http://www.entrouvert.org/namespaces/lasso/0.0" Version="2">']
+    session = [u'<Session xmlns="http://www.entrouvert.org/namespaces/lasso/0.0" Version="2">']
     for x in elements:
-        session.append('<Assertion RemoteProviderID="%s">%s</Assertion>' % x)
-    session.append('</Session>')
+        session.append(u'<Assertion RemoteProviderID="%s">%s</Assertion>' % x)
+    session.append(u'</Session>')
     return ''.join(session)
 
 def set_session_dump_from_liberty_sessions(profile, lib_sessions):
@@ -524,7 +524,7 @@ def set_session_dump_from_liberty_sessions(profile, lib_sessions):
     dump from them'''
     l = [(lib_session.provider_id, lib_session.assertion.assertion) \
             for lib_session in lib_sessions]
-    profile.setSessionFromDump(build_session_dump(l))
+    profile.setSessionFromDump(build_session_dump(l).encode('utf8'))
 
 @csrf_exempt
 def slo_soap(request):

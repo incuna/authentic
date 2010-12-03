@@ -223,7 +223,7 @@ def load_federation(request, login, user = None):
         user = request.user
     try:
         q = LibertyIdentityDump.objects.get(user = user)
-        login.setIdentityFromDump(q.identity_dump)
+        login.setIdentityFromDump(q.identity_dump.encode('utf8'))
     except ObjectDoesNotExist:
         pass
 
@@ -234,7 +234,7 @@ def load_session(request, login, session_key = None):
         session_key = request.session.session_key
     try:
         q = LibertySessionDump.objects.get(django_session_key = session_key)
-        login.setSessionFromDump(q.session_dump)
+        login.setSessionFromDump(q.session_dump.encode('utf8'))
     except ObjectDoesNotExist:
         pass
 

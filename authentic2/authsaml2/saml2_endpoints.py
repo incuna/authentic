@@ -658,7 +658,7 @@ def singleLogoutSOAP(request):
             logging.warning('SLO/IdP SOAP: No session dump for this session')
             finishSingleLogoutSOAP(logout)
         logging.warning('SLO/IdP SOAP from %s, for session index %s and session %s' % (logout.remoteProviderId, session_index, session.id))
-        logout.setSessionFromDump(q[0].session_dump)
+        logout.setSessionFromDump(q[0].session_dump.encode('utf8'))
     else:
         logging.warning('SLO/IdP SOAP: No Liberty session found')
         return finishSingleLogoutSOAP(logout)
