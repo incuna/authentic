@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 import django.forms
 
 import authentic2.auth.models as models
-
+import views
 
 class LoginPasswordBackend(object):
     def enabled(self):
@@ -37,6 +37,9 @@ class LoginPasswordBackend(object):
 
     def template(self):
         return 'auth/login_form.html'
+
+    def profile(self, request, next=''):
+        return views.login_password_profile(request, next)
 
 class SSLFrontend(object):
     def enabled(self):
