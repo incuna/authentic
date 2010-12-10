@@ -120,7 +120,8 @@ INSTALLED_APPS = (
     'registration',
     'authentic2.sslauth',
     'authentic2.admin_log_view',
-    'authentic2.auth'
+    'authentic2.auth',
+    'authentic2.auth.openid',
 )
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
