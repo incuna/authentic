@@ -7,42 +7,20 @@
 
 
 {% block content %}
-
-<h2>{% trans "Account Management" %}</h2>
-
-<ul>
- {% if user.password == '!' %}
- <li><a href="{% url authopenid_password_change %}">{% trans "Set password" %}</a></li>
- {% else %}
- <li><a href="{% url auth_password_change %}">{% trans "Change password" %}</a></li>
- {% endif %}
- <li><a href="{% url auth_logout %}">{% trans "Log out" %}</a></li>
- <li><a href="/accounts/openid/associate/">{% trans "Associate your account with an OpenID"  %}</a></li>
- {% if IDP_OPENID %}
-   <li><a href="{% url manage_id %}">{% trans "Manage your openid identities" %}</a></li>
- {% endif  %}
-</ul>
-
-{% if provider_active_session %}
-<div id="login-actions">
-<ul>
-<li><a href="/authsaml2/logout">{% trans "Global Logout" %}</a></li>
-<!--<li><a href="/authsaml2/federationTermination/{{ provider_active_session.entity_id }}">{% trans "Remove the link with " %}{{ provider_name }}</a></li>-->
-</ul>
-</div>
-{% endif %} {# end of provider_active_session #}
+<p>
+   <a href="{% url account_management %}">{% trans "Account Management" %}</a>
+</p>
 
 
 {% if authorized_services %}
   <div id="login-actions">
   <h2>{% trans "Services" %}</h2>
-
   <ul>
   {% for service in authorized_services %}
     <li><a href="{{ service.0 }}">{{ service.1 }}</a></li>
   {% endfor %}
   </ul>
   </div>
-{% endif %} {# end of authorized_services #}
+{% endif %}
 
 {% endblock %}
