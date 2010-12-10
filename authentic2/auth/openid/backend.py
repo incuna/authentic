@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 import authentic2.auth.models as models
 from authentic2.auth import NONCE_FIELD_NAME
 from views import ask_openid, signin_failure
+import views
 
 class OpenIDFrontend(object):
     def enabled(self):
@@ -37,3 +38,6 @@ class OpenIDFrontend(object):
 
     def template(self):
         return 'auth/login_form_openid.html'
+
+    def profile(self, request, next=''):
+        return views.openid_profile(request, next)
