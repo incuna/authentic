@@ -122,6 +122,7 @@ INSTALLED_APPS = (
     'authentic2.admin_log_view',
     'authentic2.auth',
     'authentic2.auth.openid',
+    'authentic2.auth.oath',
 )
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
@@ -143,7 +144,8 @@ DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
 AUTH_FRONTENDS = ( 'authentic2.auth.backend.LoginPasswordBackend',
         'authentic2.auth.openid.backend.OpenIDFrontend',
         'authentic2.auth.backend.SSLFrontend',
-        'authentic2.authsaml2.frontend.AuthSAML2Frontend')
+        'authentic2.authsaml2.frontend.AuthSAML2Frontend',
+        'authentic2.auth.oath.frontend.OATHOTPFrontend')
 IDP_SAML2 = True
 IDP_IDFF12 = True
 SAML_PRIVATE_KEY = '''-----BEGIN RSA PRIVATE KEY-----
@@ -183,6 +185,7 @@ SSLAUTH_CREATE_USER = True
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'authentic2.sslauth.backends.SSLAuthBackend',
+    'authentic2.auth.oath.backend.OATHTOTPBackend'
 )
 
 # IDP

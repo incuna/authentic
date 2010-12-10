@@ -148,3 +148,8 @@ def password_change(request, template = 'authopenid/password_change_form.html',
         'form': form,
     }, context_instance=context)
 
+def login_password_profile(request, next):
+    return render_to_string('auth/login_password_profile.html', {},
+            RequestContext(request))
+
+
