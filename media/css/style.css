@@ -274,9 +274,23 @@ div#breadcrumb {
 
 div#user {
 	position: absolute;
-	right: 12px;
 	top: 98px;
+	right: 12px;
 }
+
+a#logout {
+	font-size: 70%;
+}
+
+
 .ui-tabs .ui-tabs-hide {
      display: none;
+}
+
+h4 {
+	padding-left: 0.5em;
+}
+
+h4 + div {
+	padding-left: 1em;
 }
