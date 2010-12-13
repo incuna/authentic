@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Authentic - Account Management" %}
+{% endblock %}
+
+
+{% block content %}
+<h2>{% trans "Account Management" %}</h2>
+<h3>{% trans "Credentials" %}</h3>
+  {% for html_block in frontends_block %}
+    {{ html_block|safe }}
+  {% endfor %}
+{% endblock %}

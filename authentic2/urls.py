@@ -26,6 +26,7 @@ urlpatterns = patterns('',
     (r'^idp/', include('authentic2.idp.urls')),
     (r'^logout$', 'authentic2.idp.views.logout'),
     (r'^$', login_required(authentic2.idp.views.homepage), {}, 'index'),
+    (r'^profile$', login_required(authentic2.idp.views.profile), {}, 'account_management'),
 )
 
 urlpatterns += patterns('',
@@ -64,3 +65,7 @@ if settings.IDP_OPENID:
             (r'^openid/',include('openid_provider.urls')),
             url(r'^o8/(?P<id>[a-zA-Z0-9,_,]*/?)/$', openid_provider.views.openid_xrds, {'identity': True}, name='openid-provider-identity'),
     )
+
+if 'authentic2.auth.oath' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('',
+            (r'^oath/', include('authentic2.auth.oath.urls')))

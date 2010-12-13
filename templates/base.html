@@ -22,12 +22,12 @@
     <div id="splash"></div>
 
     <div id="content">
-
         {% if not request.user.username == '' %}
         <div id="user">
           <p>{% blocktrans with request.user.username as username %}
              You are authenticated as {{ username }}.
-             {% endblocktrans %}</p>
+             {% endblocktrans %}
+          <a id="logout" href="{% url auth_logout %}">{% trans "Logout" %}</a></p>
         </div>
         {% endif %}
         {% block content %}{% endblock %}

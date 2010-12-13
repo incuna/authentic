@@ -28,6 +28,7 @@ from openid.yadis import xri
 
 import authentic2.saml.common
 import authentic2.authsaml2.utils
+from authentic2.idp import get_backends
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
 
@@ -57,6 +58,13 @@ def homepage(request):
         tpl_parameters['openid'] = request.user.openid_set
         tpl_parameters['IDP_OPENID'] = settings.IDP_OPENID
     return render_to_response('idp/homepage.html', tpl_parameters, RequestContext(request))
+
+def profile(request):
+    frontends = get_backends('AUTH_FRONTENDS')
+    blocks = [ frontend.profile(request, next='/profile') for frontend in frontends \
+            if hasattr(frontend, 'profile') ]
+    return render_to_response('idp/account_management.html', { 'frontends_block': blocks },
+            RequestContext(request))
 
 def logout_list(request):
     '''Return logout links from idp backends'''
