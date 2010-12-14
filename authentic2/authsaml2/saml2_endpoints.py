@@ -76,23 +76,41 @@ def sso(request, entity_id=None):
         login.initAuthnRequest(p.entity_id, lasso.HTTP_METHOD_REDIRECT)
     except lasso.Error, error:
         return error_page(request, _('SSO/SP UI: %s') %lasso.strError(error[0]))
-    #login.request.nameIDPolicy.format = lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT
-    #login.request.nameIDPolicy.allowCreate = True
-    #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
-    login.request.nameIDPolicy = None
-    if p.identity_provider.enable_binding_for_sso_response:
-        login.request.protocolBinding = p.identity_provider.binding_for_sso_response
-    login.request.forceAuthn = p.identity_provider.want_force_authn_request
-    login.request.isPassive = p.identity_provider.want_is_passive_authn_request
-    login.request.consent = p.identity_provider.user_consent
+
+    # 5. IdP configuration
+    if s.activate_default_sp_policy:
+        if s.no_nameid_policy:
+            login.request.nameIDPolicy = None
+        else:
+            login.request.nameIDPolicy.format = NAME_ID_FORMATS[s.requested_name_id_format]['samlv2']
+            login.request.nameIDPolicy.allowCreate = s.allow_create
+            #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
+        if s.enable_binding_for_sso_response:
+            login.request.protocolBinding = s.binding_for_sso_response
+        login.request.forceAuthn = s.want_force_authn_request
+        login.request.isPassive = s.want_is_passive_authn_request
+        login.request.consent = s.user_consent
+    else:
+        if p.identity_provider.no_nameid_policy:
+            login.request.nameIDPolicy = None
+        else:
+            login.request.nameIDPolicy.format = NAME_ID_FORMATS[p.identity_provider.requested_name_id_format]['samlv2']
+            login.request.nameIDPolicy.allowCreate = p.identity_provider.allow_create
+            #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
+        if p.identity_provider.enable_binding_for_sso_response:
+            login.request.protocolBinding = p.identity_provider.binding_for_sso_response
+        login.request.forceAuthn = p.identity_provider.want_force_authn_request
+        login.request.isPassive = p.identity_provider.want_is_passive_authn_request
+        login.request.consent = p.identity_provider.user_consent
+
     try:
         login.buildAuthnRequestMsg()
     except lasso.Error, error:
         return error_page(request, _('SSO/SP UI: %s') %lasso.strError(error[0]))
-    # 5. Save the request ID (association with the target page)
+    # 6. Save the request ID (association with the target page)
     session_ext.saml_request_id = login.request.iD
     session_ext.save()
-    # 6. Redirect the user
+    # 7. Redirect the user
     import sys
     print >> sys.stderr, login.request.dump()
 
@@ -144,8 +162,9 @@ def singleSignOnArtifact(request):
     if not soap_answer:
         return error_page(request, _('SSO/Artifact: Failure to communicate with identity provider'))
 
-    #if https login.msgUrl
-    login.setSignatureVerifyHint(2)
+    # If connexion over HTTPS, do not check signature?!
+    if login.msgUrl.startswith('https'):
+        login.setSignatureVerifyHint(lasso.PROFILE_SIGNATURE_HINT_FORBID)
 
     try:
         login.processResponseMsg(soap_answer)
@@ -259,8 +278,16 @@ def sso_after_response(request, login, relay_state = None):
     except lasso.Error, error:
         return error_page(request, _('SSO/sso_after_response: %s') %lasso.strError(error[0]))
 
+    s = get_service_provider_settings()
+    if not s:
+        return error_page(request, _('Service provider not configured'))
+
     user = request.user
     if not request.user.is_anonymous():
+        #TODO: If transient nameID and logged user, only logging
+        if login.nameIdentifier.format == "urn:oasis:names:tc:SAML:2.0:nameid-format:transient":
+            return error_page(request, _('Persistent account policy not yet implemented'))
+
         fed = lookup_federation_by_name_identifier(login)
         if fed:
             save_session(request, login)
@@ -276,45 +303,41 @@ def sso_after_response(request, login, relay_state = None):
             maintain_liberty_session_on_service_provider(request, login)
             return redirect_to_target(request)
     else:
-        from backends import AuthSAML2Backend
-        user = AuthSAML2Backend().authenticate(request,login)
-        if user:
-            key = request.session.session_key
-            auth_login(request, user)
-            if request.session.test_cookie_worked():
-                request.session.delete_test_cookie()
-            save_session(request, login)
-            save_federation(request, login)
-            maintain_liberty_session_on_service_provider(request, login)
-            return redirect_to_target(request, key)
-        else:
-            s = get_service_provider_settings()
-            if not s:
-                return error_page(request, _('Service provider not configured'))
-            #TODO: User unknown
-            #Unknown user - transient nameId - logged temporary session
-            if login.nameIdentifier.format == "urn:oasis:names:tc:SAML:2.0:nameid-format:transient":
+        if login.nameIdentifier.format == "urn:oasis:names:tc:SAML:2.0:nameid-format:transient":
+            if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
+                return error_page(request, _('Transient access policy not yet implemented'))
+            if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
+                #TODO: Logging
+                from backends import AuthSAML2Backend
                 user = AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
                 key = request.session.session_key
                 auth_login(request, user)
                 if request.session.test_cookie_worked():
                     request.session.delete_test_cookie()
                 save_session(request, login)
-                #log
+                return redirect_to_target(request)
+            return error_page(request, _('Transient access policy: Configuration error'))
+
+        if login.nameIdentifier.format == "urn:oasis:names:tc:SAML:2.0:nameid-format:transient":
+            from backends import AuthSAML2Backend
+            user = AuthSAML2Backend().authenticate(request,login)
+            if user:
+                key = request.session.session_key
+                auth_login(request, user)
+                if request.session.test_cookie_worked():
+                    request.session.delete_test_cookie()
+                save_session(request, login)
+                save_federation(request, login)
+                maintain_liberty_session_on_service_provider(request, login)
                 return redirect_to_target(request, key)
-            if s.unauth == 'AUTHSAML2_UNAUTH_ACCOUNT_LINKING_BY_AUTH':
+            if s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
                 register_federation_in_progress(request,login.nameIdentifier.content)
                 save_session(request, login)
                 save_federation_temp(request, login)
                 maintain_liberty_session_on_service_provider(request, login)
                 return render_to_response('auth/saml2/account_linking.html',
                         context_instance=RequestContext(request))
-                pass
-            elif s.unauth == 'AUTHSAML2_UNAUTH_ACCOUNT_LINKING_BY_ATTRS':
-                pass
-            elif s.unauth == 'AUTHSAML2_UNAUTH_ACCOUNT_LINKING_BY_TOKEN':
-                pass
-            elif s.unauth == 'AUTHSAML2_UNAUTH_CREATE_USER_PSEUDONYMOUS':
+            if s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
                 user = AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
                 key = request.session.session_key
                 auth_login(request, user)
@@ -323,16 +346,10 @@ def sso_after_response(request, login, relay_state = None):
                 save_session(request, login)
                 maintain_liberty_session_on_service_provider(request, login)
                 return redirect_to_target(request, key)
-            elif s.unauth == 'AUTHSAML2_UNAUTH_CREATE_USER_PSEUDONYMOUS_ONE_TIME':
-                pass
-            elif s.unauth == 'AUTHSAML2_UNAUTH_CREATE_USER_WITH_ATTRS_IN_A8N':
-                pass
-            elif s.unauth == 'AUTHSAML2_UNAUTH_CREATE_USER_WITH_ATTRS_SELF_ASSERTED':
-                pass
+            return error_page(request, _('Persistent Account policy: Configuration error'))
 
+        return error_page(request, _('Transient access policy: NameId format not supported'))
         #TODO: Relay state
-
-        return error_page(request, _('Not yet implemented'))
 
 ###
  # register_federation_in_progres
@@ -452,6 +469,8 @@ def logout(request):
 
     # TODO: The user asks a logout, we should perform before knowing if the IdP can handle
     # Except if we want to manage mutliple logout with multiple IdP
+
+    # TODO: Default SP policy configuration
 
     # If not defined in the metadata, put ANY to let lasso do its job from metadata
     if not p.identity_provider.enable_http_method_for_slo_request:
