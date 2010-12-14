@@ -74,8 +74,9 @@ def sso(request, entity_id=None):
         login.initAuthnRequest(p.entity_id, lasso.HTTP_METHOD_REDIRECT)
     except lasso.Error, error:
         return error_page(request, _('SSO/SP UI: %s') %lasso.strError(error[0]))
-    login.request.nameIDPolicy.format = lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT
-    login.request.nameIDPolicy.allowCreate = True
+    #login.request.nameIDPolicy.format = lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT
+    #login.request.nameIDPolicy.allowCreate = True
+    #login.request.nameIDPolicy.spNameQualifier = ""
     if p.identity_provider.enable_binding_for_sso_response:
         login.request.protocolBinding = p.identity_provider.binding_for_sso_response
     login.request.forceAuthn = p.identity_provider.want_force_authn_request
@@ -89,6 +90,9 @@ def sso(request, entity_id=None):
     session_ext.saml_request_id = login.request.iD
     session_ext.save()
     # 6. Redirect the user
+    import sys
+    print >> sys.stderr, login.request.dump()
+
     return HttpResponseRedirect(login.msgUrl)
 
 def selectProvider(request, entity_id):
@@ -125,6 +129,9 @@ def singleSignOnArtifact(request):
     except lasso.Error, error:
         return error_page(request, _('SSO/Artifact: %s') %lasso.strError(error[0]))
 
+    import sys
+    print >> sys.stderr, login.request.dump()
+
     # TODO: Client certificate
     client_cert = None
     try:
@@ -137,6 +144,7 @@ def singleSignOnArtifact(request):
     try:
         login.processResponseMsg(soap_answer)
     except lasso.Error, error:
+        print >> sys.stderr, login.response.dump()
         return error_page(request, _('SSO/Artifact: %s') %lasso.strError(error[0]))
 
     # TODO: Relay State
