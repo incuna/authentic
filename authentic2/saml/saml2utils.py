@@ -157,7 +157,7 @@ class Saml2Metadata(object):
             if 'encryption_key' in options:
                 self.add_keyinfo(options['encryption_key'], 'encryption')
             if 'key' in options:
-                self.add_keyinfo(options['key'], 'signing encryption')
+                self.add_keyinfo(options['key'], None)
         assertion_consumer_idx = 1
         for service in listing:
             selected = [ row for row in map if row[0] == service ]
