@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.utils.encoding import smart_unicode
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.generic.simple import redirect_to
@@ -354,7 +355,15 @@ def complete_associate(request, redirect_field_name=REDIRECT_FIELD_NAME,
 
 def get_associate_openid(user):
     """ get list of associated openids """
-    rels = UserAssociation.objects.filter(user__id=user.id)
+    rels = UserAssociation.objects.filter(user=user)
     associated_openids = [rel.openid_url for rel in rels]
     nb_associated_openids = len(associated_openids)
     return nb_associated_openids, associated_openids
+
+def openid_profile(request, next, template_name='auth/openid_profile.html'):
+    nb, associated_openids = get_associate_openid(request.user)
+    return render_to_string(template_name,
+            { 'idp_openid': getattr(settings, 'IDP_OPENID', False),
+              'associated_openids': associated_openids},
+            RequestContext(request))
+

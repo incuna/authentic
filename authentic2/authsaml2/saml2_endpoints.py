@@ -58,8 +58,9 @@ def sso(request, entity_id=None):
         if providers_list.count() == 1:
             p = providers_list[0]
         else:
-            return render_to_response('idp_select.html', {'providers_list': providers_list},
-                context_instance=RequestContext(request))
+            return render_to_response('auth/saml2/idp_select.html',
+                    {'providers_list': providers_list},
+                    context_instance=RequestContext(request))
     else:
         try:
             p = LibertyProvider.objects.get(entity_id=entity_id)
@@ -291,7 +292,8 @@ def sso_after_response(request, login, relay_state = None):
                 save_session(request, login)
                 save_federation_temp(request, login)
                 maintain_liberty_session_on_service_provider(request, login)
-                return render_to_response('account_linking.html', context_instance=RequestContext(request))
+                return render_to_response('auth/saml2/account_linking.html',
+                        context_instance=RequestContext(request))
                 pass
             elif s.unauth == 'AUTHSAML2_UNAUTH_ACCOUNT_LINKING_BY_ATTRS':
                 pass
@@ -384,7 +386,8 @@ def finish_federation(request):
             return redirect_to_target(request, key)
         else:
             # TODO: Error: login failed: message and count 3 attemps
-            return render_to_response('account_linking.html', context_instance=RequestContext(request))
+            return render_to_response('auth/saml2/account_linking.html',
+                    context_instance=RequestContext(request))
     else:
         return error_page(request, _('SSO/finish_federation: Unable to perform federation'))
 

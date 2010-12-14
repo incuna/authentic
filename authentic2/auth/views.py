@@ -74,7 +74,7 @@ def login(request, template_name='auth/login.html',
             redirect_to = settings.LOGIN_REDIRECT_URL
     nonce = request.REQUEST.get(NONCE_FIELD_NAME)
 
-    backends = get_backends('AUTH_FRONTENDS')
+    frontends = get_backends('AUTH_FRONTENDS')
 
     # If already logged, leave now
     if not request.user.is_anonymous():
@@ -86,21 +86,21 @@ def login(request, template_name='auth/login.html',
             return HttpResponseRedirect(redirect_to)
         else:
             forms = []
-            for b in backends:
-                if not b.enabled():
+            for frontend in frontends:
+                if not frontend.enabled():
                     continue
-                if 'submit-%s' % b.id() in request.POST:
-                    form = b.form()(data=request.POST)
+                if 'submit-%s' % frontend.id() in request.POST:
+                    form = frontend.form()(data=request.POST)
                     if form.is_valid():
                         if request.session.test_cookie_worked():
                             request.session.delete_test_cookie()
-                        return b.post(request, form, nonce, redirect_to)
-                    forms.append((b.name(), {'form': form, 'backend': b}))
+                        return frontend.post(request, form, nonce, redirect_to)
+                    forms.append((frontend.name(), {'form': form, 'backend': frontend}))
                 else:
-                    forms.append((b.name(), {'form': b.form()(), 'backend': b}))
+                    forms.append((frontend.name(), {'form': frontend.form()(), 'backend': frontend}))
     else:
-        forms = [(b.name(), { 'form': b.form()(), 'backend': b }) \
-                for b in backends if b.enabled()]
+        forms = [(frontend.name(), { 'form': frontend.form()(), 'backend': frontend }) \
+                for frontend in frontends if frontend.enabled()]
 
     rendered_forms = [ (name,
             render_to_string(d['backend'].template(),
@@ -147,4 +147,9 @@ def password_change(request, template = 'authopenid/password_change_form.html',
     return render_to_response(template, {
         'form': form,
     }, context_instance=context)
+
+def login_password_profile(request, next):
+    return render_to_string('auth/login_password_profile.html', {},
+            RequestContext(request))
+
 

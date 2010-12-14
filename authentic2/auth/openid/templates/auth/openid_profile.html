@@ -1,0 +1,20 @@
+{% load i18n %}
+<h4>OpenID</h4>
+
+<div>
+<p>
+  <a href="{% url user-associate %}">{% trans "Associate your account with an OpenID"  %}</a>
+</p>
+{% if associated_openid %}
+<p><ul>
+{% for openid in associated_openids %}
+<li>{{ openid }}</li>
+{% endfor %}
+</ul></p>
+{% endif %}
+{% if idp_openid %}
+<p>
+  <a href="{% url manage_id %}">{% trans "Manage your openid identities" %}</a>
+</p>
+{% endif  %}
+</div>
