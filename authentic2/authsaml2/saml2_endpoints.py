@@ -1082,7 +1082,7 @@ metadata_map = (('AssertionConsumerService', lasso.SAML2_METADATA_BINDING_ARTIFA
     ('ManageNameIDService', lasso.SAML2_METADATA_BINDING_SOAP , '/manageNameIdSOAP'),
     ('ManageNameIDService', lasso.SAML2_METADATA_BINDING_REDIRECT , '/manageNameId', '/manageNameIdReturn'),
 )
-metadata_options = { 'signing_key': settings.SAML_SIGNING_KEY }
+metadata_options = { 'key': settings.SAML_SIGNING_KEY }
 
 def get_provider_id_and_options(provider_id):
     if not provider_id:
