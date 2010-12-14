@@ -77,7 +77,8 @@ def sso(request, entity_id=None):
         return error_page(request, _('SSO/SP UI: %s') %lasso.strError(error[0]))
     #login.request.nameIDPolicy.format = lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT
     #login.request.nameIDPolicy.allowCreate = True
-    #login.request.nameIDPolicy.spNameQualifier = ""
+    #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
+    login.request.nameIDPolicy = None
     if p.identity_provider.enable_binding_for_sso_response:
         login.request.protocolBinding = p.identity_provider.binding_for_sso_response
     login.request.forceAuthn = p.identity_provider.want_force_authn_request
