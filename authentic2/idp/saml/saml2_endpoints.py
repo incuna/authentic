@@ -738,7 +738,7 @@ metadata_map = ((saml2utils.Saml2Metadata.SINGLE_SIGN_ON_SERVICE, asynchronous_b
         (saml2utils.Saml2Metadata.SINGLE_LOGOUT_SERVICE, soap_bindings, '/slo/soap'),
         (saml2utils.Saml2Metadata.ARTIFACT_RESOLUTION_SERVICE, lasso.SAML2_METADATA_BINDING_SOAP, '/artifact'))
 
-metadata_options = { 'signing_key': settings.SAML_PRIVATE_KEY }
+metadata_options = { 'signing_key': settings.SAML_SIGNING_KEY }
 
 def get_provider_id_and_options(request, provider_id):
     if not provider_id:
