@@ -216,6 +216,13 @@ class LibertyIdentityProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True, related_name = 'identity_provider')
     enabled = models.BooleanField(verbose_name = _('Enabled'))
+    no_nameid_policy = models.BooleanField(
+            verbose_name = _("Do not send a nameId Policy"))
+    requested_name_id_format = models.CharField(max_length = 20,
+            default = DEFAULT_NAME_ID_FORMAT,
+            choices = NAME_ID_FORMATS_CHOICES)
+    allow_create = models.BooleanField(
+            verbose_name = _("Allow IdP to create an identity"))
     enable_binding_for_sso_response = models.BooleanField(
             verbose_name = _('Binding for Authnresponse (taken from metadata by the IdP if not enabled)'))
     binding_for_sso_response = models.CharField(

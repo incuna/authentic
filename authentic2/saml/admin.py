@@ -15,6 +15,9 @@ class LibertyIdentityProviderInline(admin.StackedInline):
             (None, {
                 'fields' : (
                     'enabled',
+                    'no_nameid_policy',
+                    'requested_name_id_format',
+                    'allow_create',
                     ('enable_binding_for_sso_response', 'binding_for_sso_response'),
                     ('enable_http_method_for_slo_request', 'http_method_for_slo_request'),
                     ('enable_http_method_for_defederation_request', 'http_method_for_defederation_request'),
