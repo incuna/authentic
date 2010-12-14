@@ -19,6 +19,7 @@ from django.utils.translation import ugettext as _
 from authentic2.saml.common import *
 from authentic2.saml.models import *
 from authentic2.authsaml2.utils import *
+from authentic2.authsaml2.backends import *
 import signals
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
@@ -142,6 +143,9 @@ def singleSignOnArtifact(request):
         return error_page(request, _('SSO/Artifact: Failure to communicate with identity provider'))
     if not soap_answer:
         return error_page(request, _('SSO/Artifact: Failure to communicate with identity provider'))
+
+    #if https login.msgUrl
+    login.setSignatureVerifyHint(2)
 
     try:
         login.processResponseMsg(soap_answer)
@@ -288,6 +292,16 @@ def sso_after_response(request, login, relay_state = None):
             if not s:
                 return error_page(request, _('Service provider not configured'))
             #TODO: User unknown
+            #Unknown user - transient nameId - logged temporary session
+            if login.nameIdentifier.format == "urn:oasis:names:tc:SAML:2.0:nameid-format:transient":
+                user = AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
+                key = request.session.session_key
+                auth_login(request, user)
+                if request.session.test_cookie_worked():
+                    request.session.delete_test_cookie()
+                save_session(request, login)
+                #log
+                return redirect_to_target(request, key)
             if s.unauth == 'AUTHSAML2_UNAUTH_ACCOUNT_LINKING_BY_AUTH':
                 register_federation_in_progress(request,login.nameIdentifier.content)
                 save_session(request, login)
@@ -301,7 +315,7 @@ def sso_after_response(request, login, relay_state = None):
             elif s.unauth == 'AUTHSAML2_UNAUTH_ACCOUNT_LINKING_BY_TOKEN':
                 pass
             elif s.unauth == 'AUTHSAML2_UNAUTH_CREATE_USER_PSEUDONYMOUS':
-                user = SAML2AuthBackend().create_user(nameId=login.nameIdentifier.content)
+                user = AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
                 key = request.session.session_key
                 auth_login(request, user)
                 if request.session.test_cookie_worked():
@@ -1104,3 +1118,5 @@ def add_idp_to_sp(request, sp, p):
     except:
         logging.error('Unable to load provider %r' % p.entity_id)
         pass
+
+
