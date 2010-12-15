@@ -73,9 +73,8 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None):
                     {'providers_list': providers_list},
                     context_instance=RequestContext(request))
     else:
-        try:
-            p = LibertyProvider.objects.get(entity_id=entity_id)
-        except LibertyProvider.DoesNotExist:
+        p = load_provider(request, entity_id)
+        if not p:
             return error_page(request, 'SSO/Artifact: The provider does not exist')
     # 4. Build authn request
     login = lasso.Login(server)
