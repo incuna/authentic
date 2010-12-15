@@ -83,8 +83,6 @@ def save_federation_temp(request, login):
     return session_ext
 
 def load_federation_temp(request, login):
-    import sys
-    print >>sys.stderr, 'load_federation_temp'
     if request and login:
         try:
             session_ext = ExtendDjangoSession.objects.get(django_session_key=request.session.session_key)

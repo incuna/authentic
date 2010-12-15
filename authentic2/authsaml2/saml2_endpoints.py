@@ -126,9 +126,6 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None):
     session_ext.saml_request_id = login.request.iD
     session_ext.save()
     # 7. Redirect the user
-    import sys
-    print >> sys.stderr, login.request.dump()
-
     return HttpResponseRedirect(login.msgUrl)
 
 def selectProvider(request, entity_id):
@@ -165,9 +162,6 @@ def singleSignOnArtifact(request):
     except lasso.Error, error:
         return error_page(request, _('SSO/Artifact: %s') %lasso.strError(error[0]))
 
-    import sys
-    print >> sys.stderr, login.request.dump()
-
     # TODO: Client certificate
     client_cert = None
     try:
@@ -186,7 +180,6 @@ def singleSignOnArtifact(request):
     try:
         login.processResponseMsg(soap_answer)
     except lasso.Error, error:
-        print >> sys.stderr, login.response.dump()
         return error_page(request, _('SSO/Artifact: %s') %lasso.strError(error[0]))
 
     # TODO: Relay State
