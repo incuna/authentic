@@ -4,6 +4,7 @@ import urllib
 import httplib
 import logging
 import re
+import datetime
 
 import lasso
 from django.template import RequestContext
@@ -643,3 +644,12 @@ def soap_fault(request, faultcode='soap:Client', faultstring=None):
 </soap:Envelope>''' % locals()
     return HttpResponse(content, mimetype = "text/xml")
 
+def iso8601_to_datetime(date_string):
+    '''Convert a string formatted as an ISO8601 date into a time_t value.
+
+       This function ignores the sub-second resolution'''
+    try:
+        tm = time.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ")
+    except:
+        tm = time.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ")
+    return datetime.datetime.fromtimestamp(time.mktime(tm))
