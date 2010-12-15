@@ -26,6 +26,8 @@ __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
 
 '''SAMLv2 SP implementation'''
 
+logger = logging.getLogger('authentic.auth.saml2')
+
 def metadata(request):
     '''Endpoint to retrieve the metadata file'''
     return HttpResponse(get_metadata(request, request.path),
@@ -170,9 +172,11 @@ def singleSignOnArtifact(request):
     client_cert = None
     try:
         soap_answer = soap_call(login.msgUrl, login.msgBody, client_cert = client_cert)
-    except:
+    except Exception, e:
+        logger.exception('SSO: Failure to communicate with artifact resolver %r' % login.msgUrl, e)
         return error_page(request, _('SSO/Artifact: Failure to communicate with identity provider'))
     if not soap_answer:
+        logger.error('SSO: Artifact resolver at %r returned an empty response' % login.msgUrl)
         return error_page(request, _('SSO/Artifact: Failure to communicate with identity provider'))
 
     # If connexion over HTTPS, do not check signature?!
@@ -713,12 +717,12 @@ def singleLogoutSOAP(request):
     if session:
         q = LibertySessionDump.objects.filter(django_session_key = session.django_session_key)
         if not q:
-            logging.warning('SLO/IdP SOAP: No session dump for this session')
+            logger.warning('SLO/IdP SOAP: No session dump for this session')
             finishSingleLogoutSOAP(logout)
-        logging.warning('SLO/IdP SOAP from %s, for session index %s and session %s' % (logout.remoteProviderId, session_index, session.id))
+        logger.warning('SLO/IdP SOAP from %s, for session index %s and session %s' % (logout.remoteProviderId, session_index, session.id))
         logout.setSessionFromDump(q[0].session_dump.encode('utf8'))
     else:
-        logging.warning('SLO/IdP SOAP: No Liberty session found')
+        logger.warning('SLO/IdP SOAP: No Liberty session found')
         return finishSingleLogoutSOAP(logout)
 #    authentic.identities.get_store().load_identities()
 #    try:
@@ -735,7 +739,7 @@ def singleLogoutSOAP(request):
         logout.validateRequest()
     except lasso.Error, error:
         message = 'SLO/IdP SOAP validateRequest: %s' %lasso.strError(error[0])
-        logging.warning(message)
+        logger.warning(message)
         # We continue the process
     django_session_key = session.django_session_key
     session.delete()
@@ -748,13 +752,13 @@ def singleLogoutSOAP(request):
                 session_django = s
     except:
         import sys
-        logging.warning('SLO/IdP SOAP: Unable to grab user session: %s' %sys.exc_info()[0])
+        logger.warning('SLO/IdP SOAP: Unable to grab user session: %s' %sys.exc_info()[0])
         return finishSingleLogoutSOAP(logout)
     try:
         session_django.delete()
     except:
         import sys
-        logging.warning('SLO/IdP SOAP: Unable to delete user session: %s' %sys.exc_info()[0])
+        logger.warning('SLO/IdP SOAP: Unable to delete user session: %s' %sys.exc_info()[0])
         return finishSingleLogoutSOAP(logout)
 
     return finishSingleLogoutSOAP(logout)
@@ -763,7 +767,7 @@ def finishSingleLogoutSOAP(logout):
     try:
         logout.buildResponseMsg()
     except:
-        logging.warning('SLO/IdP SOAP buildResponseMsg: %s' %lasso.strError(error[0]))
+        logger.warning('SLO/IdP SOAP buildResponseMsg: %s' %lasso.strError(error[0]))
         return http_response_forbidden_request(message)
 
     django_response = HttpResponse()
@@ -794,17 +798,17 @@ def singleLogout(request):
     try:
         logout.processRequestMsg(query)
     except lasso.Error, error:
-        logging.warning('SLO/IdP Redirect: %s' %lasso.strError(error[0]))
+        logger.warning('SLO/IdP Redirect: %s' %lasso.strError(error[0]))
         return slo_return_response(logout)
 
-    logging.warning('SLO/IdP Redirect from %s:' % logout.remoteProviderId)
+    logger.warning('SLO/IdP Redirect from %s:' % logout.remoteProviderId)
 
     load_session(request, logout)
 
     try:
         logout.validateRequest()
     except lasso.Error, error:
-        logging.warning('SLO/IdP Redirect: %s' %lasso.strError(error[0]))
+        logger.warning('SLO/IdP Redirect: %s' %lasso.strError(error[0]))
         return slo_return_response(logout)
 
     if logout.isSessionDirty:
@@ -1071,7 +1075,7 @@ def manageNameId(request):
     try:
         manage.validateRequest()
     except lasso.Error, error:
-        logging.warning('fedTerm/IdP Redirect: Unable to validate request')
+        logger.warning('fedTerm/IdP Redirect: Unable to validate request')
         return
 
     fed.delete()
@@ -1116,11 +1120,11 @@ def create_server(request, provider_id=None):
             options=options)
 
 def http_response_bad_request(message):
-    logging.error(message)
+    logger.error(message)
     return HttpResponseBadRequest(_(message))
 
 def http_response_forbidden_request(message):
-    logging.error(message)
+    logger.error(message)
     return HttpResponseForbidden(_(message))
 
 def check_response_id(login):
@@ -1148,7 +1152,7 @@ def add_idp_to_sp(request, sp, p):
         sp.addProviderFromBuffer(lasso.PROVIDER_ROLE_IDP, p.metadata,
                  p.public_key, None)
     except:
-        logging.error('Unable to load provider %r' % p.entity_id)
+        logger.error('Unable to load provider %r' % p.entity_id)
         pass
 
 
