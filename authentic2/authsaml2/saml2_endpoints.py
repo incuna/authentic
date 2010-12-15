@@ -193,7 +193,7 @@ def singleSignOnPost(request):
     # TODO: check messages = get_saml2_request_message(request)
 
     # Binding POST
-    message = request.POST.__getitem__('SAMLResponse')
+    message = get_saml2_post_response(request)
     if not message:
         return error_page(request, _('SSO/Post: No message given.'))
 
