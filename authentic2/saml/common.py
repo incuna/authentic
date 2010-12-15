@@ -79,9 +79,9 @@ def get_saml2_metadata(request, metadata, idp_map=None, sp_map=None, options={})
 
 def create_saml2_server(request, metadata, idp_map=None, sp_map=None, options={}):
     '''Create a lasso Server object for using with a profile'''
-    signing_key = options.get('signing_key')
     server = lasso.Server.newFromBuffers(get_saml2_metadata(request, metadata,
-        idp_map=idp_map, sp_map=sp_map, options=options), signing_key)
+        idp_map=idp_map, sp_map=sp_map, options=options),
+        settings.SAML_PRIVATE_KEY)
     if not server:
         raise Exception('Cannot create LassoServer object')
     return server
@@ -163,13 +163,13 @@ def get_idff12_metadata(request, metadata):
             'SoapEndpoint': '/soap',
             'SingleSignOn': (('/sso',), sso_protocol_profiles)
           }
-    options = { 'signing_key': SAML_PRIVATE_KEY }
+    options = { 'key': settings.SAML_SIGNING_KEY }
     metagen.add_idp_descriptor(map, options)
     return str(metagen)
 
 def create_idff12_server(request, metadata):
-    server = lasso.Server.newFromBuffers(get_idff12_metadata(request, metadata),
-            SAML_PRIVATE_KEY)
+    server = lasso.Server.newFromBuffers(get_idff12_metadata(request,
+        metadata), settings.SAML_PRIVATE_KEY)
     if not server:
         raise Exception('Cannot create LassoServer object')
     return server
