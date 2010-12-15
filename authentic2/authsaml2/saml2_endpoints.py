@@ -271,18 +271,30 @@ def sso_after_response(request, login, relay_state = None):
         return error_page(request, _('SSO/sso_after_response: Error checking AudienceRestriction'))
 
     # Check: notBefore, notOnOrAfter
+    now = datetime.datetime.utcnow()
+    print assertion.subject.subjectConfirmation.debug(2)
     try:
-        now = datetime.datetime.utcnow()
         not_before = assertion.subject.subjectConfirmation.subjectConfirmationData.notBefore
-        not_on_or_after = assertion.subject.subjectConfirmation.subjectConfirmationData.notOnOrAfter
-        # TODO: Make a smart parsing to not fail if the date is not as much precise
-        if not_before and now < datetime.datetime.fromtimestamp(time.mktime(time.strptime(not_before,"%Y-%m-%dT%H:%M:%S.%fZ"))):
+    except:
+        return error_page(request, _('SSO/sso_after_response: missing subjectConfirmationData'))
+    not_on_or_after = assertion.subject.subjectConfirmation.subjectConfirmationData.notOnOrAfter
+    if irt:
+        if not_before is not None:
+            return error_page(request, _('SSO/sso_after_response: assertion in response to an AuthnRequest, notBefore MUST not be present in SubjectConfirmationData'))
+    elif not_before is None or not not_before.endswith('Z'):
+        return error_page(request, _('SSO/sso_after_response: invalid notBefore value ' + not_before))
+    if not_on_or_after is None or not not_on_or_after.endswith('Z'):
+        return error_page(request, _('SSO/sso_after_response: invalid notOnOrAfter value'))
+    try:
+        if not_before and now < datetime.datetime.fromtimestamp(time.mktime(time.strptime(not_before,"%Y-%m-%dT%H:%M:%S"))):
             return error_page(request, _('SSO/sso_after_response: Assertion received too early'))
-        if not_on_or_after and now > datetime.datetime.fromtimestamp(time.mktime(time.strptime(not_on_or_after,"%Y-%m-%dT%H:%M:%S.%fZ"))):
+    except:
+        return error_page(request, _('SSO/sso_after_response: invalid notBefore value ' + notBefore))
+    try:
+        if not_on_or_after and now > iso8601_to_datetime(not_on_or_after):
             return error_page(request, _('SSO/sso_after_response: Assertion expired'))
     except:
-        return error_page(request, _('SSO/sso_after_response: Error checking Assertion Time'))
-
+        return error_page(request, _('SSO/sso_after_response: invalid notOnOrAfter value'))
     try:
         login.acceptSso()
     except lasso.Error, error:
