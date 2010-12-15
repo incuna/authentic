@@ -326,9 +326,17 @@ for entity id %r are invalid' % provider_id)
         raise NotImplementedError()
     return p
 
-def load_provider(request, login, provider_id, sp_or_idp = 'sp'):
+def load_provider(request, provider_id, server=None, sp_or_idp='sp'):
     '''Look up a provider in the database, and verify it handles wanted
        role be it sp or idp.
+
+       Arguments:
+       request -- the currently handled request
+       provider_id -- the entity ID of the searched provider
+       Keyword arguments:
+       server -- a lasso.Server object into which to load the given provider
+       sp_or_idp -- kind of the provider we are looking for, can be 'sp' or 'idp',
+       default to 'sp'
     '''
     try:
         liberty_provider = LibertyProvider.objects.get(entity_id=provider_id)
@@ -347,8 +355,9 @@ def load_provider(request, login, provider_id, sp_or_idp = 'sp'):
             return False
         if not service_provider.enabled:
             return False
-        login.server.addProviderFromBuffer(lasso.PROVIDER_ROLE_SP,
-                liberty_provider.metadata)
+        if server:
+            server.addProviderFromBuffer(lasso.PROVIDER_ROLE_SP,
+                    liberty_provider.metadata)
     elif sp_or_idp == 'idp':
         try:
             identity_provider = liberty_provider.identity_provider
@@ -356,8 +365,9 @@ def load_provider(request, login, provider_id, sp_or_idp = 'sp'):
             return False
         if not identity_provider.enabled:
             return False
-        login.server.addProviderFromBuffer(lasso.PROVIDER_ROLE_IDP,
-                liberty_provider.metadata)
+        if server:
+            server.addProviderFromBuffer(lasso.PROVIDER_ROLE_IDP,
+                    liberty_provider.metadata)
     else:
         raise Exception('unsupported option sp_or_idp = %r' % sp_or_idp)
 

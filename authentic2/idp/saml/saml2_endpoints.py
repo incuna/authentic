@@ -180,7 +180,8 @@ def sso(request):
                 lasso.ProfileUnknownProviderError):
             log_info_authn_request_details(login)
             provider_id = login.remoteProviderId
-            provider_loaded = load_provider(request, login, provider_id)
+            provider_loaded = load_provider(request, provider_id,
+                    server=login.server)
             if not provider_loaded:
                 consent_obtained = False
                 message = _('SAMLv2: provider %r unknown') % provider_id
@@ -234,7 +235,7 @@ def continue_sso(request):
             get_and_delete_key_values(nonce)
     server = create_server(request)
     login = lasso.Login.newFromDump(server, login_dump)
-    if not load_provider(request, login, login.remoteProviderId):
+    if not load_provider(request, login.remoteProviderId, server=login.server):
         return HttpResponseBadRequest('Unknown provider')
     if not login:
         logging.debug('SAMLv2: continue sso nonce %r not found' % nonce)
@@ -331,7 +332,8 @@ def artifact(request):
     try:
         login.processRequestMsg(soap_message)
     except (lasso.ProfileUnknownProviderError, lasso.ParamError):
-        if not load_provider(request, login, login.remoteProviderId):
+        if not load_provider(request, login.remoteProviderId,
+                server=login.server):
             raise
         try:
             login.processRequestMsg(soap_message)
@@ -365,7 +367,7 @@ def idp_sso(request, provider_id, user_id = None, nid_format = None):
         logging.info('SAMLv2 idp_sso as %s' % user_id)
     server = create_server(request)
     login = lasso.Login(server)
-    liberty_provider = load_provider(request, login, provider_id)
+    liberty_provider = load_provider(request, provider_id, server=login.server)
     if not liberty_provider:
         logging.info('SAMLv2 idp_sso for an unknown provider %s' % provider_id)
         raise error_page(request, _('Provider %s is unknown') % provider_id)
@@ -410,7 +412,7 @@ def finish_slo(request):
     logout_dump, session_key = get_and_delete_key_values(id)
     server = create_server(request)
     logout = lasso.Logout.newFromDump(server, logout_dump)
-    load_provider(request, logout, logout.remoteProviderId)
+    load_provider(request, logout.remoteProviderId, server=logout.server)
     # Clean all session
     all_sessions = LibertySession.objects.filter(django_session_key=session_key)
     if all_sessions.exists():
@@ -442,7 +444,8 @@ def process_logout_request(request, message, binding):
         try:
             logout.processRequestMsg(message)
         except (lasso.ServerProviderNotFoundError, lasso.ProfileUnknownProviderError), e:
-            p = load_provider(request, logout, logout.remoteProviderId)
+            p = load_provider(request, logout.remoteProviderId,
+                    server=logout.server)
             if not p:
                 logging.error('SAMLv2 slo unknown provider %s' % logout.remoteProviderId)
                 return logout, return_logout_error(logout,
@@ -542,7 +545,8 @@ def slo_soap(request):
     if not found:
         return return_logout_error(logout, AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION)
     for lib_session in lib_sessions:
-        p = load_provider(request, logout, lib_session.provider_id)
+        p = load_provider(request, lib_session.provider_id,
+                server=logout.provider)
         if not p:
             logging.error('SAMLv2 slo cannot logout provider %s, it is no more \
 known.' % lib_session.provider_id)
@@ -593,7 +597,8 @@ def slo(request):
         try:
             logout.processRequestMsg(message)
         except (lasso.ServerProviderNotFoundError, lasso.ProfileUnknownProviderError), e:
-            load_provider(request, logout, logout.remoteProviderId)
+            load_provider(request, logout.remoteProviderId,
+                    server=logout.server)
             logout.processRequestMsg(message)
     except lasso.DsError, e:
         logging.exception('SAMLv2 signature error %s' % e)
@@ -664,7 +669,7 @@ def idp_slo(request, provider_id):
     server = create_server(request)
     logout = lasso.Logout(server)
     logging.info('SAMLv2 idp_slo for %s' % provider_id)
-    if not load_provider(request, logout, provider_id):
+    if not load_provider(request, provider_id, server=logout.server):
         logging.error('SAMLv2 idp_slo failed to load provider')
     lib_session = LibertySession.objects.filter(
             django_session_key=request.session.session_key,

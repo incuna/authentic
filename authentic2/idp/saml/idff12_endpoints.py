@@ -89,7 +89,7 @@ def sso(request):
             provider_id = login.remoteProviderId
             # 2. Lookup the ProviderID
             logging.info('ID-FFv1.2: AuthnRequest from %r' % provider_id)
-            provider_loaded = load_provider(request, login, provider_id)
+            provider_loaded = load_provider(request, provider_id, server=login.server)
             if not provider_loaded:
                 consent_obtained = False
                 message = _('ID-FFv1.2: provider %r unknown') % provider_id
@@ -196,7 +196,7 @@ def artifact_resolve(request, soap_message):
     if liberty_artifact:
         liberty_artifact.delete()
         provider_id = liberty_artifact.provider_id
-        load_provider(request, login, provider_id)
+        load_provider(request, provider_id, server=login.server)
         load_session(request, login,
                 session_key = liberty_artifact.django_session_key)
         logging.info('ID-FFv1.2 artifact resolve from %r for artifact %r' % (
@@ -250,7 +250,7 @@ def idp_sso(request, provider_id, user_id = None):
     assert provider_id, 'You must call idp_initiated_sso with a provider_id parameter'
     server = create_idff12_server(request, reverse(metadata))
     login = lasso.Login(server)
-    liberty_provider = load_provider(request, login, provider_id)
+    liberty_provider = load_provider(request, provider_id, server=login.server)
     service_provider = liberty_provider.service_provider
     binding = service_provider.prefered_assertion_consumer_binding
     nid_policy = service_provider.default_name_id_format
