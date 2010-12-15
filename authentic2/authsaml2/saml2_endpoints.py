@@ -39,7 +39,7 @@ def metadata(request):
  # Single SignOn request initiated from SP UI
  # Binding supported: Redirect
  ###
-def sso(request, entity_id=None):
+def sso(request, entity_id=None, is_passive=None, force_authn=None):
     s = get_service_provider_settings()
     if not s:
         return error_page(request, _('SSO/Artifact: Service provider not configured'))
@@ -99,8 +99,12 @@ def sso(request, entity_id=None):
             #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
         if p.identity_provider.enable_binding_for_sso_response:
             login.request.protocolBinding = p.identity_provider.binding_for_sso_response
-        login.request.forceAuthn = p.identity_provider.want_force_authn_request
-        login.request.isPassive = p.identity_provider.want_is_passive_authn_request
+        if force_authn is None:
+            force_authn = p.identity_provider.want_force_authn_request
+        login.request.forceAuthn = force_authn
+        if is_passive is None:
+            is_passive = p.identity_provider.want_is_passive_authn_request
+        login.request.isPassive = is_passive
         login.request.consent = p.identity_provider.user_consent
 
     try:
