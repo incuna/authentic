@@ -40,6 +40,16 @@ def metadata(request):
  # Binding supported: Redirect
  ###
 def sso(request, entity_id=None, is_passive=None, force_authn=None):
+    '''Django view initiating an AuthnRequesst toward an identity provider.
+
+       Keyword arguments:
+       entity_id -- the SAMLv2 entity id identifier targeted by the
+       AuthnRequest, it should be resolvable to a metadata document.
+       is_passive -- whether to let the identity provider passively, i.e.
+       without user interaction, authenticate the user.
+       force_authn -- whether to ask the identity provider to authenticate the
+       user even if it is already authenticated.
+    '''
     s = get_service_provider_settings()
     if not s:
         return error_page(request, _('SSO/Artifact: Service provider not configured'))
