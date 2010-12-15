@@ -648,8 +648,8 @@ def iso8601_to_datetime(date_string):
     '''Convert a string formatted as an ISO8601 date into a time_t value.
 
        This function ignores the sub-second resolution'''
-    try:
-        tm = time.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%fZ")
-    except:
-        tm = time.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ")
+    m = re.match(r'(\d+-\d+-\d+T\d+:\d+:\d+)(?:\.\d+)?Z$', date_string)
+    if not m:
+        raise ValueError('Invalid ISO8601 date')
+    tm = time.strptime(m.group(1)+'Z', "%Y-%m-%dT%H:%M:%SZ")
     return datetime.datetime.fromtimestamp(time.mktime(tm))
