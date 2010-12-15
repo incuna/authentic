@@ -1,7 +1,11 @@
+import logging
+
 import models
 import authentic2.vendor.oath.hotp as hotp
 from django.contrib.auth.models import User
 from django.db import transaction
+
+logger = logging.getLogger('authentic.auth.oath')
 
 class OATHTOTPBackend:
 
@@ -13,15 +17,13 @@ class OATHTOTPBackend:
            the proposed OTP using it.
         '''
         try:
-            print 'Trying to check TOTP for', username, 'otp', oath_otp
             secret = models.OATHTOTPSecret.objects.get(user__username=username)
         except models.OATHTOTPSecret.DoesNotExist:
-            print 'DoestNotExist'
             return None
         try:
             accepted, drift = hotp.accept_totp(secret.key, oath_otp, format=format)
         except Exception, e:
-            print e
+            logger.exception('hotp.accept_totp raised', e)
             raise
 
         if accepted:
