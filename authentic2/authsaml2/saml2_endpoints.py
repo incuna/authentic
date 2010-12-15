@@ -75,7 +75,7 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None):
                     {'providers_list': providers_list},
                     context_instance=RequestContext(request))
     else:
-        p = load_provider(request, entity_id)
+        p = load_provider(request, entity_id, server=server, sp_or_idp='idp')
         if not p:
             return error_page(request, 'SSO/Artifact: The provider does not exist')
     # 4. Build authn request
@@ -1142,17 +1142,7 @@ def build_service_provider(request):
     if not providers_list:
         return None
     for p in providers_list:
-        add_idp_to_sp(request, sp, p)
+        p = load_provider(request, p.entity_id, server=sp, sp_or_idp='idp')
+        if not p:
+            logger.error('Unable to load provider %s' % p.entity_id)
     return sp
-
-def add_idp_to_sp(request, sp, p):
-    if not p.public_key:
-        p.public_key = None
-    try:
-        sp.addProviderFromBuffer(lasso.PROVIDER_ROLE_IDP, p.metadata,
-                 p.public_key, None)
-    except:
-        logger.error('Unable to load provider %r' % p.entity_id)
-        pass
-
-
