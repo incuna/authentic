@@ -86,6 +86,10 @@ def create_saml2_server(request, metadata, idp_map=None, sp_map=None, options={}
         raise Exception('Cannot create LassoServer object')
     return server
 
+def get_saml2_post_response(request):
+    '''Extract the SAMLRequest field from the POST'''
+    return request.POST.get(lasso.SAML2_FIELD_RESPONSE, '')
+
 def get_saml2_post_request(request):
     '''Extract the SAMLRequest field from the POST'''
     return request.POST.get(lasso.SAML2_FIELD_REQUEST, '')
