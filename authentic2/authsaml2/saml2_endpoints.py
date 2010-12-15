@@ -320,7 +320,8 @@ def sso_after_response(request, login, relay_state = None):
             maintain_liberty_session_on_service_provider(request, login)
             return redirect_to_target(request)
     else:
-        if login.nameIdentifier.format == "urn:oasis:names:tc:SAML:2.0:nameid-format:transient":
+        if login.nameIdentifier.format == \
+            lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT:
             if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
                 return error_page(request, _('Transient access policy not yet implemented'))
             if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
@@ -335,7 +336,8 @@ def sso_after_response(request, login, relay_state = None):
                 return redirect_to_target(request)
             return error_page(request, _('Transient access policy: Configuration error'))
 
-        if login.nameIdentifier.format == "urn:oasis:names:tc:SAML:2.0:nameid-format:transient":
+        if login.nameIdentifier.format == \
+            lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
             from backends import AuthSAML2Backend
             user = AuthSAML2Backend().authenticate(request,login)
             if user:
