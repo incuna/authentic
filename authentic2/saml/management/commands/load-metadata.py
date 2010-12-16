@@ -44,7 +44,8 @@ def load_one_entity(tree, options):
         if options['verbosity'] == '2':
             print >>sys.stdout, 'Loading', entity_id
         provider, created = LibertyProvider.objects.get_or_create(entity_id=entity_id,
-                protocol_conformance=3, name=entity_id)
+                protocol_conformance=3)
+        provider.name = name
         provider.metadata = etree.tostring(tree, encoding='utf-8').decode('utf-8')
         provider.protocol_conformance = 3
         provider.save()
