@@ -14,7 +14,7 @@ def is_sp_configured():
 
 def get_service_provider_settings():
     s = MyServiceProvider.objects.all()
-    if s.count() != 1:
+    if s.count() == 0:
        return None
     return s[0]
 
@@ -87,7 +87,6 @@ def load_federation_temp(request, login):
         try:
             session_ext = ExtendDjangoSession.objects.get(django_session_key=request.session.session_key)
             login.setIdentityFromDump(session_ext.temp_identity_dump)
-            print >>sys.stderr, 'dump: ' + login.identity.dump()
         except:
             pass
 
