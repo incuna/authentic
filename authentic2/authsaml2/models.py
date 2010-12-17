@@ -13,20 +13,9 @@ AUTHSAML2_UNAUTH_TRANSIENT = (
     ('AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION', _('Open a session')),
 )
 
-class MyServiceProvider(models.Model):
-    handle_persistent = models.CharField(
-            max_length=80,
-            verbose_name = 'Account Policy with persistent nameId',
-            choices=AUTHSAML2_UNAUTH_PERSISTENT)
-    handle_transient = models.CharField(
-            max_length=80,
-            verbose_name = 'Access Policy with transient nameId',
-            choices=AUTHSAML2_UNAUTH_TRANSIENT)
-    back_url = models.CharField(
-            max_length = 80,
-            verbose_name = 'Return URL after a successful authentication')
-    activate_default_sp_policy = models.BooleanField(
-            verbose_name = _("Activate the following policy for all SAML2 IdP:"))
+class IdPOptionsPolicy(models.Model):
+    name = models.CharField(_('name'), max_length=80, unique=True)
+    enabled = models.BooleanField(verbose_name = _('Enabled'))
     no_nameid_policy = models.BooleanField(
             verbose_name = _("Do not send a nameId Policy"))
     requested_name_id_format = models.CharField(max_length = 20,
@@ -67,6 +56,45 @@ class MyServiceProvider(models.Model):
     #        related_name = "identity_providers",
     #        blank = True, null = True)
 
+    class Meta:
+        verbose_name = _('identity provider options policy')
+        verbose_name_plural = _('identity provider options policies')
+
+    def __unicode__(self):
+        return self.name
+
+'''
+class idPGroup(models.Model):
+    name = models.CharField(_('name'), max_length=80, unique=True)
+    policy = models.ForeignKey(IdPOptionsPolicy)
+
+    class Meta:
+        verbose_name = _('identity providers group')
+        verbose_name_plural = _('identity providers groups')
+
+    def __unicode__(self):
+        return self.name
+'''
+
+# TODO: remove options after handling
+class MyServiceProvider(models.Model):
+    handle_persistent = models.CharField(
+            max_length=80,
+            verbose_name = 'Account Policy with persistent nameId',
+            choices=AUTHSAML2_UNAUTH_PERSISTENT)
+    handle_transient = models.CharField(
+            max_length=80,
+            verbose_name = 'Access Policy with transient nameId',
+            choices=AUTHSAML2_UNAUTH_TRANSIENT)
+    back_url = models.CharField(
+            max_length = 80,
+            verbose_name = 'Return URL after a successful authentication')
+
+    class Meta:
+        verbose_name = _('Service provider core configuration')
+
+    def __unicode__(self):
+        return "Service provider core configuration"
 
 class ExtendDjangoSession(models.Model):
     django_session_key = models.CharField(max_length = 50, unique = True)

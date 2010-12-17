@@ -20,6 +20,7 @@ from authentic2.saml.common import *
 from authentic2.saml.models import *
 from authentic2.authsaml2.utils import *
 from authentic2.authsaml2.backends import *
+from authentic2.authsaml2.idp_options_policy import *
 import signals
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
@@ -88,43 +89,17 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None):
     except lasso.Error, error:
         return error_page(request, _('SSO/SP UI: %s') %lasso.strError(error[0]))
 
-    # 5. IdP configuration
-    if s.activate_default_sp_policy:
-        if s.no_nameid_policy:
-            login.request.nameIDPolicy = None
-        else:
-            login.request.nameIDPolicy.format = NAME_ID_FORMATS[s.requested_name_id_format]['samlv2']
-            login.request.nameIDPolicy.allowCreate = s.allow_create
-            #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
-        if s.enable_binding_for_sso_response:
-            login.request.protocolBinding = s.binding_for_sso_response
-        login.request.forceAuthn = s.want_force_authn_request
-        login.request.isPassive = s.want_is_passive_authn_request
-        login.request.consent = s.user_consent
-    else:
-        if p.identity_provider.no_nameid_policy:
-            login.request.nameIDPolicy = None
-        else:
-            login.request.nameIDPolicy.format = NAME_ID_FORMATS[p.identity_provider.requested_name_id_format]['samlv2']
-            login.request.nameIDPolicy.allowCreate = p.identity_provider.allow_create
-            #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
-        if p.identity_provider.enable_binding_for_sso_response:
-            login.request.protocolBinding = p.identity_provider.binding_for_sso_response
-        if force_authn is None:
-            force_authn = p.identity_provider.want_force_authn_request
-        login.request.forceAuthn = force_authn
-        if is_passive is None:
-            is_passive = p.identity_provider.want_is_passive_authn_request
-        login.request.isPassive = is_passive
-        login.request.consent = p.identity_provider.user_consent
-
+    # 5. Request setting
+    setIdPOptionsPolicy(p, login, force_authn, is_passive)
     try:
         login.buildAuthnRequestMsg()
     except lasso.Error, error:
         return error_page(request, _('SSO/SP UI: %s') %lasso.strError(error[0]))
+
     # 6. Save the request ID (association with the target page)
     session_ext.saml_request_id = login.request.iD
     session_ext.save()
+
     # 7. Redirect the user
     return HttpResponseRedirect(login.msgUrl)
 

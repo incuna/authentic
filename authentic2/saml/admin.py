@@ -15,6 +15,7 @@ class LibertyIdentityProviderInline(admin.StackedInline):
             (None, {
                 'fields' : (
                     'enabled',
+                    'enable_following_policy',
                     'no_nameid_policy',
                     'requested_name_id_format',
                     'allow_create',

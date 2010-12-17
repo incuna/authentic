@@ -89,4 +89,3 @@ def load_federation_temp(request, login):
             login.setIdentityFromDump(session_ext.temp_identity_dump)
         except:
             pass
-

@@ -1,16 +1,13 @@
 from django.contrib import admin
 from models import *
+from django.utils.translation import ugettext as _
 
-#admin.site.register(MyServiceProvider)
-
-class MyServiceProviderAdmin(admin.ModelAdmin):
+class IdPOptionsPolicyAdmin(admin.ModelAdmin):
     fieldsets = (
             (None, {
                 'fields' : (
-                    'handle_persistent',
-                    'handle_transient',
-                    'back_url',
-                    'activate_default_sp_policy',
+                    'name',
+                    'enabled',
                     'no_nameid_policy',
                     'requested_name_id_format',
                     'allow_create',
@@ -25,5 +22,18 @@ class MyServiceProviderAdmin(admin.ModelAdmin):
             }),
     )
 
+class MyServiceProviderAdmin(admin.ModelAdmin):
+    fieldsets = (
+            (None, {
+                'fields' : (
+                    'handle_persistent',
+                    'handle_transient',
+                    'back_url',
+                )
+            }),
+    )
+
 admin.site.register(MyServiceProvider, MyServiceProviderAdmin)
+admin.site.register(IdPOptionsPolicy, IdPOptionsPolicyAdmin)
+#admin.site.register(idPGroup)
 

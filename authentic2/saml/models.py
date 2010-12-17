@@ -216,6 +216,8 @@ class LibertyIdentityProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True, related_name = 'identity_provider')
     enabled = models.BooleanField(verbose_name = _('Enabled'))
+    enable_following_policy = models.BooleanField(verbose_name = \
+        _('The following options policy will apply except if the policy for all identity provider is defined.'))
     no_nameid_policy = models.BooleanField(
             verbose_name = _("Do not send a nameId Policy"))
     requested_name_id_format = models.CharField(max_length = 20,
