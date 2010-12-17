@@ -89,7 +89,7 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None):
         return error_page(request, _('SSO/SP UI: %s') %lasso.strError(error[0]))
 
     # 5. Request setting
-    setIdPOptionsPolicy(p, login, force_authn, is_passive)
+    setAuthnrequestOptions(p, login, force_authn, is_passive)
     try:
         login.buildAuthnRequestMsg()
     except lasso.Error, error:
@@ -468,7 +468,7 @@ def logout(request):
     # TODO: The user asks a logout, we should perform before knowing if the IdP can handle
     # Except if we want to manage mutliple logout with multiple IdP
 
-    # TODO: Default SP policy configuration
+    # TODO: Deal with identity provider configuration in policies
 
     # If not defined in the metadata, put ANY to let lasso do its job from metadata
     if not p.identity_provider.enable_http_method_for_slo_request:
@@ -861,8 +861,10 @@ def federationTermination(request, entity_id):
 
     # The user asks a defederation, we perform without knowing if the IdP can handle
     fed.delete()
-    # If not defined in the metadata, put ANY to let lasso do its job from metadata
 
+    # TODO: Deal with identity provider configuration in policies
+
+    # If not defined in the metadata, put ANY to let lasso do its job from metadata
     if not p.identity_provider.enable_http_method_for_defederation_request:
         try:
             manage.initRequest(entity_id, None, lasso.HTTP_METHOD_ANY)
@@ -1128,7 +1130,7 @@ def build_service_provider(request):
             logger.error('Unable to load provider %s' % p.entity_id)
     return sp
 
-def setIdPOptionsPolicy(provider, login, force_authn, is_passive):
+def setAuthnrequestOptions(provider, login, force_authn, is_passive):
     if not provider or not login:
         return False
 
