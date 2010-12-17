@@ -20,7 +20,6 @@ from authentic2.saml.common import *
 from authentic2.saml.models import *
 from authentic2.authsaml2.utils import *
 from authentic2.authsaml2.backends import *
-from authentic2.authsaml2.idp_options_policy import *
 import signals
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
@@ -1128,3 +1127,77 @@ def build_service_provider(request):
         if not p:
             logger.error('Unable to load provider %s' % p.entity_id)
     return sp
+
+def setIdPOptionsPolicy(provider, login, force_authn, is_passive):
+    if not provider or not login:
+        return False
+
+    p = IdPOptionsPolicy.objects.get(name='All')
+    if p and p.enabled:
+        if p.no_nameid_policy:
+            login.request.nameIDPolicy = None
+        else:
+            login.request.nameIDPolicy.format = NAME_ID_FORMATS[p.requested_name_id_format]['samlv2']
+            login.request.nameIDPolicy.allowCreate = p.allow_create
+            #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
+
+        if p.enable_binding_for_sso_response:
+            login.request.protocolBinding = p.binding_for_sso_response
+
+        if force_authn is None:
+            force_authn = p.binding_for_sso_response
+        login.request.protocolBinding = force_authn
+
+        if is_passive is None:
+            is_passive = p.want_is_passive_authn_request
+        login.request.isPassive = is_passive
+
+        login.request.consent = p.user_consent
+        return True
+
+    if provider.identity_provider.enable_following_policy:
+        if provider.identity_provider.no_nameid_policy:
+            login.request.nameIDPolicy = None
+        else:
+            login.request.nameIDPolicy.format = NAME_ID_FORMATS[provider.identity_provider.requested_name_id_format]['samlv2']
+            login.request.nameIDPolicy.allowCreate = provider.identity_provider.allow_create
+            #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
+
+        if provider.identity_provider.enable_binding_for_sso_response:
+            login.request.protocolBinding = provider.identity_provider.binding_for_sso_response
+
+        if force_authn is None:
+            force_authn = provider.identity_provider.want_force_authn_request
+        login.request.forceAuthn = force_authn
+
+        if is_passive is None:
+            is_passive = provider.identity_provider.want_is_passive_authn_request
+        login.request.isPassive = is_passive
+
+        login.request.consent = provider.identity_provider.user_consent
+        return True
+
+    p = IdPOptionsPolicy.objects.get(name='Default')
+    if p and p.enabled:
+        if p.no_nameid_policy:
+            login.request.nameIDPolicy = None
+        else:
+            login.request.nameIDPolicy.format = NAME_ID_FORMATS[p.requested_name_id_format]['samlv2']
+            login.request.nameIDPolicy.allowCreate = p.allow_create
+            #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
+
+        if p.enable_binding_for_sso_response:
+            login.request.protocolBinding = p.binding_for_sso_response
+
+        if force_authn is None:
+            force_authn = p.want_force_authn_request
+        login.request.forceAuthn = force_authn
+
+        if is_passive is None:
+            is_passive = p.want_is_passive_authn_request
+        login.request.isPassive = is_passive
+
+        login.request.consent = p.user_consent
+        return True
+
+    return False
