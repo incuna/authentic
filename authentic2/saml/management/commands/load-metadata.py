@@ -42,7 +42,7 @@ def load_one_entity(tree, options):
             print 'Deleted', entity_id
             return
         if options['verbosity'] == '2':
-            print >>sys.stdout, 'Loading', entity_id
+            print >>sys.stdout, 'Loading %s, %s', %(name, entity_id)
         provider, created = LibertyProvider.objects.get_or_create(entity_id=entity_id,
                 protocol_conformance=3)
         provider.name = name
