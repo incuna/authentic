@@ -104,7 +104,7 @@ def login(request, template_name='auth/login.html',
 
     rendered_forms = [ (name,
             render_to_string(d['backend'].template(),
-                RequestContext(request, { 'cancel': nonce is not None,
+                RequestContext(request, { 'cancel': nonce is not None, 'idp_providers' : get_idp_list(),
                   'submit_name': 'submit-%s' % d['backend'].id(),
                   'form': d['form'] }))) \
                         for name, d in forms ]
