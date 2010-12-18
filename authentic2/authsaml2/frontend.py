@@ -34,4 +34,4 @@ class AuthSAML2Frontend(object):
                 urllib.quote(provider_id))
 
     def template(self):
-        return 'auth/login_form_ssl.html'
+        return 'auth/login_authsaml2.html'

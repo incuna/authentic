@@ -1,0 +1,196 @@
+body.loggedout {
+	background: url(../images/site-loggedout-back.png) repeat-x;
+}
+
+body.loggedin {
+	background: url(../images/site-loggedin-back.png) repeat-x;
+}
+
+#loggedoutscreen, #loggedinscreen {
+	display: none;
+	width: 100%;
+	height: 700px;
+}
+
+#loggedoutscreen {
+	background: url(../images/site-loggedout.png) no-repeat;
+}
+
+#loggedinscreen {
+	background: url(../images/site-loggedin.png) no-repeat;
+}
+
+
+.loggedout #loggedoutscreen, .loggedin #loggedinscreen {
+	display: block;
+}
+
+#ulx-control {
+	display: block;
+	width: 82px;
+	height: 27px;
+	position: absolute;
+	top: 0;
+	right: 193px;
+}
+
+body.loggedout #ulx-control {
+	background: url(../images/ulxcontrol-signin.png) no-repeat;
+}
+
+body.loggedin #ulx-control {
+	background: url(../images/ulxcontrol-signout.png) no-repeat 0px 1px;
+}
+
+#overlay {
+	z-index: 100;
+	width: 100%;
+	height: 100%;
+	background: url(../images/ulx/overlay.png);
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+dl#popup {
+	margin: 0;
+	padding: 0;
+	width: 320px;
+	position: absolute;
+	top: 30px;
+	right: 205px;
+	z-index: 150;
+}
+
+dl#popup dt {
+	background: url(../images/ulx/box-top.png) no-repeat;
+	position: relative;
+	margin: 0;
+	height: 52px;
+}
+
+dl#popup dd {
+	background: url(../images/ulx/box-main.png) no-repeat 0% 100%;
+	position: relative;
+	padding: 10px 17px;
+	margin: 0;
+}
+
+dl#popup dd.bottom {
+	background: url(../images/ulx/box-bottom.png) no-repeat 0% 100%;
+	position: relative;
+	padding: 10px 17px;
+	margin: 0;
+}
+
+#maintitle {
+	font-size: 15px;
+	font-family: Tahoma, Helvetica;
+	font-weight: normal;
+	position: absolute;
+	top: 12px;
+	left: 17px;
+}
+
+#subtitle {
+	font-size: 12px;
+	font-family: Tahoma, Helvetica;
+	font-weight: normal;
+	position: absolute;
+	top: 30px;
+	left: 17px;
+	color: #666;
+}
+
+#close {
+	width: 62px;
+	height: 29px;
+	background: url(../images/ulx/close.png) no-repeat;
+	display: block;
+	text-indent: -9999px;
+	top: 15px;
+	right: 5px;
+	position: absolute;
+}
+
+#close:hover {
+	background: url(../images/ulx/close-hover.png) no-repeat;
+}
+
+#loginsearch_flexselect_dropdown {
+	display: none !important;
+}
+
+#loginsearch_flexselect {
+	background: url(../images/ulx/search-active.png) no-repeat;
+	width: 251px;
+	height: 20px;
+	font-size: 12px;
+	color: #333;
+	padding: 5px 30px 5px 5px;
+	border: none;
+}
+
+#loginsearch_flexselect.empty {
+	color: #aaa;
+	background: url(../images/ulx/search.png) no-repeat;
+}
+
+div#scroller, div#scroller2 {
+	height: 105px;
+	overflow: auto;
+}
+
+div#scroller a,div#scroller2 a {
+	display: inline-block !important;
+	background: url(../images/ulx/item2.png) no-repeat;
+	width: 240px;
+	height: 42px;
+	padding: 5px;
+	overflow: hidden;
+	margin: 0px;
+}
+
+div#scroller a:hover, div#scroller2 a:hover {
+	background: url(../images/ulx/item-hover2.png) no-repeat;
+}
+
+div#scroller.filtered a {
+	display: none !important;
+}
+
+div#scroller.filtered a.present {
+	display: inline-block !important;
+}
+
+a#moreoptions, a#what {
+	padding-left: 12px;
+	background: url(../images/ulx/arrow.png) no-repeat 0px 3px;
+}
+
+#whatisthis.show a#what {
+	background: url(../images/ulx/arrow-r.png) no-repeat 0px 5px;
+}
+
+p#moretext {
+	margin-top: 0;
+	color: #777;
+}
+
+div#whatisthis {
+	margin-bottom: 10px;
+}
+
+#whattext {
+	display: none;
+	margin-top: 1px;
+	margin-left: 12px;
+	margin-bottom: 0;
+	padding: 0;
+	font-size: 11px;
+	color: #555;
+}
+
+#whatisthis.show #whattext {
+	display: block;
+}
