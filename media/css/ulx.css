@@ -28,10 +28,10 @@ body.loggedin {
 #ulx-control {
 	display: block;
 	width: 82px;
-	height: 27px;
+	height: 40px;
 	position: absolute;
 	top: 0;
-	right: 193px;
+	right: 225px;
 }
 
 body.loggedout #ulx-control {
