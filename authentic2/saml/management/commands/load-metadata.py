@@ -15,19 +15,25 @@ ENTITY_DESCRIPTOR_TN = md_element_name('EntityDescriptor')
 ENTITIES_DESCRIPTOR_TN = md_element_name('EntitiesDescriptor')
 IDP_SSO_DESCRIPTOR_TN = md_element_name('IDPSSODescriptor')
 SP_SSO_DESCRIPTOR_TN = md_element_name('SPSSODescriptor')
-ORGANIZATION_DISPLAY_NAME = md_element_name('OrganizationDisplayName')
-ORGANIZATION_NAME = md_element_name('OrganizationName')
+#ORGANIZATION_DISPLAY_NAME = md_element_name('OrganizationDisplayName')
+#ORGANIZATION_NAME = md_element_name('OrganizationName')
+ORGANIZATION = md_element_name('Organization')
 ENTITY_ID = 'entityID'
 
 def load_one_entity(tree, options):
     '''Load or update an EntityDescriptor into the database'''
     entity_id = tree.get(ENTITY_ID)
-    organization_display_name = tree.find(ORGANIZATION_DISPLAY_NAME)
-    organization_name = tree.find(ORGANIZATION_NAME)
-    org = organization_display_name or organization_name
-    if org:
-        name = org.text
-    else:
+    organization = tree.find(ORGANIZATION)
+    name = None
+    if organization:
+        name = organization[0].text
+    #organization_display_name = tree.find(ORGANIZATION_DISPLAY_NAME)
+    #organization_name = tree.find(ORGANIZATION_NAME)
+    #org = organization_display_name or organization_name
+    #if org:
+    #    name = org.text
+    #else:
+    if not name:
         name = entity_id
     idp, sp = False, False
     idp = len(tree.findall(IDP_SSO_DESCRIPTOR_TN)) != 0
