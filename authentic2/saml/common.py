@@ -452,6 +452,9 @@ def get_idp_list():
         p_list.append(p)
     return p_list
 
+def get_idp_list_sorted():
+    return sorted(get_idp_list(), key=lambda p: p.name)
+
 def get_idp_user_federated_list(request):
     user = request.user
     if request.user.is_anonymous():
