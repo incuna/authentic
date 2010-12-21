@@ -41,7 +41,7 @@ def metadata(request):
  # Single SignOn request initiated from SP UI
  # Binding supported: Redirect
  ###
-def sso(request, entity_id=None, is_passive=None, force_authn=None):
+def sso(request, entity_id=None, is_passive=None, force_authn=None, http_method=None):
     '''Django view initiating an AuthnRequesst toward an identity provider.
 
        Keyword arguments:
@@ -83,8 +83,13 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None):
     if not login:
         return error_page(request, _('SSO/Artifact: Unable to create Login object'))
     # Only redirect is necessary for the authnrequest
+    if not http_method:
+        http_method = server.getFirstHttpMethod(server.providers[p.entity_id],
+                lasso.MD_PROTOCOL_TYPE_SINGLE_SIGN_ON)
+    if http_method == lasso.HTTP_METHOD_NONE:
+        return error_page(request, _('SSO: %s does not have any supported SingleSignOn endpoint') % entity_id)
     try:
-        login.initAuthnRequest(p.entity_id, lasso.HTTP_METHOD_REDIRECT)
+        login.initAuthnRequest(p.entity_id, lasso.HTTP_METHOD_POST)
     except lasso.Error, error:
         return error_page(request, _('SSO/SP UI: %s') %lasso.strError(error[0]))
 
@@ -100,7 +105,8 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None):
     session_ext.save()
 
     # 7. Redirect the user
-    return HttpResponseRedirect(login.msgUrl)
+    return return_saml2_request(request, login,
+            title=('AuthnRequest for %s' % entity_id))
 
 def selectProvider(request, entity_id):
     return sso(request, entity_id=entity_id)
