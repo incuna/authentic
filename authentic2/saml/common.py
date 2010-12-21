@@ -121,18 +121,19 @@ def get_saml2_request_message(request):
     elif binding == 'SOAP':
         return get_saml2_soap_request(request)
 
-def return_saml2_response(profile, title = ''):
+def return_saml2_response(request, profile, title = ''):
     '''Finish your SAMLv2 views with this method to return a SAML
     response'''
-    return return_saml2(profile, lasso.SAML2_FIELD_RESPONSE, title)
+    return return_saml2(request, profile, lasso.SAML2_FIELD_RESPONSE, title)
 
-def return_saml2_request(profile, title = ''):
+def return_saml2_request(request, profile, title = ''):
     '''Finish your SAMLv2 views with this method to return a SAML
     request'''
-    return return_saml2(profile, lasso.SAML2_FIELD_REQUEST, title)
+    return return_saml2(request, profile, lasso.SAML2_FIELD_REQUEST, title)
 
-def return_saml2(profile, field_name, title = ''):
+def return_saml2(request, profile, field_name, title = ''):
     '''Helper to handle SAMLv2 bindings to emit request and responses'''
+    context_instance = RequestContext(request)
     if profile.msgBody:
         if profile.msgUrl:
             return render_to_response('saml/post_form.html',{
@@ -140,7 +141,8 @@ def return_saml2(profile, field_name, title = ''):
                         'url': profile.msgUrl,
                         'fieldname': field_name,
                         'body': profile.msgBody,
-                        'relay_state': profile.msgRelayState })
+                        'relay_state': profile.msgRelayState },
+                        context_instance=context_instance)
         return HttpResponse(profile.msgBody, mimetype = 'text/xml')
     elif profile.msgUrl:
         return HttpResponseRedirect(profile.msgUrl)
@@ -191,31 +193,15 @@ def get_idff12_request_message(request):
 def return_saml_soap_response(profile):
     return HttpResponse(profile.msgBody, mimetype = 'text/xml')
 
-def return_idff12_response(profile, title = ''):
+def return_idff12_response(request, profile, title = ''):
     '''Finish your ID-FFv1.2 views with this method to return a SAML
     response'''
-    return return_saml2(profile, 'LARES', title)
+    return return_saml2(request, profile, 'LARES', title)
 
-def return_idff12_request(profile, title = ''):
+def return_idff12_request(request, profile, title = ''):
     '''Finish your SAMLv2 views with this method to return a SAML
     request'''
-    return return_saml2(profile, 'LAREQ', title)
-
-def return_idff12(profile, field_name, title = ''):
-    '''Helper to handle SAMLv2 bindings to emit request and responses'''
-    if profile.msgBody:
-        if profile.msgUrl:
-            render_to_response('saml/post_form.html',{
-                        'title': title,
-                        'url': profile.msgUrl,
-                        'fieldname': field_name,
-                        'body': profile.msgBody,
-                        'relay_state': profile.msgRelayState })
-        return return_saml_soap_response(profile)
-    elif profile.msgUrl:
-        return HttpResponseRedirect(profile.msgUrl)
-    else:
-        return TypeError('profile do not contain a response')
+    return return_saml2(request, profile, 'LAREQ', title)
 
 # Helper method to handle profiles endpoints
 # In the future we should move away from monolithic object (LassoIdentity and

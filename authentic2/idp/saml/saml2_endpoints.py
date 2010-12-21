@@ -295,7 +295,7 @@ def return_login_response(request, login):
         logging.debug('SAMLv2 POST content %r' % login.msgBody)
     else:
         raise NotImplementedError()
-    return return_saml2_response(login, title = _('Authentication response'))
+    return return_saml2_response(request, login, title = _('Authentication response'))
 
 def finish_sso(request, login, user = None, save = False):
     if user is None:
@@ -423,7 +423,7 @@ def finish_slo(request):
     except:
         logging.exception('SAMLv2 slo failure to build reponse msg')
         raise NotImplementedError()
-    return return_saml2_response(logout)
+    return return_saml2_response(request, logout)
 
 def return_logout_error(logout, error):
     logout.buildResponseMsg()
@@ -431,7 +431,7 @@ def return_logout_error(logout, error):
     # Hack because response is not initialized before
     # buildResponseMsg
     logout.buildResponseMsg()
-    return return_saml2_response(logout)
+    return return_saml2_response(request, logout)
 
 def process_logout_request(request, message, binding):
     '''Do the first part of processing a logout request'''
@@ -558,11 +558,11 @@ known.' % lib_session.provider_id)
         logging.error('SAMLv2 slo cannot do SOAP logout, one provider does \
 not support it %s' % [ s.provider_id for s in lib_sessions])
         logout.buildResponseMsg()
-        return return_saml2_response(logout)
+        return return_saml2_response(request, logout)
     except Exception, e:
         logging.exception('SAMLv2 slo, unknown error')
         logout.buildResponseMsg()
-        return return_saml2_response(logout)
+        return return_saml2_response(request, logout)
     kill_django_sessions(django_session_keys)
     for lib_session in lib_sessions:
         try:
@@ -581,7 +581,7 @@ not support it %s' % [ s.provider_id for s in lib_sessions])
     except:
         logging.exception('SAMLv2 slo failure to build reponse msg')
         raise NotImplementedError()
-    return return_saml2_response(logout)
+    return return_saml2_response(request, logout)
 
 @csrf_exempt
 def slo(request):
@@ -603,7 +603,7 @@ def slo(request):
     except lasso.DsError, e:
         logging.exception('SAMLv2 signature error %s' % e)
         logout.buildResponseMsg()
-        return return_saml2_response(logout, title=_('Logout response'))
+        return return_saml2_response(request, logout, title=_('Logout response'))
     except Exception, e:
         logging.exception('SAMLv2 slo %s' % message)
         return error_page(_('Invalid logout request'))
@@ -611,7 +611,7 @@ def slo(request):
     if len(session_indexes) == 0:
         logging.error('SAMLv2 slo received a request from %s without any SessionIndex, it is forbidden' % logout.remoteProviderId)
         logout.buildResponseMsg()
-        return return_saml2_response(logout, title=_('Logout response'))
+        return return_saml2_response(request, logout, title=_('Logout response'))
     logging.info('SAMLv2 asynchronous slo from %s' % logout.remoteProviderId)
     # Filter sessions
     all_sessions = LibertySession.get_for_nameid_and_session_indexes(

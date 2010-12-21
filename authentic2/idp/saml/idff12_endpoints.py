@@ -179,7 +179,8 @@ def finish_sso(request, login, user = None, save = True):
     if save:
         save_federation(request, login)
         save_session(request, login)
-    return return_idff12_response(login, title = _('Authentication response'))
+    return return_idff12_response(request, login,
+            title=_('Authentication response'))
 
 def artifact_resolve(request, soap_message):
     '''Resolve a SAMLv1.1 ArtifactResolve request
