@@ -274,7 +274,6 @@ def sso_after_response(request, login, relay_state = None):
 
     # Check: notBefore, notOnOrAfter
     now = datetime.datetime.utcnow()
-    print assertion.subject.subjectConfirmation.debug(2)
     try:
         not_before = assertion.subject.subjectConfirmation.subjectConfirmationData.notBefore
     except:
