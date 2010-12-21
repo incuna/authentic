@@ -1134,8 +1134,9 @@ def setAuthnrequestOptions(provider, login, force_authn, is_passive):
     if not provider or not login:
         return False
 
-    p = IdPOptionsPolicy.objects.get(name='All')
-    if p and p.enabled:
+    p = IdPOptionsPolicy.objects.filter(name='All', enabled=True)
+    if p:
+        p = p[0]
         if p.no_nameid_policy:
             login.request.nameIDPolicy = None
         else:
@@ -1179,8 +1180,9 @@ def setAuthnrequestOptions(provider, login, force_authn, is_passive):
         login.request.consent = provider.identity_provider.user_consent
         return True
 
-    p = IdPOptionsPolicy.objects.get(name='Default')
-    if p and p.enabled:
+    p = IdPOptionsPolicy.objects.filter(name='Default', enabled=True)
+    if p:
+        p = p[0]
         if p.no_nameid_policy:
             login.request.nameIDPolicy = None
         else:
