@@ -279,7 +279,7 @@ def get_manage_dump(request):
     d = LibertyManageDump.objects.filter(django_session_key = request.session.session_key)
     return d
 
-def retrieve_metadata_and_create(request, login, provider_id, sp_or_idp):
+def retrieve_metadata_and_create(request, provider_id, sp_or_idp):
     if not provider_id.startswith('http'):
         return None
     # Try the WKL
@@ -330,7 +330,7 @@ def load_provider(request, provider_id, server=None, sp_or_idp='sp'):
     except LibertyProvider.DoesNotExist:
         autoload = getattr(settings, 'SAML_METADATA_AUTOLOAD', 'none')
         if autoload == 'sp' or autoload == 'both':
-            liberty_provider = retrieve_metadata_and_create(request, login, provider_id, sp_or_idp)
+            liberty_provider = retrieve_metadata_and_create(request, provider_id, sp_or_idp)
             if not liberty_provider:
                 return False
         else:
