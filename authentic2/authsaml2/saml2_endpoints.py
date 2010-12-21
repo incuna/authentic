@@ -123,13 +123,27 @@ def singleSignOnArtifact(request):
 
     message = get_saml2_request_message(request)
 
-    try:
-        if request.method == 'GET':
-            login.initRequest(message, lasso.HTTP_METHOD_ARTIFACT_GET)
-        else:
-            login.initRequest(message, lasso.HTTP_METHOD_ARTIFACT_POST)
-    except lasso.Error, error:
-        return error_page(request, _('SSO/Artifact: %s') %lasso.strError(error[0]))
+    while True:
+        try:
+            if request.method == 'GET':
+                login.initRequest(message, lasso.HTTP_METHOD_ARTIFACT_GET)
+            else:
+                login.initRequest(message, lasso.HTTP_METHOD_ARTIFACT_POST)
+            break
+        except (lasso.ServerProviderNotFoundError,
+                lasso.ProfileUnknownProviderError):
+            provider_id = login.remoteProviderId
+            provider_loaded = load_provider(request, provider_id,
+                    server=server)
+
+            if not provider_loaded:
+                message = _('SSO/AssertionConsumer-Artifact: provider %r unknown') % provider_id
+                logging.warning(message)
+                return error_page(request, message)
+            else:
+                continue
+        except lasso.Error, error:
+            return error_page(request, _('SSO/Artifact: %s') %lasso.strError(error[0]))
 
     try:
         login.buildRequestMsg()
@@ -183,10 +197,24 @@ def singleSignOnPost(request):
     # if not message:
     #    message = request.META.get('QUERY_STRING', '')
 
-    try:
-        login.processAuthnResponseMsg(message)
-    except lasso.Error, error:
-        return error_page(request, _('SSO/Post: %s') %lasso.strError(error[0]))
+    while True:
+        try:
+            login.processAuthnResponseMsg(message)
+            break
+        except (lasso.ServerProviderNotFoundError,
+                lasso.ProfileUnknownProviderError):
+            provider_id = login.remoteProviderId
+            provider_loaded = load_provider(request, provider_id,
+                    server=server)
+
+            if not provider_loaded:
+                message = _('SSO/AssertionConsumer-Artifact: provider %r unknown') % provider_id
+                logging.warning(message)
+                return error_page(request, message)
+            else:
+                continue
+        except lasso.Error, error:
+            return error_page(request, _('SSO/Post: %s') %lasso.strError(error[0]))
 
     return sso_after_response(request, login)
 
@@ -464,6 +492,7 @@ def logout(request):
         p = LibertyProvider.objects.get(entity_id=pid)
     except:
         return error_page(request, _('SLO/SP UI: Session malformed.'))
+    load_provider(request, pid, server=server)
 
     # TODO: The user asks a logout, we should perform before knowing if the IdP can handle
     # Except if we want to manage mutliple logout with multiple IdP
@@ -653,11 +682,25 @@ def singleLogoutSOAP(request):
     if not logout:
         return http_response_forbidden_request('SLO/IdP SOAP: Unable to create Login object')
 
-    try:
-        logout.processRequestMsg(soap_message)
-    except lasso.Error, error:
-        message = 'SLO/IdP SOAP processRequestMsg: %s' %lasso.strError(error[0])
-        return http_response_forbidden_request(message)
+    while True:
+        try:
+            logout.processRequestMsg(soap_message)
+            break
+        except (lasso.ServerProviderNotFoundError,
+                lasso.ProfileUnknownProviderError):
+            provider_id = logout.remoteProviderId
+            provider_loaded = load_provider(request, provider_id,
+                    server=server)
+
+            if not provider_loaded:
+                message = _('SLO/SOAP: provider %r unknown') % provider_id
+                logging.warning(message)
+                return error_page(request, message)
+            else:
+                continue
+        except lasso.Error, error:
+            message = 'SLO/IdP SOAP processRequestMsg: %s' %lasso.strError(error[0])
+            return http_response_forbidden_request(message)
 
     # Look for a session index
     try:
@@ -776,11 +819,25 @@ def singleLogout(request):
         return http_response_forbidden_request('SLO/IdP Redirect: Service provider not configured')
 
     logout = lasso.Logout(server)
-    try:
-        logout.processRequestMsg(query)
-    except lasso.Error, error:
-        logger.warning('SLO/IdP Redirect: %s' %lasso.strError(error[0]))
-        return slo_return_response(logout)
+    while True:
+        try:
+            logout.processRequestMsg(query)
+            break
+        except (lasso.ServerProviderNotFoundError,
+                lasso.ProfileUnknownProviderError):
+            provider_id = logout.remoteProviderId
+            provider_loaded = load_provider(request, provider_id,
+                    server=server)
+
+            if not provider_loaded:
+                message = _('SLO/Redirect: provider %r unknown') % provider_id
+                logging.warning(message)
+                return error_page(request, message)
+            else:
+                continue
+        except lasso.Error, error:
+            logger.warning('SLO/IdP Redirect: %s' %lasso.strError(error[0]))
+            return slo_return_response(logout)
 
     logger.warning('SLO/IdP Redirect from %s:' % logout.remoteProviderId)
 
@@ -846,9 +903,8 @@ def federationTermination(request, entity_id):
         error_page(request, _('fedTerm/SP UI: Service provider not configured'))
 
     # Lookup for the Identity provider
-    try:
-        p = LibertyProvider.objects.get(entity_id=entity_id)
-    except:
+    p = load_provider(request, entity_id, server=server)
+    if not p:
         return error_page(request, _('fedTerm/SP UI: No such identity provider.'))
 
     manage = lasso.NameIdManagement(server)
@@ -956,14 +1012,28 @@ def manageNameIdReturn(request):
  # Post-response processing
  ###
 def manage_name_id_return(request, manage, message):
-    try:
-        manage.processResponseMsg(message)
-    except lasso.Error, error:
-        return error_page(request, _('fedTerm/manage_name_id_return: %s') %lasso.strError(error[0]))
-    else:
-        if manage.isIdentityDirty:
-            if manage.identity:
-                save_federation(request, manage)
+    while True:
+        try:
+            manage.processResponseMsg(message)
+        except (lasso.ServerProviderNotFoundError,
+                lasso.ProfileUnknownProviderError):
+            provider_id = manage.remoteProviderId
+            provider_loaded = load_provider(request, provider_id,
+                    server=manage.server)
+
+            if not provider_loaded:
+                message = _('fedTerm/Return: provider %r unknown') % provider_id
+                logging.warning(message)
+                return error_page(request, message)
+            else:
+                continue
+        except lasso.Error, error:
+            return error_page(request, _('fedTerm/manage_name_id_return: %s') %lasso.strError(error[0]))
+        else:
+            if manage.isIdentityDirty:
+                if manage.identity:
+                    save_federation(request, manage)
+            break
     return redirect_to_target(request)
 
 ###
@@ -997,11 +1067,25 @@ def manageNameIdSOAP(request):
     if not manage:
         return http_response_forbidden_request('fedTerm/IdP SOAP: Unable to create Login object')
 
-    try:
-        manage.processRequestMsg(soap_message)
-    except lasso.Error, error:
-        message = 'fedTerm/IdP SOAP: %s' %lasso.strError(error[0])
-        return http_response_forbidden_request(message)
+    while True:
+        try:
+            manage.processRequestMsg(soap_message)
+            break
+        except (lasso.ServerProviderNotFoundError,
+                lasso.ProfileUnknownProviderError):
+            provider_id = manage.remoteProviderId
+            provider_loaded = load_provider(request, provider_id,
+                    server=server)
+
+            if not provider_loaded:
+                message = _('fedTerm/SOAP: provider %r unknown') % provider_id
+                logging.warning(message)
+                return error_page(request, message)
+            else:
+                continue
+        except lasso.Error, error:
+            message = 'fedTerm/IdP SOAP: %s' %lasso.strError(error[0])
+            return http_response_forbidden_request(message)
 
     fed = lookup_federation_by_name_identifier(manage)
     load_federation(request, manage, fed.user)
@@ -1118,17 +1202,7 @@ def check_response_id(login):
     return True
 
 def build_service_provider(request):
-    sp = create_server(request, reverse(metadata))
-    if not sp:
-        return None
-    providers_list = get_idp_list()
-    if not providers_list:
-        return None
-    for p in providers_list:
-        p = load_provider(request, p.entity_id, server=sp, sp_or_idp='idp')
-        if not p:
-            logger.error('Unable to load provider %s' % p.entity_id)
-    return sp
+    return create_server(request, reverse(metadata))
 
 def setAuthnrequestOptions(provider, login, force_authn, is_passive):
     if not provider or not login:
