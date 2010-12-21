@@ -430,7 +430,7 @@ def lookup_federation_by_user(user, qualifier):
 def get_idp_list():
     providers = LibertyProvider.objects.all()
     if not providers:
-        return None
+        return []
     p_list = []
     for p in providers:
         try:
