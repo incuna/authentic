@@ -103,7 +103,7 @@ class Command(BaseCommand):
 
     @transaction.commit_manually
     def handle(self, *args, **options):
-        if not sys.argv:
+        if not args:
             raise CommandError('No metadata file on the command line')
         try:
             metadata_file = file(args[0])
