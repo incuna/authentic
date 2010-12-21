@@ -124,7 +124,7 @@ def singleSignOnArtifact(request):
         return error_page(request, _('SSO/Artifact: Service provider not configured'))
 
     # Load the provider metadata using the artifact
-    artifact = request.POST.get('SAMLArtifact')
+    artifact = request.POST.get('SAMLart')
     p = LibertyProvider.get_provider_by_samlv2_artifact(artifact)
     p = load_provider(request, p.entity_id, server=server)
 
