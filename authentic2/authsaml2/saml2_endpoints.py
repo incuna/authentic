@@ -125,7 +125,10 @@ def singleSignOnArtifact(request):
         return error_page(request, _('SSO/Artifact: Service provider not configured'))
 
     # Load the provider metadata using the artifact
-    artifact = request.POST.get('SAMLart')
+    if request.method == 'GET':
+        artifact = request.REQUEST.get('SAMLart')
+    else:
+        artifact = request.POST.get('SAMLart')
     p = LibertyProvider.get_provider_by_samlv2_artifact(artifact)
     p = load_provider(request, p.entity_id, server=server)
 
@@ -138,9 +141,10 @@ def singleSignOnArtifact(request):
     while True:
         try:
             if request.method == 'GET':
-                login.initRequest(message, lasso.HTTP_METHOD_ARTIFACT_GET)
+                login.initRequest(get_saml2_query_request(request),
+                        lasso.HTTP_METHOD_ARTIFACT_GET)
             else:
-                login.initRequest(message, lasso.HTTP_METHOD_ARTIFACT_POST)
+                login.initRequest(artifact, lasso.HTTP_METHOD_ARTIFACT_POST)
             break
         except (lasso.ServerProviderNotFoundError,
                 lasso.ProfileUnknownProviderError):
