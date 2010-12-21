@@ -16,6 +16,7 @@ from django.utils.translation import ugettext as _
 from models import *
 import saml2utils
 import saml11utils
+import authentic2.utils
 
 AUTHENTIC_STATUS_CODE_NS = "http://authentic.entrouvert.org/status_code/"
 AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER = AUTHENTIC_STATUS_CODE_NS + \
@@ -425,6 +426,7 @@ def lookup_federation_by_user(user, qualifier):
 
 # List Idp providers - Use from display in templates
 # WARNING: No way for multiple federation by user with a single IdP (is it a problem??)
+@authentic2.utils.MWT(timeout=30)
 def get_idp_list():
     providers = LibertyProvider.objects.all()
     if not providers:
