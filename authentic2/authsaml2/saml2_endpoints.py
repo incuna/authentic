@@ -1142,7 +1142,7 @@ def setAuthnrequestOptions(provider, login, force_authn, is_passive):
         else:
             login.request.nameIDPolicy.format = NAME_ID_FORMATS[p.requested_name_id_format]['samlv2']
             login.request.nameIDPolicy.allowCreate = p.allow_create
-            #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
+            login.request.nameIDPolicy.spNameQualifier = None
 
         if p.enable_binding_for_sso_response:
             login.request.protocolBinding = p.binding_for_sso_response
@@ -1164,7 +1164,7 @@ def setAuthnrequestOptions(provider, login, force_authn, is_passive):
         else:
             login.request.nameIDPolicy.format = NAME_ID_FORMATS[provider.identity_provider.requested_name_id_format]['samlv2']
             login.request.nameIDPolicy.allowCreate = provider.identity_provider.allow_create
-            #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
+            login.request.nameIDPolicy.spNameQualifier = None
 
         if provider.identity_provider.enable_binding_for_sso_response:
             login.request.protocolBinding = provider.identity_provider.binding_for_sso_response
@@ -1188,7 +1188,7 @@ def setAuthnrequestOptions(provider, login, force_authn, is_passive):
         else:
             login.request.nameIDPolicy.format = NAME_ID_FORMATS[p.requested_name_id_format]['samlv2']
             login.request.nameIDPolicy.allowCreate = p.allow_create
-            #login.request.nameIDPolicy.spNameQualifier = "https://shibidp.mik.lan/idp/shibboleth"
+            login.request.nameIDPolicy.spNameQualifier = None
 
         if p.enable_binding_for_sso_response:
             login.request.protocolBinding = p.binding_for_sso_response
