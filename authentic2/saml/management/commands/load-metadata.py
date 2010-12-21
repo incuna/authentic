@@ -19,6 +19,12 @@ ORGANIZATION_DISPLAY_NAME = md_element_name('OrganizationDisplayName')
 ORGANIZATION_NAME = md_element_name('OrganizationName')
 ORGANIZATION = md_element_name('Organization')
 ENTITY_ID = 'entityID'
+PROTOCOL_SUPPORT_ENUMERATION = 'protocolSupportEnumeration'
+
+def check_support_saml2(tree):
+    if tree is not None and lasso.SAML2_PROTOCOL_HREF in tree.get(PROTOCOL_SUPPORT_ENUMERATION):
+        return True
+    return False
 
 def load_one_entity(tree, options):
     '''Load or update an EntityDescriptor into the database'''
@@ -34,25 +40,27 @@ def load_one_entity(tree, options):
     if not name:
         name = entity_id
     idp, sp = False, False
-    idp = len(tree.findall(IDP_SSO_DESCRIPTOR_TN)) != 0
-    sp = len(tree.findall(SP_SSO_DESCRIPTOR_TN)) != 0
+    idp = check_support_saml2(tree.find(IDP_SSO_DESCRIPTOR_TN))
+    sp = check_support_saml2(tree.find(SP_SSO_DESCRIPTOR_TN))
     if options.get('idp'):
         sp = False
     if options.get('sp'):
         idp = False
+    if options.get('delete'):
+        LibertyProvider.objects.filter(entity_id=entity_id).delete()
+        print 'Deleted', entity_id
+        return
     if idp or sp:
-        if options.get('delete'):
-            LibertyProvider.objects.filter(entity_id=entity_id).delete()
-            print 'Deleted', entity_id
-            return
         if options['verbosity'] == '2':
-            print >>sys.stdout, 'Loading %s, %s' %(name, entity_id)
+            print >>sys.stdout, 'Loading %s, %s' % (name.encode('utf8'), entity_id)
         provider, created = LibertyProvider.objects.get_or_create(entity_id=entity_id,
                 protocol_conformance=3)
         provider.name = name
-        provider.metadata = etree.tostring(tree, encoding='utf-8').decode('utf-8')
+        provider.metadata = etree.tostring(tree, encoding='utf-8').decode('utf-8').strip()
         provider.protocol_conformance = 3
         provider.save()
+        import re
+        file(re.sub(r'[:/]+', '_', entity_id), 'w').write(etree.tostring(tree, encoding='utf-8'))
         options['count'] = options.get('count', 0) + 1
         if idp:
             identity_provider = LibertyIdentityProvider(liberty_provider=provider,
