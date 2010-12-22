@@ -148,8 +148,6 @@ def sso(request):
     """Endpoint for receiving saml2:AuthnRequests by POST, Redirect or SOAP.
        For SOAP a session must be established previously through the login page. No authentication through the SOAP request is supported.
     """
-    if request.method != 'GET':
-        return HttpResponseForbidden('SAMLv2 sso endpoint only support HTTP-Redirect binding')
     message = get_saml2_request_message(request)
     server = create_server(request)
     login = lasso.Login(server)
