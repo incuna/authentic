@@ -142,8 +142,10 @@ var LoggedInWithTitle = null;
 				settings.windowName = this.name || settings.windowName;
 				settings.windowURL = this.href || settings.windowURL;
 				var centeredY,centeredX;
+ 
+                                $(window.location).attr('href', settings.windowURL);
 
-				if(settings.centerBrowser){
+				/*if(settings.centerBrowser){
 
 					if ($.browser.msie) {//hacked together for IE browsers
 						centeredY = (window.screenTop - 120) + ((((document.documentElement.clientHeight + 120)/2) - (settings.height/2)));
@@ -159,7 +161,7 @@ var LoggedInWithTitle = null;
 					window.open(settings.windowURL, settings.windowName, windowFeatures+',left=' + centeredX +',top=' + centeredY).focus();
 				}else{
 					window.open(settings.windowURL, settings.windowName, windowFeatures+',left=' + settings.left +',top=' + settings.top).focus();
-				}
+				}*/
 				return false;
 			});
 

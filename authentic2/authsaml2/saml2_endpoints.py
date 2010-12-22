@@ -71,6 +71,7 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None, http_method=
         if providers_list.count() == 1:
             p = providers_list[0]
         else:
+            #TODO: Remove this - Use AuthSAML2 Frontend
             return render_to_response('auth/saml2/idp_select.html',
                     {'providers_list': providers_list},
                     context_instance=RequestContext(request))
