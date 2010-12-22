@@ -131,7 +131,7 @@ def singleSignOnArtifact(request):
     else:
         artifact = request.POST.get('SAMLart')
     p = LibertyProvider.get_provider_by_samlv2_artifact(artifact)
-    p = load_provider(request, p.entity_id, server=server. sp_or_idp='idp')
+    p = load_provider(request, p.entity_id, server=server, sp_or_idp='idp')
 
     login = lasso.Login(server)
     if not login:
