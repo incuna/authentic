@@ -90,7 +90,7 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None, http_method=
     if http_method == lasso.HTTP_METHOD_NONE:
         return error_page(request, _('SSO: %s does not have any supported SingleSignOn endpoint') % entity_id)
     try:
-        login.initAuthnRequest(p.entity_id, lasso.HTTP_METHOD_POST)
+        login.initAuthnRequest(p.entity_id, http_method)
     except lasso.Error, error:
         return error_page(request, _('SSO/SP UI: %s') %lasso.strError(error[0]))
 
