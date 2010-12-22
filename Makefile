@@ -10,10 +10,10 @@ pull:
 	make load
 
 save:
-	python manage.py dumpdata saml idp auth >saved.json
+	python manage.py dumpdata saml auth >saved.json
 
 load:
-	rm authentic.db
+	-rm -f authentic.db
 	python manage.py syncdb --noinput
 	python manage.py loaddata saved
 	rm saved.json

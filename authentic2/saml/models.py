@@ -1,6 +1,9 @@
 import os.path
 import time
 import xml.etree.ElementTree as etree
+import hashlib
+import binascii
+import base64
 
 import lasso
 from django.db import models
@@ -84,6 +87,7 @@ def organization_name(provider):
 
 class LibertyProvider(models.Model):
     entity_id = models.URLField(unique = True)
+    entity_id_sha1 = models.CharField(max_length = 40, blank=True)
     name = models.CharField(max_length = 40, unique = True,
             help_text = _("Internal nickname for the service provider"),
             blank = True)
@@ -100,6 +104,27 @@ class LibertyProvider(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        '''Update the SHA1 hash of the entity_id when saving'''
+        if self.protocol_conformance == 3:
+            self.entity_id_sha1 = hashlib.sha1(self.entity_id).hexdigest()
+        super(LibertyProvider, self).save(*args, **kwargs)
+
+    @classmethod
+    def get_provider_by_samlv2_artifact(cls, artifact):
+        '''Find a provider whose SHA-1 hash of its entityID is the 5-th to the
+           25-th byte of the given artifact'''
+        try:
+            artifact = base64.b64decode(artifact)
+        except:
+            raise ValueError('Artifact is not a base64 encoded value')
+        entity_id_sha1 = artifact[4:24]
+        entity_id_sha1 = binascii.hexlify(entity_id_sha1)
+        try:
+            return cls.objects.get(entity_id_sha1=entity_id_sha1)
+        except cls.DoesNotExist:
+            return None
 
     def clean(self):
         super(LibertyProvider, self).clean()

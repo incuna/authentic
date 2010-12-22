@@ -74,10 +74,10 @@ class LibertyProviderAdmin(admin.ModelAdmin):
     list_display_links = ('entity_id',)
     list_editable = ('name',)
     search_fields = ('name', 'entity_id')
-    readonly_fields = ('entity_id','protocol_conformance')
+    readonly_fields = ('entity_id','protocol_conformance','entity_id_sha1')
     fieldsets = (
             (None, {
-                'fields' : ('name', 'entity_id')
+                'fields' : ('name', 'entity_id', 'entity_id_sha1')
             }),
             (_('Metadata files'), {
                 'fields': ('metadata', 'public_key', 'ssl_certificate', 'ca_cert_chain')
