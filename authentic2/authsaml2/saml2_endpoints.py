@@ -20,9 +20,10 @@ from authentic2.saml.common import *
 from authentic2.saml.models import *
 from authentic2.authsaml2.utils import *
 from authentic2.authsaml2.backends import *
-import signals
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
+
+from authentic2.authsaml2 import signals
 
 '''SAMLv2 SP implementation'''
 
@@ -371,6 +372,7 @@ def sso_after_response(request, login, relay_state = None):
                 user = AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
                 key = request.session.session_key
                 auth_login(request, user)
+                signals.auth_login.send(sender=None, user=request.user, successful=True)
                 if request.session.test_cookie_worked():
                     request.session.delete_test_cookie()
                 save_session(request, login)
@@ -384,6 +386,7 @@ def sso_after_response(request, login, relay_state = None):
             if user:
                 key = request.session.session_key
                 auth_login(request, user)
+                signals.auth_login.send(sender=None, user=request.user, successful=True)
                 if request.session.test_cookie_worked():
                     request.session.delete_test_cookie()
                 save_session(request, login)
@@ -392,6 +395,8 @@ def sso_after_response(request, login, relay_state = None):
                 return redirect_to_target(request, key)
             if s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
                 register_federation_in_progress(request,login.nameIdentifier.content)
+                auth_login(request, user)
+                signals.auth_login.send(sender=None, user=request.user, successful=True)
                 save_session(request, login)
                 save_federation_temp(request, login)
                 maintain_liberty_session_on_service_provider(request, login)
@@ -401,6 +406,7 @@ def sso_after_response(request, login, relay_state = None):
                 user = AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
                 key = request.session.session_key
                 auth_login(request, user)
+                signals.auth_login.send(sender=None, user=request.user, successful=True)
                 if request.session.test_cookie_worked():
                     request.session.delete_test_cookie()
                 save_session(request, login)
