@@ -318,10 +318,18 @@ def sso_after_response(request, login, relay_state = None):
         return error_page(request, _('Service provider not configured'))
 
     user = request.user
+
+    '''
+    The user is logged in.
+    The user may be already logged and yet may have performed a SSO.
+    - Either with a transient nameID: To bring a membership credential for instance.
+    - Or with a persistent nameID: idem + to add a new federation.
+    '''
     if not request.user.is_anonymous():
         #TODO: If transient nameID and logged user, only logging
-        if login.nameIdentifier.format == "urn:oasis:names:tc:SAML:2.0:nameid-format:transient":
-            return error_page(request, _('Persistent account policy not yet implemented'))
+        if login.nameIdentifier.format == \
+            lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT:
+            return error_page(request, _('Transient account policy not yet implemented'))
 
         fed = lookup_federation_by_name_identifier(login)
         if fed:
@@ -337,6 +345,18 @@ def sso_after_response(request, login, relay_state = None):
             save_federation(request, login)
             maintain_liberty_session_on_service_provider(request, login)
             return redirect_to_target(request)
+
+    '''
+    Else the user is logged out.
+    - Either with a transient nameID:
+     - We create a temporary session.
+     - Or we ask for an authentication.
+    - Or with a persistent nameID:
+     - If already federated: login.
+     - Else:
+      - We ask for an account linking.
+      - Or we create an account with this federation.
+    '''
     else:
         if login.nameIdentifier.format == \
             lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT:
