@@ -20,10 +20,9 @@ from authentic2.saml.common import *
 from authentic2.saml.models import *
 from authentic2.authsaml2.utils import *
 from authentic2.authsaml2.backends import *
+from authentic2.authsaml2 import signals
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
-
-from authentic2.authsaml2 import signals
 
 '''SAMLv2 SP implementation'''
 
@@ -245,6 +244,10 @@ def singleSignOnPost(request):
  # TODO: Proxying
  ###
 def sso_after_response(request, login, relay_state = None):
+    s = get_service_provider_settings()
+    if not s:
+        return error_page(request, _('Service provider not configured'))
+
     # If there is no inResponseTo: IDP initiated
     # else, check that the response id is the same
     irt = None
@@ -318,9 +321,7 @@ def sso_after_response(request, login, relay_state = None):
     except lasso.Error, error:
         return error_page(request, _('SSO/sso_after_response: %s') %lasso.strError(error[0]))
 
-    s = get_service_provider_settings()
-    if not s:
-        return error_page(request, _('Service provider not configured'))
+    attributes = {}
 
     user = request.user
 
@@ -372,7 +373,7 @@ def sso_after_response(request, login, relay_state = None):
                 user = AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
                 key = request.session.session_key
                 auth_login(request, user)
-                signals.auth_login.send(sender=None, user=request.user, successful=True)
+                signals.auth_login.send(sender=None, request=request, attributes=attributes)
                 if request.session.test_cookie_worked():
                     request.session.delete_test_cookie()
                 save_session(request, login)
@@ -386,7 +387,7 @@ def sso_after_response(request, login, relay_state = None):
             if user:
                 key = request.session.session_key
                 auth_login(request, user)
-                signals.auth_login.send(sender=None, user=request.user, successful=True)
+                signals.auth_login.send(sender=None, request=request, attributes=attributes)
                 if request.session.test_cookie_worked():
                     request.session.delete_test_cookie()
                 save_session(request, login)
@@ -396,7 +397,7 @@ def sso_after_response(request, login, relay_state = None):
             if s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
                 register_federation_in_progress(request,login.nameIdentifier.content)
                 auth_login(request, user)
-                signals.auth_login.send(sender=None, user=request.user, successful=True)
+                signals.auth_login.send(sender=None, request=request, attributes=attributes)
                 save_session(request, login)
                 save_federation_temp(request, login)
                 maintain_liberty_session_on_service_provider(request, login)
@@ -406,7 +407,7 @@ def sso_after_response(request, login, relay_state = None):
                 user = AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
                 key = request.session.session_key
                 auth_login(request, user)
-                signals.auth_login.send(sender=None, user=request.user, successful=True)
+                signals.auth_login.send(sender=None, request=request, attributes=attributes)
                 if request.session.test_cookie_worked():
                     request.session.delete_test_cookie()
                 save_session(request, login)
@@ -611,6 +612,7 @@ def logout(request):
 
         if not soap_answer:
             remove_liberty_session_sp(request)
+            signals.auth_logout.send(sender=None, user=request.user)
             auth_logout(request)
             return error_page(request, _('SLO/SP UI: SOAP error -  Only local logout performed.'))
 
@@ -620,6 +622,7 @@ def logout(request):
 
 def localLogout(request, error):
     remove_liberty_session_sp(request)
+    signals.auth_logout.send(sender=None, user=request.user)
     auth_logout(request)
     if error.url:
         return error_page(request, _('SLO/SP UI: SOAP error with %s -  Only local logout performed.') %error.url)
@@ -677,7 +680,6 @@ def slo_return(request, logout, message):
 def local_logout(request):
         global __logout_redirection_timeout
         "Logs out the user and displays 'You are logged out' message."
-        signals.auth_logout.send(sender = None, user = request.user)
         context = RequestContext(request)
         context['redir_timeout'] = __logout_redirection_timeout
         context['message'] = 'You are logged out'
@@ -687,6 +689,7 @@ def local_logout(request):
             context['next_page'] = '/'
         else:
             context['next_page'] = s.back_url
+        signals.auth_logout.send(sender = None, user = request.user)
         auth_logout(request)
         return render_to_response(template, context_instance = context)
 
@@ -895,7 +898,9 @@ def singleLogout(request):
         else:
             delete_session(request)
     remove_liberty_session_sp(request)
+    signals.auth_logout.send(sender=None, user=request.user)
     auth_logout(request)
+
 
     # TODO: we cannot call slo_return_response, else django raise an error due an httpresponse return missing
     try:
