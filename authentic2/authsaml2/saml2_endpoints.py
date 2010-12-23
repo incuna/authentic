@@ -194,18 +194,18 @@ def singleSignOnArtifact(request):
 def singleSignOnPost(request):
     server = build_service_provider(request)
     if not server:
-        return error_page(request, _('SSO/Post: Service provider not configured'))
+        return error_page(request, _('AssertionConsumer/Post: Service provider not configured'))
 
     login = lasso.Login(server)
     if not login:
-        return error_page(request, _('SSO/Post: Unable to create Login object'))
+        return error_page(request, _('AssertionConsumer/Post: Unable to create Login object'))
 
     # TODO: check messages = get_saml2_request_message(request)
 
     # Binding POST
     message = get_saml2_post_response(request)
     if not message:
-        return error_page(request, _('SSO/Post: No message given.'))
+        return error_page(request, _('AssertionConsumer/Post: No message given.'))
 
     # Binding REDIRECT
     # According to: saml-profiles-2.0-os
@@ -224,13 +224,13 @@ def singleSignOnPost(request):
                     server=server)
 
             if not provider_loaded:
-                message = _('SSO/AssertionConsumer-Artifact: provider %r unknown') % provider_id
+                message = _('AssertionConsumer/Post: provider %r unknown') % provider_id
                 logging.warning(message)
                 return error_page(request, message)
             else:
                 continue
         except lasso.Error, error:
-            return error_page(request, _('SSO/Post: %s') %lasso.strError(error[0]))
+            return error_page(request, _('AssertionConsumer/Post: %s') %lasso.strError(error[0]))
 
     return sso_after_response(request, login)
 
