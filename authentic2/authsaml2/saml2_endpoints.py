@@ -323,6 +323,32 @@ def sso_after_response(request, login, relay_state = None):
 
     attributes = {}
 
+    for att_statement in login.assertion.attributeStatement:
+        for attribute in att_statement.attribute:
+            try:
+                name, format, nickname = attribute.name.decode('ascii'), attribute.nameFormat.decode('ascii'), \
+                    attribute.friendlyName
+            except UnicodeDecodeError:
+                message = 'SSO/sso_after_response: name or format of an attribute failed to decode as ascii: %r %r'
+                logging.error(message % (attribute.name, attribute.format))
+                continue
+            try:
+                values = attribute.value
+                if values:
+                    attributes[(name, format)] = []
+                    if nickname:
+                        attributes[nickname] = attributes[(name, format)]
+                for value in values:
+                    value = []
+                    for any in value.any:
+                        value.append(any.exportToXml())
+                    value = ''.join(value)
+                    attributes[(name, format)].append(value.decode('utf8'))
+            except UnicodeDecodeError:
+                message = 'SSO/sso_after_response: attribute value is not utf8 encoded %r'
+                logging.error(message % value)
+                continue
+
     user = request.user
 
     if not request.user.is_anonymous():
