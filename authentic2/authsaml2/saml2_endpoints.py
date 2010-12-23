@@ -150,7 +150,7 @@ def singleSignOnArtifact(request):
                 lasso.ProfileUnknownProviderError):
             provider_id = login.remoteProviderId
             provider_loaded = load_provider(request, provider_id,
-                    server=server)
+                    server=server, sp_or_idp='idp')
 
             if not provider_loaded:
                 message = _('SSO/AssertionConsumer-Artifact: provider %r unknown') % provider_id
@@ -221,7 +221,7 @@ def singleSignOnPost(request):
                 lasso.ProfileUnknownProviderError):
             provider_id = login.remoteProviderId
             provider_loaded = load_provider(request, provider_id,
-                    server=server)
+                    server=server, sp_or_idp='idp')
 
             if not provider_loaded:
                 message = _('AssertionConsumer/Post: provider %r unknown') % provider_id
@@ -533,7 +533,7 @@ def logout(request):
         p = LibertyProvider.objects.get(entity_id=pid)
     except:
         return error_page(request, _('SLO/SP UI: Session malformed.'))
-    load_provider(request, pid, server=server)
+    load_provider(request, pid, server=server, sp_or_idp='idp')
 
     # TODO: The user asks a logout, we should perform before knowing if the IdP can handle
     # Except if we want to manage mutliple logout with multiple IdP
@@ -733,7 +733,7 @@ def singleLogoutSOAP(request):
                 lasso.ProfileUnknownProviderError):
             provider_id = logout.remoteProviderId
             provider_loaded = load_provider(request, provider_id,
-                    server=server)
+                    server=server, sp_or_idp='idp')
 
             if not provider_loaded:
                 message = _('SLO/SOAP: provider %r unknown') % provider_id
@@ -870,7 +870,7 @@ def singleLogout(request):
                 lasso.ProfileUnknownProviderError):
             provider_id = logout.remoteProviderId
             provider_loaded = load_provider(request, provider_id,
-                    server=server)
+                    server=server, sp_or_idp='idp')
 
             if not provider_loaded:
                 message = _('SLO/Redirect: provider %r unknown') % provider_id
@@ -948,7 +948,7 @@ def federationTermination(request, entity_id):
         error_page(request, _('fedTerm/SP UI: Service provider not configured'))
 
     # Lookup for the Identity provider
-    p = load_provider(request, entity_id, server=server)
+    p = load_provider(request, entity_id, server=server, sp_or_idp='idp')
     if not p:
         return error_page(request, _('fedTerm/SP UI: No such identity provider.'))
 
@@ -1064,7 +1064,7 @@ def manage_name_id_return(request, manage, message):
                 lasso.ProfileUnknownProviderError):
             provider_id = manage.remoteProviderId
             provider_loaded = load_provider(request, provider_id,
-                    server=manage.server)
+                    server=manage.server, sp_or_idp='idp')
 
             if not provider_loaded:
                 message = _('fedTerm/Return: provider %r unknown') % provider_id
@@ -1120,7 +1120,7 @@ def manageNameIdSOAP(request):
                 lasso.ProfileUnknownProviderError):
             provider_id = manage.remoteProviderId
             provider_loaded = load_provider(request, provider_id,
-                    server=server)
+                    server=server, sp_or_idp='idp')
 
             if not provider_loaded:
                 message = _('fedTerm/SOAP: provider %r unknown') % provider_id
