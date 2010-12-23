@@ -28,7 +28,7 @@
 		<p id="moretext"></p>
 		<div id="scroller">
 			{% for p in idp_providers %}
-			<a href="/authsaml2/selectProvider/{{ p.entity_id }}" rel="{{ p.name }}" title="{{ p.name }}">{{ p.name }}</a>
+			<a href="/authsaml2/sso/{{ p.entity_id }}" rel="{{ p.name }}" title="{{ p.name }}">{{ p.name }}</a>
 			{% endfor %}
 		</div>
 	</dd>
