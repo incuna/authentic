@@ -4,6 +4,6 @@ from django.dispatch import Signal
 auth_login = Signal(providing_args = ["request","attributes"])
 
 #user logout
-auth_logout =  Signal(providing_args = ["request"])
+auth_logout =  Signal(providing_args = ["user"])
 
 
