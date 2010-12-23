@@ -71,10 +71,14 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None, http_method=
         if providers_list.count() == 1:
             p = providers_list[0]
         else:
-            #TODO: Remove this - Use AuthSAML2 Frontend
-            return render_to_response('auth/saml2/idp_select.html',
-                    {'providers_list': providers_list},
-                    context_instance=RequestContext(request))
+            context['message'] = 'No SAML2 identity provider selected'
+            context['redir_timeout'] = __logout_redirection_timeout
+            template = 'auth/saml2/logout.html'
+            if not s.back_url:
+                context['next_page'] = '/'
+            else:
+                context['next_page'] = s.back_url
+            return render_to_response(template, context_instance = context)
     else:
         p = load_provider(request, entity_id, server=server, sp_or_idp='idp')
         if not p:
@@ -108,9 +112,6 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None, http_method=
     # 7. Redirect the user
     return return_saml2_request(request, login,
             title=('AuthnRequest for %s' % entity_id))
-
-def selectProvider(request, entity_id):
-    return sso(request, entity_id=entity_id)
 
 ###
  # singleSignOnArtifact, singleSignOnPostOrRedirect
@@ -709,7 +710,7 @@ def local_logout(request):
         context = RequestContext(request)
         context['redir_timeout'] = __logout_redirection_timeout
         context['message'] = 'You are logged out'
-        template = 'idp/logout.html'
+        template = 'auth/saml2/logout.html'
         s = get_service_provider_settings()
         if not s or not s.back_url:
             context['next_page'] = '/'

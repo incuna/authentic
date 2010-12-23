@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% trans "Logout" %}
+{% endblock %}
+{% block bodyargs %}onload="setTimeout(function () { window.location='{{ next_page }}' }, {{ redir_timeout }})"{% endblock %}
+
+{% block content %}
+
+<h1>{% trans message %}</h1>
+<ul class="logout-list">
+    {% for fragment in logout_list %}
+        {{ fragment|safe }}
+    {% endfor %}
+</ul>
+
+<div id="continue-link"><a href="{{ next_page }}">{% trans "Continue logout" %}</div>
+
+{% endblock %}

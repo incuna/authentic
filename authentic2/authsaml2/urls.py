@@ -5,9 +5,8 @@ from saml2_endpoints import *
 urlpatterns = patterns('',
     (r'^metadata$', metadata),
     # Receive request from user interface
-    (r'^sso', sso),
+    (r'^sso/(?P<entity_id>[a-zA-Z0-9\:\-\./]+)/$', sso),
     (r'^finish_federation', finish_federation),
-    (r'^selectProvider/(?P<entity_id>[a-zA-Z0-9\:\-\./]+)/$', selectProvider),
     (r'^singleSignOnArtifact', singleSignOnArtifact),
     (r'^singleSignOnPost', singleSignOnPost),
     # Receive request from user interface
