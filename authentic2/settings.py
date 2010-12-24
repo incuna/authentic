@@ -239,7 +239,6 @@ if USE_DEBUG_TOOLBAR:
     INSTALLED_APPS += ('debug_toolbar',)
 
 if AUTH_OPENID:
-    MIDDLEWARE_CLASSES += ('django_authopenid.middleware.OpenIDMiddleware',)
     INSTALLED_APPS += ('django_authopenid',)
 
 if IDP_OPENID:
