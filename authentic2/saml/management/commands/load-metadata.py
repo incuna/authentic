@@ -126,8 +126,8 @@ class Command(BaseCommand):
                     else:
                         raise
                         raise CommandError('EntityDescriptor loading: %s' % str(e))
-            transaction.commit()
         else:
             raise CommandError('%s is not a SAMLv2 metadata file' % metadata_file)
+        transaction.commit()
         if not options.get('delete'):
             print 'Loaded', options.get('count', 0), 'providers'
