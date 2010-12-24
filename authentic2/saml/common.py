@@ -427,22 +427,13 @@ def lookup_federation_by_user(user, qualifier):
 
 # List Idp providers - Use from display in templates
 # WARNING: No way for multiple federation by user with a single IdP (is it a problem??)
-@authentic2.utils.MWT(timeout=30)
 def get_idp_list():
-    providers = LibertyProvider.objects.all()
-    if not providers:
-        return []
-    p_list = []
-    for p in providers:
-        try:
-            p.identity_provider
-        except LibertyIdentityProvider.DoesNotExist:
-            continue
-        p_list.append(p)
-    return p_list
+    return LibertyProvider.objects.exclude(identity_provider=None) \
+            .values('entity_id','name')
 
 def get_idp_list_sorted():
-    return sorted(get_idp_list(), key=lambda p: p.name)
+    return LibertyProvider.objects.exclude(identity_provider=None) \
+            .order_by('name').values('entity_id','name')
 
 def get_idp_user_federated_list(request):
     user = request.user
