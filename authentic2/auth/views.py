@@ -117,7 +117,6 @@ def login(request, template_name='auth/login.html',
         current_site = RequestSite(request)
 
     return render_to_response(template_name, {
-        'idp_providers' : get_idp_list_sorted(),
         'methods': rendered_forms,
         redirect_field_name: redirect_to,
         'site': current_site,
