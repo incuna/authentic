@@ -14,6 +14,7 @@ from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
 
 from models import *
+import models
 import saml2utils
 import saml11utils
 import authentic2.utils
@@ -372,48 +373,25 @@ def add_federation(user, login=None, name_id=None):
         if not login.nameIdentifier.content or not login.nameIdentifier.nameQualifier:
             return None
         name_id=login.nameIdentifier
-    fed = None
-    try:
-        fed = lookup_federation_by_name_identifier(name_id=name_id)
-    except:
-        raise Exception('Unable to add a new federation: Existing unconsistent records')
-    if not fed:
-        try:
-            fed = LibertyFederation()
-            fed.user = user
-            fed.name_id_content = name_id.content
-            fed.name_id_qualifier = name_id.nameQualifier
-            fed.name_id_sp_name_qualifier = name_id.sPNameQualifier
-            fed.name_id_format = name_id.format
-            fed.save()
-        except:
-            return None
+    qualifier = name_id.nameQualifier
+    if not qualifier and login:
+        qualifier = login.get_remoteProviderId()
+    fed = LibertyFederation()
+    fed.user = user
+    fed.name_id_content = name_id.content
+    fed.name_id_qualifier = qualifier
+    fed.name_id_sp_name_qualifier = name_id.sPNameQualifier
+    fed.name_id_format = name_id.format
+    fed.save()
     return fed
 
-# TODO: Deal with format and sPNameQualifier
-# WARNING: Qualifier is necessary if there is a not negligeable probability that two identity providers generate a same nameId
-def lookup_federation_by_name_identifier(login = None, name_id = None, qualifier=None):
-    if not login and not name_id:
-        return None
-    if login:
-        if login.nameIdentifier:
-            ni = login.nameIdentifier.content
-        else:
-            ni = name_id
-        if not qualifier:
-            qualifier = login.get_remoteProviderId()
-    else:
-        ni = name_id
-    if not qualifier:
-        fed = LibertyFederation.objects.filter(name_id_content=ni)
-    else:
-        fed = LibertyFederation.objects.filter(name_id_content=ni, name_id_qualifier=qualifier)
-    if fed and fed.count()>1:
-        # TODO: delete all but the last record
-        raise Exception('Unconsistent federation record for %s' % ni)
-    if not fed:
-        return None
-    return fed[0]
+def lookup_federation_by_name_identifier(name_id=None, profile=None):
+    '''Try to find a LibertyFederation object for the given NameID or
+       profile object.'''
+    if not name_id:
+        name_id = profile.nameIdentifier
+    kwargs = models.nameid2kwargs(name_id)
+    return LibertyFederation.objects.get(**kwargs)
 
 # TODO: Does it happen that a user have multiple federation with a same idp? NO
 def lookup_federation_by_user(user, qualifier):
@@ -478,7 +456,7 @@ def maintain_liberty_session_on_service_provider(request, login):
     if not login:
         return False
     # 1. Retrieve this user federation
-    fed = lookup_federation_by_name_identifier(login)
+    fed = lookup_federation_by_name_identifier(profile=login)
     if not fed:
         return False
     # 2.a Retrieve a liberty session with the session index and this federation

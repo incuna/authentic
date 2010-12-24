@@ -22,7 +22,8 @@ from authentic2.authsaml2.utils import *
 from authentic2.authsaml2.backends import *
 from authentic2.authsaml2 import signals
 
-from backends import AuthSAML2Backend
+from backends import AuthSAML2PersistentBackend, \
+        AuthSAML2TransientBackend
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
 
@@ -306,7 +307,7 @@ def sso_after_response(request, login, relay_state = None):
     if irt:
         if not_before is not None:
             return error_page(request, _('SSO/sso_after_response: assertion in response to an AuthnRequest, notBefore MUST not be present in SubjectConfirmationData'))
-    elif not_before is None or not not_before.endswith('Z'):
+    elif not_before is not None and not not_before.endswith('Z'):
         return error_page(request, _('SSO/sso_after_response: invalid notBefore value ' + not_before))
     if not_on_or_after is None or not not_on_or_after.endswith('Z'):
         return error_page(request, _('SSO/sso_after_response: invalid notOnOrAfter value'))
@@ -367,7 +368,7 @@ def sso_after_response(request, login, relay_state = None):
             lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT:
             return error_page(request, _('Transient account policy not yet implemented'))
 
-        fed = lookup_federation_by_name_identifier(login)
+        fed = lookup_federation_by_name_identifier(profile=login)
         if fed:
             save_session(request, login)
             save_federation(request, login)
@@ -393,15 +394,17 @@ def sso_after_response(request, login, relay_state = None):
           - We ask for an account linking.
           - Or we create an account with this federation.
         '''
+        key = request.session.session_key
         if login.nameIdentifier.format == \
             lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT:
             if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
                 return error_page(request, _('Transient access policy not yet implemented'))
             if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
                 #TODO: Logging
-                AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
-                user = authenticate(login=login)
-                key = request.session.session_key
+                # Create temporary user
+                user = authenticate(name_id=login.nameIdentifier)
+                if not user:
+                    return error_page(request, _('Authsaml2: No backend for temporary federation is configured'))
                 auth_login(request, user)
                 signals.auth_login.send(sender=None, request=request, attributes=attributes)
                 if request.session.test_cookie_worked():
@@ -412,9 +415,13 @@ def sso_after_response(request, login, relay_state = None):
 
         if login.nameIdentifier.format == \
             lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
-            user = authenticate(login=login)
+            user = authenticate(name_id=login.nameIdentifier)
+            if not user and \
+                    s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
+                # Auto-create an user then do the authentication again
+                AuthSAML2PersistentBackend().create_user(name_id=login.nameIdentifier)
+                user = authenticate(name_id=login.nameIdentifier)
             if user:
-                key = request.session.session_key
                 auth_login(request, user)
                 signals.auth_login.send(sender=None, request=request, attributes=attributes)
                 if request.session.test_cookie_worked():
@@ -423,26 +430,12 @@ def sso_after_response(request, login, relay_state = None):
                 save_federation(request, login)
                 maintain_liberty_session_on_service_provider(request, login)
                 return redirect_to_target(request, key)
-            if s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
+            elif s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
                 register_federation_in_progress(request,login.nameIdentifier.content)
-                auth_login(request, user)
-                signals.auth_login.send(sender=None, request=request, attributes=attributes)
                 save_session(request, login)
                 save_federation_temp(request, login)
-                maintain_liberty_session_on_service_provider(request, login)
                 return render_to_response('auth/saml2/account_linking.html',
                         context_instance=RequestContext(request))
-            if s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
-                AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
-                user = authenticate(login=login)
-                key = request.session.session_key
-                auth_login(request, user)
-                signals.auth_login.send(sender=None, request=request, attributes=attributes)
-                if request.session.test_cookie_worked():
-                    request.session.delete_test_cookie()
-                save_session(request, login)
-                maintain_liberty_session_on_service_provider(request, login)
-                return redirect_to_target(request, key)
             return error_page(request, _('Persistent Account policy: Configuration error'))
 
         return error_page(request, _('Transient access policy: NameId format not supported'))
@@ -781,7 +774,7 @@ def singleLogoutSOAP(request):
     except:
         pass
 
-    fed = lookup_federation_by_name_identifier(logout)
+    fed = lookup_federation_by_name_identifier(profile=logout)
     if not fed:
         return http_response_forbidden_request('SLO/IdP SOAP: Unable to find user')
 
@@ -1163,7 +1156,7 @@ def manageNameIdSOAP(request):
             message = 'fedTerm/IdP SOAP: %s' %lasso.strError(error[0])
             return http_response_forbidden_request(message)
 
-    fed = lookup_federation_by_name_identifier(manage)
+    fed = lookup_federation_by_name_identifier(profile=manage)
     load_federation(request, manage, fed.user)
     try:
         manage.validateRequest()
@@ -1213,7 +1206,7 @@ def manageNameId(request):
         message = 'fedTerm/IdP Redirect: %s' %lasso.strError(error[0])
         return http_response_forbidden_request(message)
 
-    fed = lookup_federation_by_name_identifier(manage)
+    fed = lookup_federation_by_name_identifier(profile=manage)
     load_federation(request, manage, fed.user)
     try:
         manage.validateRequest()
