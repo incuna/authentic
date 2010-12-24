@@ -59,8 +59,6 @@ def load_one_entity(tree, options):
         provider.metadata = etree.tostring(tree, encoding='utf-8').decode('utf-8').strip()
         provider.protocol_conformance = 3
         provider.save()
-        import re
-        file(re.sub(r'[:/]+', '_', entity_id), 'w').write(etree.tostring(tree, encoding='utf-8'))
         options['count'] = options.get('count', 0) + 1
         if idp:
             identity_provider = LibertyIdentityProvider(liberty_provider=provider,
