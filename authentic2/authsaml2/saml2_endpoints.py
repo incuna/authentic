@@ -41,7 +41,7 @@ def metadata(request):
  # Single SignOn request initiated from SP UI
  # Binding supported: Redirect
  ###
-def sso(request, entity_id=None, is_passive=None, force_authn=None, http_method=None):
+def sso(request, is_passive=None, force_authn=None, http_method=None):
     '''Django view initiating an AuthnRequesst toward an identity provider.
 
        Keyword arguments:
@@ -52,6 +52,7 @@ def sso(request, entity_id=None, is_passive=None, force_authn=None, http_method=
        force_authn -- whether to ask the identity provider to authenticate the
        user even if it is already authenticated.
     '''
+    entity_id = request.REQUEST.get('entity_id')
     s = get_service_provider_settings()
     if not s:
         return error_page(request, _('SSO/Artifact: Service provider not configured'))

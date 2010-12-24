@@ -55,7 +55,7 @@ def login(request):
 {% trans "Log in with a federated account?" %}
     <ul>  
     {% for p in providers_list %}
-        <li><a href="/authsaml2/selectProvider/{{ p.entity_id }}" >{{ p.entity_id }}</a></li>
+        <li><a href="/authsaml2/sso?entity_id={{ p.entity_id }}" >{{ p.entity_id }}</a></li>
     {% endfor %}
     </ul>
 {% endif %}
@@ -81,7 +81,7 @@ def inside(request):
 {% trans "Federate your identity" %}
     <ul>
     {% for p in providers_list_not_federated %}
-        <li><a href="/authsaml2/selectProvider/{{ p.entity_id }}/">{{ p.entity_id }}</a></li>
+        <li><a href="/authsaml2/sso?entity_id={{ p.entity_id }}/">{{ p.entity_id }}</a></li>
     {% endfor %}
     </ul>
 {% endif %}
