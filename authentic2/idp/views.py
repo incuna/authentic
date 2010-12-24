@@ -51,12 +51,6 @@ def homepage(request):
     import authentic2.authsaml2.utils
     tpl_parameters = {}
     tpl_parameters['authorized_services'] = service_list(request)
-    if authentic2.authsaml2.utils.is_sp_configured():
-        tpl_parameters['provider_active_session'] = authentic2.saml.common.get_provider_of_active_session(request)
-        tpl_parameters['provider_name'] = authentic2.saml.common.get_provider_of_active_session_name(request)
-    if settings.IDP_OPENID:
-        tpl_parameters['openid'] = request.user.openid_set
-        tpl_parameters['IDP_OPENID'] = settings.IDP_OPENID
     return render_to_response('idp/homepage.html', tpl_parameters, RequestContext(request))
 
 def profile(request):
