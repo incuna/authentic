@@ -961,7 +961,8 @@ def slo_return_response(logout):
  # TODO: Define in admin a parameter to indicate if the federation termination implies a local logout (IDP and SP initiated) - Should not logout.
  # TODO: Clean tables of all dumps about this user
  ###
-def federationTermination(request, entity_id):
+def federationTermination(request):
+    entity_id = request.REQUEST.get('entity_id')
     if not is_sp_configured():
         return error_page(request, _('fedTerm/SP UI: Service provider not configured'))
 

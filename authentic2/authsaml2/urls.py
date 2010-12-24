@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     # Receive request from Redirect IdP initiated
     (r'^singleLogout$', singleLogout),
     # Receive request from user interface
-    (r'^federationTermination/(?P<entity_id>[a-zA-Z0-9\:\-\./]+)/$', federationTermination),
+    (r'^federationTermination$', federationTermination),
     # Receive response from Redirect SP initiated
     (r'^manageNameIdReturn$', manageNameIdReturn),
     # Receive request from SOAP IdP initiated
