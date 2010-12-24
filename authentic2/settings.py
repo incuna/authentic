@@ -243,5 +243,5 @@ if AUTH_OPENID:
     INSTALLED_APPS += ('django_authopenid',)
 
 if IDP_OPENID:
-    INSTALLED_APPS += ('django_openid_provider',
+    INSTALLED_APPS += ('authentic2.django_openid_provider',
                     'openid_provider',)
