@@ -144,10 +144,13 @@ ASSERTION_CONSUMER_PROFILES = (
         ('art', _('Artifact binding')),
         ('post', _('Post binding')))
 
-DEFAULT_NAME_ID_FORMAT = 'persistent'
+DEFAULT_NAME_ID_FORMAT = 'none'
 
 # Supported name id formats
 NAME_ID_FORMATS = {
+        'none': { 'caption': _('None'),
+            'samlv2': None,
+            'idff12': None },
         'persistent': { 'caption': _('Persistent'),
             'samlv2': lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT,
             'idff12': lasso.LIB_NAMEID_POLICY_TYPE_FEDERATED },
