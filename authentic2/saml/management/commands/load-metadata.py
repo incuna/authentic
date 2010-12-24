@@ -4,6 +4,7 @@ import xml.etree.ElementTree as etree
 
 import lasso
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 
 from authentic2.saml.models import *
 
@@ -100,6 +101,7 @@ class Command(BaseCommand):
     args = '<metadata_file>'
     help = 'Load the specified SAMLv2 metadata file'
 
+    @transaction.commit_manually
     def handle(self, *args, **options):
         if not sys.argv:
             raise CommandError('No metadata file on the command line')
@@ -124,6 +126,7 @@ class Command(BaseCommand):
                     else:
                         raise
                         raise CommandError('EntityDescriptor loading: %s' % str(e))
+            transaction.commit()
         else:
             raise CommandError('%s is not a SAMLv2 metadata file' % metadata_file)
         if not options.get('delete'):
