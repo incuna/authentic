@@ -363,26 +363,28 @@ def load_provider(request, provider_id, server=None, sp_or_idp='sp'):
     return liberty_provider
 
 # Federation management
-def add_federation(user, login):
-    if not login:
-        return None
-    if not login.nameIdentifier:
-        return None
-    if not login.nameIdentifier.content or not login.nameIdentifier.nameQualifier:
-        return None
+def add_federation(user, login=None, name_id=None):
+    if not name_id:
+        if not login:
+            return None
+        if not login.nameIdentifier:
+            return None
+        if not login.nameIdentifier.content or not login.nameIdentifier.nameQualifier:
+            return None
+        name_id=login.nameIdentifier
     fed = None
     try:
-        fed = lookup_federation_by_name_identifier(login)
+        fed = lookup_federation_by_name_identifier(name_id=name_id)
     except:
         raise Exception('Unable to add a new federation: Existing unconsistent records')
     if not fed:
         try:
             fed = LibertyFederation()
             fed.user = user
-            fed.name_id_content = login.nameIdentifier.content
-            fed.name_id_qualifier = login.nameIdentifier.nameQualifier
-            fed.name_id_sp_name_qualifier = login.nameIdentifier.sPNameQualifier
-            fed.name_id_format = login.nameIdentifier.format
+            fed.name_id_content = name_id.content
+            fed.name_id_qualifier = name_id.nameQualifier
+            fed.name_id_sp_name_qualifier = name_id.sPNameQualifier
+            fed.name_id_format = name_id.format
             fed.save()
         except:
             return None
