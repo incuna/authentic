@@ -11,7 +11,7 @@ from django.views.decorators.csrf import *
 from django.views.generic.simple import direct_to_template
 from django.template import RequestContext
 from django.contrib.auth import get_user
-from django.contrib.auth import login as auth_login
+from django.contrib.auth import login as auth_login, authenticate
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth.forms import AuthenticationForm
@@ -21,6 +21,8 @@ from authentic2.saml.models import *
 from authentic2.authsaml2.utils import *
 from authentic2.authsaml2.backends import *
 from authentic2.authsaml2 import signals
+
+from backends import AuthSAML2Backend
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
 
@@ -397,8 +399,8 @@ def sso_after_response(request, login, relay_state = None):
                 return error_page(request, _('Transient access policy not yet implemented'))
             if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
                 #TODO: Logging
-                from backends import AuthSAML2Backend
-                user = AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
+                AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
+                user = authenticate(login=login)
                 key = request.session.session_key
                 auth_login(request, user)
                 signals.auth_login.send(sender=None, request=request, attributes=attributes)
@@ -410,8 +412,7 @@ def sso_after_response(request, login, relay_state = None):
 
         if login.nameIdentifier.format == \
             lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
-            from backends import AuthSAML2Backend
-            user = AuthSAML2Backend().authenticate(request,login)
+            user = authenticate(login=login)
             if user:
                 key = request.session.session_key
                 auth_login(request, user)
@@ -432,7 +433,8 @@ def sso_after_response(request, login, relay_state = None):
                 return render_to_response('auth/saml2/account_linking.html',
                         context_instance=RequestContext(request))
             if s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
-                user = AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
+                AuthSAML2Backend().create_user(nameId=login.nameIdentifier.content)
+                user = authenticate(login=login)
                 key = request.session.session_key
                 auth_login(request, user)
                 signals.auth_login.send(sender=None, request=request, attributes=attributes)

@@ -8,14 +8,13 @@ class AuthenticationError(Exception):
     pass
 
 class AuthSAML2Backend:
-
-    def authenticate(self, request, login):
+    def authenticate(self, login=None):
+        if login is None:
+            raise ValueError()
         fed = lookup_federation_by_name_identifier(login)
         if fed is None:
             return None
-        else:
-            fed.user.backend = settings.SAML2_BACKEND
-            return fed.user
+        return fed.user
 
     def get_user(self, user_id):
         try:
@@ -31,7 +30,6 @@ class AuthSAML2Backend:
             username = nameId
         try:
             user = User.objects.get(username=username)
-            user.backend = settings.SAML2_BACKEND
             user.save()
         except User.DoesNotExist:
             user = self.build_user(username)
@@ -42,6 +40,5 @@ class AuthSAML2Backend:
         user.username=username
         user.password=UserManager().make_random_password()
         user.is_active = True
-        user.backend = settings.SAML2_BACKEND
         user.save()
         return user

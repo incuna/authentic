@@ -213,8 +213,7 @@ IDP_BACKENDS = [ 'authentic2.idp.saml.backend.SamlBackend',
 
 #AuthSAML2 Configuration
 INSTALLED_APPS += ('authentic2.authsaml2',)
-SAML2_BACKEND = 'authentic2.authsaml2.backends.AuthSAML2Backend'
-AUTHENTICATION_BACKENDS += (SAML2_BACKEND,)
+AUTHENTICATION_BACKENDS += ('authentic2.authsaml2.backends.AuthSAML2Backend',)
 
 # OpenID settings
 AUTH_OPENID = True
