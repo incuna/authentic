@@ -353,6 +353,9 @@ def sso_after_response(request, login, relay_state = None):
                 message = 'SSO/sso_after_response: attribute value is not utf8 encoded %r'
                 logging.error(message % value)
                 continue
+    # Keep the issuer
+    attributes{'__issuer'} = login.assertion.issuer.content
+    attributes{'__nameid'} = login.assertion.subject.nameID.content
 
     user = request.user
 
