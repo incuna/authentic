@@ -100,7 +100,8 @@ def build_assertion(request, login, nid_format = 'transient'):
     if __user_backend_from_session:
         backend = request.session[BACKEND_SESSION_KEY]
         if backend in ('django.contrib.auth.backends.ModelBackend',
-                'authentic2.idp.auth_backends.LogginBackend'):
+                'authentic2.idp.auth_backends.LogginBackend',
+                'django_auth_ldap.backend.LDAPBackend'):
             if ssl:
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD_PROTECTED_TRANSPORT
             else:
