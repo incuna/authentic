@@ -1,3 +1,4 @@
+MANIFEST
 *.pyc
 *.pyo
 *.db
@@ -5,3 +6,4 @@
 dist/
 authentic.egg-info
 local_settings.py
+log.log
