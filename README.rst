@@ -60,18 +60,41 @@ Specifying a different database
 This is done by modifying the DATABASES dictionary in your local_settings.py file
 (create it in Authentic project directory); for example::
 
-  DATABASES['default'] = {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': 'authentic',
-    'USER': 'admindb',
-    'PASSWORD': 'foobar',
-    'HOST': 'db.example.com',
-    'PORT': '', # empty string means default value
-  }
+ DATABASES['default'] = {
+   'ENGINE': 'django.db.backends.postgresql',
+   'NAME': 'authentic',
+   'USER': 'admindb',
+   'PASSWORD': 'foobar',
+   'HOST': 'db.example.com',
+   'PORT': '', # empty string means default value
+ }
 
 You should refer to the Django documentation on databases settings at
 http://docs.djangoproject.com/en/dev/ref/settings/#databases for all
 the details.
+
+How to authenticate users against an LDAP server with anonymous binding ?
+-------------------------------------------------------------------------
+
+1. Install the django_auth_ldap module for Django::
+
+  pip install django_auth_ldap
+
+2. Configure your local_settings.py file for authenticating agains LDAP.
+   The next lines must be added::
+
+ import ldap
+ from django_auth_ldap.config import LDAPSearch
+
+ # Here put the LDAP URL of your server
+ AUTH_LDAP_SERVER_URI = 'ldap://ldap.example.com'
+ # Let the bind DN and bind password blank for anonymous binding
+ AUTH_LDAP_BIND_DN = ""
+ AUTH_LDAP_BIND_PASSWORD = ""
+ # Lookup user under the branch o=base and by mathcing their uid against the
+ # received login name
+ AUTH_LDAP_USER_SEARCH = LDAPSearch("o=base",
+     ldap.SCOPE_SUBTREE, "(uid=%(user)s)") 
 
 Copyright
 ---------
