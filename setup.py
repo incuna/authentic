@@ -35,7 +35,7 @@ distutils.core.setup(name="authentic2",
             'authentic2/vendor/oath',
             'authentic2/vendor/totp_js',],
       package_data={ '': ['fixtures/*.json',
-          'templates/*.html','templates/*/*.html'] },
+          'templates/*.html','templates/*/*.html','js/*.js'] },
       requires=[
           'django (>=1.2.0)',
           'registration (>=0.7)',
