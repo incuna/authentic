@@ -354,8 +354,8 @@ def sso_after_response(request, login, relay_state = None):
                 logging.error(message % value)
                 continue
     # Keep the issuer
-    attributes{'__issuer'} = login.assertion.issuer.content
-    attributes{'__nameid'} = login.assertion.subject.nameID.content
+    attributes['__issuer'] = login.assertion.issuer.content
+    attributes['__nameid'] = login.assertion.subject.nameID.content
 
     user = request.user
 
