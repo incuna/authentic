@@ -96,6 +96,22 @@ How to authenticate users against an LDAP server with anonymous binding ?
  AUTH_LDAP_USER_SEARCH = LDAPSearch("o=base",
      ldap.SCOPE_SUBTREE, "(uid=%(user)s)") 
 
+How to I authenticate against Authentic2 with a SAMLv2 service provider ?
+------------------------------------------------------------------------
+
+1. Get the metadata file from the URL::
+
+ htpp[s]://idp-hostname/idp/saml2/metadata
+
+And configure your service provider with it.
+
+2. Go to the providers admin panel on::
+
+ http[s]://admin/saml/libertyprovider/add/
+
+There create a new provider using the service provider metadata and enable it
+as a service provider, you can customize some behaviours like the preferred
+assertion consumer or encryption for the NameID or the Assertion element.
 Copyright
 ---------
 
