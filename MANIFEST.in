@@ -5,4 +5,5 @@ recursive-include authentic2 README fixtures/*.json templates/*/*.html js/*.js t
 include authentic2/sslauth/authentic_ssl.vhost
 include COPYING
 include README.rst
-include locale
+include authentic2/vendor/oath/TODO
+include authentic2/vendor/totp_js/README.rst
