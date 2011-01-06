@@ -6,7 +6,7 @@ Authentic is a versatile identity provider aiming to address a broad
 range of needs, from simple to complex setups; it has support for many
 protocols and can bridge between them.
 
-It has support for ID-FF and SAMLv2 thanks to Lasso, a free (GNU GPL)
+It has support for SAMLv2 thanks to Lasso, a free (GNU GPL)
 implementation of the Liberty Alliance specifications.
 
 Dependencies
