@@ -13,11 +13,30 @@ from django.shortcuts import render_to_response
 from openid.server.server import Server
 from django.core.urlresolvers import reverse
 import re
-from openid_provider.views import get_base_uri
 from django.template import RequestContext
 from django.conf import settings
 from openid.server.server import ProtocolError, CheckIDRequest, Message
 from django.core.cache import cache
+
+def get_base_uri(req):
+        name = req.META['HTTP_HOST']
+        try: name = name[:name.index(':')]
+        except: pass
+
+        try: port = int(req.META['SERVER_PORT'])
+        except: port = 80
+
+        if req.META.get('HTTPS') == 'on':
+                proto = 'https'
+        else:
+                proto = 'http'
+
+        if port in [80, 443] or not port:
+                port = ''
+        else:
+                port = ':%s' % port
+
+        return '%s://%s%s' % (proto, name, port)
 
 def django_response(webresponse):
         "Convert a webresponse from the OpenID library in to a Django HttpResponse"
