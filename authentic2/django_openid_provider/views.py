@@ -26,7 +26,7 @@ def get_base_uri(req):
         try: port = int(req.META['SERVER_PORT'])
         except: port = 80
 
-        if req.META.get('HTTPS') == 'on':
+        if 'HTTPS' in req.META:
                 proto = 'https'
         else:
                 proto = 'http'
