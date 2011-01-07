@@ -359,89 +359,51 @@ def sso_after_response(request, login, relay_state = None):
 
     user = request.user
 
-    if not request.user.is_anonymous():
-        '''
-        The user is logged in.
-        The user may be already logged and yet may have performed a SSO.
-        - Either with a transient nameID: To bring a membership credential for instance.
-        - Or with a persistent nameID: idem + to add a new federation.
-        '''
-        #TODO: If transient nameID and logged user, only logging
-        if login.nameIdentifier.format == \
-            lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT:
-            return error_page(request, _('Transient account policy not yet implemented'))
-
-        fed = lookup_federation_by_name_identifier(profile=login)
-        if fed:
-            save_session(request, login)
-            save_federation(request, login)
-            maintain_liberty_session_on_service_provider(request, login)
-            return redirect_to_target(request)
-        else:
-            fed = add_federation(user, login)
-            if not fed:
-                return error_page(request, _('Erreur adding new federation for this user'))
-            save_session(request, login)
-            save_federation(request, login)
-            maintain_liberty_session_on_service_provider(request, login)
-            return redirect_to_target(request)
-    else:
-        '''
-        Else the user is logged out.
-        - Either with a transient nameID:
-         - We create a temporary session.
-         - Or we ask for an authentication.
-        - Or with a persistent nameID:
-         - If already federated: login.
-         - Else:
-          - We ask for an account linking.
-          - Or we create an account with this federation.
-        '''
-        key = request.session.session_key
-        if login.nameIdentifier.format == \
-            lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT:
-            if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
-                return error_page(request, _('Transient access policy not yet implemented'))
-            if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
-                #TODO: Logging
-                # Create temporary user
-                user = authenticate(name_id=login.nameIdentifier)
-                if not user:
-                    return error_page(request, _('Authsaml2: No backend for temporary federation is configured'))
-                auth_login(request, user)
-                signals.auth_login.send(sender=None, request=request, attributes=attributes)
-                if request.session.test_cookie_worked():
-                    request.session.delete_test_cookie()
-                save_session(request, login)
-                return redirect_to_target(request)
-            return error_page(request, _('Transient access policy: Configuration error'))
-
-        if login.nameIdentifier.format == \
-            lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
+    key = request.session.session_key
+    if login.nameIdentifier.format == \
+        lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT:
+        if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
+            return error_page(request, _('Transient access policy not yet implemented'))
+        if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
+            #TODO: Logging
+            # Create temporary user
             user = authenticate(name_id=login.nameIdentifier)
-            if not user and \
-                    s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
-                # Auto-create an user then do the authentication again
-                AuthSAML2PersistentBackend().create_user(name_id=login.nameIdentifier)
-                user = authenticate(name_id=login.nameIdentifier)
-            if user:
-                auth_login(request, user)
-                signals.auth_login.send(sender=None, request=request, attributes=attributes)
-                if request.session.test_cookie_worked():
-                    request.session.delete_test_cookie()
-                save_session(request, login)
-                save_federation(request, login)
-                maintain_liberty_session_on_service_provider(request, login)
-                return redirect_to_target(request, key)
-            elif s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
-                register_federation_in_progress(request,login.nameIdentifier.content)
-                save_session(request, login)
-                save_federation_temp(request, login)
-                return render_to_response('auth/saml2/account_linking.html',
-                        context_instance=RequestContext(request))
-            return error_page(request, _('Persistent Account policy: Configuration error'))
+            if not user:
+                return error_page(request, _('Authsaml2: No backend for temporary federation is configured'))
+            auth_login(request, user)
+            signals.auth_login.send(sender=None, request=request, attributes=attributes)
+            if request.session.test_cookie_worked():
+                request.session.delete_test_cookie()
+            save_session(request, login)
+            return redirect_to_target(request)
+        return error_page(request, _('Transient access policy: Configuration error'))
 
-        return error_page(request, _('Transient access policy: NameId format not supported'))
+    if login.nameIdentifier.format == \
+        lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
+        user = authenticate(name_id=login.nameIdentifier)
+        if not user and \
+                s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
+            # Auto-create an user then do the authentication again
+            AuthSAML2PersistentBackend().create_user(name_id=login.nameIdentifier)
+            user = authenticate(name_id=login.nameIdentifier)
+        if user:
+            auth_login(request, user)
+            signals.auth_login.send(sender=None, request=request, attributes=attributes)
+            if request.session.test_cookie_worked():
+                request.session.delete_test_cookie()
+            save_session(request, login)
+            save_federation(request, login)
+            maintain_liberty_session_on_service_provider(request, login)
+            return redirect_to_target(request, key)
+        elif s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
+            register_federation_in_progress(request,login.nameIdentifier.content)
+            save_session(request, login)
+            save_federation_temp(request, login)
+            return render_to_response('auth/saml2/account_linking.html',
+                    context_instance=RequestContext(request))
+        return error_page(request, _('Persistent Account policy: Configuration error'))
+
+    return error_page(request, _('Transient access policy: NameId format not supported'))
         #TODO: Relay state
 
 ###
