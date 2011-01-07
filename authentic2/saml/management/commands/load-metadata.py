@@ -52,23 +52,31 @@ def load_one_entity(tree, options):
         print 'Deleted', entity_id
         return
     if idp or sp:
-        if options['verbosity'] == '2':
-            print >>sys.stdout, 'Loading %s, %s' % (name.encode('utf8'), entity_id)
         provider, created = LibertyProvider.objects.get_or_create(entity_id=entity_id,
                 protocol_conformance=3)
+        if options['verbosity'] == '2':
+            if created:
+                what = 'Creating'
+            else:
+                what = 'Updating'
+            print >>sys.stdout, '%(what)s %(name)s, %(id)s' % { 'what': what,
+                    'name': name.encode('utf8'), 'id': entity_id}
         provider.name = name
         provider.metadata = etree.tostring(tree, encoding='utf-8').decode('utf-8').strip()
         provider.protocol_conformance = 3
         provider.save()
         options['count'] = options.get('count', 0) + 1
         if idp:
-            identity_provider = LibertyIdentityProvider(liberty_provider=provider,
-                enabled=True, allow_create=True)
+            identity_provider, created = LibertyIdentityProvider.objects.get_or_create(
+                    liberty_provider=provider)
+            identity_provider.enabled = True
+            identity_provider.allow_create = True
             identity_provider.save()
         if sp:
-            identity_provider = LibertyServiceProvider(liberty_provider=provider,
-                enabled=True)
-            identity_provider.save()
+            service_provider, created = LibertyServiceProvider.objects.get_or_create(
+                    liberty_provider=provider)
+            service_provider.enabled = True
+            service_provider.save()
 
 class Command(BaseCommand):
     '''Load SAMLv2 metadata file into the LibertyProvider, LibertyServiceProvider
