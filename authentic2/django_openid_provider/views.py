@@ -360,7 +360,7 @@ def addopenid(request):
     return redirect_to(request,'/openid/manageid/')
 
 def match(strg, search = re.compile(r'[^a-z0-9._]').search):
-    if res or not bool(search(strg)):
+    if not bool(search(strg)):
         return False
     else:
         return True
