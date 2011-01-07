@@ -1,6 +1,5 @@
 from django.views.decorators.csrf import csrf_exempt
 from openid_provider.views import openid_get_identity
-from openid_provider.views import django_response
 from openid_provider.views import error_page
 from openid_provider.views import landing_page
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
@@ -20,6 +19,13 @@ from django.conf import settings
 from openid.server.server import ProtocolError, CheckIDRequest, Message
 from django.core.cache import cache
 
+def django_response(webresponse):
+        "Convert a webresponse from the OpenID library in to a Django HttpResponse"
+        response = HttpResponse(webresponse.body)
+        response.status_code = webresponse.code
+        for key, value in webresponse.headers.items():
+                response[key] = value
+        return response
 
 @csrf_exempt
 def openid_server(req):
