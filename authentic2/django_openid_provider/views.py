@@ -360,13 +360,7 @@ def addopenid(request):
     return redirect_to(request,'/openid/manageid/')
 
 def match(strg, search = re.compile(r'[^a-z0-9._]').search):
-    if strg in settings.EXCLUDE_URL:
-        res = True
-
     if res or not bool(search(strg)):
         return False
     else:
         return True
-
-    #return not bool(search(strg))
-
