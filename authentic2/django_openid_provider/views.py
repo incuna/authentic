@@ -343,7 +343,7 @@ def addopenid(request):
     if request.method == 'POST':
         form = addopenid_form(request.POST)
         openid = request.POST['openid']
-        if openid_regexp.match(openid)
+        if openid_regexp.match(openid):
             user = request.user
             if 'Default' in form.data.keys() and form.data['Default'] == 'on':
                Default = True
