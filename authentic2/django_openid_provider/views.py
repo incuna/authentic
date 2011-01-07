@@ -336,11 +336,14 @@ class addopenid_form(forms.Form):
     openid = forms.CharField(max_length = 200)
 
 from django.db import IntegrityError
+
+openid_regexp = re.compile(r'^[a-zA-Z0-9-_]*$')
+
 def addopenid(request):
     if request.method == 'POST':
         form = addopenid_form(request.POST)
         openid = request.POST['openid']
-        if match(openid): 
+        if openid_regexp.match(openid)
             user = request.user
             if 'Default' in form.data.keys() and form.data['Default'] == 'on':
                Default = True
@@ -352,15 +355,6 @@ def addopenid(request):
                 msg = openid + ' is already use by someone else please choose another openid identifier'
                 request.user.message_set.create(message = msg)
         else:
-            if not match(openid):
-                msg = "Your OpenID identity can not be " + openid
-                request.user.message_set.create(message = msg)
-            else:
-                request.user.message_set.create(message = 'Your OpenID identity can only contain letters, numbers and underscores')
+            request.user.message_set.create(
+                    message = _('Your OpenID identity can only contain letters, numbers, underscores and carets'))
     return redirect_to(request,'/openid/manageid/')
-
-def match(strg, search = re.compile(r'[^a-z0-9._]').search):
-    if not bool(search(strg)):
-        return False
-    else:
-        return True
