@@ -369,7 +369,7 @@ def idp_sso(request, provider_id, user_id = None, nid_format = None):
     liberty_provider = load_provider(request, provider_id, server=login.server)
     if not liberty_provider:
         logging.info('SAMLv2 idp_sso for an unknown provider %s' % provider_id)
-        raise error_page(request, _('Provider %s is unknown') % provider_id)
+        return error_page(request, _('Provider %s is unknown') % provider_id)
     service_provider = liberty_provider.service_provider
     if user_id:
         user = User.get(id = user_id)
