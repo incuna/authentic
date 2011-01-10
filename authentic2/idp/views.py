@@ -22,9 +22,6 @@ from django.template import RequestContext
 from django.utils.encoding import smart_unicode
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.generic.simple import redirect_to
-from openid.consumer.consumer import Consumer, SUCCESS, CANCEL, FAILURE, SETUP_NEEDED
-from openid.consumer.discover import DiscoveryFailure
-from openid.yadis import xri
 
 import authentic2.saml.common
 import authentic2.authsaml2.utils
