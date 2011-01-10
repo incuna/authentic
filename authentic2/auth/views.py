@@ -153,3 +153,14 @@ def login_password_profile(request, next):
             RequestContext(request))
 
 
+def redirect_to_login(request, next=None, nonce=None, keep_qs=False):
+    '''Redirect to the login, eventually adding a nonce'''
+    if next is None:
+        if keep_qs:
+            next = request.build_absolute_uri()
+        else:
+            next = request.build_absolute_uri(request.path)
+    qs = { REDIRECT_FIELD_NAME: next }
+    if nonce is not None:
+        qs.update({ NONCE_FIELD_NAME: nonce })
+    return HttpResponseRedirect('/login?%s' % urlencode(qs))
