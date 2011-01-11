@@ -123,7 +123,6 @@ INSTALLED_APPS = (
     'authentic2.auth',
     'authentic2.auth.openid',
     'authentic2.auth.oath',
-    'authentic2.idp.openid'
 )
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
@@ -220,8 +219,7 @@ AUTHENTICATION_BACKENDS += (
 
 # OpenID settings
 AUTH_OPENID = True
-IDP_OPENID = False
-IDPOI_PATH = '/o8/'
+IDP_OPENID = True
 
 # Logging settings
 LOG_FILENAME = os.path.join(_PROJECT_PATH, 'log.log')
@@ -244,5 +242,4 @@ if AUTH_OPENID:
     INSTALLED_APPS += ('django_authopenid',)
 
 if IDP_OPENID:
-    INSTALLED_APPS += ('authentic2.django_openid_provider',
-                    'openid_provider',)
+    INSTALLED_APPS += ('authentic2.idp.openid',)
