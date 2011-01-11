@@ -33,9 +33,21 @@
 <!-- trust_root_valid is {{ trust_root_valid }} -->
 
 <form method="post" action="{% url openid-provider-decide %}">{% csrf_token %}
-Verify your identity to the relying party?
-<br/>
-{{ form }}
+{% if required %}
+<p>
+It requires the following attributes:
+<ul>
+{% for att in required %}
+<li>{{ att }}</li>
+{% endfor %}
+</ul>
+The following attributes are optional:
+<ul>
+{{ form.as_ul }}
+</ul>
+</p>
+{% endif %}
+<p>Allow Identity-Hub to verify your identity ?</p>
 <input type="submit" value="Yes (Allow)" name="allow" />
 <input type="submit" value="No (Cancel)" name="cancel" />
 </form>

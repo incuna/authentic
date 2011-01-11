@@ -4,14 +4,18 @@
 # and from examples/djopenid from python-openid-2.2.4
 
 from openid.extensions import sreg
+import openid.server
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 
 import conf
 
 def oresponse_to_response(server, oresponse):
-    webresponse = server.encodeResponse(oresponse)
+    try:
+        webresponse = server.encodeResponse(oresponse)
+    except openid.server.EncodingError:
+        return HttpResponseRedirect('/')
     response = HttpResponse(webresponse.body)
     response.status_code = webresponse.code
     for key, value in webresponse.headers.items():

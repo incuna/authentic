@@ -13,7 +13,7 @@ class DjangoOpenIDStore(openid.store.interface.OpenIDStore):
         return models.Association.cleanup_nonces()
 
     def storeAssociation(self, server_url, association):
-        return models.Association.store_association(server, server_url, association)
+        return models.Association.store_association(server_url, association)
 
     def getAssociation(self, server_url, handle=None):
         return models.Association.get_association(server_url, handle)

@@ -53,16 +53,17 @@ class Association(models.Model):
     @classmethod
     def get_association(cls, server_url, handle=None):
         try:
-            filter = cls.objects.filter(server_url=server_url, expire__gt=datetime.utcnow())
+            filter = cls.objects.filter(server_url=server_url,
+                expire__gt=datetime.datetime.utcnow())
             if handle is not None:
                 filter = filter.filter(handle=handle)
-            return fitler.latest('issued').to_association()
-        except cls.DoesNotExit:
+            return filter.latest('issued').to_association()
+        except cls.DoesNotExist:
             return None
 
     @classmethod
     def cleanup_associations(cls):
-        filter = cls.objects.filter(expire__lt=datetime.utcnow())
+        filter = cls.objects.filter(expire__lt=datetime.datetime.utcnow())
         count = filter.count()
         filter.delete()
         return count

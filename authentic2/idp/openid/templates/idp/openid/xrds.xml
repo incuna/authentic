@@ -5,6 +5,8 @@
 			<Type>{{ uri|escape }}</Type>
 		{% endfor %}{% for endpoint in endpoints %}
 			<URI>{{ endpoint }}</URI>
+		{% endfor %}{% for local_id in local_ids %}
+			<LocalID>{{ local_id }}</LocalID>
 		{% endfor %}</Service>
 	</XRD>
 </xrds:XRDS>
