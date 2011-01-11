@@ -155,7 +155,7 @@ def openid_decide(request):
         else:
             form = DecideForm(sreg_request=sreg_request,data=request.POST)
             if form.is_valid():
-                data = form.cleaned_data()
+                data = form.cleaned_data
                 # Remember the choice
                 models.TrustedRoot(user=request.user.id,
                         trust_root=orequest.trust_root,
