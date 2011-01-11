@@ -6,8 +6,17 @@
 from openid.extensions import sreg
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
+from django.http import HttpResponse
 
 import conf
+
+def oresponse_to_response(server, oresponse):
+    webresponse = server.encodeResponse(oresponse)
+    response = HttpResponse(webresponse.body)
+    response.status_code = webresponse.code
+    for key, value in webresponse.headers.items():
+        response[key] = value
+    return response
 
 def import_module_attr(path):
     package, module = path.rsplit('.', 1)
