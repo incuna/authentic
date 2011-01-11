@@ -2,6 +2,27 @@ from django.contrib import admin
 from models import *
 from django.utils.translation import ugettext as _
 
+class AuthorizationAttributeMapAdmin(admin.ModelAdmin):
+    fieldsets = (
+            (None, {
+                'fields' : (
+                    'name',
+                )
+            }),
+    )
+
+class AttributeMappingAdmin(admin.ModelAdmin):
+    fieldsets = (
+            (None, {
+                'fields' : (
+                    'attribute_value_format',
+                    'attribute_name',
+                    'attribute_value',
+                    'map',
+                )
+            }),
+    )
+
 class IdPOptionsPolicyAdmin(admin.ModelAdmin):
     fieldsets = (
             (None, {
@@ -18,6 +39,7 @@ class IdPOptionsPolicyAdmin(admin.ModelAdmin):
                     'want_force_authn_request',
                     'want_is_passive_authn_request',
                     'want_authn_request_signed',
+                    'attribute_map',
                 )
             }),
     )
@@ -35,5 +57,7 @@ class MyServiceProviderAdmin(admin.ModelAdmin):
 
 admin.site.register(MyServiceProvider, MyServiceProviderAdmin)
 admin.site.register(IdPOptionsPolicy, IdPOptionsPolicyAdmin)
+admin.site.register(AuthorizationAttributeMap, AuthorizationAttributeMapAdmin)
+admin.site.register(AttributeMapping, AttributeMappingAdmin)
 #admin.site.register(idPGroup)
 

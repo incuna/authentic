@@ -10,6 +10,7 @@ from django.http import *
 from django.views.decorators.csrf import *
 from django.views.generic.simple import direct_to_template
 from django.template import RequestContext
+from django.contrib import messages
 from django.contrib.auth import get_user
 from django.contrib.auth import login as auth_login, authenticate
 from django.contrib.auth import logout as auth_logout
@@ -21,6 +22,7 @@ from authentic2.saml.models import *
 from authentic2.authsaml2.utils import *
 from authentic2.authsaml2.backends import *
 from authentic2.authsaml2 import signals
+from authentic2.authsaml2.misc import *
 
 from backends import AuthSAML2PersistentBackend, \
         AuthSAML2TransientBackend
@@ -159,7 +161,7 @@ def singleSignOnArtifact(request):
 
             if not provider_loaded:
                 message = _('SSO/AssertionConsumer-Artifact: provider %r unknown') % provider_id
-                logging.warning(message)
+                logger.warning(message)
                 return error_page(request, message)
             else:
                 continue
@@ -230,7 +232,7 @@ def singleSignOnPost(request):
 
             if not provider_loaded:
                 message = _('AssertionConsumer/Post: provider %r unknown') % provider_id
-                logging.warning(message)
+                logger.warning(message)
                 return error_page(request, message)
             else:
                 continue
@@ -335,7 +337,7 @@ def sso_after_response(request, login, relay_state = None):
                     attribute.friendlyName
             except UnicodeDecodeError:
                 message = 'SSO/sso_after_response: name or format of an attribute failed to decode as ascii: %r %r'
-                logging.error(message % (attribute.name, attribute.format))
+                logger.error(message % (attribute.name, attribute.format))
                 continue
             try:
                 values = attribute.attributeValue
@@ -351,11 +353,29 @@ def sso_after_response(request, login, relay_state = None):
                     attributes[(name, format)].append(content.decode('utf8'))
             except UnicodeDecodeError:
                 message = 'SSO/sso_after_response: attribute value is not utf8 encoded %r'
-                logging.error(message % value)
+                logger.error(message % value)
                 continue
     # Keep the issuer
     attributes['__issuer'] = login.assertion.issuer.content
     attributes['__nameid'] = login.assertion.subject.nameID.content
+
+    server = build_service_provider(request)
+    if not server:
+        return error_page(request, _('SSO/Artifact: Service provider not configured'))
+    p = load_provider(request, login.assertion.issuer.content, server=server, sp_or_idp='idp')
+    if not p:
+        return error_page(request, 'SSO/Artifact: The provider does not exist')
+    try:
+        if not isAuthorized(p, attributes):
+            logger.warning('Authsaml2: Not authorized without exception raised')
+            messages.add_message(request, messages.ERROR, _('You are not authorized!'))
+            return redirect_to_target(request, request.session.session_key)
+    except Exception, err:
+        logger.warning('Authsaml2: Not authorized: %s' %err)
+        messages.add_message(request, messages.ERROR, _('You are not authorized!'))
+        return redirect_to_target(request, request.session.session_key)
+
+    logger.info('Authsaml2: User authorized')
 
     user = request.user
 
@@ -365,13 +385,13 @@ def sso_after_response(request, login, relay_state = None):
         if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
             return error_page(request, _('Transient access policy not yet implemented'))
         if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
-            #TODO: Logging
-            # Create temporary user
             user = authenticate(name_id=login.nameIdentifier)
             if not user:
                 return error_page(request, _('Authsaml2: No backend for temporary federation is configured'))
             auth_login(request, user)
+            logger.info('Authsaml2: User logged in')
             signals.auth_login.send(sender=None, request=request, attributes=attributes)
+            logger.info('Authsaml2: Successful authentication signal sent')
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
             save_session(request, login)
@@ -388,7 +408,9 @@ def sso_after_response(request, login, relay_state = None):
             user = authenticate(name_id=login.nameIdentifier)
         if user:
             auth_login(request, user)
+            logger.info('Authsaml2: User logged in')
             signals.auth_login.send(sender=None, request=request, attributes=attributes)
+            logger.info('Authsaml2: Successful authentication signal sent')
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
             save_session(request, login)
@@ -725,7 +747,7 @@ def singleLogoutSOAP(request):
 
             if not provider_loaded:
                 message = _('SLO/SOAP: provider %r unknown') % provider_id
-                logging.warning(message)
+                logger.warning(message)
                 return error_page(request, message)
             else:
                 continue
@@ -862,7 +884,7 @@ def singleLogout(request):
 
             if not provider_loaded:
                 message = _('SLO/Redirect: provider %r unknown') % provider_id
-                logging.warning(message)
+                logger.warning(message)
                 return error_page(request, message)
             else:
                 continue
@@ -1057,7 +1079,7 @@ def manage_name_id_return(request, manage, message):
 
             if not provider_loaded:
                 message = _('fedTerm/Return: provider %r unknown') % provider_id
-                logging.warning(message)
+                logger.warning(message)
                 return error_page(request, message)
             else:
                 continue
@@ -1113,7 +1135,7 @@ def manageNameIdSOAP(request):
 
             if not provider_loaded:
                 message = _('fedTerm/SOAP: provider %r unknown') % provider_id
-                logging.warning(message)
+                logger.warning(message)
                 return error_page(request, message)
             else:
                 continue

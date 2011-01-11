@@ -15,6 +15,18 @@ AUTHSAML2_UNAUTH_TRANSIENT = (
     ('AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION', _('Open a session')),
 )
 
+class AuthorizationAttributeMap(models.Model):
+    name = models.CharField(max_length = 40, unique = True)
+    def __unicode__(self):
+        return self.name
+
+class AttributeMapping(models.Model):
+    source_attribute_name = models.CharField(max_length = 40)
+    attribute_value_format = models.CharField(max_length = 40)
+    attribute_name = models.CharField(max_length = 40)
+    attribute_value = models.CharField(max_length = 40)
+    map = models.ForeignKey(AuthorizationAttributeMap)
+
 class IdPOptionsPolicy(models.Model):
     name = models.CharField(_('name'), max_length=80, unique=True)
     enabled = models.BooleanField(verbose_name = _('Enabled'))
@@ -53,10 +65,9 @@ class IdPOptionsPolicy(models.Model):
             verbose_name = _("Passive authentication"))
     want_authn_request_signed = models.BooleanField(
             verbose_name = _("Want AuthnRequest signed"))
-    # Mapping to use to get User attributes from the assertion
-    #attribute_map = models.ForeignKey(LibertyAttributeMap,
-    #        related_name = "identity_providers",
-    #        blank = True, null = True)
+    attribute_map = models.ForeignKey(AuthorizationAttributeMap,
+            related_name = "authorization_attributes",
+            blank = True, null = True)
 
     class Meta:
         verbose_name = _('identity provider options policy')
