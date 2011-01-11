@@ -91,7 +91,7 @@ def openid_server(request):
                                 request.user.last_name)
                     else:
                         logger.warning('Could not provider SReg field %s' % field)
-            except models.TrustedRoot.DoesNotExit:
+            except models.TrustedRoot.DoesNotExist:
                 # RP does not want any interaction
                 if orequest.immediate:
                     return utils.oresponse_to_response(server, orequest.answer(False))
@@ -128,7 +128,7 @@ def openid_xrds(request, identity=False, id=None):
 class DecideForm(forms.Form):
     def __init__(self, sreg_request=[], *args, **kwargs):
         super(DecideForm, self).__init__(*args, **kwargs)
-        for field in self.optional:
+        for field in sreg_request.optional:
             self.fields[field] = forms.BooleanField(label=data_fields[field])
 
 
@@ -162,6 +162,8 @@ def openid_decide(request):
                         choices=sreg_request.required +
                     [ field for field in data if data[field] ])
                 return HttpResponseRedirect(reverse('openid-provider-root'))
+    else:
+        form = DecideForm(sreg_request=sreg_request)
 
     # verify return_to of trust_root
     try:
