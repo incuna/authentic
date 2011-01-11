@@ -33,6 +33,7 @@ from openid.extensions.sreg import ns_uri as SREG_TYPE, SRegRequest, \
 
 from utils import add_sreg_data, get_store, oresponse_to_response
 from authentic2.auth.views import redirect_to_login
+import models
 
 logger = logging.getLogger('authentic2.idp.openid')
 
