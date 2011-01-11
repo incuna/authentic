@@ -118,7 +118,7 @@ def openid_xrds(request, identity=False, id=None):
     else:
         types = [OPENID_IDP_2_0_TYPE,SREG_TYPE]
     endpoints = [request.build_absolute_uri(reverse('openid-provider-root'))]
-    return render_to_response('openid_provider/xrds.xml', {
+    return render_to_response('idp/openid/xrds.xml', {
         'host': request.build_absolute_uri('/'),
         'types': types,
         'endpoints': endpoints,

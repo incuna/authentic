@@ -1,4 +1,4 @@
-{% extends "openid_provider/base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 {% ifequal trust_root_valid "Valid" %}
@@ -35,7 +35,7 @@
 <form method="post" action="{% url openid-provider-decide %}">{% csrf_token %}
 Verify your identity to the relying party?
 <br/>
-<input type="hidden" name="decide_page" value="True" />
+{{ form }}
 <input type="submit" value="Yes (Allow)" name="allow" />
 <input type="submit" value="No (Cancel)" name="cancel" />
 </form>
