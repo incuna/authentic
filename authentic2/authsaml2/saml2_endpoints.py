@@ -381,7 +381,8 @@ def sso_after_response(request, login, relay_state = None):
 
     key = request.session.session_key
     if login.nameIdentifier.format == \
-        lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT:
+        lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT and \
+        not s.account_with_transient :
         if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
             return error_page(request, _('Transient access policy not yet implemented'))
         if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
@@ -399,13 +400,14 @@ def sso_after_response(request, login, relay_state = None):
         return error_page(request, _('Transient access policy: Configuration error'))
 
     if login.nameIdentifier.format == \
-        lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
-        user = authenticate(name_id=login.nameIdentifier)
+        lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT or \
+        s.account_with_transient :
+        user = AuthSAML2PersistentBackend().authenticate(name_id=login.nameIdentifier)
         if not user and \
                 s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
             # Auto-create an user then do the authentication again
             AuthSAML2PersistentBackend().create_user(name_id=login.nameIdentifier)
-            user = authenticate(name_id=login.nameIdentifier)
+            user = AuthSAML2PersistentBackend().authenticate(name_id=login.nameIdentifier)
         if user:
             auth_login(request, user)
             logger.info('Authsaml2: User logged in')
@@ -421,6 +423,7 @@ def sso_after_response(request, login, relay_state = None):
             register_federation_in_progress(request,login.nameIdentifier.content)
             save_session(request, login)
             save_federation_temp(request, login)
+            maintain_liberty_session_on_service_provider(request, login)
             return render_to_response('auth/saml2/account_linking.html',
                     context_instance=RequestContext(request))
         return error_page(request, _('Persistent Account policy: Configuration error'))
@@ -478,7 +481,7 @@ def finish_federation(request):
                 return error_page(request, _('SSO/finish_federation: Error loading session.'))
             login.nameIdentifier = login.session.getAssertions()[0].subject.nameID
 
-            fed = add_federation(form.get_user(), login)
+            fed = add_federation(form.get_user(), name_id=login.session.getAssertions()[0].subject.nameID)
             if not fed:
                 return error_page(request, _('SSO/finish_federation: Error adding new federation for this user'))
             key = request.session.session_key
@@ -487,8 +490,8 @@ def finish_federation(request):
                 request.session.delete_test_cookie()
 
             #s.delete()
-            login.session.isDirty = True
-            login.identity.isDirty = True
+            #login.session.isDirty = True
+            #login.identity.isDirty = True
             save_session(request, login)
             save_federation(request, login)
             maintain_liberty_session_on_service_provider(request, login)

@@ -51,6 +51,7 @@ class MyServiceProviderAdmin(admin.ModelAdmin):
                     'handle_persistent',
                     'handle_transient',
                     'back_url',
+                    'account_with_transient',
                 )
             }),
     )
@@ -59,5 +60,3 @@ admin.site.register(MyServiceProvider, MyServiceProviderAdmin)
 admin.site.register(IdPOptionsPolicy, IdPOptionsPolicyAdmin)
 admin.site.register(AuthorizationAttributeMap, AuthorizationAttributeMapAdmin)
 admin.site.register(AttributeMapping, AttributeMappingAdmin)
-#admin.site.register(idPGroup)
-

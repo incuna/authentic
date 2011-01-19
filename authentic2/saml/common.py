@@ -390,6 +390,10 @@ def lookup_federation_by_name_identifier(name_id=None, profile=None):
        profile object.'''
     if not name_id:
         name_id = profile.nameIdentifier
+    fed = LibertyFederation.objects.filter(name_id_content=name_id.content)
+    if not fed:
+        return None
+    return fed[0]
     kwargs = models.nameid2kwargs(name_id)
     return LibertyFederation.objects.get(**kwargs)
 

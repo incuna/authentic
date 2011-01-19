@@ -102,6 +102,7 @@ class MyServiceProvider(models.Model):
     back_url = models.CharField(
             max_length = 80,
             verbose_name = 'Return URL after a successful authentication')
+    account_with_transient = models.BooleanField()
 
     class Meta:
         verbose_name = _('Service provider core configuration')
@@ -115,8 +116,6 @@ class ExtendDjangoSession(models.Model):
     federation_in_progress = models.CharField(max_length = 80, )
     next = models.CharField(max_length = 80, )
     temp_identity_dump = models.TextField(blank = True)
-
-
 
 class SAML2TransientUser(object):
     '''Class compatible with django.contrib.auth.models.User which represent an
