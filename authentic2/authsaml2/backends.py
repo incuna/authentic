@@ -29,7 +29,7 @@ class AuthSAML2PersistentBackend:
             return None
         fed = lookup_federation_by_name_identifier(name_id=name_id)
         if fed is None:
-            raise None
+            return None
         fed.user.backend = 'authentic2.authsaml2.backends.AuthSAML2PersistentBackend'
         return fed.user
 
