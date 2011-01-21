@@ -10,7 +10,6 @@ from django.http import *
 from django.views.decorators.csrf import *
 from django.views.generic.simple import direct_to_template
 from django.template import RequestContext
-from django.contrib import messages
 from django.contrib.auth import get_user
 from django.contrib.auth import login as auth_login, authenticate
 from django.contrib.auth import logout as auth_logout
@@ -22,7 +21,6 @@ from authentic2.saml.models import *
 from authentic2.authsaml2.utils import *
 from authentic2.authsaml2.backends import *
 from authentic2.authsaml2 import signals
-from authentic2.authsaml2.misc import *
 
 from backends import AuthSAML2PersistentBackend, \
         AuthSAML2TransientBackend
@@ -161,7 +159,7 @@ def singleSignOnArtifact(request):
 
             if not provider_loaded:
                 message = _('SSO/AssertionConsumer-Artifact: provider %r unknown') % provider_id
-                logger.warning(message)
+                logging.warning(message)
                 return error_page(request, message)
             else:
                 continue
@@ -195,7 +193,7 @@ def singleSignOnArtifact(request):
 
     # TODO: Relay State
 
-    return sso_after_response(request, login)
+    return sso_after_response(request, login, provider=p)
 
 @csrf_exempt
 def singleSignOnPost(request):
@@ -232,14 +230,14 @@ def singleSignOnPost(request):
 
             if not provider_loaded:
                 message = _('AssertionConsumer/Post: provider %r unknown') % provider_id
-                logger.warning(message)
+                logging.warning(message)
                 return error_page(request, message)
             else:
                 continue
         except lasso.Error, error:
             return error_page(request, _('AssertionConsumer/Post: %s') %lasso.strError(error[0]))
 
-    return sso_after_response(request, login)
+    return sso_after_response(request, login, provider=provider_loaded)
 
 ###
  # sso_after_response
@@ -250,7 +248,7 @@ def singleSignOnPost(request):
  # Post-authnrequest processing
  # TODO: Proxying
  ###
-def sso_after_response(request, login, relay_state = None):
+def sso_after_response(request, login, relay_state = None, provider=None):
     s = get_service_provider_settings()
     if not s:
         return error_page(request, _('Service provider not configured'))
@@ -337,7 +335,7 @@ def sso_after_response(request, login, relay_state = None):
                     attribute.friendlyName
             except UnicodeDecodeError:
                 message = 'SSO/sso_after_response: name or format of an attribute failed to decode as ascii: %r %r'
-                logger.error(message % (attribute.name, attribute.format))
+                logging.error(message % (attribute.name, attribute.format))
                 continue
             try:
                 values = attribute.attributeValue
@@ -353,46 +351,30 @@ def sso_after_response(request, login, relay_state = None):
                     attributes[(name, format)].append(content.decode('utf8'))
             except UnicodeDecodeError:
                 message = 'SSO/sso_after_response: attribute value is not utf8 encoded %r'
-                logger.error(message % value)
+                logging.error(message % value)
                 continue
     # Keep the issuer
     attributes['__issuer'] = login.assertion.issuer.content
     attributes['__nameid'] = login.assertion.subject.nameID.content
 
-    server = build_service_provider(request)
-    if not server:
-        return error_page(request, _('SSO/Artifact: Service provider not configured'))
-    p = load_provider(request, login.assertion.issuer.content, server=server, sp_or_idp='idp')
-    if not p:
-        return error_page(request, 'SSO/Artifact: The provider does not exist')
-    try:
-        if not isAuthorized(p, attributes):
-            logger.warning('Authsaml2: Not authorized without exception raised')
-            messages.add_message(request, messages.ERROR, _('You are not authorized!'))
-            return redirect_to_target(request, request.session.session_key)
-    except Exception, err:
-        logger.warning('Authsaml2: Not authorized: %s' %err)
-        messages.add_message(request, messages.ERROR, _('You are not authorized!'))
-        return redirect_to_target(request, request.session.session_key)
-
-    logger.info('Authsaml2: User authorized')
-
     user = request.user
 
     key = request.session.session_key
+    policy = get_idp_policy(provider)
     if login.nameIdentifier.format == \
-        lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT and \
-        not s.account_with_transient :
+        lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT \
+        and (policy is None \
+             or not policy.transient_is_persistent):
         if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
             return error_page(request, _('Transient access policy not yet implemented'))
         if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
+            #TODO: Logging
+            # Create temporary user
             user = authenticate(name_id=login.nameIdentifier)
             if not user:
                 return error_page(request, _('Authsaml2: No backend for temporary federation is configured'))
             auth_login(request, user)
-            logger.info('Authsaml2: User logged in')
             signals.auth_login.send(sender=None, request=request, attributes=attributes)
-            logger.info('Authsaml2: Successful authentication signal sent')
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
             save_session(request, login)
@@ -400,8 +382,9 @@ def sso_after_response(request, login, relay_state = None):
         return error_page(request, _('Transient access policy: Configuration error'))
 
     if login.nameIdentifier.format == \
-        lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT or \
-        s.account_with_transient :
+        lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT \
+        or (login.nameIdentifier.format == lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT \
+            and policy is not None and policy.transient_is_persistent):
         user = AuthSAML2PersistentBackend().authenticate(name_id=login.nameIdentifier)
         if not user and \
                 s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
@@ -410,9 +393,7 @@ def sso_after_response(request, login, relay_state = None):
             user = AuthSAML2PersistentBackend().authenticate(name_id=login.nameIdentifier)
         if user:
             auth_login(request, user)
-            logger.info('Authsaml2: User logged in')
             signals.auth_login.send(sender=None, request=request, attributes=attributes)
-            logger.info('Authsaml2: Successful authentication signal sent')
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
             save_session(request, login)
@@ -481,7 +462,7 @@ def finish_federation(request):
                 return error_page(request, _('SSO/finish_federation: Error loading session.'))
             login.nameIdentifier = login.session.getAssertions()[0].subject.nameID
 
-            fed = add_federation(form.get_user(), name_id=login.session.getAssertions()[0].subject.nameID)
+            fed = add_federation(form.get_user(), name_id=login.nameIdentifier)
             if not fed:
                 return error_page(request, _('SSO/finish_federation: Error adding new federation for this user'))
             key = request.session.session_key
@@ -750,7 +731,7 @@ def singleLogoutSOAP(request):
 
             if not provider_loaded:
                 message = _('SLO/SOAP: provider %r unknown') % provider_id
-                logger.warning(message)
+                logging.warning(message)
                 return error_page(request, message)
             else:
                 continue
@@ -887,7 +868,7 @@ def singleLogout(request):
 
             if not provider_loaded:
                 message = _('SLO/Redirect: provider %r unknown') % provider_id
-                logger.warning(message)
+                logging.warning(message)
                 return error_page(request, message)
             else:
                 continue
@@ -1082,7 +1063,7 @@ def manage_name_id_return(request, manage, message):
 
             if not provider_loaded:
                 message = _('fedTerm/Return: provider %r unknown') % provider_id
-                logger.warning(message)
+                logging.warning(message)
                 return error_page(request, message)
             else:
                 continue
@@ -1138,7 +1119,7 @@ def manageNameIdSOAP(request):
 
             if not provider_loaded:
                 message = _('fedTerm/SOAP: provider %r unknown') % provider_id
-                logger.warning(message)
+                logging.warning(message)
                 return error_page(request, message)
             else:
                 continue
@@ -1262,6 +1243,19 @@ def check_response_id(login):
 
 def build_service_provider(request):
     return create_server(request, reverse(metadata))
+
+def get_idp_policy(provider):
+    try:
+        return IdPOptionsPolicy.objects.get(name='All', enabled=True)
+    except IdPOptionsPolicy.DoesNotExist:
+        pass
+    if provider.identity_provider.enable_following_policy:
+        return provider.identity_provider.enable_following_policy
+    try:
+        return IdPOptionsPolicy.objects.get(name='Default', enabled=True)
+    except IdPOptionsPolicy.DoesNotExist:
+        pass
+    return None
 
 def setAuthnrequestOptions(provider, login, force_authn, is_passive):
     if not provider or not login:

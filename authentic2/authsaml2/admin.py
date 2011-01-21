@@ -31,6 +31,7 @@ class IdPOptionsPolicyAdmin(admin.ModelAdmin):
                     'enabled',
                     'no_nameid_policy',
                     'requested_name_id_format',
+                    'transient_is_persistent',
                     'allow_create',
                     ('enable_binding_for_sso_response', 'binding_for_sso_response'),
                     ('enable_http_method_for_slo_request', 'http_method_for_slo_request'),
@@ -51,11 +52,11 @@ class MyServiceProviderAdmin(admin.ModelAdmin):
                     'handle_persistent',
                     'handle_transient',
                     'back_url',
-                    'account_with_transient',
                 )
             }),
     )
 
+admin.site.register(ExtendDjangoSession)
 admin.site.register(MyServiceProvider, MyServiceProviderAdmin)
 admin.site.register(IdPOptionsPolicy, IdPOptionsPolicyAdmin)
 admin.site.register(AuthorizationAttributeMap, AuthorizationAttributeMapAdmin)

@@ -10,22 +10,13 @@ from authentic2.saml.common import lookup_federation_by_name_identifier, \
     add_federation
 from models import SAML2TransientUser
 
-from authentic2.authsaml2.utils import *
-
 class AuthenticationError(Exception):
     pass
 
 class AuthSAML2PersistentBackend:
     def authenticate(self, name_id=None):
-        s = get_service_provider_settings()
-        if not s:
-            return None
-
         '''Authenticate persistent NameID'''
-        if not name_id or \
-             (name_id.format != lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT and \
-             not s.account_with_transient):# or \
-             #not name_id.nameQualifier:
+        if not name_id:# or not name_id.nameQualifier:
             return None
         fed = lookup_federation_by_name_identifier(name_id=name_id)
         if fed is None:
