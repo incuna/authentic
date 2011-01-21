@@ -107,13 +107,15 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
                 lasso.MD_PROTOCOL_TYPE_SINGLE_SIGN_ON)
     if http_method == lasso.HTTP_METHOD_NONE:
         return error_page(request,
-            _('SSO: %s does not have any supported SingleSignOn endpoint') % entity_id,
+            _('SSO: %s does not have any supported \
+            SingleSignOn endpoint') % entity_id,
             logger=logger)
     try:
         login.initAuthnRequest(p.entity_id, http_method)
     except lasso.Error, error:
         return error_page(request,
-            _('SSO: initAuthnRequest %s') %lasso.strError(error[0]), logger=logger)
+            _('SSO: initAuthnRequest %s') %lasso.strError(error[0]),
+            logger=logger)
 
     # 5. Request setting
     setAuthnrequestOptions(p, login, force_authn, is_passive)
@@ -181,25 +183,30 @@ def singleSignOnArtifact(request):
                 continue
         except lasso.Error, error:
             return error_page(request,
-                _('SSO: initRequest %s') %lasso.strError(error[0]), logger=logger)
+                _('SSO: initRequest %s') %lasso.strError(error[0]),
+                logger=logger)
 
     try:
         login.buildRequestMsg()
     except lasso.Error, error:
         return error_page(request,
-            _('SSO: buildRequestMsg %s') %lasso.strError(error[0]), logger=logger)
+            _('SSO: buildRequestMsg %s') %lasso.strError(error[0]),
+            logger=logger)
 
     # TODO: Client certificate
     client_cert = None
     try:
-        soap_answer = soap_call(login.msgUrl, login.msgBody, client_cert = client_cert)
+        soap_answer = soap_call(login.msgUrl,
+            login.msgBody, client_cert = client_cert)
     except Exception, e:
         return error_page(request,
-            _('SSO: Failure to communicate with artifact resolver %r') % login.msgUrl,
+            _('SSO: Failure to communicate \
+            with artifact resolver %r') % login.msgUrl,
             logger=logger)
     if not soap_answer:
         return error_page(request,
-            _('SSO: Artifact resolver at %r returned an empty response') % login.msgUrl,
+            _('SSO: Artifact resolver at %r returned \
+            an empty response') % login.msgUrl,
             logger=logger)
 
     # If connexion over HTTPS, do not check signature?!
@@ -210,7 +217,8 @@ def singleSignOnArtifact(request):
         login.processResponseMsg(soap_answer)
     except lasso.Error, error:
         return error_page(request,
-            _('SSO: processResponseMsg %s') %lasso.strError(error[0]), logger=logger)
+            _('SSO: processResponseMsg %s') %lasso.strError(error[0]),
+            logger=logger)
 
     # TODO: Relay State
 
@@ -280,7 +288,8 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     s = get_service_provider_settings()
     if not s:
         return error_page(request,
-            _('SSO/sso_after_response: Service provider not configured'), logger=logger)
+            _('SSO/sso_after_response: Service provider not configured'),
+            logger=logger)
 
     # If there is no inResponseTo: IDP initiated
     # else, check that the response id is the same
@@ -305,14 +314,17 @@ def sso_after_response(request, login, relay_state = None, provider=None):
 
     # Check: Check that the url is the same as in the assertion
     try:
-        if assertion.subject.subjectConfirmation.subjectConfirmationData.recipient != \
+        if assertion.subject. \
+                subjectConfirmation.subjectConfirmationData.recipient != \
                 request.build_absolute_uri().partition('?')[0]:
             return error_page(request,
-                _('SSO/sso_after_response: SubjectConfirmation Recipient Mismatch'),
+                _('SSO/sso_after_response: SubjectConfirmation \
+                Recipient Mismatch'),
                 logger=logger)
     except:
         return error_page(request,
-            _('SSO/sso_after_response: Errot checking SubjectConfirmation Recipient'),
+            _('SSO/sso_after_response: Errot checking \
+            SubjectConfirmation Recipient'),
             logger=logger)
 
     # Check: SubjectConfirmation
@@ -320,11 +332,13 @@ def sso_after_response(request, login, relay_state = None, provider=None):
         if assertion.subject.subjectConfirmation.method != \
                 'urn:oasis:names:tc:SAML:2.0:cm:bearer':
             return error_page(request,
-                _('SSO/sso_after_response: Unknown SubjectConfirmation Method'),
+                _('SSO/sso_after_response: Unknown \
+                SubjectConfirmation Method'),
                 logger=logger)
     except:
         return error_page(request,
-            _('SSO/sso_after_response: Error checking SubjectConfirmation Method'),
+            _('SSO/sso_after_response: Error checking \
+            SubjectConfirmation Method'),
             logger=logger)
 
     # Check: AudienceRestriction
@@ -333,12 +347,14 @@ def sso_after_response(request, login, relay_state = None, provider=None):
         for audience_restriction in assertion.conditions.audienceRestriction:
             if audience_restriction.audience != login.server.providerId:
                 return error_page(request,
-                    _('SSO/sso_after_response: Incorrect AudienceRestriction'),
+                    _('SSO/sso_after_response: \
+                    Incorrect AudienceRestriction'),
                     logger=logger)
             audience_ok = True
         if not audience_ok:
             return error_page(request,
-                _('SSO/sso_after_response: Incorrect AudienceRestriction'),
+                _('SSO/sso_after_response: \
+                Incorrect AudienceRestriction'),
                 logger=logger)
     except:
         return error_page(request,
@@ -348,10 +364,12 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     # Check: notBefore, notOnOrAfter
     now = datetime.datetime.utcnow()
     try:
-        not_before = assertion.subject.subjectConfirmation.subjectConfirmationData.notBefore
+        not_before = assertion.subject. \
+            subjectConfirmation.subjectConfirmationData.notBefore
     except:
         return error_page(request,
-            _('SSO/sso_after_response: missing subjectConfirmationData'), logger=logger)
+            _('SSO/sso_after_response: missing subjectConfirmationData'),
+            logger=logger)
 
     not_on_or_after = assertion.subject.subjectConfirmation. \
         subjectConfirmationData.notOnOrAfter
@@ -359,36 +377,44 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     if irt:
         if not_before is not None:
             return error_page(request,
-                _('SSO/sso_after_response: assertion in response to an AuthnRequest, \
+                _('SSO/sso_after_response: \
+                assertion in response to an AuthnRequest, \
                 notBefore MUST not be present in SubjectConfirmationData'),
                 logger=logger)
     elif not_before is not None and not not_before.endswith('Z'):
         return error_page(request,
-            _('SSO/sso_after_response: invalid notBefore value ' + not_before), logger=logger)
+            _('SSO/sso_after_response: \
+            invalid notBefore value ' + not_before), logger=logger)
     if not_on_or_after is None or not not_on_or_after.endswith('Z'):
         return error_page(request,
-            _('SSO/sso_after_response: invalid notOnOrAfter value'), logger=logger)
+            _('SSO/sso_after_response: invalid notOnOrAfter value'),
+            logger=logger)
     try:
         if not_before and \
             now < datetime.datetime. \
-                fromtimestamp(time.mktime(time.strptime(not_before,"%Y-%m-%dT%H:%M:%S"))):
+                fromtimestamp(time. \
+                    mktime(time.strptime(not_before,"%Y-%m-%dT%H:%M:%S"))):
             return error_page(request,
-                _('SSO/sso_after_response: Assertion received too early'), logger=logger)
+                _('SSO/sso_after_response: Assertion received too early'),
+                logger=logger)
     except:
         return error_page(request,
-            _('SSO/sso_after_response: invalid notBefore value ' + notBefore), logger=logger)
+            _('SSO/sso_after_response: invalid notBefore value ' + notBefore),
+            logger=logger)
     try:
         if not_on_or_after and now > iso8601_to_datetime(not_on_or_after):
             return error_page(request,
             _('SSO/sso_after_response: Assertion expired'), logger=logger)
     except:
         return error_page(request,
-            _('SSO/sso_after_response: invalid notOnOrAfter value'), logger=logger)
+            _('SSO/sso_after_response: invalid notOnOrAfter value'),
+            logger=logger)
     try:
         login.acceptSso()
     except lasso.Error, error:
         return error_page(request,
-            _('SSO/sso_after_response: %s') %lasso.strError(error[0]), logger=logger)
+            _('SSO/sso_after_response: %s') %lasso.strError(error[0]),
+            logger=logger)
 
     attributes = {}
 
@@ -396,8 +422,9 @@ def sso_after_response(request, login, relay_state = None, provider=None):
         for attribute in att_statement.attribute:
             try:
                 name, format, nickname = \
-                    attribute.name.decode('ascii'), attribute.nameFormat.decode('ascii'), \
-                        attribute.friendlyName
+                    attribute.name.decode('ascii'), \
+                    attribute.nameFormat.decode('ascii'), \
+                    attribute.friendlyName
             except UnicodeDecodeError:
                 message = 'SSO/sso_after_response: name or \
                     format of an attribute failed to decode as ascii: %r %r'
@@ -416,7 +443,8 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                     content = ''.join(content)
                     attributes[(name, format)].append(content.decode('utf8'))
             except UnicodeDecodeError:
-                message = 'SSO/sso_after_response: attribute value is not utf8 encoded %r'
+                message = 'SSO/sso_after_response: \
+                attribute value is not utf8 encoded %r'
                 logger.warning(message % value)
                 continue
     # Keep the issuer
@@ -433,55 +461,72 @@ def sso_after_response(request, login, relay_state = None, provider=None):
              or not policy.transient_is_persistent):
         if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
             return error_page(request,
-                _('Transient access policy not yet implemented'), logger=logger)
+                _('SSO/sso_after_response: \
+                Transient access policy not yet implemented'),
+                logger=logger)
         if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
-            logger.info('Opening session for transient with nameID')
-            logger.debug('nameID %s' %login.nameIdentifier.dump())
+            logger.info('SSO/sso_after_response: \
+                Opening session for transient with nameID')
+            logger.debug('SSO/sso_after_response: \
+                nameID %s' %login.nameIdentifier.dump())
             user = authenticate(name_id=login.nameIdentifier)
             if not user:
                 return error_page(request,
-                    _('Authsaml2: No backend for temporary federation is configured'),
+                    _('SSO/sso_after_response: \
+                    No backend for temporary federation is configured'),
                     logger=logger)
             auth_login(request, user)
-            signals.auth_login.send(sender=None, request=request, attributes=attributes)
+            signals.auth_login.send(sender=None,
+                request=request, attributes=attributes)
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
             save_session(request, login)
             return redirect_to_target(request)
-        return error_page(request, _('Transient access policy: Configuration error'),
-                    logger=logger)
+        return error_page(request, _('SSO/sso_after_response: \
+            Transient access policy: Configuration error'),
+            logger=logger)
 
     if login.nameIdentifier.format == \
         lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT \
-        or (login.nameIdentifier.format == lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT \
-            and policy is not None and policy.transient_is_persistent):
-        user = AuthSAML2PersistentBackend().authenticate(name_id=login.nameIdentifier)
+        or (login.nameIdentifier.format == \
+            lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT \
+                and policy is not None and policy.transient_is_persistent):
+        user = AuthSAML2PersistentBackend(). \
+            authenticate(name_id=login.nameIdentifier)
         if not user and \
-                s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
+                s.handle_persistent == \
+                    'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
             # Auto-create an user then do the authentication again
-            AuthSAML2PersistentBackend().create_user(name_id=login.nameIdentifier)
-            user = AuthSAML2PersistentBackend().authenticate(name_id=login.nameIdentifier)
+            AuthSAML2PersistentBackend(). \
+                create_user(name_id=login.nameIdentifier)
+            user = AuthSAML2PersistentBackend(). \
+                authenticate(name_id=login.nameIdentifier)
         if user:
             auth_login(request, user)
-            signals.auth_login.send(sender=None, request=request, attributes=attributes)
+            signals.auth_login.send(sender=None,
+                request=request, attributes=attributes)
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
             save_session(request, login)
             save_federation(request, login)
             maintain_liberty_session_on_service_provider(request, login)
             return redirect_to_target(request, key)
-        elif s.handle_persistent == 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
-            register_federation_in_progress(request,login.nameIdentifier.content)
+        elif s.handle_persistent == \
+                'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
+            register_federation_in_progress(request,
+                login.nameIdentifier.content)
             save_session(request, login)
             save_federation_temp(request, login)
             maintain_liberty_session_on_service_provider(request, login)
             return render_to_response('auth/saml2/account_linking.html',
                     context_instance=RequestContext(request))
         return error_page(request,
-            _('Persistent Account policy: Configuration error'), logger=logger)
+            _('SSO/sso_after_response: \
+            Persistent Account policy: Configuration error'), logger=logger)
 
     return error_page(request,
-        _('Transient access policy: NameId format not supported'), logger=logger)
+        _('SSO/sso_after_response: \
+        Transient access policy: NameId format not supported'), logger=logger)
         #TODO: Relay state
 
 ###
@@ -494,7 +539,8 @@ def sso_after_response(request, login, relay_state = None, provider=None):
 def register_federation_in_progress(request, nameId):
     session_ext = None
     try:
-        session_ext = ExtendDjangoSession.objects.get(django_session_key=request.session.session_key)
+        session_ext = ExtendDjangoSession. \
+            objects.get(django_session_key=request.session.session_key)
         session_ext.federation_in_progress = nameId
         session_ext.save()
     except:
@@ -523,25 +569,31 @@ def finish_federation(request):
             server = build_service_provider(request)
             if not server:
                 return error_page(request,
-                    _('SSO/finish_federation: Service provider not configured'), logger=logger)
+                    _('SSO/finish_federation: \
+                    Service provider not configured'), logger=logger)
 
             login = lasso.Login(server)
             if not login:
                 return error_page(request,
-                    _('SSO/finish_federation: Unable to create Login object'), logger=logger)
+                    _('SSO/finish_federation: \
+                    Unable to create Login object'), logger=logger)
 
             s = load_session(request, login)
             load_federation_temp(request, login)
             if not login.session:
                 return error_page(request,
-                    _('SSO/finish_federation: Error loading session.'), logger=logger)
+                    _('SSO/finish_federation: Error loading session.'),
+                    logger=logger)
 
-            login.nameIdentifier = login.session.getAssertions()[0].subject.nameID
+            login.nameIdentifier = \
+                login.session.getAssertions()[0].subject.nameID
 
-            fed = add_federation(form.get_user(), name_id=login.nameIdentifier)
+            fed = add_federation(form.get_user(),
+                name_id=login.nameIdentifier)
             if not fed:
                 return error_page(request,
-                    _('SSO/finish_federation: Error adding new federation for this user'),
+                    _('SSO/finish_federation: \
+                    Error adding new federation for this user'),
                     logger=logger)
 
             key = request.session.session_key
@@ -562,7 +614,8 @@ def finish_federation(request):
                     context_instance=RequestContext(request))
     else:
         return error_page(request,
-            _('SSO/finish_federation: Unable to perform federation'), logger=logger)
+            _('SSO/finish_federation: Unable to perform federation'),
+            logger=logger)
 
 '''We do not manage mutliple login.
  There is only one global logout possible.
@@ -588,43 +641,52 @@ def finish_federation(request):
 def logout(request):
     if not is_sp_configured():
         return error_page(request,
-            _('SLO/SP UI: Service provider not configured'), logger=logger)
+            _('SLO/SP UI: Service provider not configured'),
+            logger=logger)
 
     if request.user.is_anonymous():
         return error_page(request,
-            _('SLO/SP UI: Unable to logout a not logged user!'), logger=logger)
+            _('SLO/SP UI: Unable to logout a not logged user!'),
+            logger=logger)
 
     server = build_service_provider(request)
     if not server:
         return error_page(request,
-            _('SLO/SP UI: Service provider not configured'), logger=logger)
+            _('SLO/SP UI: Service provider not configured'),
+            logger=logger)
 
     logout = lasso.Logout(server)
     if not logout:
         return error_page(request,
-            _('SLO/SP UI: Unable to create Login object'), logger=logger)
+            _('SLO/SP UI: Unable to create Login object'),
+            logger=logger)
 
     load_session(request, logout)
 
     # Lookup for the Identity provider from session
-    q = LibertySessionDump.objects.filter(django_session_key = request.session.session_key)
+    q = LibertySessionDump. \
+        objects.filter(django_session_key = request.session.session_key)
     if not q:
         return error_page(request,
             _('SLO/SP UI: No session for global logout.'), logger=logger)
     try:
-        pid = lasso.Session().newFromDump(q[0].session_dump).get_assertions().keys()[0]
+        pid = lasso.Session().newFromDump(q[0].session_dump). \
+            get_assertions().keys()[0]
         p = LibertyProvider.objects.get(entity_id=pid)
     except:
-        return error_page(request, _('SLO/SP UI: Session malformed.'), logger=logger)
+        return error_page(request, _('SLO/SP UI: Session malformed.'),
+            logger=logger)
 
     load_provider(request, pid, server=server, sp_or_idp='idp')
 
-    # TODO: The user asks a logout, we should perform before knowing if the IdP can handle
+    # TODO: The user asks a logout, we should
+    # perform before knowing if the IdP can handle
     # Except if we want to manage mutliple logout with multiple IdP
 
     # TODO: Deal with identity provider configuration in policies
 
-    # If not defined in the metadata, put ANY to let lasso do its job from metadata
+    # If not defined in the metadata,
+    # put ANY to let lasso do its job from metadata
     if not p.identity_provider.enable_http_method_for_slo_request:
         try:
             logout.initRequest(None, lasso.HTTP_METHOD_ANY)
@@ -659,7 +721,8 @@ def logout(request):
             return HttpResponseRedirect(logout.msgUrl)
 
     # Else, taken from config
-    if p.identity_provider.http_method_for_slo_request == lasso.HTTP_METHOD_REDIRECT:
+    if p.identity_provider.http_method_for_slo_request == \
+            lasso.HTTP_METHOD_REDIRECT:
         try:
             logout.initRequest(None, lasso.HTTP_METHOD_REDIRECT)
         except lasso.Error, error:
@@ -676,7 +739,8 @@ def logout(request):
 
         return HttpResponseRedirect(logout.msgUrl)
 
-    if p.identity_provider.http_method_for_slo_request == lasso.HTTP_METHOD_SOAP:
+    if p.identity_provider.http_method_for_slo_request == \
+            lasso.HTTP_METHOD_SOAP:
         try:
            logout.initRequest(None, lasso.HTTP_METHOD_SOAP)
         except lasso.Error, error:
@@ -701,11 +765,13 @@ def logout(request):
             signals.auth_logout.send(sender=None, user=request.user)
             auth_logout(request)
             return error_page(request,
-                _('SLO/SP UI: SOAP error -  Only local logout performed.'), logger=logger)
+                _('SLO/SP UI: SOAP error -  Only local logout performed.'),
+                logger=logger)
 
         return slo_return(request, logout, soap_answer)
 
-    return error_page(request, _('SLO/SP UI: Unknown HTTP method.'), logger=logger)
+    return error_page(request, _('SLO/SP UI: Unknown HTTP method.'),
+            logger=logger)
 
 def localLogout(request, error):
     remove_liberty_session_sp(request)
@@ -713,10 +779,12 @@ def localLogout(request, error):
     auth_logout(request)
     if error.url:
         return error_page(request,
-            _('SLO/SP UI: SOAP error with %s -  Only local logout performed.') %error.url,
+            _('SLO/SP UI: SOAP error \
+            with %s -  Only local logout performed.') %error.url,
             logger=logger)
     return error_page(request,
-        _('SLO/SP UI: %s -  Only local logout performed.') %lasso.strError(error[0]),
+        _('SLO/SP UI: %s -  Only local \
+        logout performed.') %lasso.strError(error[0]),
         logger=logger)
 
 ###
@@ -729,23 +797,27 @@ def localLogout(request, error):
 def singleLogoutReturn(request):
     if not is_sp_configured():
         return error_page(request,
-            _('SLO/SP Redirect: Service provider not configured'), logger=logger)
+            _('SLO/SP Redirect: Service provider not configured'),
+            logger=logger)
 
     server = build_service_provider(request)
     if not server:
         return error_page(request,
-            _('SLO/SP Redirect: Service provider not configured'), logger=logger)
+            _('SLO/SP Redirect: Service provider not configured'),
+            logger=logger)
 
     query = get_saml2_query_request(request)
     if not query:
         return error_page(request,
-            _('SLO/SP Redirect: Unable to handle Single Logout by Redirect without request'),
+            _('SLO/SP Redirect: \
+            Unable to handle Single Logout by Redirect without request'),
             logger=logger)
 
     logout = lasso.Logout(server)
     if not logout:
         return error_page(request,
-            _('SLO/SP Redirect: Unable to create Login object'), logger=logger)
+            _('SLO/SP Redirect: Unable to create Login object'),
+            logger=logger)
 
     load_session(request, logout)
 
@@ -808,18 +880,22 @@ def singleLogoutSOAP(request):
 
     request_type = lasso.getRequestTypeFromSoapMsg(soap_message)
     if request_type != lasso.REQUEST_TYPE_LOGOUT:
-        return http_response_bad_request('SLO/IdP SOAP: SOAP message is not a slo message')
+        return http_response_bad_request('SLO/IdP SOAP: \
+        SOAP message is not a slo message')
 
     if not is_sp_configured():
-        return http_response_forbidden_request('SLO/IdP SOAP: Service provider not configured')
+        return http_response_forbidden_request('SLO/IdP SOAP: \
+        Service provider not configured')
 
     server = build_service_provider(request)
     if not server:
-        return http_response_forbidden_request('SLO/IdP SOAP: Service provider not configured')
+        return http_response_forbidden_request('SLO/IdP SOAP: \
+        Service provider not configured')
 
     logout = lasso.Logout(server)
     if not logout:
-        return http_response_forbidden_request('SLO/IdP SOAP: Unable to create Login object')
+        return http_response_forbidden_request('SLO/IdP SOAP: \
+        Unable to create Login object')
 
     while True:
         try:
@@ -837,7 +913,8 @@ def singleLogoutSOAP(request):
             else:
                 continue
         except lasso.Error, error:
-            message = 'SLO/IdP SOAP processRequestMsg: %s' %lasso.strError(error[0])
+            message = 'SLO/IdP SOAP \
+            processRequestMsg: %s' %lasso.strError(error[0])
             return http_response_forbidden_request(message)
 
     # Look for a session index
@@ -848,7 +925,8 @@ def singleLogoutSOAP(request):
 
     fed = lookup_federation_by_name_identifier(profile=logout)
     if not fed:
-        return http_response_forbidden_request('SLO/IdP SOAP: Unable to find user')
+        return http_response_forbidden_request('SLO/IdP SOAP: \
+        Unable to find user')
 
     session = None
     if session_index:
@@ -862,7 +940,8 @@ def singleLogoutSOAP(request):
 #                    session = x
         # TODO: WARNING: A user can be logged without a federation!
         try:
-            session = LibertySessionSP.objects.get(federation=fed, session_index=session_index)
+            session = LibertySessionSP. \
+                objects.get(federation=fed, session_index=session_index)
         except:
             pass
 #    else:
@@ -877,11 +956,13 @@ def singleLogoutSOAP(request):
             # no session, build straight failure answer
            pass
     if session:
-        q = LibertySessionDump.objects.filter(django_session_key = session.django_session_key)
+        q = LibertySessionDump. \
+            objects.filter(django_session_key = session.django_session_key)
         if not q:
             logger.warning('SLO/IdP SOAP: No session dump for this session')
             finishSingleLogoutSOAP(logout)
-        logger.info('SLO/IdP SOAP from %s, for session index %s and session %s' % \
+        logger.info('SLO/IdP SOAP from %s, \
+            for session index %s and session %s' % \
             (logout.remoteProviderId, session_index, session.id))
         logout.setSessionFromDump(q[0].session_dump.encode('utf8'))
     else:
@@ -915,13 +996,15 @@ def singleLogoutSOAP(request):
                 session_django = s
     except:
         import sys
-        logger.warning('SLO/IdP SOAP: Unable to grab user session: %s' %sys.exc_info()[0])
+        logger.warning('SLO/IdP SOAP: \
+            Unable to grab user session: %s' %sys.exc_info()[0])
         return finishSingleLogoutSOAP(logout)
     try:
         session_django.delete()
     except:
         import sys
-        logger.warning('SLO/IdP SOAP: Unable to delete user session: %s' %sys.exc_info()[0])
+        logger.warning('SLO/IdP SOAP: \
+            Unable to delete user session: %s' %sys.exc_info()[0])
         return finishSingleLogoutSOAP(logout)
 
     return finishSingleLogoutSOAP(logout)
@@ -930,7 +1013,8 @@ def finishSingleLogoutSOAP(logout):
     try:
         logout.buildResponseMsg()
     except:
-        logger.warning('SLO/IdP SOAP buildResponseMsg: %s' %lasso.strError(error[0]))
+        logger.warning('SLO/IdP SOAP \
+            buildResponseMsg: %s' %lasso.strError(error[0]))
         return http_response_forbidden_request(message)
 
     django_response = HttpResponse()
@@ -1005,7 +1089,8 @@ def singleLogout(request):
     try:
         logout.buildResponseMsg()
     except lasso.Error, error:
-        return http_response_forbidden_request('SLO/IdP Redirect: %s') %lasso.strError(error[0])
+        return http_response_forbidden_request('SLO/IdP Redirect: %s') % \
+            lasso.strError(error[0])
     else:
         return HttpResponseRedirect(logout.msgUrl)
 
@@ -1013,7 +1098,8 @@ def slo_return_response(logout):
     try:
         logout.buildResponseMsg()
     except lasso.Error, error:
-        return http_response_forbidden_request('SLO/slo_return_response: %s') %lasso.strError(error[0])
+        return http_response_forbidden_request('SLO/slo_return_response: \
+            %s') % lasso.strError(error[0])
     else:
         return HttpResponseRedirect(logout.msgUrl)
 
@@ -1039,26 +1125,31 @@ def federationTermination(request):
     entity_id = request.REQUEST.get('entity_id')
     if not is_sp_configured():
         return error_page(request,
-            _('fedTerm/SP UI: Service provider not configured'), logger=logger)
+            _('fedTerm/SP UI: Service provider not configured'),
+            logger=logger)
 
     if not entity_id:
         return error_page(request,
-            _('fedTerm/SP UI: No provider for defederation'), logger=logger)
+            _('fedTerm/SP UI: No provider for defederation'),
+            logger=logger)
 
     if request.user.is_anonymous():
         return error_page(request,
-            _('fedTerm/SP UI: Unable to defederate a not logged user!'), logger=logger)
+            _('fedTerm/SP UI: Unable to defederate a not logged user!'),
+            logger=logger)
 
     server = build_service_provider(request)
     if not server:
         error_page(request,
-            _('fedTerm/SP UI: Service provider not configured'), logger=logger)
+            _('fedTerm/SP UI: Service provider not configured'),
+            logger=logger)
 
     # Lookup for the Identity provider
     p = load_provider(request, entity_id, server=server, sp_or_idp='idp')
     if not p:
         return error_page(request,
-            _('fedTerm/SP UI: No such identity provider.'), logger=logger)
+            _('fedTerm/SP UI: No such identity provider.'),
+            logger=logger)
 
     manage = lasso.NameIdManagement(server)
 
@@ -1067,27 +1158,32 @@ def federationTermination(request):
     fed = lookup_federation_by_user(request.user, p.entity_id)
     if not fed:
         return error_page(request,
-            _('fedTerm/SP UI: Not a valid federation'), logger=logger)
+            _('fedTerm/SP UI: Not a valid federation'),
+            logger=logger)
 
-    # The user asks a defederation, we perform without knowing if the IdP can handle
+    # The user asks a defederation,
+    # we perform without knowing if the IdP can handle
     fed.delete()
 
     # TODO: Deal with identity provider configuration in policies
 
-    # If not defined in the metadata, put ANY to let lasso do its job from metadata
+    # If not defined in the metadata,
+    # put ANY to let lasso do its job from metadata
     if not p.identity_provider.enable_http_method_for_defederation_request:
         try:
             manage.initRequest(entity_id, None, lasso.HTTP_METHOD_ANY)
         except lasso.Error, error:
             return error_page(request,
-                _('fedTerm/SP UI: %s') %lasso.strError(error[0]), logger=logger)
+                _('fedTerm/SP UI: %s') %lasso.strError(error[0]),
+                logger=logger)
 
         if manage.msgBody:
             try:
                 manage.buildRequestMsg()
             except lasso.Error, error:
                 return error_page(request,
-                    _('fedTerm/SP SOAP: %s') %lasso.strError(error[0]), logger=logger)
+                    _('fedTerm/SP SOAP: %s') %lasso.strError(error[0]),
+                    logger=logger)
             # TODO: Client cert
             client_cert = None
             try:
@@ -1095,7 +1191,8 @@ def federationTermination(request):
                     manage.msgBody, client_cert = client_cert)
             except SOAPException:
                 return error_page(request,
-                    _('fedTerm/SP SOAP: Unable to perform SOAP defederation request'),
+                    _('fedTerm/SP SOAP: \
+                    Unable to perform SOAP defederation request'),
                     logger=logger)
             return manage_name_id_return(request, manage, soap_answer)
         else:
@@ -1103,18 +1200,21 @@ def federationTermination(request):
                 manage.buildRequestMsg()
             except lasso.Error, error:
                 return error_page(request,
-                    _('fedTerm/SP Redirect: %s') %lasso.strError(error[0]), logger=logger)
+                    _('fedTerm/SP Redirect: %s') % \
+                    lasso.strError(error[0]), logger=logger)
             save_manage(request, manage)
             return HttpResponseRedirect(manage.msgUrl)
 
     # Else, taken from config
-    if p.identity_provider.http_method_for_defederation_request == lasso.HTTP_METHOD_SOAP:
+    if p.identity_provider.http_method_for_defederation_request == \
+            lasso.HTTP_METHOD_SOAP:
         try:
             manage.initRequest(entity_id, None, lasso.HTTP_METHOD_SOAP)
             manage.buildRequestMsg()
         except lasso.Error, error:
             return error_page(request,
-                _('fedTerm/SP SOAP: %s') %lasso.strError(error[0]), logger=logger)
+                _('fedTerm/SP SOAP: %s') %lasso.strError(error[0]),
+                logger=logger)
         # TODO: Client cert
         client_cert = None
         try:
@@ -1122,7 +1222,8 @@ def federationTermination(request):
                 manage.msgBody, client_cert = client_cert)
         except SOAPException:
             return error_page(request,
-                _('fedTerm/SP SOAP: Unable to perform SOAP defederation request'),
+                _('fedTerm/SP SOAP: \
+                Unable to perform SOAP defederation request'),
                 logger=logger)
         return manage_name_id_return(request, manage, soap_answer)
 
@@ -1133,7 +1234,8 @@ def federationTermination(request):
             manage.buildRequestMsg()
         except lasso.Error, error:
             return error_page(request,
-                _('fedTerm/SP Redirect: %s') %lasso.strError(error[0]), logger=logger)
+                _('fedTerm/SP Redirect: %s') %lasso.strError(error[0]),
+                logger=logger)
         save_manage(request, manage)
         return HttpResponseRedirect(manage.msgUrl)
 
@@ -1158,10 +1260,12 @@ def manageNameIdReturn(request):
         for md in manage_dump:
             md.delete()
         return error_page(request,
-            _('fedTerm/SP Redirect: Error managing manage dump'), logger=logger)
+            _('fedTerm/SP Redirect: Error managing manage dump'),
+            logger=logger)
     elif manage_dump:
         manage = \
-            lasso.NameIdManagement.newFromDump(server, manage_dump[0].manage_dump)
+            lasso.NameIdManagement.newFromDump(server,
+            manage_dump[0].manage_dump)
         manage_dump.delete()
     else:
         manage = lasso.NameIdManagement(server)
@@ -1193,13 +1297,15 @@ def manage_name_id_return(request, manage, message):
                     server=manage.server, sp_or_idp='idp')
 
             if not provider_loaded:
-                message = _('fedTerm/Return: provider %r unknown') % provider_id
+                message = _('fedTerm/Return: \
+                    provider %r unknown') % provider_id
                 return error_page(request, message, logger=logger)
             else:
                 continue
         except lasso.Error, error:
             return error_page(request,
-                _('fedTerm/manage_name_id_return: %s') %lasso.strError(error[0]),\
+                _('fedTerm/manage_name_id_return: %s') % \
+                lasso.strError(error[0]),
                 logger=logger)
         else:
             if manage.isIdentityDirty:
@@ -1444,19 +1550,23 @@ def setAuthnrequestOptions(provider, login, force_authn, is_passive):
             login.request.nameIDPolicy = None
         else:
             login.request.nameIDPolicy.format = \
-                NAME_ID_FORMATS[provider.identity_provider.requested_name_id_format]['samlv2']
-            login.request.nameIDPolicy.allowCreate = provider.identity_provider.allow_create
+                NAME_ID_FORMATS[provider.identity_provider. \
+                    requested_name_id_format]['samlv2']
+            login.request.nameIDPolicy.allowCreate = \
+                provider.identity_provider.allow_create
             login.request.nameIDPolicy.spNameQualifier = None
 
         if provider.identity_provider.enable_binding_for_sso_response:
-            login.request.protocolBinding = provider.identity_provider.binding_for_sso_response
+            login.request.protocolBinding = \
+                provider.identity_provider.binding_for_sso_response
 
         if force_authn is None:
             force_authn = provider.identity_provider.want_force_authn_request
         login.request.forceAuthn = force_authn
 
         if is_passive is None:
-            is_passive = provider.identity_provider.want_is_passive_authn_request
+            is_passive = \
+                provider.identity_provider.want_is_passive_authn_request
         login.request.isPassive = is_passive
 
         login.request.consent = provider.identity_provider.user_consent
