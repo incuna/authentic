@@ -1,11 +1,11 @@
 import urllib
 import functools
+import django.forms as forms
+import authentic2.saml.common as saml_common
 
 from django.utils.translation import gettext_noop
-import django.forms as forms
 from django.http import HttpResponseRedirect
-
-import authentic2.saml.common as saml_common
+from django.contrib.auth import REDIRECT_FIELD_NAME
 
 class AuthSAML2Form(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -35,8 +35,10 @@ class AuthSAML2Frontend(object):
 
     def post(self, request, form, nonce, next):
         provider_id = form.cleaned_data['provider_id']
-        return HttpResponseRedirect('/authsaml2/sso?entity_id=%s&next=%s' %
-                (urllib.quote(provider_id),urllib.quote(next)))
+        return HttpResponseRedirect('/authsaml2/sso?entity_id=%s&%s=%s' %
+                (urllib.quote(provider_id),
+                REDIRECT_FIELD_NAME,
+                urllib.quote(next)))
 
     def template(self):
         return 'auth/saml2/login_form.html'

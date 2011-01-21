@@ -1,10 +1,6 @@
 from django.http import HttpResponseRedirect
-from django.template import RequestContext
-from django.utils.translation import ugettext as _
-
-import logging
-
-from models import *
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from models import ExtendDjangoSession, MyServiceProvider
 
 def is_sp_configured():
     s = get_service_provider_settings()
@@ -25,7 +21,7 @@ def register_next_target(request, url=None):
         if url:
             session_ext.next = url
         else:
-            next = request.GET.__getitem__('next')
+            next = request.GET.get(REDIRECT_FIELD_NAME)
             session_ext.next = next
         session_ext.save()
     except:
@@ -37,7 +33,7 @@ def register_next_target(request, url=None):
             if url:
                 session_ext.next = url
             else:
-                next = request.GET.__getitem__('next')
+                next = request.GET.get(REDIRECT_FIELD_NAME)
                 session_ext.next = next
             session_ext.save()
         except:
