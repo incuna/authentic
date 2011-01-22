@@ -9,7 +9,8 @@ def attributesMatch(attributes, attributes_to_check):
             raise Exception('Attribute %s not provided' %attr.attribute_name)
             return False
         if not attr.attribute_value in attributes[attr.attribute_name]:
-            raise Exception('Attribute %s has not value %s' %(attr.attribute_name,attr.attribute_value))
+            raise Exception('Attribute %s has not value %s' % \
+                (attr.attribute_name,attr.attribute_value))
             return False
     return True
 
@@ -24,7 +25,8 @@ def isAuthorized(provider, attributes):
 
     if provider.identity_provider.enable_following_policy:
         if provider.identity_provider.attribute_map:
-            return attributesMatch(attributes, provider.identity_provider.attribute_map)
+            return attributesMatch(attributes, \
+                provider.identity_provider.attribute_map)
         else:
            return True
 

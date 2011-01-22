@@ -21,7 +21,8 @@ class AuthSAML2PersistentBackend:
         fed = lookup_federation_by_name_identifier(name_id=name_id)
         if fed is None:
             return None
-        fed.user.backend = 'authentic2.authsaml2.backends.AuthSAML2PersistentBackend'
+        fed.user.backend = \
+            'authentic2.authsaml2.backends.AuthSAML2PersistentBackend'
         return fed.user
 
     def get_user(self, user_id):
@@ -34,12 +35,14 @@ class AuthSAML2PersistentBackend:
     def create_user(self, username=None, name_id=None):
         '''Create a new user mapping to the given NameID'''
         if not name_id or \
-             name_id.format != lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT or \
-             not name_id.nameQualifier:
+                 name_id.format != \
+                 lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT or \
+                 not name_id.nameQualifier:
             raise ValueError('Invalid NameID')
         if not username:
             # FIXME: maybe keep more information in the forged username
-            username = 'saml2-%s' % ''.join([random.choice(string.letters) for x in range(10)])
+            username = 'saml2-%s' % ''. \
+                join([random.choice(string.letters) for x in range(10)])
         user = User()
         user.username=username
         user.password=UserManager().make_random_password()
@@ -52,8 +55,9 @@ class AuthSAML2TransientBackend:
     def authenticate(self, name_id=None):
         '''Create temporary user for transient NameID'''
         if not name_id or \
-             name_id.format != lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT or\
-             not name_id.content:
+                name_id.format != \
+                lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT or \
+                not name_id.content:
             return None
         user = SAML2TransientUser(id=name_id.content)
         return user

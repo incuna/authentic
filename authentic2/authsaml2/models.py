@@ -6,8 +6,10 @@ import lasso
 from authentic2.saml.models import *
 
 AUTHSAML2_UNAUTH_PERSISTENT = (
-    ('AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH', _('Account linking by authentication')),
-    ('AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS', _('Create new account')),
+    ('AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH',
+        _('Account linking by authentication')),
+    ('AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS',
+        _('Create new account')),
 )
 
 AUTHSAML2_UNAUTH_TRANSIENT = (
@@ -36,23 +38,29 @@ class IdPOptionsPolicy(models.Model):
             default = DEFAULT_NAME_ID_FORMAT,
             choices = NAME_ID_FORMATS_CHOICES)
     transient_is_persistent = models.BooleanField(
-            verbose_name = _("This IdP falsely sends a transient NameID whis is in fact persistent"))
+            verbose_name = \
+            _("This IdP falsely sends a transient NameID \
+            which is in fact persistent"))
     allow_create = models.BooleanField(
             verbose_name = _("Allow IdP to create an identity"))
     enable_binding_for_sso_response = models.BooleanField(
-            verbose_name = _('Binding for Authnresponse (taken from metadata by the IdP if not enabled)'))
+            verbose_name = _('Binding for Authnresponse \
+            (taken from metadata by the IdP if not enabled)'))
     binding_for_sso_response = models.CharField(
             max_length = 60, choices = BINDING_SSO_IDP,
             verbose_name = '',
             default = lasso.SAML2_METADATA_BINDING_ARTIFACT)
     enable_http_method_for_slo_request = models.BooleanField(
-            verbose_name = _('HTTP method for single logout request (taken from metadata if not enabled)'))
+            verbose_name = _('HTTP method for single logout request \
+            (taken from metadata if not enabled)'))
     http_method_for_slo_request = models.IntegerField(
             max_length = 60, choices = HTTP_METHOD,
             verbose_name = '',
             default = lasso.HTTP_METHOD_REDIRECT)
     enable_http_method_for_defederation_request = models.BooleanField(
-            verbose_name = _('HTTP method for federation termination request (taken from metadata if not enabled)'))
+            verbose_name = \
+            _('HTTP method for federation termination request \
+            (taken from metadata if not enabled)'))
     http_method_for_defederation_request = models.IntegerField(
             max_length = 60, choices = HTTP_METHOD,
             verbose_name = '',
@@ -119,8 +127,9 @@ class ExtendDjangoSession(models.Model):
     temp_identity_dump = models.TextField(blank = True)
 
 class SAML2TransientUser(object):
-    '''Class compatible with django.contrib.auth.models.User which represent an
-       user authenticated using a Transien federation'''
+    '''Class compatible with django.contrib.auth.models.User
+       which represent an user authenticated using a Transient
+       federation'''
     id = None
     is_staff = False
     is_active = False
