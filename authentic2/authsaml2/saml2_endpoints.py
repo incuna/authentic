@@ -83,6 +83,8 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
         if providers_list.count() == 1:
             p = providers_list[0]
         else:
+            logger.debug('[authsaml2] SSO: \
+                No SAML2 identity provider selected')
             context['message'] = _('No SAML2 identity provider selected')
             context['redir_timeout'] = __logout_redirection_timeout
             template = 'auth/saml2/logout.html'
@@ -92,6 +94,7 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
                 context[REDIRECT_FIELD_NAME] = s.back_url
             return render_to_response(template, context_instance = context)
     else:
+        logger.info('[authsaml2] SSO: sso with provider %s' % entity_id)
         p = load_provider(request, entity_id, server=server, sp_or_idp='idp')
         if not p:
             return error_page(request,
@@ -105,6 +108,8 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
     if not http_method:
         http_method = server.getFirstHttpMethod(server.providers[p.entity_id],
                 lasso.MD_PROTOCOL_TYPE_SINGLE_SIGN_ON)
+        logger.debug('[authsaml2] SSO: \
+            No http method given. Method infered: %s' % http_method)
     if http_method == lasso.HTTP_METHOD_NONE:
         return error_page(request,
             _('SSO: %s does not have any supported \
@@ -127,10 +132,12 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
             logger=logger)
 
     # 6. Save the request ID (association with the target page)
+    logger.debug('[authsaml2] SSO: Authnrequest ID: %s' % login.request.iD)
     session_ext.saml_request_id = login.request.iD
     session_ext.save()
 
     # 7. Redirect the user
+    logger.debug('[authsaml2] SSO: user redirection')
     return return_saml2_request(request, login,
             title=('AuthnRequest for %s' % entity_id))
 
@@ -142,6 +149,7 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
  # Binding supported: Artifact, POST
  ###
 def singleSignOnArtifact(request):
+    logger.info('[authsaml2] SSO: Binding Artifact processing begins...')
     server = build_service_provider(request)
     if not server:
         return error_page(request,
@@ -149,11 +157,15 @@ def singleSignOnArtifact(request):
 
     # Load the provider metadata using the artifact
     if request.method == 'GET':
+        logger.debug('[authsaml2] SSO: GET')
         artifact = request.REQUEST.get('SAMLart')
     else:
+        logger.debug('[authsaml2] SSO: POST')
         artifact = request.POST.get('SAMLart')
+    logger.debug('[authsaml2] SSO: artifact %s' % artifact)
     p = LibertyProvider.get_provider_by_samlv2_artifact(artifact)
     p = load_provider(request, p.entity_id, server=server, sp_or_idp='idp')
+    logger.info('[authsaml2] SSO: provider %s loaded' % p.entity_id)
 
     login = lasso.Login(server)
     if not login:
@@ -161,8 +173,13 @@ def singleSignOnArtifact(request):
             _('SSO: Unable to create Login object'), logger=logger)
 
     message = get_saml2_request_message(request)
+    if not message:
+        return error_page(request,
+            _('SSO: No message given.'), logger=logger)
+    #logger.debug('[authsaml2] SSO: message %s' % message)
 
     while True:
+        logger.debug('[authsaml2] SSO: Authnresponse processing')
         try:
             if request.method == 'GET':
                 login.initRequest(get_saml2_query_request(request),
@@ -172,6 +189,8 @@ def singleSignOnArtifact(request):
             break
         except (lasso.ServerProviderNotFoundError,
                 lasso.ProfileUnknownProviderError):
+            logger.debug('[authsaml2] SSO: Unable to process Authnresponse - \
+                load another provider')
             provider_id = login.remoteProviderId
             provider_loaded = load_provider(request, provider_id,
                     server=server, sp_or_idp='idp')
@@ -180,6 +199,8 @@ def singleSignOnArtifact(request):
                 message = _('SSO: provider %r unknown') % provider_id
                 return error_page(request, message, logger=logger)
             else:
+                logger.info('[authsaml2] SSO: \
+                    provider %s loaded' % provider_id)
                 continue
         except lasso.Error, error:
             return error_page(request,
@@ -196,6 +217,8 @@ def singleSignOnArtifact(request):
     # TODO: Client certificate
     client_cert = None
     try:
+        logger.info('[authsaml2] SSO: soap call to %s' % login.msgUrl)
+        logger.debug('[authsaml2] SSO: soap message %s' % login.msgBody)
         soap_answer = soap_call(login.msgUrl,
             login.msgBody, client_cert = client_cert)
     except Exception, e:
@@ -209,8 +232,12 @@ def singleSignOnArtifact(request):
             an empty response') % login.msgUrl,
             logger=logger)
 
+    logger.debug('[authsaml2] SSO: soap answer %s' % soap_answer)
+
     # If connexion over HTTPS, do not check signature?!
     if login.msgUrl.startswith('https'):
+        logger.debug('[authsaml2] SSO: \
+            artifact solved over HTTPS - Signature Hint forbidden')
         login.setSignatureVerifyHint(lasso.PROFILE_SIGNATURE_HINT_FORBID)
 
     try:
@@ -222,10 +249,12 @@ def singleSignOnArtifact(request):
 
     # TODO: Relay State
 
+    logger.info('[authsaml2] SSO: Binding artifact treatment terminated')
     return sso_after_response(request, login, provider=p)
 
 @csrf_exempt
 def singleSignOnPost(request):
+    logger.info('[authsaml2] SSO: Binding POST processing begins...')
     server = build_service_provider(request)
     if not server:
         return error_page(request,
@@ -243,6 +272,7 @@ def singleSignOnPost(request):
     if not message:
         return error_page(request,
             _('SSO: No message given.'), logger=logger)
+    #logger.debug('[authsaml2] SSO: message %s' % message)
 
     ''' Binding REDIRECT
 
@@ -255,11 +285,14 @@ def singleSignOnPost(request):
     #    message = request.META.get('QUERY_STRING', '')
 
     while True:
+        logger.debug('[authsaml2] SSO: Authnresponse processing')
         try:
             login.processAuthnResponseMsg(message)
             break
         except (lasso.ServerProviderNotFoundError,
                 lasso.ProfileUnknownProviderError):
+            logger.debug('[authsaml2] SSO: Unable to process Authnresponse - \
+                load another provider')
             provider_id = login.remoteProviderId
             provider_loaded = load_provider(request, provider_id,
                     server=server, sp_or_idp='idp')
@@ -268,11 +301,14 @@ def singleSignOnPost(request):
                 message = _('SSO: provider %r unknown') % provider_id
                 return error_page(request, message, logger=logger)
             else:
+                logger.info('[authsaml2] SSO: \
+                    provider %s loaded' % provider_id)
                 continue
         except lasso.Error, error:
             return error_page(request,
                 _('SSO: %s') %lasso.strError(error[0]), logger=logger)
 
+    logger.info('[authsaml2] SSO: Binding POST treatment terminated')
     return sso_after_response(request, login, provider=provider_loaded)
 
 ###
@@ -285,10 +321,11 @@ def singleSignOnPost(request):
  # TODO: Proxying
  ###
 def sso_after_response(request, login, relay_state = None, provider=None):
+    logger.info('[authsaml2] SSO: Authnresponse processing begins...')
     s = get_service_provider_settings()
     if not s:
         return error_page(request,
-            _('SSO/sso_after_response: Service provider not configured'),
+            _('SSO: Service provider not configured'),
             logger=logger)
 
     # If there is no inResponseTo: IDP initiated
@@ -299,18 +336,24 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             subjectConfirmation.subjectConfirmationData.inResponseTo
     except:
         return error_page(request,
-            _('SSO/sso_after_response: No Response ID'), logger=logger)
+            _('SSO: No Response ID'), logger=logger)
+    logger.debug('[authsaml2] SSO: inResponseTo: %s' %irt)
 
     if irt and not check_response_id(login):
         return error_page(request,
-            _('SSO/sso_after_response: Request and Response ID do not match'),
+            _('SSO: Request and Response ID do not match'),
             logger=logger)
+    logger.debug('[authsaml2] SSO: ID checked')
+
+    logger.info('[authsaml2] SSO: Authnresponse processing terminated')
+    logger.info('[authsaml2] SSO: Assertion processing begins...')
 
     #TODO: Register assertion and check for replay
     assertion = login.response.assertion[0]
     if not assertion:
         return error_page(request,
-            _('SSO/sso_after_response: Assertion missing'), logger=logger)
+            _('SSO: Assertion missing'), logger=logger)
+    logger.debug('[authsaml2] SSO: assertion %s' % assertion.dump())
 
     # Check: Check that the url is the same as in the assertion
     try:
@@ -318,28 +361,31 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                 subjectConfirmation.subjectConfirmationData.recipient != \
                 request.build_absolute_uri().partition('?')[0]:
             return error_page(request,
-                _('SSO/sso_after_response: SubjectConfirmation \
+                _('SSO: SubjectConfirmation \
                 Recipient Mismatch'),
                 logger=logger)
     except:
         return error_page(request,
-            _('SSO/sso_after_response: Errot checking \
+            _('SSO: Errot checking \
             SubjectConfirmation Recipient'),
             logger=logger)
+    logger.debug('[authsaml2] SSO: the url is the same as in the assertion')
 
     # Check: SubjectConfirmation
     try:
         if assertion.subject.subjectConfirmation.method != \
                 'urn:oasis:names:tc:SAML:2.0:cm:bearer':
             return error_page(request,
-                _('SSO/sso_after_response: Unknown \
+                _('SSO: Unknown \
                 SubjectConfirmation Method'),
                 logger=logger)
     except:
         return error_page(request,
-            _('SSO/sso_after_response: Error checking \
+            _('SSO: Error checking \
             SubjectConfirmation Method'),
             logger=logger)
+    logger.debug('[authsaml2] SSO: subjectConfirmation method known')
+
 
     # Check: AudienceRestriction
     try:
@@ -347,19 +393,20 @@ def sso_after_response(request, login, relay_state = None, provider=None):
         for audience_restriction in assertion.conditions.audienceRestriction:
             if audience_restriction.audience != login.server.providerId:
                 return error_page(request,
-                    _('SSO/sso_after_response: \
+                    _('SSO: \
                     Incorrect AudienceRestriction'),
                     logger=logger)
             audience_ok = True
         if not audience_ok:
             return error_page(request,
-                _('SSO/sso_after_response: \
+                _('SSO: \
                 Incorrect AudienceRestriction'),
                 logger=logger)
     except:
         return error_page(request,
-            _('SSO/sso_after_response: Error checking AudienceRestriction'),
+            _('SSO: Error checking AudienceRestriction'),
             logger=logger)
+    logger.debug('[authsaml2] SSO: audience restriction repected')
 
     # Check: notBefore, notOnOrAfter
     now = datetime.datetime.utcnow()
@@ -368,7 +415,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             subjectConfirmation.subjectConfirmationData.notBefore
     except:
         return error_page(request,
-            _('SSO/sso_after_response: missing subjectConfirmationData'),
+            _('SSO: missing subjectConfirmationData'),
             logger=logger)
 
     not_on_or_after = assertion.subject.subjectConfirmation. \
@@ -377,17 +424,17 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     if irt:
         if not_before is not None:
             return error_page(request,
-                _('SSO/sso_after_response: \
+                _('SSO: \
                 assertion in response to an AuthnRequest, \
                 notBefore MUST not be present in SubjectConfirmationData'),
                 logger=logger)
     elif not_before is not None and not not_before.endswith('Z'):
         return error_page(request,
-            _('SSO/sso_after_response: \
+            _('SSO: \
             invalid notBefore value ' + not_before), logger=logger)
     if not_on_or_after is None or not not_on_or_after.endswith('Z'):
         return error_page(request,
-            _('SSO/sso_after_response: invalid notOnOrAfter value'),
+            _('SSO: invalid notOnOrAfter value'),
             logger=logger)
     try:
         if not_before and \
@@ -395,26 +442,34 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                 fromtimestamp(time. \
                     mktime(time.strptime(not_before,"%Y-%m-%dT%H:%M:%S"))):
             return error_page(request,
-                _('SSO/sso_after_response: Assertion received too early'),
+                _('SSO: Assertion received too early'),
                 logger=logger)
     except:
         return error_page(request,
-            _('SSO/sso_after_response: invalid notBefore value ' + notBefore),
+            _('SSO: invalid notBefore value ' + notBefore),
             logger=logger)
     try:
         if not_on_or_after and now > iso8601_to_datetime(not_on_or_after):
             return error_page(request,
-            _('SSO/sso_after_response: Assertion expired'), logger=logger)
+            _('SSO: Assertion expired'), logger=logger)
     except:
         return error_page(request,
-            _('SSO/sso_after_response: invalid notOnOrAfter value'),
+            _('SSO: invalid notOnOrAfter value'),
             logger=logger)
+
+    logger.debug('[authsaml2] SSO: assertion validity timeslice respected : \
+        %s <= %s < %s ' % (not_before, str(now), not_on_or_after))
+
+
     try:
         login.acceptSso()
     except lasso.Error, error:
         return error_page(request,
-            _('SSO/sso_after_response: %s') %lasso.strError(error[0]),
+            _('SSO: %s') %lasso.strError(error[0]),
             logger=logger)
+
+    logger.info('[authsaml2] SSO: \
+        Assertion processing terminated with success')
 
     attributes = {}
 
@@ -426,7 +481,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                     attribute.nameFormat.decode('ascii'), \
                     attribute.friendlyName
             except UnicodeDecodeError:
-                message = 'SSO/sso_after_response: name or \
+                message = 'SSO: name or \
                     format of an attribute failed to decode as ascii: %r %r'
                 logger.warning(message % (attribute.name, attribute.format))
                 continue
@@ -443,13 +498,16 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                     content = ''.join(content)
                     attributes[(name, format)].append(content.decode('utf8'))
             except UnicodeDecodeError:
-                message = 'SSO/sso_after_response: \
+                message = 'SSO: \
                 attribute value is not utf8 encoded %r'
                 logger.warning(message % value)
                 continue
     # Keep the issuer
     attributes['__issuer'] = login.assertion.issuer.content
     attributes['__nameid'] = login.assertion.subject.nameID.content
+
+    #logger.debug('[authsaml2] SSO: \
+    #    attributes in assertion %s' % str(attributes))
 
     user = request.user
 
@@ -459,30 +517,35 @@ def sso_after_response(request, login, relay_state = None, provider=None):
         lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT \
         and (policy is None \
              or not policy.transient_is_persistent):
+        logger.info('[authsaml2] SSO: Transient nameID')
         if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
             return error_page(request,
-                _('SSO/sso_after_response: \
+                _('SSO: \
                 Transient access policy not yet implemented'),
                 logger=logger)
         if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
-            logger.info('SSO/sso_after_response: \
+            logger.info('[authsaml2] SSO: \
                 Opening session for transient with nameID')
-            logger.debug('SSO/sso_after_response: \
+            logger.debug('[authsaml2] SSO: \
                 nameID %s' %login.nameIdentifier.dump())
             user = authenticate(name_id=login.nameIdentifier)
             if not user:
                 return error_page(request,
-                    _('SSO/sso_after_response: \
+                    _('SSO: \
                     No backend for temporary federation is configured'),
                     logger=logger)
             auth_login(request, user)
+            logger.debug('[authsaml2] SSO: session opened')
             signals.auth_login.send(sender=None,
                 request=request, attributes=attributes)
+            logger.debug('[authsaml2] SSO: signal sent')
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
             save_session(request, login)
+            logger.info('[authsaml2] SSO: Login processing ended with success - \
+                redirect to target')
             return redirect_to_target(request)
-        return error_page(request, _('SSO/sso_after_response: \
+        return error_page(request, _('SSO: \
             Transient access policy: Configuration error'),
             logger=logger)
 
@@ -491,28 +554,39 @@ def sso_after_response(request, login, relay_state = None, provider=None):
         or (login.nameIdentifier.format == \
             lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT \
                 and policy is not None and policy.transient_is_persistent):
+        logger.info('[authsaml2] SSO: Persistent nameID')
+        if policy is not None and policy.transient_is_persistent:
+            logger.info('[authsaml2] SSO: \
+                Transient nameID %s treated as persistent' % \
+                login.nameIdentifier.dump())
         user = AuthSAML2PersistentBackend(). \
             authenticate(name_id=login.nameIdentifier)
         if not user and \
                 s.handle_persistent == \
                     'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
             # Auto-create an user then do the authentication again
+            logger.info('[authsaml2] SSO: Account creation')
             AuthSAML2PersistentBackend(). \
                 create_user(name_id=login.nameIdentifier)
             user = AuthSAML2PersistentBackend(). \
                 authenticate(name_id=login.nameIdentifier)
         if user:
             auth_login(request, user)
+            logger.debug('[authsaml2] SSO: session opened')
             signals.auth_login.send(sender=None,
                 request=request, attributes=attributes)
+            logger.debug('[authsaml2] SSO: signal sent opened')
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
             save_session(request, login)
             save_federation(request, login)
             maintain_liberty_session_on_service_provider(request, login)
+            logger.info('[authsaml2] SSO: \
+                Login processing ended with success - redirect to target')
             return redirect_to_target(request, key)
         elif s.handle_persistent == \
                 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
+            logger.info('[authsaml2] SSO: Account linking required')
             register_federation_in_progress(request,
                 login.nameIdentifier.content)
             save_session(request, login)
@@ -521,11 +595,11 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             return render_to_response('auth/saml2/account_linking.html',
                     context_instance=RequestContext(request))
         return error_page(request,
-            _('SSO/sso_after_response: \
+            _('SSO: \
             Persistent Account policy: Configuration error'), logger=logger)
 
     return error_page(request,
-        _('SSO/sso_after_response: \
+        _('SSO: \
         Transient access policy: NameId format not supported'), logger=logger)
         #TODO: Relay state
 
@@ -537,6 +611,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
  # Register the post-authnrequest process during account linking
  ###
 def register_federation_in_progress(request, nameId):
+    logger.info('[authsaml2] SSO: Registering federation in progress...')
     session_ext = None
     try:
         session_ext = ExtendDjangoSession. \
@@ -563,9 +638,11 @@ def register_federation_in_progress(request, nameId):
  ###
 @csrf_exempt
 def finish_federation(request):
+    logger.info('[authsaml2] SSO: Return after account linking form filled')
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
+            logger.info('[authsaml2] SSO: form valid')
             server = build_service_provider(request)
             if not server:
                 return error_page(request,
@@ -588,6 +665,9 @@ def finish_federation(request):
             login.nameIdentifier = \
                 login.session.getAssertions()[0].subject.nameID
 
+            logger.debug('[authsaml2] SSO: nameID %s' % \
+                login.nameIdentifier.dump())
+
             fed = add_federation(form.get_user(),
                 name_id=login.nameIdentifier)
             if not fed:
@@ -596,10 +676,18 @@ def finish_federation(request):
                     Error adding new federation for this user'),
                     logger=logger)
 
+            logger.info('[authsaml2] SSO: federation added')
+
             key = request.session.session_key
             auth_login(request, form.get_user())
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
+            logger.debug('[authsaml2] SSO: session opened')
+
+            # TODO: handle attributed and send signal
+            #signals.auth_login.send(sender=None,
+            #    request=request, attributes=attributes)
+            #logger.debug('[authsaml2] SSO: signal sent opened')
 
             #s.delete()
             #login.session.isDirty = True
@@ -607,9 +695,13 @@ def finish_federation(request):
             save_session(request, login)
             save_federation(request, login)
             maintain_liberty_session_on_service_provider(request, login)
+            logger.info('[authsaml2] SSO: Login processing ended with success - \
+                redirect to target')
             return redirect_to_target(request, key)
         else:
             # TODO: Error: login failed: message and count 3 attemps
+            logger.warning('[authsaml2] SSO: \
+                form not valid - Try again! (Brute force?)')
             return render_to_response('auth/saml2/account_linking.html',
                     context_instance=RequestContext(request))
     else:
@@ -945,7 +1037,8 @@ def singleLogoutSOAP(request):
         except:
             pass
 #    else:
-#        # No session index take the last session with the same name identifier
+#        # No session index take the last session
+#        # with the same name identifier
 #        name_identifier = logout.nameIdentifier.content
 #        for session_candidate in get_session_manager().values():
 #            if name_identifier in (session_candidate.name_identifiers or []):
