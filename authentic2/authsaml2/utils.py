@@ -75,6 +75,29 @@ def register_next_target(request, url=None):
 
     return session_ext
 
+def register_request_id(request, request_id):
+    if not request or not request_id:
+        return None
+    session_ext = None
+    try:
+        s = Session.objects.get(pk=request.session.session_key)
+        session_ext = ExtendDjangoSession. \
+            objects.get(session=s)
+        session_ext.saml_request_id = request_id
+        session_ext.save()
+    except:
+        pass
+
+    if not session_ext:
+        try:
+            s = Session.objects.get(pk=request.session.session_key)
+            session_ext = ExtendDjangoSession(session=s, saml_request_id=request_id)
+            session_ext.save()
+        except:
+            pass
+
+    return session_ext
+
 def get_registered_url(request):
     if not request:
         return None
@@ -155,8 +178,9 @@ def save_federation_temp(request, login):
 def load_federation_temp(request, login):
     if request and login:
         try:
+            s = Session.objects.get(pk=request.session.session_key)
             session_ext = ExtendDjangoSession. \
-                objects.get(session=request.session)
+                objects.get(session=s)
             login.setIdentityFromDump(session_ext.temp_identity_dump)
         except:
             pass

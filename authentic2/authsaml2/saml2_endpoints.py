@@ -67,8 +67,9 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
     # 1. Save the target page
     session_ext = register_next_target(request)
     if not session_ext:
-        return error_page(request,
-            _('SSO: Error handling session'), logger=logger)
+        logger.error('[authsaml2] SSO: Unable to save the next url in the \
+            extended session %s' % request.session.session_key)
+
     # 2. Init the server object
     server = build_service_provider(request)
     if not server:
@@ -133,12 +134,10 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
 
     # 6. Save the request ID (association with the target page)
     logger.debug('[authsaml2] SSO: Authnrequest ID: %s' % login.request.iD)
-    session_ext.saml_request_id = login.request.iD
-    try:
-        session_ext.save()
-    except:
-        logger.error('[authsaml2] SSO: Unable to save extended the session \
-            %s' % request.session.session_key)
+    session_ext = register_request_id(request, login.request.iD)
+    if not session_ext:
+        logger.error('[authsaml2] SSO: Unable to save the request id in the \
+            extended session %s' % request.session.session_key)
 
     # 7. Redirect the user
     logger.debug('[authsaml2] SSO: user redirection')
