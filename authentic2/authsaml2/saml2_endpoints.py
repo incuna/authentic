@@ -134,7 +134,11 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
     # 6. Save the request ID (association with the target page)
     logger.debug('[authsaml2] SSO: Authnrequest ID: %s' % login.request.iD)
     session_ext.saml_request_id = login.request.iD
-    session_ext.save()
+    try:
+        session_ext.save()
+    except:
+        logger.error('[authsaml2] SSO: Unable to save extended the session \
+            %s' % request.session.session_key)
 
     # 7. Redirect the user
     logger.debug('[authsaml2] SSO: user redirection')
@@ -511,7 +515,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
 
     user = request.user
 
-    key = request.session.session_key
+    url = get_registered_url(request)
     policy = get_idp_policy(provider)
     if login.nameIdentifier.format == \
         lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT \
@@ -544,7 +548,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             save_session(request, login)
             logger.info('[authsaml2] SSO: Login processing ended with success - \
                 redirect to target')
-            return redirect_to_target(request)
+            return HttpResponseRedirect(url)
         return error_page(request, _('SSO: \
             Transient access policy: Configuration error'),
             logger=logger)
@@ -583,10 +587,11 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             maintain_liberty_session_on_service_provider(request, login)
             logger.info('[authsaml2] SSO: \
                 Login processing ended with success - redirect to target')
-            return redirect_to_target(request, key)
+            return HttpResponseRedirect(url)
         elif s.handle_persistent == \
                 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
             logger.info('[authsaml2] SSO: Account linking required')
+            logger.info('[authsaml2] SSO: Registering federation in progress...')
             register_federation_in_progress(request,
                 login.nameIdentifier.content)
             save_session(request, login)
@@ -602,33 +607,6 @@ def sso_after_response(request, login, relay_state = None, provider=None):
         _('SSO: \
         Transient access policy: NameId format not supported'), logger=logger)
         #TODO: Relay state
-
-###
- # register_federation_in_progres
- # @request
- # @nameId
- #
- # Register the post-authnrequest process during account linking
- ###
-def register_federation_in_progress(request, nameId):
-    logger.info('[authsaml2] SSO: Registering federation in progress...')
-    session_ext = None
-    try:
-        session_ext = ExtendDjangoSession. \
-            objects.get(django_session_key=request.session.session_key)
-        session_ext.federation_in_progress = nameId
-        session_ext.save()
-    except:
-        pass
-    if not session_ext:
-        try:
-            session_ext = ExtendDjangoSession()
-            session_ext.django_session_key = request.session.session_key
-            session_ext.federation_in_progress = nameId
-            session_ext.save()
-        except:
-            pass 
-    return session_ext
 
 ###
  # finish_federation
@@ -678,7 +656,7 @@ def finish_federation(request):
 
             logger.info('[authsaml2] SSO: federation added')
 
-            key = request.session.session_key
+            url = get_registered_url(request)
             auth_login(request, form.get_user())
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
@@ -689,15 +667,18 @@ def finish_federation(request):
             #    request=request, attributes=attributes)
             #logger.debug('[authsaml2] SSO: signal sent opened')
 
-            #s.delete()
-            #login.session.isDirty = True
-            #login.identity.isDirty = True
+            if s:
+                s.delete()
+            if login.session:
+               login.session.isDirty = True
+            if login.identity:
+                login.identity.isDirty = True
             save_session(request, login)
             save_federation(request, login)
             maintain_liberty_session_on_service_provider(request, login)
             logger.info('[authsaml2] SSO: Login processing ended with success - \
                 redirect to target')
-            return redirect_to_target(request, key)
+            return HttpResponseRedirect(url)
         else:
             # TODO: Error: login failed: message and count 3 attemps
             logger.warning('[authsaml2] SSO: \
@@ -1405,7 +1386,7 @@ def manage_name_id_return(request, manage, message):
                 if manage.identity:
                     save_federation(request, manage)
             break
-    return redirect_to_target(request)
+    return HttpResponseRedirect(get_registered_url(request))
 
 ###
  # manageNameIdSOAP

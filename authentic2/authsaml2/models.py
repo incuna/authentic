@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.sessions.models import Session
 from django.utils.translation import ugettext as _
 from django.db.models.manager import EmptyManager
 import lasso
@@ -120,9 +121,12 @@ class MyServiceProvider(models.Model):
         return "Service provider core configuration"
 
 class ExtendDjangoSession(models.Model):
-    django_session_key = models.CharField(max_length = 50, unique = True)
-    saml_request_id = models.CharField(max_length = 80, blank = True, null = True)
-    federation_in_progress = models.CharField(max_length = 80, blank = True, null = True)
+    session = models.ForeignKey(Session,
+        verbose_name = _('Extended session'))
+    saml_request_id = models.CharField(max_length = 80, blank = True,
+        null = True)
+    federation_in_progress = models.CharField(max_length = 80, blank = True,
+        null = True)
     next = models.CharField(max_length = 80, blank = True, null = True)
     temp_identity_dump = models.TextField(blank = True, null = True)
 

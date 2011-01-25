@@ -59,7 +59,6 @@ class MyServiceProviderAdmin(admin.ModelAdmin):
             }),
     )
 
-admin.site.register(ExtendDjangoSession)
 admin.site.register(MyServiceProvider, MyServiceProviderAdmin)
 admin.site.register(IdPOptionsPolicy, IdPOptionsPolicyAdmin)
 admin.site.register(AuthorizationAttributeMap, AuthorizationAttributeMapAdmin)
