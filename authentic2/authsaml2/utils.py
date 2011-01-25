@@ -28,9 +28,9 @@ def error_page(request, message, back = None, logger = None):
                 back = root_referer.group(1)
         if back is None:
             back = '/'
-    #message = _('An error happened. \
-    #    Report this %s to the administrator.') % \
-    #        time.strftime("[%Y-%m-%d %a %H:%M:%S]", time.localtime())
+    message = _('An error happened. \
+        Report this %s to the administrator.') % \
+            time.strftime("[%Y-%m-%d %a %H:%M:%S]", time.localtime())
     return render_to_response('error.html', {'msg': message, 'back': back},
             context_instance=RequestContext(request))
 
