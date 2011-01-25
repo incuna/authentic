@@ -120,16 +120,6 @@ class MyServiceProvider(models.Model):
     def __unicode__(self):
         return "Service provider core configuration"
 
-class ExtendDjangoSession(models.Model):
-    session = models.ForeignKey(Session,
-        verbose_name = _('Extended session'))
-    saml_request_id = models.CharField(max_length = 80, blank = True,
-        null = True)
-    federation_in_progress = models.CharField(max_length = 80, blank = True,
-        null = True)
-    next = models.CharField(max_length = 80, blank = True, null = True)
-    temp_identity_dump = models.TextField(blank = True, null = True)
-
 class SAML2TransientUser(object):
     '''Class compatible with django.contrib.auth.models.User
        which represent an user authenticated using a Transient

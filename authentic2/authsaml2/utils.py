@@ -4,7 +4,7 @@ import datetime, time
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from models import ExtendDjangoSession, MyServiceProvider
+from models import MyServiceProvider
 from django.utils.translation import ugettext as _
 from django.shortcuts import render_to_response
 from django.contrib.sessions.models import Session
@@ -28,9 +28,9 @@ def error_page(request, message, back = None, logger = None):
                 back = root_referer.group(1)
         if back is None:
             back = '/'
-    message = _('An error happened. \
-        Report this %s to the administrator.') % \
-            time.strftime("[%Y-%m-%d %a %H:%M:%S]", time.localtime())
+    #message = _('An error happened. \
+    #    Report this %s to the administrator.') % \
+    #        time.strftime("[%Y-%m-%d %a %H:%M:%S]", time.localtime())
     return render_to_response('error.html', {'msg': message, 'back': back},
             context_instance=RequestContext(request))
 
@@ -48,139 +48,33 @@ def get_service_provider_settings():
 
 # Used to register requested url during SAML redirections
 def register_next_target(request, url=None):
-    if not request:
-        return None
-    session_ext = None
     if url:
         next = url
     else:
         next = request.GET.get(REDIRECT_FIELD_NAME)
-
-    try:
-        s = Session.objects.get(pk=request.session.session_key)
-        session_ext = ExtendDjangoSession. \
-            objects.get(session=s)
-        session_ext.next = next
-        session_ext.save()
-    except:
-        pass
-
-    if not session_ext:
-        try:
-            s = Session.objects.get(pk=request.session.session_key)
-            session_ext = ExtendDjangoSession(session=s, next=next)
-            session_ext.save()
-        except:
-            pass
-
-    return session_ext
-
-def register_request_id(request, request_id):
-    if not request or not request_id:
-        return None
-    session_ext = None
-    try:
-        s = Session.objects.get(pk=request.session.session_key)
-        session_ext = ExtendDjangoSession. \
-            objects.get(session=s)
-        session_ext.saml_request_id = request_id
-        session_ext.save()
-    except:
-        pass
-
-    if not session_ext:
-        try:
-            s = Session.objects.get(pk=request.session.session_key)
-            session_ext = ExtendDjangoSession(session=s, saml_request_id=request_id)
-            session_ext.save()
-        except:
-            pass
-
-    return session_ext
+        if not next:
+            next = '/'
+    request.session['next'] = next
 
 def get_registered_url(request):
-    if not request:
-        return None
-    cfg = MyServiceProvider.objects.all()
-    if not cfg or not cfg[0]:
-        return '/'
+    if request.session.has_key('next'):
+        return request.session['next']
+    return None
 
-    session_ext = None
+def register_request_id(request, request_id):
+    request.session['saml_request_id'] = request_id
 
-    try:
-        s = Session.objects.get(pk=request.session.session_key)
-        session_ext = ExtendDjangoSession. \
-            objects.get(session=s)
-    except ExtendDjangoSession.DoesNotExist:
-        pass
+def check_response_id(request, login):
+    if request.session.has_key('saml_request_id') and \
+        request.session['saml_request_id'] == login.response.inResponseTo:
+        return True
+    return False
 
-    if session_ext:
-        if session_ext.next:
-            return session_ext.next
-
-    if cfg[0].back_url:
-        return cfg[0].back_url
-
-    return '/'
-
-###
- # register_federation_in_progres
- # @request
- # @nameId
- #
- # Register the post-authnrequest process during account linking
- ###
-def register_federation_in_progress(request, nameId):
-    if not request or not nameId:
-        return None
-    session_ext = None
-    try:
-        s = Session.objects.get(pk=request.session.session_key)
-        session_ext = ExtendDjangoSession. \
-            objects.get(session=s)
-        session_ext.federation_in_progress = nameId
-        session_ext.save()
-    except:
-        pass
-    if not session_ext:
-        try:
-            s = Session.objects.get(pk=request.session.session_key)
-            session_ext = ExtendDjangoSession(session=s)
-            session_ext.federation_in_progress = nameId
-            session_ext.save()
-        except:
-            pass 
-    return session_ext
-
-# Used because an identity dump must be temporary stored for account linking
+# Used for account linking
 def save_federation_temp(request, login):
-    if not request or not login:
-        return None
-    session_ext = None
-    try:
-        s = Session.objects.get(pk=request.session.session_key)
-        session_ext = ExtendDjangoSession. \
-            objects.get(session=s)
-        session_ext.temp_identity_dump = login.identity.dump()
-        session_ext.save()
-    except:
-        pass
-    if not session_ext:
-        try:
-            s = Session.objects.get(pk=request.session.session_key)
-            session_ext = ExtendDjangoSession(session=s)
-            session_ext.temp_identity_dump = login.identity.dump()
-            session_ext.save()
-        except:
-            pass
-    return session_ext
+    if login and login.identity:
+        request.session['identity_dump'] = login.identity.dump()
 
 def load_federation_temp(request, login):
-    if request and login:
-        try:
-            s = Session.objects.get(pk=request.session.session_key)
-            session_ext = ExtendDjangoSession. \
-                objects.get(session=s)
-            login.setIdentityFromDump(session_ext.temp_identity_dump)
-        except:
-            pass
+    if request.session.has_key('identity_dump'):
+        login.setIdentityFromDump(request.session['identity_dump'])

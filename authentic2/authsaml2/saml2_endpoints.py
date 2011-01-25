@@ -65,10 +65,9 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
         return error_page(request,
             _('SSO: Service provider not configured'), logger=logger)
     # 1. Save the target page
-    session_ext = register_next_target(request)
-    if not session_ext:
-        logger.error('[authsaml2] SSO: Unable to save the next url in the \
-            extended session %s' % request.session.session_key)
+    logger.error('[authsaml2] SSO: save next url in session %s' \
+        % request.session.session_key)
+    register_next_target(request)
 
     # 2. Init the server object
     server = build_service_provider(request)
@@ -134,10 +133,9 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
 
     # 6. Save the request ID (association with the target page)
     logger.debug('[authsaml2] SSO: Authnrequest ID: %s' % login.request.iD)
-    session_ext = register_request_id(request, login.request.iD)
-    if not session_ext:
-        logger.error('[authsaml2] SSO: Unable to save the request id in the \
-            extended session %s' % request.session.session_key)
+    logger.debug('[authsaml2] SSO: Save request id in the session %s' \
+        % request.session.session_key)
+    register_request_id(request, login.request.iD)
 
     # 7. Redirect the user
     logger.debug('[authsaml2] SSO: user redirection')
@@ -324,6 +322,7 @@ def singleSignOnPost(request):
  # TODO: Proxying
  ###
 def sso_after_response(request, login, relay_state = None, provider=None):
+
     logger.info('[authsaml2] SSO: Authnresponse processing begins...')
     s = get_service_provider_settings()
     if not s:
@@ -342,7 +341,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             _('SSO: No Response ID'), logger=logger)
     logger.debug('[authsaml2] SSO: inResponseTo: %s' %irt)
 
-    if irt and not check_response_id(login):
+    if irt and not check_response_id(request, login):
         return error_page(request,
             _('SSO: Request and Response ID do not match'),
             logger=logger)
@@ -590,10 +589,8 @@ def sso_after_response(request, login, relay_state = None, provider=None):
         elif s.handle_persistent == \
                 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
             logger.info('[authsaml2] SSO: Account linking required')
-            logger.info('[authsaml2] SSO: Registering federation in progress...')
-            register_federation_in_progress(request,
-                login.nameIdentifier.content)
             save_session(request, login)
+            logger.debug('[authsaml2] SSO: Register identity dump in session')
             save_federation_temp(request, login)
             maintain_liberty_session_on_service_provider(request, login)
             return render_to_response('auth/saml2/account_linking.html',
@@ -1564,14 +1561,6 @@ def http_response_bad_request(message):
 def http_response_forbidden_request(message):
     logger.error(message)
     return HttpResponseForbidden(_(message))
-
-def check_response_id(login):
-    try:
-        session_ext = ExtendDjangoSession. \
-            objects.get(saml_request_id=login.response.inResponseTo)
-    except ExtendDjangoSession.DoesNotExist:
-        return False
-    return True
 
 def build_service_provider(request):
     return create_server(request, reverse(metadata))
