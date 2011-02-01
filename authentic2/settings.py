@@ -97,7 +97,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'authentic2.admin_log_view.middleware.LoggerMiddleware',
     'authentic2.idp.middleware.DebugMiddleware'
 )
 
@@ -119,7 +118,6 @@ INSTALLED_APPS = (
     'authentic2.idp.saml',
     'registration',
     'authentic2.sslauth',
-    'authentic2.admin_log_view',
     'authentic2.auth',
     'authentic2.auth.openid',
     'authentic2.auth.oath',
@@ -221,11 +219,12 @@ AUTHENTICATION_BACKENDS += (
 AUTH_OPENID = True
 IDP_OPENID = True
 
+import logging
 # Logging settings
 LOG_FILENAME = os.path.join(_PROJECT_PATH, 'log.log')
-LOG_FILE_LEVEL = 10 #CRITICAL 50 ERROR 40 WARNING 30 INFO 20 DEBUG 10
+LOG_FILE_LEVEL = logging.DEBUG
 LOG_SYSLOG = True
-LOG_SYS_LEVEL = 10
+LOG_SYS_LEVEL = logging.WARNING
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
@@ -243,3 +242,38 @@ if AUTH_OPENID:
 
 if IDP_OPENID:
     INSTALLED_APPS += ('authentic2.idp.openid',)
+
+import logging
+from logging.handlers import SysLogHandler
+import threading
+import sys
+
+_LOCAL = threading.local()
+
+def getlogger():
+    
+    logger = getattr(_LOCAL, 'logger', None)
+    if logger is not None:
+        return logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)-8s"%(message)s"','%Y-%m-%d %a %H:%M:%S') 
+    
+    if LOG_FILENAME:
+        log_handler = logging.FileHandler(LOG_FILENAME)
+        log_handler.setFormatter(formatter)
+        log_handler.setLevel(LOG_FILE_LEVEL)
+        logger.addHandler(log_handler)
+    
+    if LOG_SYSLOG:
+        syslog_handler = SysLogHandler(address = '/dev/log')
+        formatter = logging.Formatter('authentic %(levelname)-8s"%(message)s"','%Y-%m-%d %a %H:%M:%S') 
+        syslog_handler.setFormatter(formatter)
+        syslog_handler.setLevel(LOG_SYS_LEVEL)
+        logger.addHandler(syslog_handler)
+    
+    setattr(_LOCAL,'logger',logger)
+    return logger
+
+getlogger()
