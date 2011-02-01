@@ -79,24 +79,24 @@ def openid_server(request):
     else:
         logger.info('Received OpenID request: %s' % querydict)
     sreg_request = SRegRequest.fromOpenIDRequest(orequest)
+    logger.debug('SREG request: %s' % sreg_request.__dict__)
 
     if orequest.mode in ("checkid_immediate", "checkid_setup"):
         # User is not logged
         if not request.user.is_authenticated():
             # Site does not want interaction
             if orequest.immediate:
-                logger.info('User not logged and checkid immediate request, returning OpenID failure')
+                logger.debug('User not logged and checkid immediate request, returning OpenID failure')
                 return oresponse_to_response(server, orequest.answer(False))
             else:
             # Try to login
                 request.session['OPENID_REQUEST'] = orequest
-                logger.info('User not logged and checkid request, redirecting to login page')
+                logger.debug('User not logged and checkid request, redirecting to login page')
                 return redirect_to_login(request, nonce='1')
         else:
             identity = orequest.identity
             if identity != IDENTIFIER_SELECT:
                exploded = urlparse.urlparse(identity)
-               logger.debug('exploded %r' % ((exploded, request.path, exploded.path[len(request.path):].strip('/')),))
                # Allows only /openid/<user_id>
                if not exploded.path.startswith(request.path) \
                    or not exploded.path[len(request.path):].strip('/') == request.user.username \
@@ -104,7 +104,7 @@ def openid_server(request):
                    or exploded.query  \
                    or exploded.fragment :
                    # We only support directed identity
-                   logger.info('Invalid OpenID identity %s' % identity)
+                   logger.debug('Invalid OpenID identity %s' % identity)
                    return oresponse_to_response(server, orequest.answer(False))
             try:
                 trusted_root = models.TrustedRoot.objects.get(user=request.user.id,
@@ -113,10 +113,10 @@ def openid_server(request):
                 if not set(sreg_request.required).issubset(set(trusted_root.choices)):
                     # Current assertion is not sufficent, ask again !
                     if orequest.immediate:
-                        logger.info('Attributes authorization unsufficient and checkid immediate, returning OpenID failure')
+                        logger.debug('Attributes authorization unsufficient and checkid immediate, returning OpenID failure')
                         return oresponse_to_response(server, orequest.answer(False))
                     request.session['OPENID_REQUEST'] = orequest
-                    logger.info('Attributes authorization unssificient for %s, redirecting to consent page' % orequest.trust_root)
+                    logger.debug('Attributes authorization unsufficient for %s, redirecting to consent page' % orequest.trust_root)
                     return HttpResponseRedirect(reverse('openid-provider-decide'))
                 user_data = {}
                 for field in trusted_root.choices:
@@ -125,15 +125,17 @@ def openid_server(request):
                     elif field == 'fullname':
                         user_data[field] = '%s %s' % (request.user.first_name,
                                 request.user.last_name)
+                    elif field == 'nickname':
+                        user_data[field] = getattr(request.user, 'username', '')
                     else:
-                        logger.warning('Could not provide SReg field %s' % field)
+                        logger.debug('Could not provide SReg field %s' % field)
             except models.TrustedRoot.MultipleObjectsReturned:
                 # Too much trustedroots remove
                 models.TrustedRoot.objects.filter(user=request.user.id,
 			trust_root=orequest.trust_root).delete()
                 # RP does not want any interaction
                 if orequest.immediate:
-                    logger.info('Too much trusted root records and checkid immediate, returning OpenID failure')
+                    logger.warning('Too much trusted root records and checkid immediate, returning OpenID failure')
                     return oresponse_to_response(server, orequest.answer(False))
                 request.session['OPENID_REQUEST'] = orequest
                 logger.info('Too much trusted root for %s, redirecting to consent page' % orequest.trust_root)
@@ -164,9 +166,12 @@ def openid_server(request):
         oresponse.addExtension(sreg_response)
     else:
         oresponse = server.handleRequest(orequest)
+    logger.info('Returning OpenID response %s' % oresponse)
     return oresponse_to_response(server, oresponse)
 
 def openid_xrds(request, identity=False, id=None):
+    '''XRDS discovery page'''
+    logger.debug('OpenID XRDS identity:%(identity)s id:%(id)s' % locals())
     if identity:
         types = [OPENID_2_0_TYPE, OPENID_1_0_TYPE, OPENID_1_1_TYPE, SREG_TYPE]
         local_ids = []
@@ -182,11 +187,12 @@ def openid_xrds(request, identity=False, id=None):
     }, context_instance=RequestContext(request), mimetype=YADIS_CONTENT_TYPE)
 
 class DecideForm(forms.Form):
-    def __init__(self, sreg_request=[], *args, **kwargs):
+    def __init__(self, sreg_request=None, *args, **kwargs):
         super(DecideForm, self).__init__(*args, **kwargs)
         for field in sreg_request.optional:
-            self.fields[field] = forms.BooleanField(label=data_fields[field],
+            self.fields[str(field)] = forms.BooleanField(label=data_fields[str(field)],
                 required=False)
+        logger.info('3SREG request: %s' % self.fields)
 
 def openid_decide(request):
     """
@@ -198,8 +204,10 @@ def openid_decide(request):
     orequest = request.session.get('OPENID_REQUEST')
     # No request ? Failure..
     if not orequest:
+        logger.warning('OpenID decide view failed, because no OpenID request is saved')
         return HttpResponseRedirect('/')
     sreg_request = SRegRequest.fromOpenIDRequest(orequest)
+    logger.debug('SREG request: %s' % sreg_request.__dict__)
     if not request.user.is_authenticated():
         # Not authenticated ? Authenticate and go back to the server endpoint
         return redirect_to_login(request, next=reverse(openid_server), nonce='1')
@@ -207,9 +215,10 @@ def openid_decide(request):
     if request.method == 'POST':
         if 'cancel' in request.POST:
             # User refused
+            logger.info('OpenID decide canceled')
             return HttpResponseRedirect('%s?cancel' % reverse(openid_server))
         else:
-            form = DecideForm(sreg_request=sreg_request,data=request.POST)
+            form = DecideForm(sreg_request=sreg_request, data=request.POST)
             if form.is_valid():
                 data = form.cleaned_data
                 # Remember the choice
@@ -218,9 +227,11 @@ def openid_decide(request):
 		t.choices = sreg_request.required \
                     + [ field for field in data if data[field] ]
                 t.save()
+                logger.debug('OpenID decide, user choice:%s' % data)
                 return HttpResponseRedirect(reverse('openid-provider-root'))
     else:
         form = DecideForm(sreg_request=sreg_request)
+    logger.info('OpenID device view, orequest:%s' % orequest)
 
     # verify return_to of trust_root
     try:
@@ -233,11 +244,13 @@ def openid_decide(request):
     return render_to_response('idp/openid/decide.html', {
         'title': _('Trust this site?'),
         'required': sreg_request.required,
+        'optional': sreg_request.optional,
         'trust_root_valid': trust_root_valid,
         'form': form,
     }, context_instance=RequestContext(request))
 
 def openid_discovery(request, id):
+    '''HTML discovery page'''
     xrds_url = request.build_absolute_uri(
             reverse('openid-provider-identity-xrds', args=[id]))
     response = render_to_response('idp/openid/discovery.html', {
@@ -247,4 +260,3 @@ def openid_discovery(request, id):
     }, context_instance=RequestContext(request))
     response['X-XRDS-Location'] = xrds_url
     return response
-    
