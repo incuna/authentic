@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
 
-logging.basicConfig()
 
 def load_backend(path):
     '''Load an IdP backend by its module path'''
