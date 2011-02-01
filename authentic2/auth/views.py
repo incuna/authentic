@@ -104,12 +104,17 @@ def login(request, template_name='auth/login.html',
         forms = [(frontend.name(), { 'form': frontend.form()(), 'backend': frontend }) \
                 for frontend in frontends if frontend.enabled()]
 
-    rendered_forms = [ (name,
+    rendered_forms = []
+    for name, d in forms:
+        context = { 'cancel': nonce is not None,
+                    'submit_name': 'submit-%s' % d['backend'].id(),
+                    redirect_field_name: redirect_to,
+                    'form': d['form'] }
+        if hasattr(d['backend'], 'get_context'):
+            context.update(d['backend'].get_context())
+        rendered_forms.append((name,
             render_to_string(d['backend'].template(),
-                RequestContext(request, { 'cancel': nonce is not None,
-                  'submit_name': 'submit-%s' % d['backend'].id(),
-                  'form': d['form'] }))) \
-                        for name, d in forms ]
+                RequestContext(request, context))))
 
     request.session.set_test_cookie()
 
