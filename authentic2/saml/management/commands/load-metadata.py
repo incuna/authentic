@@ -59,11 +59,12 @@ def load_one_entity(tree, options):
                 what = 'Creating'
             else:
                 what = 'Updating'
-            print >>sys.stdout, '%(what)s %(name)s, %(id)s' % { 'what': what,
+            print '%(what)s %(name)s, %(id)s' % { 'what': what,
                     'name': name.encode('utf8'), 'id': entity_id}
         provider.name = name
         provider.metadata = etree.tostring(tree, encoding='utf-8').decode('utf-8').strip()
         provider.protocol_conformance = 3
+        provider.federation_source = options['source']
         provider.save()
         options['count'] = options.get('count', 0) + 1
         if idp:
@@ -105,37 +106,67 @@ class Command(BaseCommand):
             dest='ignore-errors',
             default=False,
             help='If loading of one EntityDescriptor fails, continue loading'),
+        make_option('--source',
+            dest='source',
+            default=None,
+            help='Tag the loaded providers with the given source string, \
+existing providers with the same tag will be removed if they do not exist\
+ anymore in the metadata file.'),
         )
     args = '<metadata_file>'
     help = 'Load the specified SAMLv2 metadata file'
 
     @transaction.commit_manually
     def handle(self, *args, **options):
-        if not args:
-            raise CommandError('No metadata file on the command line')
+        source = options['source']
         try:
-            metadata_file = file(args[0])
-        except:
-            raise CommandError('Unable to open file %s' % args[0])
-        try:
-            doc = etree.parse(metadata_file)
-        except Exception, e:
-            raise CommandError('XML parsing error: %s' % str(e))
-        if doc.getroot().tag == ENTITY_DESCRIPTOR_TN:
-            load_one_entity(doc.getroot(), options)
-        elif doc.getroot().tag == ENTITIES_DESCRIPTOR_TN:
-            for entity_descriptor in doc.getroot().findall(ENTITY_DESCRIPTOR_TN):
-                try:
-                    load_one_entity(entity_descriptor, options)
-                except Exception, e:
-                    entity_id = entity_descriptor.get(ENTITY_ID)
-                    if options['ignore-errors']:
-                        print >>sys.stderr, 'Unable to load EntityDescriptor for %s: %s' % (entity_id, str(e))
-                    else:
+            if not args:
+                raise CommandError('No metadata file on the command line')
+            # Check sources
+            try:
+                if source is not None:
+                    source.decode('ascii')
+            except:
+                raise CommandError('--source MUST be an ASCII string value')
+            try:
+                metadata_file = file(args[0])
+            except:
+                raise CommandError('Unable to open file %s' % args[0])
+            try:
+                doc = etree.parse(metadata_file)
+            except Exception, e:
+                raise CommandError('XML parsing error: %s' % str(e))
+            if doc.getroot().tag == ENTITY_DESCRIPTOR_TN:
+                load_one_entity(doc.getroot(), options)
+            elif doc.getroot().tag == ENTITIES_DESCRIPTOR_TN:
+                loaded = []
+                for entity_descriptor in doc.getroot().findall(ENTITY_DESCRIPTOR_TN):
+                    try:
+                        load_one_entity(entity_descriptor, options)
+                        loaded.append(entity_descriptor.get(ENTITY_ID))
+                    except Exception, e:
                         raise
-                        raise CommandError('EntityDescriptor loading: %s' % str(e))
+                        entity_id = entity_descriptor.get(ENTITY_ID)
+                        if options['ignore-errors']:
+                            print >>sys.stderr, 'Unable to load EntityDescriptor for %s: %s' % (entity_id, str(e))
+                        else:
+                            raise CommandError('EntityDescriptor loading: %s' % str(e))
+                if options['source']:
+                    if options['delete']:
+                        print 'Finally delete all providers for source: %s...' % source
+                        LibertyProvider.objects.filter(federation_source=source).delete()
+                    else:
+                        to_delete = LibertyProvider.objects.filter(federation_source=source)\
+                                .exclude(entity_id__in=loaded)
+                        for provider in to_delete:
+                            print 'Delete obsolete provider %s' % provider.entity_id
+                            provider.delete()
+            else:
+                raise CommandError('%s is not a SAMLv2 metadata file' % metadata_file)
+        except:
+            transaction.rollback()
+            raise
         else:
-            raise CommandError('%s is not a SAMLv2 metadata file' % metadata_file)
-        transaction.commit()
+            transaction.commit()
         if not options.get('delete'):
             print 'Loaded', options.get('count', 0), 'providers'
