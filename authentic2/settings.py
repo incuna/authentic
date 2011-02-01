@@ -118,9 +118,9 @@ INSTALLED_APPS = (
     'authentic2.idp.saml',
     'registration',
     'authentic2.sslauth',
-    'authentic2.auth',
-    'authentic2.auth.openid',
-    'authentic2.auth.oath',
+    'authentic2.auth2_auth',
+    'authentic2.auth2_auth.auth2_openid',
+    'authentic2.auth2_auth.auth2_oath',
 )
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
@@ -139,11 +139,11 @@ DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
 
 # SAML settings
 # Only RSA private keys are currently supported
-AUTH_FRONTENDS = ( 'authentic2.auth.backend.LoginPasswordBackend',
-        'authentic2.auth.openid.backend.OpenIDFrontend',
-        'authentic2.auth.backend.SSLFrontend',
-        'authentic2.authsaml2.frontend.AuthSAML2Frontend',
-        'authentic2.auth.oath.frontend.OATHOTPFrontend')
+AUTH_FRONTENDS = ( 'authentic2.auth2_auth.backend.LoginPasswordBackend',
+        'authentic2.auth2_auth.auth2_openid.backend.OpenIDFrontend',
+        'authentic2.auth2_auth.auth2_oath.frontend.OATHOTPFrontend',
+        'authentic2.auth2_auth.backend.SSLFrontend',
+        'authentic2.authsaml2.frontend.AuthSAML2Frontend')
 IDP_SAML2 = True
 IDP_IDFF12 = True
 SAML_SIGNING_KEY = '''-----BEGIN CERTIFICATE-----
@@ -202,7 +202,7 @@ SSLAUTH_CREATE_USER = True
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'authentic2.sslauth.backends.SSLAuthBackend',
-    'authentic2.auth.oath.backend.OATHTOTPBackend'
+    'authentic2.auth2_auth.auth2_oath.backend.OATHTOTPBackend'
 )
 
 # IDP
@@ -241,7 +241,7 @@ if AUTH_OPENID:
     INSTALLED_APPS += ('django_authopenid',)
 
 if IDP_OPENID:
-    INSTALLED_APPS += ('authentic2.idp.openid',)
+    INSTALLED_APPS += ('authentic2.idp.idp_openid',)
 
 import logging
 from logging.handlers import SysLogHandler
