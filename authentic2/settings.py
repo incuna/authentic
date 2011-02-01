@@ -123,6 +123,12 @@ INSTALLED_APPS = (
     'authentic2.auth2_auth.auth2_oath',
 )
 
+try:
+    import south
+    INSTALLED_APPS += ( 'south', )
+except ImportError:
+    pass
+
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 LOGIN_URL = '/login'

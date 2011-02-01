@@ -33,6 +33,9 @@ You must install the following packages to use Authentic
 
    From sources: http://bitbucket.org/benoitc/django-authopenid/downloads
 
+ * Django-south (optional)::
+
+   From sources:: http://south.aeracode.org/docs/installation.html
 
 Quick Start
 -----------
@@ -112,6 +115,22 @@ And configure your service provider with it.
 There create a new provider using the service provider metadata and enable it
 as a service provider, you can customize some behaviours like the preferred
 assertion consumer or encryption for the NameID or the Assertion element.
+
+How to upgrade to a new version of authentic ?
+----------------------------------------------
+
+Authentic store all its data in a relational database as specified in its
+settings.py or local_settings.py file. So in order to upgrade to a new version
+of authentic you have to update your database schema using the
+migration command — you will need to have installed the dependency django-south,
+see the beginning of this README file.::
+
+  python ./manage.py migrate
+
+Then you will need to create new tables if there are.::
+
+  python ./manage.py syncdb
+
 Copyright
 ---------
 

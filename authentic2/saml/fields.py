@@ -8,6 +8,8 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.text import capfirst
 
+
+
 # This is a copy of http://djangosnippets.org/snippets/513/
 #
 # A field which can store any pickleable object in the database. It is
@@ -146,3 +148,10 @@ class MultiSelectField(models.Field):
         if self.choices:
             func = lambda self, fieldname = name, choicedict = dict(self.choices):",".join([choicedict.get(value,value) for value in getattr(self,fieldname)])
             setattr(cls, 'get_%s_display' % self.name, func)
+
+try:
+    # Let South handle our custom fields
+    from south.modelsinspector import add_introspection_rules
+    add_introspection_rules([], ["^authentic2\.saml\.fields\."])
+except ImportError:
+    pass
