@@ -36,7 +36,7 @@ class OATHOTPFrontend(object):
         return True
 
     def name(self):
-        return gettext_noop('OATH OTP')
+        return gettext_noop('One time password')
 
     def id(self):
         return 'oath-otp'
@@ -61,4 +61,4 @@ class OATHOTPFrontend(object):
         return views.totp_profile(request, next)
 
     def template(self):
-        return 'auth/login_form.html'
+        return 'auth/login_form_oath.html'
