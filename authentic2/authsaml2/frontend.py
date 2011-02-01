@@ -1,7 +1,7 @@
 import urllib
 import functools
 import django.forms as forms
-import authentic2.saml.common as saml_common, get_idp_list_sorted
+import authentic2.saml.common as saml_common
 
 from django.utils.translation import gettext_noop
 from django.http import HttpResponseRedirect
@@ -42,7 +42,7 @@ class AuthSAML2Frontend(object):
     
     def get_context(self):
         '''Specific context variable used by the specific template'''
-        return { 'idp_providers': get_idp_list_sorted() }
+        return { 'idp_providers': self.idp_list }
 
     def template(self):
         return 'auth/saml2/login_form.html'
