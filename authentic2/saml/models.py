@@ -101,6 +101,7 @@ class LibertyProvider(models.Model):
     public_key = models.TextField(blank=True)
     ssl_certificate = models.TextField(blank=True)
     ca_cert_chain = models.TextField(blank=True)
+    federation_source = models.CharField(max_length=64, blank=True, null=True)
 
     def __unicode__(self):
         return self.name
