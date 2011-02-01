@@ -19,7 +19,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 
 from authentic2.saml.common import *
-from authentic2.auth import NONCE_FIELD_NAME
+from authentic2.auth2_auth import NONCE_FIELD_NAME
 from authentic2.idp import get_backends
 import models
 

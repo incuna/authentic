@@ -34,10 +34,10 @@ from openid.extensions.sreg import ns_uri as SREG_TYPE, SRegRequest, \
         SRegResponse, data_fields
 
 from utils import add_sreg_data, get_store, oresponse_to_response
-from authentic2.auth.views import redirect_to_login
+from authentic2.auth2_auth.views import redirect_to_login
 import models
 
-logger = logging.getLogger('authentic.idp.openid')
+logger = logging.getLogger('authentic.idp.idp_openid')
 
 @csrf_exempt
 def openid_server(request):

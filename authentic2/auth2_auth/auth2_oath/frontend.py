@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate
 from django.http import HttpResponseRedirect
 import django.forms as forms
 
-import authentic2.auth.models as models
+import authentic2.auth2_auth.models as models
 import views
 
 # Only difference with login/password form is the user of 'otp' intead of

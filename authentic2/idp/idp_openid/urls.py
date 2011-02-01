@@ -3,7 +3,7 @@
 
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('authentic2.idp.openid.views',
+urlpatterns = patterns('authentic2.idp.idp_openid.views',
     url(r'^$', 'openid_server', name='openid-provider-root'),
     url(r'^decide/$', 'openid_decide', name='openid-provider-decide'),
     url(r'^xrds/$', 'openid_xrds', name='openid-provider-xrds'),

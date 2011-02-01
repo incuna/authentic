@@ -13,8 +13,8 @@ from django.contrib import messages
 # Use of existing application sslauth
 from util import SSLInfo, settings_get
 import views
-import authentic2.auth.models as auth_models
-from authentic2.auth import NONCE_FIELD_NAME
+import authentic2.auth2_auth.models as auth_models
+from authentic2.auth2_auth import NONCE_FIELD_NAME
 
 import logging
 

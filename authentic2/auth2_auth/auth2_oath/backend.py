@@ -5,7 +5,7 @@ import authentic2.vendor.oath.hotp as hotp
 from django.contrib.auth.models import User
 from django.db import transaction
 
-logger = logging.getLogger('authentic.auth.oath')
+logger = logging.getLogger('authentic.auth.auth2_oath')
 
 class OATHTOTPBackend:
 

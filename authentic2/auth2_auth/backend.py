@@ -6,7 +6,7 @@ from django.utils.translation import gettext_noop
 from django.http import HttpResponseRedirect
 import django.forms
 
-import authentic2.auth.models as models
+import authentic2.auth2_auth.models as models
 import views
 
 class LoginPasswordBackend(object):

@@ -12,7 +12,7 @@ handler500 = 'authentic2.views.server_error'
 
 
 urlpatterns = patterns('',
-    (r'^', include('authentic2.auth.urls')),
+    (r'^', include('authentic2.auth2_auth.urls')),
     (r'^redirect/(.*)', 'authentic2.views.redirect'),
     url(r'^accounts/register',
        'registration.views.register',
@@ -54,8 +54,8 @@ if settings.STATIC_SERVE:
 
 if getattr(settings, 'IDP_OPENID', False):
     urlpatterns += patterns('',
-            (r'^openid/', include('authentic2.idp.openid.urls')))
+            (r'^openid/', include('authentic2.idp.idp_openid.urls')))
 
-if 'authentic2.auth.oath' in settings.INSTALLED_APPS:
+if 'authentic2.auth2_auth.auth2_oath' in settings.INSTALLED_APPS:
     urlpatterns += patterns('',
-            (r'^oath/', include('authentic2.auth.oath.urls')))
+            (r'^oath/', include('authentic2.auth2_auth.auth2_oath.urls')))

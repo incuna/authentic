@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 import django_authopenid.views
 
-import authentic2.auth.openid.views as v
+import authentic2.auth2_auth.auth2_openid.views as v
 
 urlpatterns = patterns('',
     (r'^complete/associate/$', v.complete_associate,{}, 'user_complete_myassociate'),

@@ -22,7 +22,7 @@ from django.views.generic.simple import redirect_to
 from openid.consumer.consumer import Consumer, SUCCESS, CANCEL, FAILURE, SETUP_NEEDED
 from openid.consumer.discover import DiscoveryFailure
 from openid.yadis import xri
-from authentic2.auth.openid import *
+from authentic2.auth2_auth.auth2_openid import *
 
 OPENID_PROVIDER = ['https://me.yahoo.com//','http://openid.aol.com/','http://.myopenid.com/',
                     'http://.livejournal.com/','http://www.flickr.com/photos//','http://.wordpress.com/'
