@@ -49,6 +49,9 @@ class PickledObjectField(models.Field):
     def get_internal_type(self):
         return 'TextField'
 
+    def value_to_string(self, obj):
+	return PickledObject(pickle.dumps(obj))
+
     def get_db_prep_lookup(self, lookup_type, value):
         if lookup_type == 'exact':
             value = self.get_db_prep_save(value)
