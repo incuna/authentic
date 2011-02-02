@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% block bodyargs %}onload="setTimeout(function () { window.location='{{ next_page }}' }, {{ redir_timeout }})"{% endblock %}
 
 {% block content %}
 <h1>{{ title }}</h1>
