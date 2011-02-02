@@ -623,3 +623,83 @@ def iso8601_to_datetime(date_string):
         raise ValueError('Invalid ISO8601 date')
     tm = time.strptime(m.group(1)+'Z', "%Y-%m-%dT%H:%M:%SZ")
     return datetime.datetime.fromtimestamp(time.mktime(tm))
+
+def get_idp_options_policy(provider):
+    try:
+        return IdPOptionsSPPolicy.objects.get(name='All', enabled=True)
+    except IdPOptionsSPPolicy.DoesNotExist:
+        pass
+    if provider.identity_provider.enable_following_idp_options_policy:
+        if provider.identity_provider.idp_options_policy:
+            return provider.identity_provider.idp_options_policy
+    try:
+        return IdPOptionsSPPolicy.objects.get(name='Default', enabled=True)
+    except IdPOptionsSPPolicy.DoesNotExist:
+        pass
+    return None
+
+def get_authorization_policy(provider):
+    try:
+        return AuthorizationSPPolicy.objects.get(name='All', enabled=True)
+    except AuthorizationSPPolicy.DoesNotExist:
+        pass
+    if provider.identity_provider.enable_following_authorization_policy:
+        if provider.identity_provider.authorization_policy:
+            return provider.identity_provider.authorization_policy
+    try:
+        return AuthorizationSPPolicy.objects.get(name='Default', enabled=True)
+    except AuthorizationSPPolicy.DoesNotExist:
+        pass
+    return None
+
+def attributesMatch(attributes, attributes_to_check):
+    attrs = AuthorizationAttributeMapping.objects.filter(map=attributes_to_check)
+    for attr in attrs:
+        if not attributes.has_key(attr.attribute_name):
+            raise Exception('Attribute %s not provided' %attr.attribute_name)
+        if not attr.attribute_value in attributes[attr.attribute_name]:
+            return False
+    return True
+
+def call_ext_function(name, attributes):
+        index = name.rfind('.')
+        if index < 1:
+            raise Exception('Authorization callback function name \
+            malformed')
+        m_name = name[:index]
+        func = name[index+1:]
+        try:
+            m = __import__(m_name)
+        except ImportError:
+            raise Exception('Unable to import authorization callback \
+            function')
+        # XXX: Do better
+        index = m_name.rfind('.')
+        while index > 0:
+            m_name = m_name[index+1:]
+            m = getattr(m, m_name)
+            index = m_name.rfind('.')
+        return getattr(m, func)(attributes)
+
+def isAuthorized(provider=None, attributes=None):
+    '''If there is no policy to apply, authorization granted'''
+    p = get_authorization_policy(provider)
+    dic = {}
+    dic['authz'] = True
+    if p:
+        if not p.attribute_map and not p.ext_function:
+           return dic
+        if not p.ext_function:
+            dic['authz'] = attributesMatch(attributes, p.attribute_map)
+            return dic
+        dic = call_ext_function(p.ext_function, attributes)
+        if not dic or not dic.has_key('authz'):
+            raise Exception('No dictionnary returned \
+            by the authorization callback function')
+        if not p.attribute_map:
+            return dic
+        # if the ext function gives True, we test local rules on attributes
+        if dic['authz']:
+            dic['authz'] = attributesMatch(attributes, p.attribute_map)
+        #else dic will be returned
+    return dic

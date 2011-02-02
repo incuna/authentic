@@ -6,6 +6,62 @@ from django.forms.widgets import MultiWidget
 import django.forms
 from models import *
 
+class AuthorizationAttributeMapAdmin(admin.ModelAdmin):
+    fieldsets = (
+            (None, {
+                'fields' : (
+                    'name',
+                )
+            }),
+    )
+
+class AuthorizationAttributeMappingAdmin(admin.ModelAdmin):
+    fieldsets = (
+            (None, {
+                'fields' : (
+                    'attribute_name',
+                    'attribute_value',
+                    'map',
+                )
+            }),
+    )
+
+class IdPOptionsSPPolicyAdmin(admin.ModelAdmin):
+    fieldsets = (
+            (None, {
+                'fields' : (
+                    'name',
+                    'enabled',
+                    'no_nameid_policy',
+                    'requested_name_id_format',
+                    'transient_is_persistent',
+                    'allow_create',
+                    ('enable_binding_for_sso_response',
+                        'binding_for_sso_response'),
+                    ('enable_http_method_for_slo_request',
+                        'http_method_for_slo_request'),
+                    ('enable_http_method_for_defederation_request',
+                        'http_method_for_defederation_request'),
+                    'user_consent',
+                    'want_force_authn_request',
+                    'want_is_passive_authn_request',
+                    'want_authn_request_signed',
+                )
+            }),
+    )
+
+class AuthorizationSPPolicyAdmin(admin.ModelAdmin):
+    fieldsets = (
+            (None, {
+                'fields' : (
+                    'name',
+                    'enabled',
+                    'attribute_map',
+                    'ext_function',
+                )
+            }),
+    )
+
 class LibertyServiceProviderInline(admin.StackedInline):
     model = LibertyServiceProvider
 
@@ -15,18 +71,10 @@ class LibertyIdentityProviderInline(admin.StackedInline):
             (None, {
                 'fields' : (
                     'enabled',
-                    'enable_following_policy',
-                    'no_nameid_policy',
-                    'requested_name_id_format',
-                    'allow_create',
-                    ('enable_binding_for_sso_response', 'binding_for_sso_response'),
-                    ('enable_http_method_for_slo_request', 'http_method_for_slo_request'),
-                    ('enable_http_method_for_defederation_request', 'http_method_for_defederation_request'),
-                    'user_consent',
-                    'want_force_authn_request',
-                    'want_is_passive_authn_request',
-                    'want_authn_request_signed',
-                    'attribute_map'
+                    'enable_following_idp_options_policy',
+                    'idp_options_policy',
+                    'enable_following_authorization_policy',
+                    'authorization_policy',
                 )
             }),
     )
@@ -88,6 +136,10 @@ class LibertyProviderAdmin(admin.ModelAdmin):
             LibertyIdentityProviderInline
     ]
 
+admin.site.register(IdPOptionsSPPolicy, IdPOptionsSPPolicyAdmin)
+admin.site.register(AuthorizationSPPolicy, AuthorizationSPPolicyAdmin)
+admin.site.register(AuthorizationAttributeMap, AuthorizationAttributeMapAdmin)
+admin.site.register(AuthorizationAttributeMapping, AuthorizationAttributeMappingAdmin)
 admin.site.register(LibertyProvider, LibertyProviderAdmin)
 
 if settings.DEBUG:

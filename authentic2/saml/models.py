@@ -20,17 +20,6 @@ from fields import *
 ATTRIBUTE_VALUE_FORMATS = (
         (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, 'SAMLv2 URI'),)
 
-class LibertyAttributeMap(models.Model):
-    name = models.CharField(max_length = 40, unique = True)
-    def __unicode__(self):
-        return self.name
-
-class LibertyAttributeMapping(models.Model):
-    source_attribute_name = models.CharField(max_length = 40)
-    attribute_value_format = models.URLField(choices = ATTRIBUTE_VALUE_FORMATS)
-    attribute_name = models.CharField(max_length = 40)
-    map = models.ForeignKey(LibertyAttributeMap)
-
 def metadata_validator(meta):
     provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_ANY, meta.encode('utf8'))
     if not provider:
@@ -85,10 +74,171 @@ def organization_name(provider):
     else:
         return provider.providerId
 
+# TODO: Remove this in LibertyServiceProvider
+ASSERTION_CONSUMER_PROFILES = (
+        ('meta', _('Use the default from the metadata file')),
+        ('art', _('Artifact binding')),
+        ('post', _('Post binding')))
+
+DEFAULT_NAME_ID_FORMAT = 'none'
+
+# Supported name id formats
+NAME_ID_FORMATS = {
+        'none': { 'caption': _('None'),
+            'samlv2': None,
+            'idff12': None },
+        'persistent': { 'caption': _('Persistent'),
+            'samlv2': lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT,
+            'idff12': lasso.LIB_NAMEID_POLICY_TYPE_FEDERATED },
+        'transient': { 'caption': _("Transient"),
+            'samlv2': lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT,
+            'idff12': lasso.LIB_NAMEID_POLICY_TYPE_ONE_TIME },
+        'email': { 'caption': _("Email (only supported by SAMLv2)"),
+            'samlv2': lasso.SAML2_NAME_IDENTIFIER_FORMAT_EMAIL,
+            'idff12': None }}
+
+NAME_ID_FORMATS_CHOICES = \
+        tuple([(x, y['caption']) for x, y in NAME_ID_FORMATS.iteritems()])
+
+ACCEPTED_NAME_ID_FORMAT_LENGTH = \
+        sum([len(x) for x, y in NAME_ID_FORMATS.iteritems()]) + \
+        len(NAME_ID_FORMATS) - 1
+
+def saml2_urn_to_nidformat(urn):
+    for x, y in NAME_ID_FORMATS.iteritems():
+        if y['samlv2'] == urn:
+            return x
+    return None
+
+def nidformat_to_saml2_urn(key):
+    return NAME_ID_FORMATS.get(key, {}).get('samlv2')
+
+def nidformat_to_idff12_urn(key):
+    return NAME_ID_FORMATS.get(key, {}).get('idff12')
+
+# According to: saml-profiles-2.0-os
+# The HTTP Redirect binding MUST NOT be used, as the response will typically exceed the URL length permitted by most user agents.
+BINDING_SSO_IDP = (
+    (lasso.SAML2_METADATA_BINDING_ARTIFACT, _('Artifact binding')),
+    (lasso.SAML2_METADATA_BINDING_POST, _('POST binding'))
+)
+HTTP_METHOD = (
+    (lasso.HTTP_METHOD_REDIRECT, _('Redirect binding')),
+    (lasso.HTTP_METHOD_SOAP, _('SOAP binding'))
+)
+
+USER_CONSENT = (
+    ('urn:oasis:names:tc:SAML:2.0:consent:unspecified', _('Unspecified')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:obtained', _('Obtained')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:prior', _('Prior')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:current-explicit', _('Explicit')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:current-implicit', _('Implicit')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:unavailable', _('Unavailable')),
+    ('urn:oasis:names:tc:SAML:2.0:consent:inapplicable', _('Inapplicable'))
+)
+
+class LibertyAttributeMap(models.Model):
+    name = models.CharField(max_length = 40, unique = True)
+    def __unicode__(self):
+        return self.name
+
+class LibertyAttributeMapping(models.Model):
+    source_attribute_name = models.CharField(max_length = 40)
+    attribute_value_format = models.URLField(choices = ATTRIBUTE_VALUE_FORMATS)
+    attribute_name = models.CharField(max_length = 40)
+    map = models.ForeignKey(LibertyAttributeMap)
+
+class IdPOptionsSPPolicy(models.Model):
+    name = models.CharField(_('name'), max_length=80, unique=True)
+    enabled = models.BooleanField(verbose_name = _('Enabled'))
+    no_nameid_policy = models.BooleanField(
+            verbose_name = _("Do not send a nameId Policy"))
+    requested_name_id_format = models.CharField(max_length = 20,
+            default = DEFAULT_NAME_ID_FORMAT,
+            choices = NAME_ID_FORMATS_CHOICES)
+    transient_is_persistent = models.BooleanField(
+            verbose_name = \
+            _("This IdP falsely sends a transient NameID \
+            which is in fact persistent"))
+    allow_create = models.BooleanField(
+            verbose_name = _("Allow IdP to create an identity"))
+    enable_binding_for_sso_response = models.BooleanField(
+            verbose_name = _('Binding for Authnresponse \
+            (taken from metadata by the IdP if not enabled)'))
+    binding_for_sso_response = models.CharField(
+            max_length = 60, choices = BINDING_SSO_IDP,
+            verbose_name = '',
+            default = lasso.SAML2_METADATA_BINDING_ARTIFACT)
+    enable_http_method_for_slo_request = models.BooleanField(
+            verbose_name = _('HTTP method for single logout request \
+            (taken from metadata if not enabled)'))
+    http_method_for_slo_request = models.IntegerField(
+            max_length = 60, choices = HTTP_METHOD,
+            verbose_name = '',
+            default = lasso.HTTP_METHOD_REDIRECT)
+    enable_http_method_for_defederation_request = models.BooleanField(
+            verbose_name = \
+            _('HTTP method for federation termination request \
+            (taken from metadata if not enabled)'))
+    http_method_for_defederation_request = models.IntegerField(
+            max_length = 60, choices = HTTP_METHOD,
+            verbose_name = '',
+            default = lasso.HTTP_METHOD_SOAP)
+    user_consent = models.CharField(
+            max_length = 60, choices = USER_CONSENT,
+            verbose_name = _("Ask user consent"),
+            default = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit')
+    want_force_authn_request = models.BooleanField(
+            verbose_name = _("Force authentication"))
+    want_is_passive_authn_request = models.BooleanField(
+            verbose_name = _("Passive authentication"))
+    want_authn_request_signed = models.BooleanField(
+            verbose_name = _("Want AuthnRequest signed"))
+
+    class Meta:
+        verbose_name = _('identity provider options policy')
+        verbose_name_plural = _('identity provider options policies')
+
+    def __unicode__(self):
+        return self.name
+
+class AuthorizationAttributeMap(models.Model):
+    name = models.CharField(max_length = 40, unique = True)
+    def __unicode__(self):
+        return self.name
+
+class AuthorizationAttributeMapping(models.Model):
+    source_attribute_name = models.CharField(max_length = 40,
+            blank=True)
+    attribute_value_format = models.CharField(max_length = 40,
+            blank=True)
+    attribute_name = models.CharField(max_length = 40)
+    attribute_value = models.CharField(max_length = 40)
+    map = models.ForeignKey(AuthorizationAttributeMap)
+
+class AuthorizationSPPolicy(models.Model):
+    name = models.CharField(_('name'), max_length=80, unique=True)
+    enabled = models.BooleanField(verbose_name = _('Enabled'))
+    attribute_map = models.ForeignKey(AuthorizationAttributeMap,
+            related_name = "authorization_attributes",
+            blank = True, null = True)
+    ext_function = models.CharField(
+            max_length = 80,
+            verbose_name = \
+                _("Use an external function into the authorization decision"),
+            blank=True)
+
+    class Meta:
+        verbose_name = _('authorization policy')
+        verbose_name_plural = _('authorization policies')
+
+    def __unicode__(self):
+        return self.name
+
 class LibertyProvider(models.Model):
     entity_id = models.URLField(unique = True)
     entity_id_sha1 = models.CharField(max_length = 40, blank=True)
-    name = models.CharField(max_length = 40, unique = True,
+    name = models.CharField(max_length = 140, unique = True,
             help_text = _("Internal nickname for the service provider"),
             blank = True)
     protocol_conformance = models.IntegerField(max_length = 10,
@@ -139,48 +289,6 @@ class LibertyProvider(models.Model):
         else:
             print 'coin'
 
-# TODO: Remove this in LibertyServiceProvider
-ASSERTION_CONSUMER_PROFILES = (
-        ('meta', _('Use the default from the metadata file')),
-        ('art', _('Artifact binding')),
-        ('post', _('Post binding')))
-
-DEFAULT_NAME_ID_FORMAT = 'none'
-
-# Supported name id formats
-NAME_ID_FORMATS = {
-        'none': { 'caption': _('None'),
-            'samlv2': None,
-            'idff12': None },
-        'persistent': { 'caption': _('Persistent'),
-            'samlv2': lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT,
-            'idff12': lasso.LIB_NAMEID_POLICY_TYPE_FEDERATED },
-        'transient': { 'caption': _("Transient"),
-            'samlv2': lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT,
-            'idff12': lasso.LIB_NAMEID_POLICY_TYPE_ONE_TIME },
-        'email': { 'caption': _("Email (only supported by SAMLv2)"),
-            'samlv2': lasso.SAML2_NAME_IDENTIFIER_FORMAT_EMAIL,
-            'idff12': None }}
-
-NAME_ID_FORMATS_CHOICES = \
-        tuple([(x, y['caption']) for x, y in NAME_ID_FORMATS.iteritems()])
-
-ACCEPTED_NAME_ID_FORMAT_LENGTH = \
-        sum([len(x) for x, y in NAME_ID_FORMATS.iteritems()]) + \
-        len(NAME_ID_FORMATS) - 1
-
-def saml2_urn_to_nidformat(urn):
-    for x, y in NAME_ID_FORMATS.iteritems():
-        if y['samlv2'] == urn:
-            return x
-    return None
-
-def nidformat_to_saml2_urn(key):
-    return NAME_ID_FORMATS.get(key, {}).get('samlv2')
-
-def nidformat_to_idff12_urn(key):
-    return NAME_ID_FORMATS.get(key, {}).get('idff12')
-
 # TODO: The IdP must look to the preferred binding order for sso in the SP metadata (AssertionConsumerService)
 # expect if the protocol for response is defined in the request (ProtocolBinding attribute)
 class LibertyServiceProvider(models.Model):
@@ -216,27 +324,6 @@ class LibertyServiceProvider(models.Model):
     ask_user_consent = models.BooleanField(
         verbose_name = _('Ask user for consent when creating a federation'), default = False)
 
-# According to: saml-profiles-2.0-os
-# The HTTP Redirect binding MUST NOT be used, as the response will typically exceed the URL length permitted by most user agents.
-BINDING_SSO_IDP = (
-    (lasso.SAML2_METADATA_BINDING_ARTIFACT, _('Artifact binding')),
-    (lasso.SAML2_METADATA_BINDING_POST, _('POST binding'))
-)
-HTTP_METHOD = (
-    (lasso.HTTP_METHOD_REDIRECT, _('Redirect binding')),
-    (lasso.HTTP_METHOD_SOAP, _('SOAP binding'))
-)
-
-USER_CONSENT = (
-    ('urn:oasis:names:tc:SAML:2.0:consent:unspecified', _('Unspecified')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:obtained', _('Obtained')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:prior', _('Prior')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:current-explicit', _('Explicit')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:current-implicit', _('Implicit')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:unavailable', _('Unavailable')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:inapplicable', _('Inapplicable'))
-)
-
 # TODO: The choice for requests must be restricted by the IdP metadata
 # The SP then chooses the binding in this list.
 # For response, if the requester uses a (a)synchronous binding, the responder uses the same.
@@ -245,47 +332,13 @@ class LibertyIdentityProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True, related_name = 'identity_provider')
     enabled = models.BooleanField(verbose_name = _('Enabled'))
-    enable_following_policy = models.BooleanField(verbose_name = \
-        _('The following options policy will apply except if the policy for all identity provider is defined.'))
-    no_nameid_policy = models.BooleanField(
-            verbose_name = _("Do not send a nameId Policy"))
-    requested_name_id_format = models.CharField(max_length = 20,
-            default = DEFAULT_NAME_ID_FORMAT,
-            choices = NAME_ID_FORMATS_CHOICES)
-    allow_create = models.BooleanField(
-            verbose_name = _("Allow IdP to create an identity"))
-    enable_binding_for_sso_response = models.BooleanField(
-            verbose_name = _('Binding for Authnresponse (taken from metadata by the IdP if not enabled)'))
-    binding_for_sso_response = models.CharField(
-            max_length = 60, choices = BINDING_SSO_IDP,
-            verbose_name = '',
-            default = lasso.SAML2_METADATA_BINDING_ARTIFACT)
-    enable_http_method_for_slo_request = models.BooleanField(
-            verbose_name = _('HTTP method for single logout request (taken from metadata if not enabled)'))
-    http_method_for_slo_request = models.IntegerField(
-            max_length = 60, choices = HTTP_METHOD,
-            verbose_name = '',
-            default = lasso.HTTP_METHOD_REDIRECT)
-    enable_http_method_for_defederation_request = models.BooleanField(
-            verbose_name = _('HTTP method for federation termination request (taken from metadata if not enabled)'))
-    http_method_for_defederation_request = models.IntegerField(
-            max_length = 60, choices = HTTP_METHOD,
-            verbose_name = '',
-            default = lasso.HTTP_METHOD_SOAP)
-    user_consent = models.CharField(
-            max_length = 60, choices = USER_CONSENT,
-            verbose_name = _("Ask user consent"),
-            default = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit')
-    want_force_authn_request = models.BooleanField(
-            verbose_name = _("Force authentication"))
-    want_is_passive_authn_request = models.BooleanField(
-            verbose_name = _("Passive authentication"))
-    want_authn_request_signed = models.BooleanField(
-            verbose_name = _("Want AuthnRequest signed"))
-    # Mapping to use to get User attributes from the assertion
-    attribute_map = models.ForeignKey(LibertyAttributeMap,
-            related_name = "identity_providers",
-            blank = True, null = True)
+    enable_following_idp_options_policy = models.BooleanField(verbose_name = \
+        _('The following options policy will apply except if a policy for all identity provider is defined.'))
+    idp_options_policy = models.ForeignKey(IdPOptionsSPPolicy, related_name = "idp_options_policy", verbose_name = _('IdP Options Policy'), blank=True, null=True)
+    enable_following_authorization_policy = models.BooleanField(verbose_name = \
+        _('The following authorization policy will apply except if a policy for all identity provider is defined.'))
+    authorization_policy = models.ForeignKey(AuthorizationSPPolicy, related_name = "authorization_policy", verbose_name = _('Authorization Policy'), blank=True, null=True)
+
     # TODO: add clean method which checks that the LassoProvider we can create
     # with the metadata file support the IDP role
     # i.e. provider.roles & lasso.PROVIDER_ROLE_IDP != 0
