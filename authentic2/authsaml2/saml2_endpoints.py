@@ -511,10 +511,25 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     #logger.debug('[authsaml2] SSO: \
     #    attributes in assertion %s' % str(attributes))
 
+    try:
+        dic = isAuthorized(provider, attributes)
+    except Exception, e:
+        return error_page(request,
+                _('SSO: \
+                authorization decision failed with error %s' %str(e)),
+                logger=logger)
+    if not dic['authz']:
+        message = _('You are not authorized to access the service.')
+        if dic.has_key('message'):
+            message = dic['message']
+        return error_page(request,
+                message,
+                logger=logger, display_message=True, timer=True)
+
     user = request.user
 
     url = get_registered_url(request)
-    policy = get_idp_policy(provider)
+    policy = get_idp_options_policy(provider)
     if login.nameIdentifier.format == \
         lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT \
         and (policy is None \
@@ -1565,24 +1580,37 @@ def http_response_forbidden_request(message):
 def build_service_provider(request):
     return create_server(request, reverse(metadata))
 
-def get_idp_policy(provider):
-    try:
-        return IdPOptionsPolicy.objects.get(name='All', enabled=True)
-    except IdPOptionsPolicy.DoesNotExist:
-        pass
-    if provider.identity_provider.enable_following_policy:
-        return provider.identity_provider.enable_following_policy
-    try:
-        return IdPOptionsPolicy.objects.get(name='Default', enabled=True)
-    except IdPOptionsPolicy.DoesNotExist:
-        pass
-    return None
-
 def setAuthnrequestOptions(provider, login, force_authn, is_passive):
     if not provider or not login:
         return False
 
-    p = IdPOptionsPolicy.objects.filter(name='All', enabled=True)
+    p = get_idp_options_policy(provider)
+    if not p:
+        return False
+
+    if p.no_nameid_policy:
+        login.request.nameIDPolicy = None
+    else:
+        login.request.nameIDPolicy.format = \
+            NAME_ID_FORMATS[p.requested_name_id_format]['samlv2']
+        login.request.nameIDPolicy.allowCreate = p.allow_create
+        login.request.nameIDPolicy.spNameQualifier = None
+
+    if p.enable_binding_for_sso_response:
+        login.request.protocolBinding = p.binding_for_sso_response
+
+    if force_authn is None:
+        force_authn = p.binding_for_sso_response
+    login.request.protocolBinding = force_authn
+
+    if is_passive is None:
+        is_passive = p.want_is_passive_authn_request
+    login.request.isPassive = is_passive
+
+    login.request.consent = p.user_consent
+    return True
+
+    '''p = IdPOptionsPolicy.objects.filter(name='All', enabled=True)
     if p:
         p = p[0]
         if p.no_nameid_policy:
@@ -1659,4 +1687,4 @@ def setAuthnrequestOptions(provider, login, force_authn, is_passive):
         login.request.consent = p.user_consent
         return True
 
-    return False
+    return False'''
