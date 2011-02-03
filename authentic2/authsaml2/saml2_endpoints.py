@@ -511,20 +511,38 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     #logger.debug('[authsaml2] SSO: \
     #    attributes in assertion %s' % str(attributes))
 
-    try:
-        dic = isAuthorized(provider, attributes)
-    except Exception, e:
-        return error_page(request,
-                _('SSO: \
-                authorization decision failed with error %s' %str(e)),
-                logger=logger)
-    if not dic['authz']:
-        message = _('You are not authorized to access the service.')
+    '''Access control processing'''
+
+    decisions = signals.authz_decision.send(sender=None,
+         request=request, attributes=attributes, provider=provider)
+    if not decisions:
+        logger.debug('[authsaml2] SSO: No authorization callback function \
+            connected')
+
+    access_granted = True
+    one_message = False
+    for decision in decisions:
+        logger.debug('[authsaml2] SSO: authorization callback function %s' % \
+            decision[0].__name__)
+        dic = decision[1]
+        logger.debug('[authsaml2] SSO: decision is %s' %dic['authz'])
         if dic.has_key('message'):
-            message = dic['message']
+            logger.debug('[authsaml2] SSO: with message %s' %dic['message'])
+        if not dic['authz']:
+            access_granted = False
+            if dic.has_key('message'):
+                one_message = True
+                messages.add_message(request, messages.ERROR, dic['message'])
+
+    if not access_granted:
+        if not one_message:
+            p = get_authorization_policy(provider)
+            messages.add_message(request, messages.ERROR,
+                p.default_denial_message)
         return error_page(request,
-                message,
-                logger=logger, display_message=True, timer=True)
+            logger=logger, default_message=False, timer=True)
+
+    '''Access granted, now we deal with session management'''
 
     user = request.user
 
@@ -552,14 +570,14 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                     No backend for temporary federation is configured'),
                     logger=logger)
             auth_login(request, user)
-            logger.debug('[authsaml2] SSO: session opened')
+            logger.debug('[authsaml2] SSO: django session opened')
             signals.auth_login.send(sender=None,
                 request=request, attributes=attributes)
-            logger.debug('[authsaml2] SSO: signal sent')
+            logger.debug('[authsaml2] SSO: successful login signal sent')
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
             save_session(request, login)
-            logger.info('[authsaml2] SSO: Login processing ended with success - \
+            logger.info('[authsaml2] SSO: login processing ended with success - \
                 redirect to target')
             return HttpResponseRedirect(url)
         return error_page(request, _('SSO: \

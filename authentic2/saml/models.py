@@ -222,11 +222,11 @@ class AuthorizationSPPolicy(models.Model):
     attribute_map = models.ForeignKey(AuthorizationAttributeMap,
             related_name = "authorization_attributes",
             blank = True, null = True)
-    ext_function = models.CharField(
+    default_denial_message = models.CharField(
             max_length = 80,
             verbose_name = \
-                _("Use an external function into the authorization decision"),
-            blank=True)
+            _("Default message to display to the user when access is denied"),
+            default=_('You are not authorized to access the service.'))
 
     class Meta:
         verbose_name = _('authorization policy')

@@ -19,6 +19,8 @@ import saml2utils
 import saml11utils
 import authentic2.utils
 
+from authentic2.authsaml2 import signals
+
 AUTHENTIC_STATUS_CODE_NS = "http://authentic.entrouvert.org/status_code/"
 AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER = AUTHENTIC_STATUS_CODE_NS + \
     "UnknownProvider"
@@ -653,7 +655,8 @@ def get_authorization_policy(provider):
     return None
 
 def attributesMatch(attributes, attributes_to_check):
-    attrs = AuthorizationAttributeMapping.objects.filter(map=attributes_to_check)
+    attrs = AuthorizationAttributeMapping. \
+        objects.filter(map=attributes_to_check)
     for attr in attrs:
         if not attributes.has_key(attr.attribute_name):
             raise Exception('Attribute %s not provided' %attr.attribute_name)
@@ -661,45 +664,17 @@ def attributesMatch(attributes, attributes_to_check):
             return False
     return True
 
-def call_ext_function(name, attributes):
-        index = name.rfind('.')
-        if index < 1:
-            raise Exception('Authorization callback function name \
-            malformed')
-        m_name = name[:index]
-        func = name[index+1:]
-        try:
-            m = __import__(m_name)
-        except ImportError:
-            raise Exception('Unable to import authorization callback \
-            function')
-        # XXX: Do better
-        index = m_name.rfind('.')
-        while index > 0:
-            m_name = m_name[index+1:]
-            m = getattr(m, m_name)
-            index = m_name.rfind('.')
-        return getattr(m, func)(attributes)
-
-def isAuthorized(provider=None, attributes=None):
-    '''If there is no policy to apply, authorization granted'''
+def authz_decision_cb(sender, request=None, attributes={},
+            provider=None, **kwargs):
     p = get_authorization_policy(provider)
     dic = {}
     dic['authz'] = True
-    if p:
-        if not p.attribute_map and not p.ext_function:
-           return dic
-        if not p.ext_function:
-            dic['authz'] = attributesMatch(attributes, p.attribute_map)
-            return dic
-        dic = call_ext_function(p.ext_function, attributes)
-        if not dic or not dic.has_key('authz'):
-            raise Exception('No dictionnary returned \
-            by the authorization callback function')
-        if not p.attribute_map:
-            return dic
-        # if the ext function gives True, we test local rules on attributes
-        if dic['authz']:
-            dic['authz'] = attributesMatch(attributes, p.attribute_map)
-        #else dic will be returned
+    if p and p.attribute_map:
+        dic['authz'] = attributesMatch(attributes, p.attribute_map)
+        if not dic['authz']:
+            dic['message'] = \
+            _('Your access is denied. At least one attribute does not match.')
     return dic
+
+signals.authz_decision.connect(authz_decision_cb,
+    dispatch_uid='authz_decision_on_attributes')

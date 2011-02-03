@@ -57,7 +57,7 @@ class AuthorizationSPPolicyAdmin(admin.ModelAdmin):
                     'name',
                     'enabled',
                     'attribute_map',
-                    'ext_function',
+                    'default_denial_message',
                 )
             }),
     )

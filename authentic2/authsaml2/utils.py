@@ -8,20 +8,22 @@ from models import MyServiceProvider
 from django.utils.translation import ugettext as _
 from django.shortcuts import render_to_response
 from django.contrib.sessions.models import Session
+from django.contrib import messages
 
-__redirection_timeout = 1000
+__redirection_timeout = 1600
 
 __root_refererer_re = re.compile('^(https?://[^/]*/?)')
-def error_page(request, message, back = None, logger = None, display_message = False, timer = False):
+def error_page(request, message=None, back=None, logger=None,
+            default_message=True, timer=False):
     '''View that show a simple error page to the user with a back link.
 
          back - url for the back link, if None, return to root of the referer
                 or the local root.
     '''
     if logger:
-        logger.error('[authsaml2] %s - Return error page' % message)
+        logger.error('[authsaml2] %s - Error page' % message)
     else:
-        logging.error('[authsaml2] %s - Return error page' % message)
+        logging.error('[authsaml2] %s - Error page' % message)
     if back is None:
         referer = request.META.get('HTTP_REFERER')
         if referer:
@@ -35,11 +37,13 @@ def error_page(request, message, back = None, logger = None, display_message = F
     if timer:
         context['redir_timeout'] = __redirection_timeout
         context['next_page'] = back
-    if not display_message:
-        message = _('An error happened. \
-            Report this %s to the administrator.') % \
-                time.strftime("[%Y-%m-%d %a %H:%M:%S]", time.localtime())
-    return render_to_response('error.html', {'msg': message, 'back': back},
+    if default_message:
+        messages.add_message(request, messages.ERROR,
+            _('An error happened. Report this %s to the administrator.') % \
+                time.strftime("[%Y-%m-%d %a %H:%M:%S]", time.localtime()))
+    elif message:
+        messages.add_message(request, messages.ERROR, message)
+    return render_to_response('error_authsaml2.html', {'back': back},
             context_instance=context)
 
 def is_sp_configured():
