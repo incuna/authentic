@@ -10,7 +10,9 @@
    <p>{% trans "You should be automaticaly redirected to the identity provider." %}</p>
    <p>{% trans "If this page is still visible after a few seconds, press the Send button below." %}</p>
    <input type="hidden" name="{{ fieldname }}" value="{{ body }}" />
+   {% if relay_state %}
    {{ relay_state }}
+   {% endif %}
    <div class="buttons-bar">
     <input type="submit" name="sendButton" value="{% trans 'Send' %}" />
    </div>
