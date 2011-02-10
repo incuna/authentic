@@ -42,8 +42,7 @@ Quick Start
 
 Then launch the following commands::
 
-  python manage.py syncdb
-  python manage.py migrate
+  python manage.py syncdb --migrate
   python manage.py runserver
 
 You should see the following output::
