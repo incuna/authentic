@@ -38,9 +38,13 @@ You must install the following packages to use Authentic
 
    From sources:: http://south.aeracode.org/docs/installation.html
 
-You install all the django libraries quickly using pip or easy-install::
+You install all the django libraries quickly using pip::
 
-   pip install django django-registration django-debug-toolbar django-authopenid django-south
+   pip install django django-registration django-debug-toolbar django-authopenid south
+
+or easy_install::
+
+   easy_install django django-registration django-debug-toolbar django-authopenid south
 
 Quick Start
 -----------
