@@ -33,7 +33,7 @@ You must install the following packages to use Authentic
 
    From sources: http://bitbucket.org/benoitc/django-authopenid/downloads
 
- * Django-south (optional)::
+ * Django-south::
 
    From sources:: http://south.aeracode.org/docs/installation.html
 
@@ -43,6 +43,7 @@ Quick Start
 Then launch the following commands::
 
   python manage.py syncdb
+  python manage.py migrate
   python manage.py runserver
 
 You should see the following output::
