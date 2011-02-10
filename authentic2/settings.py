@@ -16,17 +16,16 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-_DATABASE_NAME = os.path.join(_PROJECT_PATH, 'authentic.db')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': _DATABASE_NAME,
+        'NAME': 'authentic.db',
     }
 }
 
 #session cookie parameters
 SESSION_EXPIRE_AT_BROWSER_CLOSE =  True
-SESSION_COOKIE_AGE = 36000
+SESSION_COOKIE_AGE = 36000 # one day of work
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -103,7 +102,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'authentic2.urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(_PROJECT_PATH, 'templates'),
+    # authentic2/templates
+    os.path.join(os.path.dirname(__file__), 'templates'),
 )
 
 INSTALLED_APPS = (

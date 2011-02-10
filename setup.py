@@ -5,6 +5,13 @@
 # It started as a copy of ReviewBoard setup.py file, thanks to them, and for
 import distutils.core
 import authentic2
+import os
+
+def ls_R(directory):
+    '''Recursively list files in @directory'''
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            yield os.path.join(root, file)
 
 # Build the authentic package.
 distutils.core.setup(name="authentic2",
@@ -38,6 +45,7 @@ distutils.core.setup(name="authentic2",
             'authentic2/vendor/totp_js',],
       package_data={ '': ['fixtures/*.json',
           'templates/*.html','templates/*/*.html','js/*.js'] },
+      data_files=[('/share/authentic2/media/', list(ls_R('media')))],
       requires=[
           'django (>=1.2.0)',
           'registration (>=0.7)',
