@@ -5,7 +5,7 @@ import os
 gettext_noop = lambda s: s
 
 DEBUG = True
-USE_DEBUG_TOOLBAR = True
+USE_DEBUG_TOOLBAR = False
 STATIC_SERVE = True
 TEMPLATE_DEBUG = DEBUG
 _PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
@@ -121,13 +121,8 @@ INSTALLED_APPS = (
     'authentic2.auth2_auth',
     'authentic2.auth2_auth.auth2_openid',
     'authentic2.auth2_auth.auth2_oath',
+    'south',
 )
-
-try:
-    import south
-    INSTALLED_APPS += ( 'south', )
-except ImportError:
-    pass
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 

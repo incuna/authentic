@@ -19,15 +19,9 @@ You must install the following packages to use Authentic
    From sources: http://lasso.entrouvert.org/download
    Debian based distribution: apt-get install python-lasso
 
-
  * Django-registration::
 
     From sources: http://bitbucket.org/ubernostrum/django-registration/downloads
-    Debian based distribution: apt-get install python-django-registration
-
- * Django-debug-toolbar (optional)::
-
-    From sources: http://github.com/robhudson/django-debug-toolbar/downloads
     Debian based distribution: apt-get install python-django-registration
 
  * Django-authopenid::
