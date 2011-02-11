@@ -9,6 +9,6 @@ class OpenIDMiddleware(object):
     def process_response(self, request, response):
         response['X-XRDS-Location'] = request.build_absolute_uri(
                 reverse('openid_xrds'))
-        if request.META.get('HTTP_ACCEPT') = 'application/xrds+xml':
+        if request.META.get('HTTP_ACCEPT') == 'application/xrds+xml':
             return views.openid_xrds(request)
         return response
