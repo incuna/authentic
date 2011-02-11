@@ -7,11 +7,14 @@ import distutils.core
 import authentic2
 import os
 
-def ls_R(directory):
+def ls_R(directory, target):
     '''Recursively list files in @directory'''
-    for root, dirs, files in os.walk(directory):
-        for file in files:
-            yield os.path.join(root, file)
+    path = os.path.join(os.path.dirname(__file__), directory)
+    to_remove = os.path.dirname(path)
+    for root, dirs, files in os.walk(path):
+        root = root.replace(to_remove + '/', '')
+        file_list = [ os.path.join(root, file) for file in files]
+        yield (os.path.join(target, root), file_list)
 
 # Build the authentic package.
 distutils.core.setup(name="authentic2",
@@ -23,7 +26,6 @@ distutils.core.setup(name="authentic2",
       author_email="authentic-devel@lists.labs.libre-entreprise.org",
       maintainer="Benjamin Dauvergne",
       maintainer_email="bdauvergne@entrouvert.com",
-      py_modules=['manage'],
       packages=[ 'authentic2',
             'authentic2/admin_log_view',
             'authentic2/auth2_auth',
@@ -42,10 +44,17 @@ distutils.core.setup(name="authentic2",
             'authentic2/sslauth',
             'authentic2/vendor',
             'authentic2/vendor/oath',
-            'authentic2/vendor/totp_js',],
+            'authentic2/vendor/totp_js',
+            'authentic2/sslauth/migrations',
+            'authentic2/saml/migrations',
+            'authentic2/auth2_auth/auth2_oath/migrations',
+            'authentic2/auth2_auth/migrations',
+            'authentic2/authsaml2/migrations',
+            'authentic2/idp/idp_openid/migrations',
+            ],
       package_data={ '': ['fixtures/*.json',
           'templates/*.html','templates/*/*.html','js/*.js'] },
-      data_files=[('/share/authentic2/media/', list(ls_R('media')))],
+      data_files=list(ls_R('media', 'share/authentic2/')),
       requires=[
           'django (>=1.2.0)',
           'registration (>=0.7)',
