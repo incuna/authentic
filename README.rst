@@ -141,3 +141,8 @@ Authentic is copyrighted by Entr'ouvert and is licensed through the GNU General
 Public Licence, version 2 or later. A copy of the whole license text is
 available in the COPYING file.
 
+The OpenID IdP originates in the project django_openid_provider by Roman
+Barczy¿ski, which is under the Apache 2.0 licence. This imply that you must
+distribute authentic2 under the GPL3 licence when distributing this part of the
+project which is the only GPL licence version compatible with the Apache 2.0
+licence.
