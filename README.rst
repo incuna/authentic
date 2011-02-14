@@ -84,7 +84,7 @@ How to authenticate users against an LDAP server with anonymous binding ?
 
 1. Install the django_auth_ldap module for Django::
 
-  pip install django_auth_ldap
+ pip install django_auth_ldap
 
 2. Configure your local_settings.py file for authenticating agains LDAP.
    The next lines must be added::
@@ -107,7 +107,7 @@ How to I authenticate against Authentic2 with a SAMLv2 service provider ?
 
 1. Get the metadata file from the URL::
 
- htpp[s]://idp-hostname/idp/saml2/metadata
+ http[s]://your.domain.com/idp/saml2/metadata
 
 And configure your service provider with it.
 
@@ -118,6 +118,29 @@ And configure your service provider with it.
 There create a new provider using the service provider metadata and enable it
 as a service provider, you can customize some behaviours like the preferred
 assertion consumer or encryption for the NameID or the Assertion element.
+
+How to use Authentic2 as a CAS 1.0 or CAS 2.0 identity provider ?
+-----------------------------------------------------------------
+
+1. Activate CAS IdP support in settings.py::
+
+ IDP_CAS = True
+
+2. Then create the database table to hold CAS service tickets::
+
+ python authentic2/manage.py syncdb --migrate
+
+2. Also configure authentic2 to authenticate against your LDAP directory (see
+   above) if your want your user attributes to be accessible from your service,
+   if it is not necessary you can use the normal relational database storage
+   for you users.
+
+3. Finally configure your service to point to the CAS endpoint at::
+
+ http[s]://your.domain.com/idp/cas/
+
+4. If needed configure your service to resolve authenticated user with your
+   LDAP directory (if user attributes are needed for your service)
 
 How to upgrade to a new version of authentic ?
 ----------------------------------------------

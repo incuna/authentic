@@ -220,6 +220,9 @@ AUTHENTICATION_BACKENDS += (
 AUTH_OPENID = True
 IDP_OPENID = True
 
+# CAS settings
+IDP_CAS = False
+
 import logging
 # Logging settings
 LOG_FILENAME = os.path.join(_PROJECT_PATH, 'log.log')
@@ -243,6 +246,9 @@ if AUTH_OPENID:
 
 if IDP_OPENID:
     INSTALLED_APPS += ('authentic2.idp.idp_openid',)
+
+if IDP_CAS:
+    INSTALLED_APPS += ('authentic2.idp.idp_cas',)
 
 import logging
 from logging.handlers import SysLogHandler
