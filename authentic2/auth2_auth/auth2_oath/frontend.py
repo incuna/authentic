@@ -53,7 +53,7 @@ class OATHOTPFrontend(object):
         else:
             how = 'oath-otp'
         if nonce:
-            models.AuthenticationEvent(who=form.get_user_id(), how=how,
+            models.AuthenticationEvent(who=form.get_user().username, how=how,
                     nonce=nonce).save()
         return HttpResponseRedirect(next)
 

@@ -31,7 +31,7 @@ class LoginPasswordBackend(object):
         else:
             how = 'password'
         if nonce:
-            models.AuthenticationEvent(who=form.get_user_id(), how=how,
+            models.AuthenticationEvent(who=form.get_user().username, how=how,
                     nonce=nonce).save()
         return HttpResponseRedirect(next)
 
@@ -55,7 +55,10 @@ class SSLFrontend(object):
         return django.forms.Form
 
     def post(self, request, form, nonce, next):
-        return HttpResponseRedirect('/sslauth?next=%s' % urllib.quote(next))
+        query = { 'next': next }
+        if nonce:
+            query['nonce'] = nonce
+        return HttpResponseRedirect('/sslauth?%s' % urllib.urlencode(next))
 
     def template(self):
         return 'auth/login_form_ssl.html'
