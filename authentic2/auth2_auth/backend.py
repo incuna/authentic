@@ -55,7 +55,10 @@ class SSLFrontend(object):
         return django.forms.Form
 
     def post(self, request, form, nonce, next):
-        return HttpResponseRedirect('/sslauth?next=%s' % urllib.quote(next))
+        query = { 'next': next }
+        if nonce:
+            query['nonce'] = nonce
+        return HttpResponseRedirect('/sslauth?%s' % urllib.urlencode(next))
 
     def template(self):
         return 'auth/login_form_ssl.html'
