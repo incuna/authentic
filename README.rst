@@ -157,6 +157,24 @@ Then you will need to create new tables if there are.::
 
   python ./manage.py syncdb
 
+Roadmap
+-------
+
+ - All (or nearly) settings will be configurable from the /admin panels
+ - Login page will remember user choices for authentication and authenticate
+   the user passively using hidden iframes
+ - After a logout no passive login will be done
+ - CAS IdP will allow to whitelist service URL and proxy granting ticket URLs,
+   and to refuse request from unkown URLs. It will also allow to use patterns
+   as URLs.
+ - Extended CAS 2.0, with SAML attribute inside the CAS 2.0 validated ticket.
+ - A virtual LDAP directory based on the OpenLDAP socket backend would remove
+   the need for a real LDAP directory to pass user attributes to CAS relying 
+   parties.
+ - WS-Trust token service endpoint
+ - Email forwarder, so that relying parties never get the real user email.
+ - Support slo in the CAS logout endpoint
+
 Copyright
 ---------
 
