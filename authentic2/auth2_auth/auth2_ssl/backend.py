@@ -75,7 +75,7 @@ settings')
     @transaction.commit_on_success
     def create_user(self, ssl_info):
         """
-        This method creates a new django User and ClientCertificate record 
+        This method creates a new django User and ClientCertificate record
         for the passed certificate info. It does not create an issuer record,
         just a subject for the ClientCertificate.
         """
@@ -115,6 +115,40 @@ settings')
 
         return user
 
+    @transaction.commit_on_success
+    def link_user(self, ssl_info, user):
+        """
+        This method creates a new django User and ClientCertificate record
+        for the passed certificate info. It does not create an issuer record,
+        just a subject for the ClientCertificate.
+        """
+        if not user:
+            return none
+
+        # auto creation only created a DN for the subject, not the issuer
+        subject = DistinguishedName()
+        for attr,val in ssl_info.get_subject().iteritems():
+            if not val: val = ''
+            subject.__setattr__(attr.replace('subject_',''), val)
+        subject.save()
+
+        # get username and check if the user exists already
+        if settings_get('SSLAUTH_CREATE_USERNAME_CALLBACK'):
+            build_username = settings_get('SSLAUTH_CREATE_USERNAME_CALLBACK')
+        else:
+            build_username = self.build_username
+
+        # create the certificate record and save
+        cert = ClientCertificate()
+        cert.user = user
+        cert.subject = subject
+        if ssl_info.cert:
+            cert.cert = ssl_info.cert
+        if ssl_info.serial:
+            cert.serial = ssl_info.serial
+        cert.save()
+
+        return user
 
     def build_username(self, ssl_info):
         """

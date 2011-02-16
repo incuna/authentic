@@ -4,6 +4,7 @@ from django.utils.translation import gettext_noop
 from django.http import HttpResponseRedirect
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from authentic2.auth2_auth import NONCE_FIELD_NAME
+from authentic2.auth2_auth.auth2_ssl.login_ssl import *
 import django.forms
 
 class SSLFrontend(object):
@@ -29,3 +30,6 @@ class SSLFrontend(object):
 
     def template(self):
         return 'auth/login_form_ssl.html'
+
+    def profile(self, request, next=''):
+        return profile(request, next)

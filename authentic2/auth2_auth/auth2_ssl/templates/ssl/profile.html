@@ -1,0 +1,22 @@
+{% load i18n %}
+<h4>{% trans "SSL Certificates" %}</h4>
+
+<div>
+
+{% for certificate in certificates %}
+  <p>
+    <form action="sslauth/delete_certificate" method="post">
+      <label for="id_del_cert">{{ certificate }}</strong></label>
+      <input type="hidden" name="cert_name" value="{{ certificate }}" />
+      <input type="submit" class="submit-link" value="{% trans "Delete" %}">
+    </form>
+  </p>
+{% endfor %}
+<p>
+  <form action="sslauth" method="get">
+    <label for="id_del_cert">Add a certificate?</strong></label>
+    <input type="hidden" name="next" value="/profile" />
+    <input type="submit" class="submit-link" value="{% trans "Add" %}">
+  </form>
+</p>
+</div>

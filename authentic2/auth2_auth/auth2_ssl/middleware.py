@@ -22,7 +22,8 @@ class SSLAuthMiddleware(object):
         ssl_info  = SSLInfo(request)
         user = authenticate(ssl_info=ssl_info) or AnonymousUser()
 
-        if not user.is_authenticated() and ssl_info.verify and settings_get('SSLAUTH_CREATE_USER'):
+        if not user.is_authenticated() and ssl_info.verify \
+                and settings_get('SSLAUTH_CREATE_USER'):
             from backends import SSLAuthBackend
             if SSLAuthBackend().create_user(ssl_info):
                 user = authenticate(ssl_info=ssl_info) or AnonymousUser()
