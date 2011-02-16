@@ -45,10 +45,12 @@ class RegistrationForm(forms.Form):
         
         """
         try:
-            user = User.objects.get(username__iexact=self.cleaned_data['username'])
+            user = User.objects. \
+                get(username__iexact=self.cleaned_data['username'])
         except User.DoesNotExist:
             return self.cleaned_data['username']
-        raise forms.ValidationError(_(u'This username is already taken. Please choose another.'))
+        raise forms.ValidationError(_(u'This username is already taken. \
+            Please choose another.'))
 
     def save(self, profile_callback=None):
         """
@@ -68,7 +70,7 @@ class RegistrationForm(forms.Form):
         new_user = User.objects.create_user(
                 username=self.cleaned_data['username'],
                 email=self.cleaned_data['email'])
-        new_user.backend = 'authentic2.sslauth.backends.SSLAuthBackend'
+        new_user.backend = 'authentic2.auth2_auth.auth2_ssl.backend.SSLBackend'
         cert = ClientCertificate()
         cert.user = new_user
         cert.cert = ssl_info.cert

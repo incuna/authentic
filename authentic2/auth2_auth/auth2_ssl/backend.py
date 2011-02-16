@@ -9,14 +9,14 @@ from models import ClientCertificate, DistinguishedName
 class AuthenticationError(Exception):
     pass
 
-class SSLAuthBackend:
+class SSLBackend:
     """
     authenticates a client certificate against the records stored 
     in ClientCertificate model and looks up the corresponding django user
 
     In all methods, the ssl_info parameter is supposed to be an SSLInfo instance
     """
-    
+
     def authenticate(self, ssl_info):
         cert = self.get_certificate(ssl_info)
         if cert is None:
@@ -41,7 +41,7 @@ class SSLAuthBackend:
         returns a ClientCertificate object for the passed
         cert data or None if not found
         """
-        
+
         if settings_get('SSLAUTH_STRICT_MATCH'):
             # compare complete certificate in strict match
             if not ssl_info.cert:
@@ -91,7 +91,7 @@ settings')
             build_username = settings_get('SSLAUTH_CREATE_USERNAME_CALLBACK')
         else:
             build_username = self.build_username
-            
+
         username = build_username(ssl_info)
 
         try:
@@ -102,7 +102,7 @@ settings')
             else:
                 build_user = self.build_user
             user = build_user(username, ssl_info)
-        
+
         # create the certificate record and save
         cert = ClientCertificate()
         cert.user = user
@@ -112,7 +112,7 @@ settings')
         if ssl_info.serial:
             cert.serial = ssl_info.serial
         cert.save()
-            
+
         return user
 
 

@@ -46,9 +46,10 @@ def settings_get(key):
 
 class SSLInfo(object):
     """
-    Encapsulates the SSL environment variables in a read-only object. It attempts to find
-    the ssl vars based on the type of request passed to the constructor. Currently only
-    WSGIRequest and ModPythonRequest are supported.
+    Encapsulates the SSL environment variables in a read-only object. It
+    attempts to find the ssl vars based on the type of request passed to the
+    constructor. Currently only WSGIRequest and ModPythonRequest are
+    supported.
     """
     def __init__(self, request):
         name = request.__class__.__name__
@@ -59,7 +60,8 @@ class SSLInfo(object):
         elif name == 'ModPythonRequest':
             env = request._req.subprocess_env
         else:
-            raise EnvironmentError, 'SSLAuth currently only works with mod_python or wsgi requests'
+            raise EnvironmentError, 'The SSL authentication currently only \
+                works with mod_python or wsgi requests'
         self.read_env(env);
         pass
 

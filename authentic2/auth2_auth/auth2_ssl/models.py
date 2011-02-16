@@ -17,7 +17,9 @@ class DistinguishedName(models.Model):
     uid = models.CharField(max_length=255, blank=True)
     
     def __unicode__(self):
-        vals = [ "%s=%s" % (key, self.__getattribute__(key.lower())) for key in ( 'CN', 'OU', 'O', 'C', 'Email' ) if self.__getattribute__(key.lower()) ]
+        vals = [ "%s=%s" % (key, self.__getattribute__(key.lower())) \
+            for key in ( 'CN', 'OU', 'O', 'C', 'Email' ) \
+            if self.__getattribute__(key.lower()) ]
         return "/".join(vals)
             
     class Admin:
@@ -25,7 +27,9 @@ class DistinguishedName(models.Model):
 
 class ClientCertificate(models.Model):
     serial = models.CharField(max_length=255, blank=True)
-    subject = models.ForeignKey(DistinguishedName, related_name='subject', blank=True, null=True)
-    issuer = models.ForeignKey(DistinguishedName, related_name='issuer', blank=True, null=True)
+    subject = models.ForeignKey(DistinguishedName, related_name='subject',
+        blank=True, null=True)
+    issuer = models.ForeignKey(DistinguishedName, related_name='issuer',
+        blank=True, null=True)
     cert = models.TextField(blank=True)
     user = models.ForeignKey(User)

@@ -22,15 +22,21 @@ def process_request(request,):
     next = request.GET.get(REDIRECT_FIELD_NAME,settings.LOGIN_REDIRECT_URL)
     ssl_info  = SSLInfo(request)
     # Check certificate validity
-    accept_self_signed = getattr(settings, 'SSLAUTH_ACCEPT_SELF_SIGNED', False)
+    accept_self_signed = \
+        getattr(settings, 'SSLAUTH_ACCEPT_SELF_SIGNED', False)
 
     if not ssl_info.cert:
-        logging.error('SSL Client Authentication failed: SSL CGI variable CERT is missing')
-        messages.add_message(request, messages.ERROR, _('SSL Client Authentication failed. No client certificate found.'))
+        logging.error('SSL Client Authentication failed: \
+            SSL CGI variable CERT is missing')
+        messages.add_message(request, messages.ERROR,
+            _('SSL Client Authentication failed. No client certificate found.'))
         return redirect_to_login(next)
     elif not accept_self_signed and not ssl_info.verify:
-        logging.error('SSL Client Authentication failed: SSL CGI variable VERIFY is not SUCCESS')
-        messages.add_message(request, messages.ERROR, _('SSL Client Authentication failed. Your client certificate is not valid.'))
+        logging.error('SSL Client Authentication failed: \
+            SSL CGI variable VERIFY is not SUCCESS')
+        messages.add_message(request, messages.ERROR,
+            _('SSL Client Authentication failed. \
+            Your client certificate is not valid.'))
         return redirect_to_login(next)
 
     # Kill another active session
@@ -51,7 +57,8 @@ def process_request(request,):
     #        return return re.sub('[^a-zA-Z0-9]', '_', ssl_info.serial)
     # TODO: With admin associate a certificate with a user
     # else unusable without SSLAUTH_CREATE_USER
-    # SSLAUTH_STRICT_MATCH to match a user with all the certificate content which matches
+    # SSLAUTH_STRICT_MATCH to match a user with all the certificate content
+    # which matches
     # if SSLAUTH_SUBJECT_MATCH_KEYS
     # else 'subject_email', 'subject_cn', 'subject_o'
     if not user.is_authenticated():
@@ -60,18 +67,23 @@ def process_request(request,):
                 url = '%s?next=%s' % (reverse(views.register), next)
                 return HttpResponseRedirect(url)
             else:
-                from backends import SSLAuthBackend
-                if SSLAuthBackend().create_user(ssl_info):
+                from backend import SSLBackend
+                if SSLBackend().create_user(ssl_info):
                     user = authenticate(ssl_info=ssl_info)
         else:
-            logging.error('SSL Client Authentication failed: User unknown for the current SSL context')
-            messages.add_message(request, messages.ERROR, _('SSL Client Authentication failed. No user matches your certificate.'))
+            logging.error('SSL Client Authentication failed: \
+                User unknown for the current SSL context')
+            messages.add_message(request, messages.ERROR,
+                _('SSL Client Authentication failed. \
+                No user matches your certificate.'))
             return redirect_to_login(next)
 
     # Check if the user is activated
     if not user.is_authenticated() or not user.is_active:
-        logging.error('SSL Client Authentication failed: User %s is inactive' %user.username)
-        messages.add_message(request, messages.ERROR, 'SSL Client Authentication failed. Your user is inactive.')
+        logging.error('SSL Client Authentication failed: \
+            User %s is inactive' %user.username)
+        messages.add_message(request, messages.ERROR,
+            'SSL Client Authentication failed. Your user is inactive.')
         return redirect_to_login(next)
 
     # Log user in
@@ -81,8 +93,10 @@ def process_request(request,):
                 how='ssl', nonce=request.GET.get(NONCE_FIELD_NAME,''))
     except:
         logging.error('SSL Client Authentication failed: login() failed')
-        messages.add_message(request, messages.ERROR, _('SSL Client Authentication failed. Internal server error.'))
+        messages.add_message(request, messages.ERROR,
+            _('SSL Client Authentication failed. Internal server error.'))
         return redirect_to_login(next)
 
-    logging.info('Successful SSL Client Authentication - redirection to %s' % next)
+    logging.info('Successful SSL Client Authentication, \
+        redirection to %s' % next)
     return HttpResponseRedirect(next)

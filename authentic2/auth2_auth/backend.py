@@ -40,25 +40,3 @@ class LoginPasswordBackend(object):
 
     def profile(self, request, next=''):
         return views.login_password_profile(request, next)
-
-class SSLFrontend(object):
-    def enabled(self):
-        return True
-
-    def id(self):
-        return 'ssl'
-
-    def name(self):
-        return gettext_noop('SSL with certificates')
-
-    def form(self):
-        return django.forms.Form
-
-    def post(self, request, form, nonce, next):
-        query = { 'next': next }
-        if nonce:
-            query['nonce'] = nonce
-        return HttpResponseRedirect('/sslauth?%s' % urllib.urlencode(next))
-
-    def template(self):
-        return 'auth/login_form_ssl.html'
