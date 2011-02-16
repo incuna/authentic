@@ -47,7 +47,8 @@ def handle_request(request,):
         logger.error('[auth2_ssl]: SSL Client Authentication failed: \
             SSL CGI variable CERT is missing')
         messages.add_message(request, messages.ERROR,
-            _('SSL Client Authentication failed. No client certificate found.'))
+            _('SSL Client Authentication failed. \
+            No client certificate found.'))
         return redirect_to_login(next)
     elif not accept_self_signed and not ssl_info.verify:
         logger.error('[auth2_ssl]: SSL Client Authentication failed: \
@@ -85,8 +86,8 @@ def handle_request(request,):
     if not user and request.user.is_authenticated():
         from backend import SSLBackend
         if SSLBackend().link_user(ssl_info, request.user):
-            logger.info('[auth2_ssl]: Successful linking of a SSL Certificat to an \
-            account, redirection to %s' % next)
+            logger.info('[auth2_ssl]: Successful linking of the SSL \
+               Certificate to an account, redirection to %s' % next)
         else:
             logger.error('[auth2_ssl]: login() failed')
             messages.add_message(request, messages.ERROR,
@@ -101,7 +102,7 @@ def handle_request(request,):
             auth_models.AuthenticationEvent.objects.create(who=user.username,
                     how='ssl', nonce=request.GET.get(NONCE_FIELD_NAME,''))
         except:
-            logger.error('[auth2_ssl]: SSL Client Authentication failed: login() failed')
+            logger.error('[auth2_ssl]: login() failed')
             messages.add_message(request, messages.ERROR,
                 _('SSL Client Authentication failed. Internal server error.'))
             return redirect_to_login(next)
@@ -118,7 +119,7 @@ def handle_request(request,):
         print >> sys.stderr, 'The certificate currently belongs to %s, \
             but %s is logged with, we change the association!' \
             %(user.username, request.user.username)
-        logger.warning('[auth2_ssl]: The certificate currently belongs to %s, \
+        logger.warning('[auth2_ssl]: The certificate belongs to %s, \
             but %s is logged with, we change the association!' \
             %(user.username, request.user.username))
         from backend import SSLBackend
@@ -140,7 +141,8 @@ def handle_request(request,):
 def post_account_linking(request):
     logger.info('[auth2_ssl] Return after account linking form filled')
     if request.method == "POST":
-        if request.POST.has_key('do_creation') and request.POST['do_creation'] == 'on':
+        if request.POST.has_key('do_creation') \
+                and request.POST['do_creation'] == 'on':
             logger.info('[auth2_ssl]: account creation asked')
             request.session['do_creation'] = 'do_creation'
             if request.session.has_key('next'):
@@ -197,14 +199,14 @@ def profile(request, next='', template_name='ssl/profile.html'):
     try:
         certs = ClientCertificate.objects.filter(user=request.user)
         for c in certs:
-            vals = [ "%s=%s" % (key, c.subject.__getattribute__(key.lower())) \
+            vals = [ "%s=%s" \
+                % (key, c.subject.__getattribute__(key.lower())) \
                 for key in ( 'CN', 'OU', 'O', 'C', 'Email' ) \
                 if c.subject.__getattribute__(key.lower()) ]
             certificates.append("/".join(vals))
     except:
         pass
 
-    key, bookmarklet = '', ''
     return render_to_string(template_name,
             { 'certificates': certificates,
               'next': next,
@@ -231,13 +233,15 @@ def delete_certificate(request, next='/'):
     try:
         certs = ClientCertificate.objects.filter(user=request.user)
         for c in certs:
-            vals = [ "%s=%s" % (key, c.subject.__getattribute__(key.lower())) \
+            vals = [ "%s=%s" \
+                % (key, c.subject.__getattribute__(key.lower())) \
                 for key in ( 'CN', 'OU', 'O', 'C', 'Email' ) \
                 if c.subject.__getattribute__(key.lower()) ]
             s = "/".join(vals)
             logger.debug('[auth2_ssl]: certificate %s found ' %s)
             if request.POST['cert_name'] == s:
-                logger.info('[auth2_ssl]: Deletion of certificate %s found ' %s)
+                logger.info('[auth2_ssl]: Deletion of certificate %s found ' \
+                    %s)
                 messages.add_message(request, messages.INFO,
                 _('Successful certificate deletion.'))
                 c.delete()
@@ -245,7 +249,8 @@ def delete_certificate(request, next='/'):
     except:
         pass
 
-    logger.error('[auth2_ssl]: asked deletion of certificate not found %s ' %request.POST['cert_name'])
+    logger.error('[auth2_ssl]: asked deletion of certificate not found %s ' \
+        %request.POST['cert_name'])
     messages.add_message(request, messages.ERROR,
         _('Certificate deletion failed.'))
     return HttpResponseRedirect(next)

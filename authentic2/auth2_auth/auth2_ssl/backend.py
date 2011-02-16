@@ -14,7 +14,8 @@ class SSLBackend:
     authenticates a client certificate against the records stored 
     in ClientCertificate model and looks up the corresponding django user
 
-    In all methods, the ssl_info parameter is supposed to be an SSLInfo instance
+    In all methods, the ssl_info parameter is supposed to be an SSLInfo
+    instance
     """
 
     def authenticate(self, ssl_info):
@@ -27,7 +28,7 @@ class SSLBackend:
 
     def get_user(self, user_id):
         """
-        simply return the user object. That way, we only need top look-up the 
+        simply return the user object. That way, we only need top look-up the
         certificate once, when loggin in
         """
         try:
@@ -60,7 +61,8 @@ settings')
             query_args = {}
             for key in match_keys:
                 if not ssl_info.get(key):
-                    logging.error('SSLAuth: key %s is missing from ssl_info' % key)
+                    logging.error('SSLAuth: key %s is missing from ssl_info' \
+                        % key)
                     return None
                 query_args[key.replace('_', '__')] = ssl_info.get(key)
 
@@ -153,7 +155,8 @@ settings')
     def build_username(self, ssl_info):
         """
         create a valid django username from the certificate info. this method
-        can be "overwritten" by using the SSLAUTH_CREATE_USERNAME_CALLBACK setting
+        can be "overwritten" by using the SSLAUTH_CREATE_USERNAME_CALLBACK
+        setting
         """
         import re
         return re.sub(r'[^a-zA-Z0-9_-]', '_', ssl_info.subject_email)
@@ -161,9 +164,9 @@ settings')
 
     def build_user(self, username, ssl_info):
         """
-        create a valid (and stored) django user to be associated with the newly 
-        created certificate record. This method can be "overwritten" by using the 
-        SSLAUTH_CREATE_USER_CALLBACK setting.
+        create a valid (and stored) django user to be associated with the
+        newly created certificate record. This method can be "overwritten" by
+        using the SSLAUTH_CREATE_USER_CALLBACK setting.
         """
         name_parts = ssl_info.subject_cn.split()
         user = User()
