@@ -1,7 +1,6 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
-from django.views.generic.simple import direct_to_template
 import authentic2.idp.views
 import settings
 
@@ -32,17 +31,6 @@ urlpatterns = patterns('',
 urlpatterns += patterns('',
     (r'^authsaml2/', include('authentic2.authsaml2.urls')),
 )
-
-if settings.AUTH_SSL:
-    urlpatterns += patterns('',
-        url(r'^sslauth/$',
-            'authentic2.sslauth.login_ssl.process_request',
-            name='user_signin_ssl'),
-        url(r'^sslauth/register/$',
-            'authentic2.sslauth.views.register'),
-        url(r'^error_ssl/$', direct_to_template,
-            {'template': 'error_ssl.html'}, 'error_ssl'),
-    )
 
 if settings.STATIC_SERVE:
     urlpatterns += patterns('',
