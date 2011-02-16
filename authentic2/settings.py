@@ -19,7 +19,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'authentic.db',
+        'NAME': os.path.join(_PROJECT_PATH, 'authentic2/authentic.db') 
     }
 }
 
@@ -117,10 +117,10 @@ INSTALLED_APPS = (
     'authentic2.idp',
     'authentic2.idp.saml',
     'registration',
-    'authentic2.sslauth',
     'authentic2.auth2_auth',
     'authentic2.auth2_auth.auth2_openid',
     'authentic2.auth2_auth.auth2_oath',
+    'authentic2.auth2_auth.auth2_ssl',
     'south',
 )
 
@@ -143,8 +143,9 @@ DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
 AUTH_FRONTENDS = ( 'authentic2.auth2_auth.backend.LoginPasswordBackend',
         'authentic2.auth2_auth.auth2_openid.backend.OpenIDFrontend',
         'authentic2.auth2_auth.auth2_oath.frontend.OATHOTPFrontend',
-        'authentic2.auth2_auth.backend.SSLFrontend',
+        'authentic2.auth2_auth.auth2_ssl.frontend.SSLFrontend',
         'authentic2.authsaml2.frontend.AuthSAML2Frontend')
+
 IDP_SAML2 = True
 IDP_IDFF12 = True
 SAML_SIGNING_KEY = '''-----BEGIN CERTIFICATE-----
@@ -202,7 +203,7 @@ AUTH_SSL = True
 SSLAUTH_CREATE_USER = True
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'authentic2.sslauth.backends.SSLAuthBackend',
+    'authentic2.auth2_auth.auth2_ssl.backend.SSLBackend',
     'authentic2.auth2_auth.auth2_oath.backend.OATHTOTPBackend'
 )
 
