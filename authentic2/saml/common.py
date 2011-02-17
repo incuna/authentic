@@ -271,7 +271,6 @@ def delete_session(request):
         except:
             pass
 
-
 def save_manage(request, manage):
     if not request or not manage:
         raise Exception('Cannot save manage dump')
@@ -366,7 +365,7 @@ def load_provider(request, provider_id, server=None, sp_or_idp='sp'):
     return liberty_provider
 
 # Federation management
-def add_federation(user, login=None, name_id=None):
+def add_federation(user, login=None, name_id=None, provider_id=None):
     if not name_id:
         if not login:
             return None
@@ -384,6 +383,8 @@ def add_federation(user, login=None, name_id=None):
     fed.name_id_qualifier = qualifier
     fed.name_id_sp_name_qualifier = name_id.sPNameQualifier
     fed.name_id_format = name_id.format
+    if provider_id:
+        fed.idp_id = provider_id
     fed.save()
     return fed
 
@@ -398,6 +399,15 @@ def lookup_federation_by_name_identifier(name_id=None, profile=None):
     except:
         return None
 
+def lookup_federation_by_name_id_and_provider_id(name_id, provider_id):
+    '''Try to find a LibertyFederation object for the given NameID and
+       the provider id.'''
+    kwargs = models.nameid2kwargs(name_id)
+    kwargs['idp_id']=provider_id
+    try:
+        return LibertyFederation.objects.get(**kwargs)
+    except:
+        return None
 
 # TODO: Does it happen that a user have multiple federation with a same idp? NO
 def lookup_federation_by_user(user, qualifier):
