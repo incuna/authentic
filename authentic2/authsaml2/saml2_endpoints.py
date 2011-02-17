@@ -631,7 +631,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                 logger.info('[authsaml2] SSO: Add federation')
                 add_federation(request.user, name_id=login.nameIdentifier,
                     provider_id=login.remoteProviderId)
-                return HttpResponseRedirect(url)#####
+                return HttpResponseRedirect(url)
             logger.info('[authsaml2] SSO: Account linking required')
             save_session(request, login)
             logger.debug('[authsaml2] SSO: Register identity dump in session')

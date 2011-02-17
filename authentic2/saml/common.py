@@ -403,7 +403,7 @@ def lookup_federation_by_name_id_and_provider_id(name_id, provider_id):
     '''Try to find a LibertyFederation object for the given NameID and
        the provider id.'''
     kwargs = models.nameid2kwargs(name_id)
-    kwargs['idp_id']=provider_id
+    kwargs['idp_id'] = provider_id
     try:
         return LibertyFederation.objects.get(**kwargs)
     except:
