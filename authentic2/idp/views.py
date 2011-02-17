@@ -26,6 +26,7 @@ from django.views.generic.simple import redirect_to
 import authentic2.saml.common
 import authentic2.authsaml2.utils
 from authentic2.idp import get_backends
+from authentic2.authsaml2.models import SAML2TransientUser
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
 
@@ -47,8 +48,12 @@ def homepage(request):
     import authentic2.saml.common
     import authentic2.authsaml2.utils
     tpl_parameters = {}
+    type(SAML2TransientUser)
+    if not isinstance(request.user, SAML2TransientUser):
+        tpl_parameters['account_management'] = 'account_management'
     tpl_parameters['authorized_services'] = service_list(request)
-    return render_to_response('idp/homepage.html', tpl_parameters, RequestContext(request))
+    return render_to_response('idp/homepage.html',
+       tpl_parameters, RequestContext(request))
 
 def profile(request):
 
