@@ -11,18 +11,19 @@ from django.http import *
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.simple import direct_to_template
 from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.contrib.auth import get_user
 from django.contrib.auth import login as auth_login, authenticate
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext as _
 
 from authentic2.saml.common import *
 from authentic2.saml.models import *
 from authentic2.authsaml2.utils import *
-from authentic2.authsaml2.backends import *
 from authentic2.authsaml2 import signals
 from authentic2.authsaml2.models import *
 
@@ -351,6 +352,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     logger.info('[authsaml2] SSO: Assertion processing begins...')
 
     #TODO: Register assertion and check for replay
+    # Add LibertyAssertion()
     assertion = login.response.assertion[0]
     if not assertion:
         return error_page(request,
@@ -595,36 +597,45 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                 Transient nameID %s treated as persistent' % \
                 login.nameIdentifier.dump())
         user = AuthSAML2PersistentBackend(). \
-            authenticate(name_id=login.nameIdentifier)
+            authenticate(name_id=login.nameIdentifier,
+                provider_id=login.remoteProviderId)
         if not user and \
                 s.handle_persistent == \
                     'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
             # Auto-create an user then do the authentication again
             logger.info('[authsaml2] SSO: Account creation')
             AuthSAML2PersistentBackend(). \
-                create_user(name_id=login.nameIdentifier)
+                create_user(name_id=login.nameIdentifier,
+                    provider_id=provider.entity_id)
             user = AuthSAML2PersistentBackend(). \
-                authenticate(name_id=login.nameIdentifier)
+                authenticate(name_id=login.nameIdentifier,
+                    provider_id=login.remoteProviderId)
         if user:
             auth_login(request, user)
             logger.debug('[authsaml2] SSO: session opened')
             signals.auth_login.send(sender=None,
                 request=request, attributes=attributes)
-            logger.debug('[authsaml2] SSO: signal sent opened')
+            logger.debug('[authsaml2] SSO: \
+                signal sent that the session is opened')
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
             save_session(request, login)
-            save_federation(request, login)
+            #save_federation(request, login)
             maintain_liberty_session_on_service_provider(request, login)
             logger.info('[authsaml2] SSO: \
                 Login processing ended with success - redirect to target')
             return HttpResponseRedirect(url)
         elif s.handle_persistent == \
                 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
+            if request.user.is_authenticated():
+                logger.info('[authsaml2] SSO: Add federation')
+                add_federation(request.user, name_id=login.nameIdentifier,
+                    provider_id=login.remoteProviderId)
+                return HttpResponseRedirect(url)#####
             logger.info('[authsaml2] SSO: Account linking required')
             save_session(request, login)
             logger.debug('[authsaml2] SSO: Register identity dump in session')
-            save_federation_temp(request, login)
+            save_federation_temp(request, login, attributes=attributes)
             maintain_liberty_session_on_service_provider(request, login)
             return render_to_response('auth/saml2/account_linking.html',
                     context_instance=RequestContext(request))
@@ -642,6 +653,8 @@ def sso_after_response(request, login, relay_state = None, provider=None):
  # @request
  #
  # Called after an account linking.
+ # TODO: add checkbox, create new account (settings option, user can choose)
+ # Create pseudonymous or user choose or only account linking
  ###
 @csrf_exempt
 def finish_federation(request):
@@ -675,8 +688,12 @@ def finish_federation(request):
             logger.debug('[authsaml2] SSO: nameID %s' % \
                 login.nameIdentifier.dump())
 
+            provider_id = None
+            if request.session.has_key('remoteProviderId'):
+                provider_id = request.session['remoteProviderId']
             fed = add_federation(form.get_user(),
-                name_id=login.nameIdentifier)
+                name_id=login.nameIdentifier,
+                provider_id=provider_id)
             if not fed:
                 return error_page(request,
                     _('SSO/finish_federation: \
@@ -691,10 +708,13 @@ def finish_federation(request):
                 request.session.delete_test_cookie()
             logger.debug('[authsaml2] SSO: session opened')
 
-            # TODO: handle attributed and send signal
-            #signals.auth_login.send(sender=None,
-            #    request=request, attributes=attributes)
-            #logger.debug('[authsaml2] SSO: signal sent opened')
+            attributes = []
+            if request.session.has_key('attributes'):
+                attributes = request.session['attributes']
+            signals.auth_login.send(sender=None,
+                request=request, attributes=attributes)
+            logger.debug('[authsaml2] SSO: \
+                signal sent that the session is opened')
 
             if s:
                 s.delete()
@@ -703,7 +723,7 @@ def finish_federation(request):
             if login.identity:
                 login.identity.isDirty = True
             save_session(request, login)
-            save_federation(request, login)
+            #save_federation(request, login)
             maintain_liberty_session_on_service_provider(request, login)
             logger.info('[authsaml2] SSO: Login processing ended with success - \
                 redirect to target')
@@ -1411,9 +1431,9 @@ def manage_name_id_return(request, manage, message):
                 lasso.strError(error[0]),
                 logger=logger)
         else:
-            if manage.isIdentityDirty:
+            '''if manage.isIdentityDirty:
                 if manage.identity:
-                    save_federation(request, manage)
+                    save_federation(request, manage)'''
             break
     return HttpResponseRedirect(get_registered_url(request))
 
@@ -1628,81 +1648,63 @@ def setAuthnrequestOptions(provider, login, force_authn, is_passive):
     login.request.consent = p.user_consent
     return True
 
-    '''p = IdPOptionsPolicy.objects.filter(name='All', enabled=True)
-    if p:
-        p = p[0]
-        if p.no_nameid_policy:
-            login.request.nameIDPolicy = None
-        else:
-            login.request.nameIDPolicy.format = \
-                NAME_ID_FORMATS[p.requested_name_id_format]['samlv2']
-            login.request.nameIDPolicy.allowCreate = p.allow_create
-            login.request.nameIDPolicy.spNameQualifier = None
+def view_profile(request, next='', template_name='profile.html'):
+    if request.session.has_key('next'):
+        next = request.session['next']
+    else:
+        next = next
+    if request.user is None \
+        or not request.user.is_authenticated() \
+        or not hasattr(request.user, '_meta'):
+        return HttpResponseRedirect(next)
 
-        if p.enable_binding_for_sso_response:
-            login.request.protocolBinding = p.binding_for_sso_response
+    #Add creation date
+    federations = []
+    try:
+        feds = LibertyFederation.objects.filter(user=request.user)
+        for f in feds:
+            if f.idp_id:
+                p = LibertyProvider.objects.get(entity_id=f.idp_id)
+                federations.append(p.name)
+    except:
+        pass
 
-        if force_authn is None:
-            force_authn = p.binding_for_sso_response
-        login.request.protocolBinding = force_authn
+    from frontend import AuthSAML2Frontend
+    context = { 'submit_name': 'submit-%s' % AuthSAML2Frontend().id(),
+                REDIRECT_FIELD_NAME: '/profile',
+                'form': AuthSAML2Frontend().form()() }
 
-        if is_passive is None:
-            is_passive = p.want_is_passive_authn_request
-        login.request.isPassive = is_passive
+    return render_to_string(template_name,
+            { 'next': next,
+              'federations': federations,
+              'base': '/authsaml2'},
+            RequestContext(request,context))
 
-        login.request.consent = p.user_consent
-        return True
+@login_required
+@csrf_exempt
+def delete_federation(request):
+    if request.POST.has_key('next'):
+        next = request.POST['next']
+    else:
+        next = '/'
+    logger.info('[authsaml2] Ask for federation deletion')
+    if request.method == "POST":
+        if request.POST.has_key('fed'):
+            try:
+                p = LibertyProvider.objects.get(name=request.POST['fed'])
+                f = LibertyFederation.objects. \
+                    get(user=request.user, idp_id=p.entity_id)
+                f.delete()
+                logger.info('[authsaml2]: federation with %s deleted' \
+                    %request.POST['fed'])
+                messages.add_message(request, messages.INFO,
+                _('Successful federation deletion.'))
+                return HttpResponseRedirect(next)
+            except:
+                pass
 
-    if provider.identity_provider.enable_following_policy:
-        if provider.identity_provider.no_nameid_policy:
-            login.request.nameIDPolicy = None
-        else:
-            login.request.nameIDPolicy.format = \
-                NAME_ID_FORMATS[provider.identity_provider. \
-                    requested_name_id_format]['samlv2']
-            login.request.nameIDPolicy.allowCreate = \
-                provider.identity_provider.allow_create
-            login.request.nameIDPolicy.spNameQualifier = None
-
-        if provider.identity_provider.enable_binding_for_sso_response:
-            login.request.protocolBinding = \
-                provider.identity_provider.binding_for_sso_response
-
-        if force_authn is None:
-            force_authn = provider.identity_provider.want_force_authn_request
-        login.request.forceAuthn = force_authn
-
-        if is_passive is None:
-            is_passive = \
-                provider.identity_provider.want_is_passive_authn_request
-        login.request.isPassive = is_passive
-
-        login.request.consent = provider.identity_provider.user_consent
-        return True
-
-    p = IdPOptionsPolicy.objects.filter(name='Default', enabled=True)
-    if p:
-        p = p[0]
-        if p.no_nameid_policy:
-            login.request.nameIDPolicy = None
-        else:
-            login.request.nameIDPolicy.format = \
-                NAME_ID_FORMATS[p.requested_name_id_format]['samlv2']
-            login.request.nameIDPolicy.allowCreate = p.allow_create
-            login.request.nameIDPolicy.spNameQualifier = None
-
-        if p.enable_binding_for_sso_response:
-            login.request.protocolBinding = p.binding_for_sso_response
-
-        if force_authn is None:
-            force_authn = p.want_force_authn_request
-        login.request.forceAuthn = force_authn
-
-        if is_passive is None:
-            is_passive = p.want_is_passive_authn_request
-        login.request.isPassive = is_passive
-
-        login.request.consent = p.user_consent
-        return True
-
-    return False'''
+    logger.error('[authsaml2]: Failed to delete federation'\
+        %request.POST.has_key('fed'))
+    messages.add_message(request, messages.INFO,
+        _('Federation deletion failure.'))
+    return HttpResponseRedirect(next)

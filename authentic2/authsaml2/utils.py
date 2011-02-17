@@ -83,9 +83,12 @@ def check_response_id(request, login):
     return False
 
 # Used for account linking
-def save_federation_temp(request, login):
+def save_federation_temp(request, login, attributes=None):
     if login and login.identity:
         request.session['identity_dump'] = login.identity.dump()
+    request.session['remoteProviderId'] = login.remoteProviderId
+    if attributes:
+        request.session['attributes'] = attributes
 
 def load_federation_temp(request, login):
     if request.session.has_key('identity_dump'):

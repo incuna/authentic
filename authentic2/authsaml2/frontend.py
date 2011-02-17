@@ -7,6 +7,8 @@ from django.utils.translation import gettext_noop
 from django.http import HttpResponseRedirect
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
+from saml2_endpoints import view_profile
+
 class AuthSAML2Form(forms.Form):
     def __init__(self, *args, **kwargs):
         idp_list = kwargs.pop('idp_list')
@@ -39,10 +41,13 @@ class AuthSAML2Frontend(object):
                 (urllib.quote(provider_id),
                 REDIRECT_FIELD_NAME,
                 urllib.quote(next)))
-    
+
     def get_context(self):
         '''Specific context variable used by the specific template'''
         return { 'idp_providers': self.idp_list }
 
     def template(self):
         return 'auth/saml2/login_form.html'
+
+    def profile(self, request, next=''):
+        return view_profile(request, next)

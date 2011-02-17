@@ -25,4 +25,6 @@ urlpatterns = patterns('',
     (r'^manageNameIdSOAP$', manageNameIdSOAP),
     # Receive request from Redirect IdP initiated
     (r'^manageNameId$', manageNameId),
+    # Receive request from Redirect IdP initiated
+    (r'^delete_federation$', delete_federation),
 )

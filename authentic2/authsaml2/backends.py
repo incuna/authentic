@@ -6,19 +6,19 @@ from django.contrib.auth.models import User, UserManager
 from django.conf import settings
 import lasso
 
-from authentic2.saml.common import lookup_federation_by_name_identifier, \
-    add_federation
+from authentic2.saml.common import *
 from models import SAML2TransientUser
 
 class AuthenticationError(Exception):
     pass
 
 class AuthSAML2PersistentBackend:
-    def authenticate(self, name_id=None):
+    def authenticate(self, name_id=None, provider_id=None):
         '''Authenticate persistent NameID'''
-        if not name_id:# or not name_id.nameQualifier:
+        if not name_id or not provider_id:# or not name_id.nameQualifier:
             return None
-        fed = lookup_federation_by_name_identifier(name_id=name_id)
+        #fed = lookup_federation_by_name_identifier(name_id=name_id)
+        fed = lookup_federation_by_name_id_and_provider_id(name_id, provider_id)
         if fed is None:
             return None
         fed.user.backend = \
@@ -32,7 +32,7 @@ class AuthSAML2PersistentBackend:
             return None
 
     @transaction.commit_on_success
-    def create_user(self, username=None, name_id=None):
+    def create_user(self, username=None, name_id=None, provider_id=None):
         '''Create a new user mapping to the given NameID'''
         if not name_id or \
                  name_id.format != \
@@ -48,7 +48,7 @@ class AuthSAML2PersistentBackend:
         user.password=UserManager().make_random_password()
         user.is_active = True
         user.save()
-        add_federation(user, name_id=name_id)
+        add_federation(user, name_id=name_id, provider_id=provider_id)
         return user
 
 class AuthSAML2TransientBackend:
