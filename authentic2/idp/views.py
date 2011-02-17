@@ -51,7 +51,20 @@ def homepage(request):
     return render_to_response('idp/homepage.html', tpl_parameters, RequestContext(request))
 
 def profile(request):
+
     frontends = get_backends('AUTH_FRONTENDS')
+
+    if request.method == "POST":
+        for frontend in frontends:
+            if not frontend.enabled():
+                continue
+            if 'submit-%s' % frontend.id() in request.POST:
+                form = frontend.form()(data=request.POST)
+                if form.is_valid():
+                    if request.session.test_cookie_worked():
+                        request.session.delete_test_cookie()
+                    return frontend.post(request, form, None, '/profile')
+
     blocks = [ frontend.profile(request, next='/profile') for frontend in frontends \
             if hasattr(frontend, 'profile') ]
     return render_to_response('idp/account_management.html', { 'frontends_block': blocks },
