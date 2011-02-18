@@ -531,6 +531,8 @@ def set_session_dump_from_liberty_sessions(profile, lib_sessions):
 @csrf_exempt
 def slo_soap(request):
     """Endpoint for receiveing saml2:AuthnRequest by SOAP"""
+    import sys
+    print >> sys.stderr, "IDP: slo soap recu"
     message = get_soap_message(request)
     logout, response = process_logout_request(request, message, 'SOAP')
     if response:
@@ -699,7 +701,7 @@ def idp_slo(request, provider_id):
     else:
         logging.info('SAMLv2 idp_slo by redirect')
         save_key_values(logout.request.id, logout.dump(), provider_id, next)
-        return HttpRedirect(logout.msgUrl)
+        return HttpResponseRedirect(logout.msgUrl)
 
 def process_logout_response(request, logout, soap_response, next):
     try:
