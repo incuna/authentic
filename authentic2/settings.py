@@ -209,6 +209,7 @@ AUTHENTICATION_BACKENDS = (
 
 # IDP
 IDP_BACKENDS = [ 'authentic2.idp.saml.backend.SamlBackend',
+        'authentic2.authsaml2.backends.AuthSAML2Backend',
         'authentic2.idp.AdminBackend' ]
 
 #AuthSAML2 Configuration

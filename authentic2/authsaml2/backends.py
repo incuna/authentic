@@ -4,6 +4,9 @@ import random
 from django.db import transaction
 from django.contrib.auth.models import User, UserManager
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
+
 import lasso
 
 from authentic2.saml.common import *
@@ -11,6 +14,33 @@ from models import SAML2TransientUser
 
 class AuthenticationError(Exception):
     pass
+
+class AuthSAML2Backend:
+    def logout_list(self, request):
+        pid = None
+        q = LibertySessionDump. \
+            objects.filter(django_session_key = request.session.session_key)
+        if q:
+            try:
+                pid = lasso.Session().newFromDump(q[0].session_dump). \
+                    get_assertions().keys()[0]
+                provider_ids = set([pid])
+            except:
+                pass
+        result = []
+        name = pid
+        try:
+            name = models.LibertyProvider.objects.get(entity_id=pid).name
+        except models.LibertyProvider.DoesNotExist:
+            pass
+        import saml2_endpoints
+        code = '<div>'
+        code += _('Sending logout to %(pid)s....') % { 'pid': pid }
+        code += '<iframe src="%s" marginwidth="0" marginheight="0" \
+scrolling="no" style="border: none" width="16" height="16"></iframe></div>' % \
+                reverse(saml2_endpoints.sp_slo, args=[pid])
+        result.append(code)
+        return result
 
 class AuthSAML2PersistentBackend:
     def authenticate(self, name_id=None, provider_id=None):

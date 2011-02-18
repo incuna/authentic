@@ -752,147 +752,232 @@ def finish_federation(request):
  For global, break local session only when
  there is only idp logged remaining'''
 
+
+###
+ # sp_slo
+ # @request
+ # @provider_id
+ #
+ # slo request send from another application
+ # Does not deal with the local session.
+ ###
+def ko_icon(request):
+    return HttpResponseRedirect('%s/images/ko.png' % settings.MEDIA_URL)
+
+def ok_icon(request):
+    return HttpResponseRedirect('%s/images/ok.png' % settings.MEDIA_URL)
+
+def sp_slo(request, provider_id):
+    all = request.REQUEST.get('all')
+    next = request.REQUEST.get('next')
+    if not provider_id:
+        return HttpResponseRedirect(next) or ko_icon(request)
+    server = create_server(request)
+    logout = lasso.Logout(server)
+    logging.info('[authsaml2] SLO: sp_slo for %s' % provider_id)
+    load_session(request, logout)
+    if not load_provider(request, provider_id, server=server, sp_or_idp='idp'):
+        logging.error('[authsaml2] SLO:  sp_slo failed to load provider')
+        return HttpResponseRedirect(next) or ko_icon(request)
+    policy = None
+    try:
+        provider = LibertyProvider.objects.get(entity_id=provider_id)
+        policy = get_idp_options_policy(provider)
+    except:
+        pass
+    if policy and policy.enable_http_method_for_slo_request \
+            and policy.http_method_for_slo_request:
+        if policy.http_method_for_slo_request == lasso.HTTP_METHOD_SOAP:
+            logging.info('[authsaml2] SLO: sp_slo by SOAP')
+            try:
+               logout.initRequest(None, lasso.HTTP_METHOD_SOAP)
+            except:
+                logging.exception('[authsaml2] SLO: sp_slo init error')
+                return HttpResponseRedirect(next) or ko_icon(request)
+            try:
+                logout.buildRequestMsg()
+            except:
+                logging.exception('[authsaml2] SLO: sp_slo build error')
+                return HttpResponseRedirect(next) or ko_icon(request)
+            try:
+                soap_response = send_soap_request(request, logout)
+            except:
+                logging.exception('[authsaml2] SLO: sp_slo SOAP failure')
+                return HttpResponseRedirect(next) or ko_icon(request)
+            return process_logout_response(request, logout, soap_response, next)
+        else:
+            try:
+               logout.initRequest(None, lasso.HTTP_METHOD_REDIRECT)
+            except:
+                logging.exception('[authsaml2] SLO: sp_slo init error')
+                return HttpResponseRedirect(next) or ko_icon(request)
+            try:
+                logout.buildRequestMsg()
+            except:
+                logging.exception('[authsaml2] SLO: sp_slo build error')
+                return HttpResponseRedirect(next) or ko_icon(request)
+            logging.info('[authsaml2] SLO: sp_slo by redirect')
+            save_key_values(logout.request.id, logout.dump(), provider_id, next)
+            return HttpResponseRedirect(logout.msgUrl)
+    try:
+        logout.initRequest(provider_id)
+    except lasso.ProfileMissingAssertionError:
+        logging.error('[authsaml2] SLO: sp_slo failed because no sessions exists for %r' % provider_id)
+        return HttpResponseRedirect(next) or ko_icon(request)
+    logout.msgRelayState = logout.request.id
+    try:
+        logout.buildRequestMsg()
+    except:
+        logging.exception('[authsaml2] SLO: sp_slo misc error')
+        return HttpResponseRedirect(next) or ko_icon(request)
+    if logout.msgBody: # SOAP case
+        logging.info('[authsaml2] SLO: sp_slo by SOAP')
+        try:
+            soap_response = send_soap_request(request, logout)
+        except:
+            logging.exception('[authsaml2] SLO: sp_slo SOAP failure')
+            return HttpResponseRedirect(next) or ko_icon(request)
+        return process_logout_response(request, logout, soap_response, next)
+    else:
+        logging.info('[authsaml2] SLO: sp_slo by redirect')
+        save_key_values(logout.request.id, logout.dump(), provider_id, next)
+        return HttpResponseRedirect(logout.msgUrl)
+
+def process_logout_response(request, logout, soap_response, next):
+    try:
+        logout.processRequestMsg(soap_response)
+    except:
+        logging.exception('[authsaml2] SLO: sp_slo error')
+        return redirect_next(request, next) or ko_icon(request)
+    else:
+        delete_session(request)
+        return redirect_next(request, next) or ok_icon(request)
+
 ###
  # logout
  # @request
- # @method
- # @entity_id
  #
  # Single Logout Request from UI
  ###
 def logout(request):
     if not is_sp_configured():
         return error_page(request,
-            _('SLO/SP UI: Service provider not configured'),
+            _('[authsaml2] SLO by logout: Service provider not configured'),
             logger=logger)
-
     if request.user.is_anonymous():
         return error_page(request,
-            _('SLO/SP UI: Unable to logout a not logged user!'),
+            _('[authsaml2] SLO by logout: not a logged in user'),
             logger=logger)
-
     server = build_service_provider(request)
     if not server:
         return error_page(request,
-            _('SLO/SP UI: Service provider not configured'),
+            _('[authsaml2] SLO by logout: Service provider not configured'),
             logger=logger)
-
     logout = lasso.Logout(server)
     if not logout:
         return error_page(request,
-            _('SLO/SP UI: Unable to create Login object'),
+            _('[authsaml2] SLO by logout: Unable to create Login object'),
             logger=logger)
-
     load_session(request, logout)
-
     # Lookup for the Identity provider from session
     q = LibertySessionDump. \
         objects.filter(django_session_key = request.session.session_key)
     if not q:
         return error_page(request,
-            _('SLO/SP UI: No session for global logout.'), logger=logger)
+            _('[authsaml2] SLO by logout: No session for global logout.'),
+            logger=logger)
     try:
         pid = lasso.Session().newFromDump(q[0].session_dump). \
             get_assertions().keys()[0]
         p = LibertyProvider.objects.get(entity_id=pid)
     except:
-        return error_page(request, _('SLO/SP UI: Session malformed.'),
+        return error_page(request,
+            _('[authsaml2] SLO by logout: Session malformed.'),
             logger=logger)
 
-    load_provider(request, pid, server=server, sp_or_idp='idp')
+    if not load_provider(request, pid, server=server, sp_or_idp='idp'):
+        return error_page(request,
+            _('[authsaml2] SLO by logout: Error loading provider.'),
+            logger=logger)
 
-    # TODO: The user asks a logout, we should
-    # perform before knowing if the IdP can handle
-    # Except if we want to manage mutliple logout with multiple IdP
-
-    # TODO: Deal with identity provider configuration in policies
-
-    # If not defined in the metadata,
-    # put ANY to let lasso do its job from metadata
-    if not p.identity_provider.enable_http_method_for_slo_request:
-        try:
-            logout.initRequest(None, lasso.HTTP_METHOD_ANY)
-        except lasso.Error, error:
-            localLogout(request, error)
-        if not logout.msgBody:
+    try:
+        provider = LibertyProvider.objects.get(entity_id=pid)
+        policy = get_idp_options_policy(provider)
+    except:
+        pass
+    if policy and policy.enable_http_method_for_slo_request \
+            and policy.http_method_for_slo_request:
+        if policy.http_method_for_slo_request == lasso.HTTP_METHOD_SOAP:
+            try:
+               logout.initRequest(None, lasso.HTTP_METHOD_SOAP)
+            except lasso.Error, error:
+                return localLogout(request, error)
             try:
                 logout.buildRequestMsg()
             except lasso.Error, error:
                 return localLogout(request, error)
-
-            # TODO: Client cert
+        # TODO: Client cert
             client_cert = None
+            soap_answer = None
             try:
                 soap_answer = soap_call(logout.msgUrl,
                     logout.msgBody, client_cert = client_cert)
-            except SOAPException:
+            except SOAPException, error:
                 return localLogout(request, error)
-
+            if not soap_answer:
+                remove_liberty_session_sp(request)
+                signals.auth_logout.send(sender=None, user=request.user)
+                auth_logout(request)
+                return error_page(request,
+                    _('[authsaml2] SLO by logout: SOAP error - \
+                    Only local logout performed.'),
+                    logger=logger)
             return slo_return(request, logout, soap_answer)
-
         else:
+            try:
+                logout.initRequest(None, lasso.HTTP_METHOD_REDIRECT)
+            except lasso.Error, error:
+                return localLogout(request, error)
             session_index = get_session_index(request)
             if session_index:
                 logout.request.sessionIndex = session_index
-
             try:
                 logout.buildRequestMsg()
             except lasso.Error, error:
                 return localLogout(request, error)
-
             return HttpResponseRedirect(logout.msgUrl)
 
-    # Else, taken from config
-    if p.identity_provider.http_method_for_slo_request == \
-            lasso.HTTP_METHOD_REDIRECT:
-        try:
-            logout.initRequest(None, lasso.HTTP_METHOD_REDIRECT)
-        except lasso.Error, error:
-            return localLogout(request, error)
-
-        session_index = get_session_index(request)
-        if session_index:
-            logout.request.sessionIndex = session_index
-
+    # If not defined in the metadata,
+    # put ANY to let lasso do its job from metadata
+    try:
+       logout.initRequest(pid)
+    except lasso.Error, error:
+       localLogout(request, error)
+    if not logout.msgBody:
         try:
             logout.buildRequestMsg()
         except lasso.Error, error:
             return localLogout(request, error)
-
-        return HttpResponseRedirect(logout.msgUrl)
-
-    if p.identity_provider.http_method_for_slo_request == \
-            lasso.HTTP_METHOD_SOAP:
-        try:
-           logout.initRequest(None, lasso.HTTP_METHOD_SOAP)
-        except lasso.Error, error:
-            return localLogout(request, error)
-
-        try:
-            logout.buildRequestMsg()
-        except lasso.Error, error:
-            return localLogout(request, error)
-
         # TODO: Client cert
         client_cert = None
-        soap_answer = None
         try:
             soap_answer = soap_call(logout.msgUrl,
                 logout.msgBody, client_cert = client_cert)
-        except SOAPException, error:
+        except SOAPException:
             return localLogout(request, error)
-
-        if not soap_answer:
-            remove_liberty_session_sp(request)
-            signals.auth_logout.send(sender=None, user=request.user)
-            auth_logout(request)
-            return error_page(request,
-                _('SLO/SP UI: SOAP error -  Only local logout performed.'),
-                logger=logger)
-
         return slo_return(request, logout, soap_answer)
+    else:
+        session_index = get_session_index(request)
+        if session_index:
+            logout.request.sessionIndex = session_index
+        try:
+            logout.buildRequestMsg()
+        except lasso.Error, error:
+            return localLogout(request, error)
+        return HttpResponseRedirect(logout.msgUrl)
 
-    return error_page(request, _('SLO/SP UI: Unknown HTTP method.'),
+    return error_page(request,
+            _('[authsaml2] SLO by logout:  Unknown HTTP method.'),
             logger=logger)
 
 def localLogout(request, error):
@@ -901,11 +986,11 @@ def localLogout(request, error):
     auth_logout(request)
     if error.url:
         return error_page(request,
-            _('SLO/SP UI: SOAP error \
+            _('[authsaml2] SLO by logout:  SOAP error \
             with %s -  Only local logout performed.') %error.url,
             logger=logger)
     return error_page(request,
-        _('SLO/SP UI: %s -  Only local \
+        _('[authsaml2] SLO by logout:  %s -  Only local \
         logout performed.') %lasso.strError(error[0]),
         logger=logger)
 

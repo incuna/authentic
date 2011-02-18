@@ -9,6 +9,8 @@ urlpatterns = patterns('',
     (r'^finish_federation$', finish_federation),
     (r'^singleSignOnArtifact$', singleSignOnArtifact),
     (r'^singleSignOnPost$', singleSignOnPost),
+    # Receive request from functions
+    (r'^sp_slo/(.*)$', sp_slo),
     # Receive request from user interface
     (r'^logout$', logout),
     # Receive response from Redirect SP initiated
