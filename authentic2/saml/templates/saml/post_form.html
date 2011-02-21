@@ -5,6 +5,7 @@
 {% block bodyargs %}onload="document.forms[0].submit()"{% endblock %}
 
 {% block content %}
+<div class="post-redirect">
 <h2>{{ title }}</h2>
 <form action="{{url}}" method="post">
    <p>{% trans "You should be automaticaly redirected to the identity provider." %}</p>
@@ -17,4 +18,5 @@
     <input type="submit" name="sendButton" value="{% trans 'Send' %}" />
    </div>
   </form>
+</div>
 {% endblock %}
