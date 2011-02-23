@@ -776,15 +776,11 @@ def sp_slo(request, provider_id):
     logout = lasso.Logout(server)
     logging.info('[authsaml2] SLO: sp_slo for %s' % provider_id)
     load_session(request, logout)
-    if not load_provider(request, provider_id, server=server, sp_or_idp='idp'):
+    provider = load_provider(request, provider_id, server=server, sp_or_idp='idp')
+    if not provider:
         logging.error('[authsaml2] SLO:  sp_slo failed to load provider')
         return HttpResponseRedirect(next) or ko_icon(request)
-    policy = None
-    try:
-        provider = LibertyProvider.objects.get(entity_id=provider_id)
-        policy = get_idp_options_policy(provider)
-    except:
-        pass
+    policy =  get_idp_options_policy(provider)
     if policy and policy.enable_http_method_for_slo_request \
             and policy.http_method_for_slo_request:
         if policy.http_method_for_slo_request == lasso.HTTP_METHOD_SOAP:
@@ -895,16 +891,13 @@ def logout(request):
             _('[authsaml2] SLO by logout: Session malformed.'),
             logger=logger)
 
-    if not load_provider(request, pid, server=server, sp_or_idp='idp'):
+    provider = load_provider(request, pid, server=server, sp_or_idp='idp')
+    if not provider:
         return error_page(request,
             _('[authsaml2] SLO by logout: Error loading provider.'),
             logger=logger)
 
-    try:
-        provider = LibertyProvider.objects.get(entity_id=pid)
-        policy = get_idp_options_policy(provider)
-    except:
-        pass
+    policy = get_idp_options_policy(provider)
     if policy and policy.enable_http_method_for_slo_request \
             and policy.http_method_for_slo_request:
         if policy.http_method_for_slo_request == lasso.HTTP_METHOD_SOAP:
