@@ -22,6 +22,7 @@ import authentic2.saml.saml2utils as saml2utils
 from authentic2.auth2_auth.models import AuthenticationEvent
 from common import redirect_to_login, kill_django_sessions
 from authentic2.auth2_auth import NONCE_FIELD_NAME
+from interaction import *
 
 '''SAMLv2 IdP implementation
 
@@ -149,6 +150,9 @@ def sso(request):
     """Endpoint for receiving saml2:AuthnRequests by POST, Redirect or SOAP.
        For SOAP a session must be established previously through the login page. No authentication through the SOAP request is supported.
     """
+    consent_answer = None
+    if request.method == "GET":
+        consent_answer = request.GET.get('consent_answer', '')
     message = get_saml2_request_message(request)
     server = create_server(request)
     login = lasso.Login(server)
@@ -194,6 +198,12 @@ def sso(request):
         return return_login_error(request, login,
                 AUTHENTIC_STATUS_CODE_MISSING_DESTINATION)
     # Check NameIDPolicy or force the NameIDPolicy
+    if consent_answer == 'refused':
+        set_saml2_response_responder_status_code(login.response,
+                lasso.SAML2_STATUS_CODE_INVALID_NAME_ID_POLICY)
+        return finish_sso(request, login)
+    if consent_answer == 'accepted':
+        consent_obtained = True
     name_id_policy = login.request.nameIdPolicy
     if name_id_policy.format and \
             name_id_policy.format != \
@@ -223,22 +233,33 @@ def need_login(request, login, consent_obtained, save, nid_format):
             other_keys={NONCE_FIELD_NAME: nonce})
 
 def need_consent(request, login, consent_obtained, save, nid_format):
+    '''If the user is already logged in the form post to sso else
+       post to continue'''
     nonce = login.request.id
     save_key_values(nonce, login.dump(), consent_obtained, save, nid_format)
-    return HttpResponseRedirect('%s?%s=%s&next=%s' % (reverse(consent), NONCE_FIELD_NAME,
-        nonce, urllib.quote(request.get_full_path())) )
+    return HttpResponseRedirect('%s?%s=%s&next=%s&provider_id=%s' % (reverse(consent), NONCE_FIELD_NAME,
+        nonce, urllib.quote(request.get_full_path()), urllib.quote(login.request.issuer.content)) )
 
 def continue_sso(request):
+    consent_answer = None
+    if request.method == "GET":
+        consent_answer = request.GET.get('consent_answer', '')
     nonce = request.REQUEST.get(NONCE_FIELD_NAME, '')
     login_dump, consent_obtained, save, nid_format = \
             get_and_delete_key_values(nonce)
     server = create_server(request)
     login = lasso.Login.newFromDump(server, login_dump)
     if not load_provider(request, login.remoteProviderId, server=login.server):
-        return HttpResponseBadRequest('Unknown provider')
+        return error_page(request, _('Unknown provider'))
     if not login:
         logging.debug('SAMLv2: continue sso nonce %r not found' % nonce)
         return HttpResponseBadRequest()
+    if consent_answer == 'refused':
+        set_saml2_response_responder_status_code(login.response,
+                lasso.SAML2_STATUS_CODE_INVALID_NAME_ID_POLICY)
+        return finish_sso(request, login)
+    if consent_answer == 'accepted':
+        consent_obtained = True
     return sso_after_process_request(request, login,
             consent_obtained = consent_obtained, nid_format = nid_format)
 
@@ -258,7 +279,16 @@ def sso_after_process_request(request, login,
 
     if not passive and (user.is_anonymous() or (force_authn and not did_auth)):
         return need_login(request, login, consent_obtained, save, nid_format)
+
     # TODO: implement consent
+    # 1- Check if it is necessary to ask the user consent
+    # 2- If yes, check if a positive answer has already been given
+    # 3- If no, we ask for the user consent
+    # 4- If the answer is yes, continue
+    # 5- Else return error to the service provider
+    #if not consent_obtained:
+    #    return need_consent(request, login, consent_obtained, save, nid_format)
+
     try:
         load_federation(request, login, user)
         load_session(request, login)
@@ -808,6 +838,7 @@ urlpatterns = patterns('',
     (r'^metadata$', metadata),
     (r'^sso$', sso),
     (r'^continue$', continue_sso),
+    (r'^consent$', consent),
     (r'^slo$', slo),
     (r'^slo/soap$', slo_soap),
     (r'^idp_slo/(.*)$', idp_slo),
