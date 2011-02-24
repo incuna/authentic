@@ -12,7 +12,7 @@
    <p>{% trans "If this page is still visible after a few seconds, press the Send button below." %}</p>
    <input type="hidden" name="{{ fieldname }}" value="{{ body }}" />
    {% if relay_state %}
-   {{ relay_state }}
+   <input type="hidden" name="RelayState" value="{{ relay_state }}"/>
    {% endif %}
    <div class="buttons-bar">
     <input type="submit" name="sendButton" value="{% trans 'Send' %}" />
