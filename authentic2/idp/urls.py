@@ -3,7 +3,7 @@ from django.views.generic.simple import direct_to_template
 import saml.saml2_endpoints
 import saml.idff12_endpoints
 from django.conf import settings
-from saml.interaction import consent
+from interactions import consent_federation, consent_attributes
 
 urlpatterns = patterns('',)
 
@@ -21,4 +21,5 @@ if settings.IDP_CAS:
             ('^cas/', include(Authentic2CasProvider().url)))
 
 urlpatterns += patterns('',
-        (r'^consent', consent),)
+        (r'^consent_federation', consent_federation),
+        (r'^consent_attributes', consent_attributes),)

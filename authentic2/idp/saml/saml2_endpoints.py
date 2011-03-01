@@ -12,7 +12,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import BACKEND_SESSION_KEY
-
+from django.contrib.contenttypes.models import ContentType
 
 import authentic2.idp as idp
 import authentic2.idp.views as idp_views
@@ -22,9 +22,10 @@ import authentic2.saml.saml2utils as saml2utils
 from authentic2.auth2_auth.models import AuthenticationEvent
 from common import redirect_to_login, kill_django_sessions
 from authentic2.auth2_auth import NONCE_FIELD_NAME
-from interaction import *
+from authentic2.idp.interactions import consent_federation, consent_attributes
 
 from authentic2.idp import signals as idp_signals
+from authentic2.idp.models import *
 
 '''SAMLv2 IdP implementation
 
@@ -282,12 +283,16 @@ def need_login(request, login, consent_obtained, save, nid_format):
     return redirect_to_login(reverse(continue_sso)+'?%s=%s' % (NONCE_FIELD_NAME, nonce),
             other_keys={NONCE_FIELD_NAME: nonce})
 
-def need_consent(request, login, consent_obtained, save, nid_format):
-    '''If the user is already logged in the form post to sso else
-       post to continue'''
+def need_consent_for_federation(request, login, consent_obtained, save, nid_format):
     nonce = login.request.id
     save_key_values(nonce, login.dump(), consent_obtained, save, nid_format)
-    return HttpResponseRedirect('%s?%s=%s&next=%s&provider_id=%s' % (reverse(consent), NONCE_FIELD_NAME,
+    return HttpResponseRedirect('%s?%s=%s&next=%s&provider_id=%s' % (reverse(consent_federation), NONCE_FIELD_NAME,
+        nonce, urllib.quote(request.get_full_path()), urllib.quote(login.request.issuer.content)) )
+
+def need_consent_for_attributes(request, login, consent_obtained, save, nid_format):
+    nonce = login.request.id
+    save_key_values(nonce, login.dump(), consent_obtained, save, nid_format)
+    return HttpResponseRedirect('%s?%s=%s&next=%s&provider_id=%s' % (reverse(consent_attributes), NONCE_FIELD_NAME,
         nonce, urllib.quote(request.get_full_path()), urllib.quote(login.request.issuer.content)) )
 
 def continue_sso(request):
@@ -313,6 +318,14 @@ def continue_sso(request):
         return finish_sso(request, login)
     if consent_answer == 'accepted':
         consent_obtained = True
+        if not request.user.is_anonymous():
+            try:
+                provider = LibertyProvider.objects.get(entity_id=login.remoteProviderId)
+            except:
+                logging.info('SAMLv2 sso: Unknown provider %s' %login.remoteProviderId)
+                set_saml2_response_responder_status_code(login.response,
+                    lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
+                return finish_sso(request, login, user = user, save = save)
     return sso_after_process_request(request, login,
             consent_obtained = consent_obtained, nid_format = nid_format)
 
@@ -330,14 +343,16 @@ def sso_after_process_request(request, login,
     force_authn = login.request.forceAuthn
     passive = login.request.isPassive
 
-    #XXX: If the sp ask for persistent, refuse login creting a transient
-    #XXX: if not passive and (not user.is_authenticated() or (force_authn and not did_auth)):
+    # TODO: If the sp ask for persistent, refuse login creting a transient
+
+    # XXX: if not passive and (not user.is_authenticated() or (force_authn and not did_auth)):
     if not passive and (user.is_anonymous() or (force_authn and not did_auth)):
         return need_login(request, login, consent_obtained, save, nid_format)
 
     # Transient user
     # If the SP asks for persistent, reject
     transient = False
+    #if ContentType.objects.get_for_model(request.user) == 'SAML2TransientUser':
     if str(request.user.__class__).find('SAML2TransientUser') > -1:
         transient = True
     if transient and login.request.nameIdPolicy.format == lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
@@ -390,53 +405,69 @@ def sso_after_process_request(request, login,
             for key in dic['attributes'].keys():
                 attributes[key] = dic['attributes'][key]
 
-    # TODO: implement consent
-    # 1- Check if it is necessary to ask the user consent, if attributes, yes
-    # 2- If yes, check if a positive answer has already been given for federation
-    # Done! 3- If no or attributes, we ask for the user consent
-    # Done! 4- If the answer is yes, continue
-    # 5- Else return error to the service provider
+    '''User consent management
+       1- Check if it is required from the sp request, done in sso()
+       2- Yes, check if a positive answer has already been given i.e. there is an existing federation
+       3- No, Send signal to grab instructions to bypass consent
+       4- No, ask for the user consent
+       5- Yes, continue, No, return error to the service provider
+    '''
+    # TODO: manage the consentment on attributes
+    # Use another model and another page
 
-    # Signal to grab user consent
-    avoid_consent = idp_signals.avoid_consent.send(sender=None,
-         request=request, user=request.user, audience=login.remoteProviderId)
-
-    for c in avoid_consent:
-        logging.debug('SAMLv2 sso: avoid_consent connected to function %s' % \
-            c[0].__name__)
-        if c[1] and c[1].has_key('avoid_consent') and c[1]['avoid_consent']:
-            logging.debug('SAMLv2 sso: avoid_consent')
+    if not consent_obtained and not transient:
+        # If transient user, do not need consent for federation
+        # Else, if there is a federation, the consent was already given
+        try:
+            LibertyFederation.objects.get(user=request.user, sp_id=login.remoteProviderId)
+            logging.info('SAMLv2 sso: consent already given (existing federation) for %s' %login.remoteProviderId)
             consent_obtained = True
+        except:
+            logging.info('SAMLv2 sso: consent not already given (no existing federation) for %s' %login.remoteProviderId)
 
-    # If transient user, do not need consent for federation
-    # For any user, ask for consent if attributes
-    if not consent_obtained and (not user.is_anonymous() or attributes):
+    # Signal to bypass user consent
+    if not consent_obtained and not transient:
+        avoid_consent = idp_signals.avoid_consent.send(sender=None,
+             request=request, user=request.user, audience=login.remoteProviderId)
+
+        for c in avoid_consent:
+            logging.debug('SAMLv2 sso: avoid_consent connected to function %s' % \
+                c[0].__name__)
+            if c[1] and c[1].has_key('avoid_consent') and c[1]['avoid_consent']:
+                logging.debug('SAMLv2 sso: avoid_consent')
+                consent_obtained = True
+
+    if not consent_obtained and not transient:
+        return need_consent_for_federation(request, login, consent_obtained, save, nid_format)
+
+    # XXX: Here treat with consent on attributes
+    consent_attributes = True
+    if not consent_attributes:
         request.session['attributes_to_send'] = attributes
-        return need_consent(request, login, consent_obtained, save, nid_format)
+        return need_consent_for_attributes(request, login, consent_obtained, save, nid_format)
 
-    do_success_reply = False
     try:
-        load_federation(request, login, user)
+        if not transient:
+            load_federation(request, login, user)
         load_session(request, login)
         login.validateRequestMsg(not user.is_anonymous(), consent_obtained)
-        do_success_reply = True
     except lasso.LoginRequestDeniedError:
         logging.info('SAMLv2 sso: access denied due to LoginRequestDeniedError')
         set_saml2_response_responder_status_code(login.response,
-                lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
+            lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
+        return finish_sso(request, login, user = user, save = save)
     except lasso.LoginFederationNotFoundError:
         logging.info('SAMLv2 sso: access denied due to LoginFederationNotFoundError')
         set_saml2_response_responder_status_code(login.response,
                 lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
+        return finish_sso(request, login, user = user, save = save)
     except:
         logging.info('SAMLv2 sso: access denied due to unknown error')
         set_saml2_response_responder_status_code(login.response,
                 lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
+        return finish_sso(request, login, user = user, save = save)
 
-    # 5. Lookup the federations
-    if do_success_reply:
-        # 3. Build and assertion, fill attributes
-        build_assertion(request, login, nid_format = nid_format, attributes=attributes)
+    build_assertion(request, login, nid_format = nid_format, attributes=attributes)
     return finish_sso(request, login, user = user, save = save)
 
 def return_login_error(request, login, error):
@@ -971,7 +1002,6 @@ urlpatterns = patterns('',
     (r'^metadata$', metadata),
     (r'^sso$', sso),
     (r'^continue$', continue_sso),
-    (r'^consent$', consent),
     (r'^slo$', slo),
     (r'^slo/soap$', slo_soap),
     (r'^idp_slo/(.*)$', idp_slo),
