@@ -16,6 +16,16 @@
 {% endif %}
 {{ provider_id2 }}
 </p>
+<p>
+{% if attributes %}
+{% trans "Do you accept to send these attributes?" %}
+<ul>
+{% for attribute in attributes %}
+<li>{{ attribute }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+</p>
 <form method="post" action="">
 <input type="hidden" name="next" value="{{ next }}" />
 <input type="hidden" name="nonce" value="{{ nonce }}" />
