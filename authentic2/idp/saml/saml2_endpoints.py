@@ -24,6 +24,8 @@ from common import redirect_to_login, kill_django_sessions
 from authentic2.auth2_auth import NONCE_FIELD_NAME
 from interaction import *
 
+from authentic2.idp import signals as idp_signals
+
 '''SAMLv2 IdP implementation
 
    It contains endpoints to receive:
@@ -89,7 +91,48 @@ def fill_assertion(request, saml_request, assertion, provider_id, nid_format):
         # before
         assert False
 
-def build_assertion(request, login, nid_format = 'transient'):
+def saml2_add_attribute_values(assertion, attributes):
+    if attributes:
+        if not assertion.attributeStatement:
+            assertion.attributeStatement = [ lasso.Saml2AttributeStatement() ]
+        attribute_statement = assertion.attributeStatement[0]
+        for key in attributes.keys():
+            attribute = lasso.Saml2Attribute()
+            # Only name/values or name/format/values
+            name = None
+            values = None
+            if type(key) is tuple and len(key) == 2:
+                name, format = key
+                attribute.nameFormat = format
+                values = attributes[(name, format)]
+            elif type(key) is tuple:
+                return
+            else:
+                name = key
+                attribute.nameFormat = lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC
+                values = attributes[key]
+            attribute.name = name
+            attribute_statement.attribute = list(attribute_statement.attribute) + [ attribute ]
+            attribute_value_list = list(attribute.attributeValue)
+            for value in values:
+                if value is True:
+                    value = 'true'
+                elif value is False:
+                    value = 'false'
+                else:
+                    value = str(value)
+                if type(value) is unicode:
+                    value = value.encode('utf-8')
+                #else:
+                #    value = sitecharset2utf8(value)
+                text_node = lasso.MiscTextNode.newWithString(value)
+                text_node.textChild = True
+                attribute_value = lasso.Saml2AttributeValue()
+                attribute_value.any = [ text_node ]
+                attribute_value_list.append(attribute_value)
+            attribute.attributeValue = attribute_value_list
+
+def build_assertion(request, login, nid_format = 'transient', attributes=None):
     '''After a successfully validated authentication request, build an
        authentication assertion'''
     now = datetime.datetime.utcnow()
@@ -109,6 +152,11 @@ def build_assertion(request, login, nid_format = 'transient'):
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD
         elif backend == 'authentic2.sslauth.backends.SSLAuthBackend':
             authn_context = lasso.SAML2_AUTHN_CONTEXT_X509
+        # XXX: grab context from the assertion received
+        elif backend == 'authentic2.authsaml2.backends.AuthSAML2PersistentBackend':
+            authn_context = lasso.SAML2_AUTHN_CONTEXT_UNSPECIFIED
+        elif backend == 'authentic2.authsaml2.backends.AuthSAML2TransientBackend':
+            authn_context = lasso.SAML2_AUTHN_CONTEXT_UNSPECIFIED
         else:
             raise Exception('unknown backend: ' + backend)
     else:
@@ -143,6 +191,8 @@ def build_assertion(request, login, nid_format = 'transient'):
             federation.save()
     else:
         federation = None
+    if attributes:
+        saml2_add_attribute_values(login.assertion, attributes)
     register_new_saml2_session(request, login, federation=federation)
 
 @csrf_exempt
@@ -216,11 +266,11 @@ def sso(request):
            default_nid_format != nid_format:
             set_saml2_response_responder_status_code(login.response,
                 lasso.SAML2_STATUS_CODE_INVALID_NAME_ID_POLICY)
+            logging.debug('SAMLv2 sso: NameID format required is not accepted')
             return finish_sso(request, login)
     else:
         nid_format = provider_loaded.service_provider.default_name_id_format
         name_id_policy.format = nidformat_to_saml2_urn(nid_format)
-
     return sso_after_process_request(request, login,
         consent_obtained = consent_obtained, nid_format = nid_format)
 
@@ -248,7 +298,10 @@ def continue_sso(request):
     login_dump, consent_obtained, save, nid_format = \
             get_and_delete_key_values(nonce)
     server = create_server(request)
+    # XXX: The following function does not work!
     login = lasso.Login.newFromDump(server, login_dump)
+    if not login:
+        return error_page(request, _('Error loading login'))
     if not load_provider(request, login.remoteProviderId, server=login.server):
         return error_page(request, _('Unknown provider'))
     if not login:
@@ -256,7 +309,7 @@ def continue_sso(request):
         return HttpResponseBadRequest()
     if consent_answer == 'refused':
         set_saml2_response_responder_status_code(login.response,
-                lasso.SAML2_STATUS_CODE_INVALID_NAME_ID_POLICY)
+                lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
         return finish_sso(request, login)
     if consent_answer == 'accepted':
         consent_obtained = True
@@ -277,33 +330,113 @@ def sso_after_process_request(request, login,
     force_authn = login.request.forceAuthn
     passive = login.request.isPassive
 
+    #XXX: If the sp ask for persistent, refuse login creting a transient
+    #XXX: if not passive and (not user.is_authenticated() or (force_authn and not did_auth)):
     if not passive and (user.is_anonymous() or (force_authn and not did_auth)):
         return need_login(request, login, consent_obtained, save, nid_format)
 
-    # TODO: implement consent
-    # 1- Check if it is necessary to ask the user consent
-    # 2- If yes, check if a positive answer has already been given
-    # 3- If no, we ask for the user consent
-    # 4- If the answer is yes, continue
-    # 5- Else return error to the service provider
-    #if not consent_obtained:
-    #    return need_consent(request, login, consent_obtained, save, nid_format)
+    # Transient user
+    # If the SP asks for persistent, reject
+    transient = False
+    if str(request.user.__class__).find('SAML2TransientUser') > -1:
+        transient = True
+    if transient and login.request.nameIdPolicy.format == lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
+        logging.info('SAMLv2 sso: access denied, the user is transient and the sp ask for persistent')
+        set_saml2_response_responder_status_code(login.response,
+                lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
+        return finish_sso(request, login)
+    # If the sp does not allow create, reject
+    if transient and login.request.nameIdPolicy.allowCreate == 'false':
+        logging.info('SAMLv2 sso: access denied, we created a transient user and allow creation is not authorized by the SP')
+        set_saml2_response_responder_status_code(login.response,
+                lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
+        return finish_sso(request, login)
 
+    decisions = idp_signals.authorize_service.send(sender=None,
+         request=request, user=request.user, audience=login.remoteProviderId)
+
+    # You don't dream. By default, access granted.
+    # We catch denied decisions i.e. dic['authz'] = False
+    access_granted = True
+    for decision in decisions:
+        logging.debug('SAMLv2 sso: authorize_service connected to function %s' % \
+            decision[0].__name__)
+        dic = decision[1]
+        if dic and dic.has_key('authz'):
+            logging.debug('SAMLv2 sso: decision is %s' %dic['authz'])
+            if dic.has_key('message'):
+                logging.debug('SAMLv2 sso: with message %s' %dic['message'])
+            if not dic['authz']:
+                access_granted = False
+        else:
+            logging.debug('SAMLv2 sso: the function connected did not return a decision')
+
+    if not access_granted:
+        logging.info('SAMLv2 sso: access denied')
+        set_saml2_response_responder_status_code(login.response,
+                lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
+        return finish_sso(request, login)
+
+    attributes_provided = idp_signals.add_attributes_to_response.send(sender=None,
+         request=request, user=request.user, audience=login.remoteProviderId)
+
+    attributes = {}
+    for attrs in attributes_provided:
+        logging.debug('SAMLv2 sso: add_attributes_to_response connected to function %s' % \
+            attrs[0].__name__)
+        if attrs[1] and attrs[1].has_key('attributes'):
+            dic = attrs[1]
+            logging.debug('SAMLv2 sso: attributes provided are %s' %str(dic['attributes']))
+            for key in dic['attributes'].keys():
+                attributes[key] = dic['attributes'][key]
+
+    # TODO: implement consent
+    # 1- Check if it is necessary to ask the user consent, if attributes, yes
+    # 2- If yes, check if a positive answer has already been given for federation
+    # Done! 3- If no or attributes, we ask for the user consent
+    # Done! 4- If the answer is yes, continue
+    # 5- Else return error to the service provider
+
+    # Signal to grab user consent
+    avoid_consent = idp_signals.avoid_consent.send(sender=None,
+         request=request, user=request.user, audience=login.remoteProviderId)
+
+    for c in avoid_consent:
+        logging.debug('SAMLv2 sso: avoid_consent connected to function %s' % \
+            c[0].__name__)
+        if c[1] and c[1].has_key('avoid_consent') and c[1]['avoid_consent']:
+            logging.debug('SAMLv2 sso: avoid_consent')
+            consent_obtained = True
+
+    # If transient user, do not need consent for federation
+    # For any user, ask for consent if attributes
+    if not consent_obtained and (not user.is_anonymous() or attributes):
+        request.session['attributes_to_send'] = attributes
+        return need_consent(request, login, consent_obtained, save, nid_format)
+
+    do_success_reply = False
     try:
         load_federation(request, login, user)
         load_session(request, login)
         login.validateRequestMsg(not user.is_anonymous(), consent_obtained)
+        do_success_reply = True
     except lasso.LoginRequestDeniedError:
-        do_federation = False
+        logging.info('SAMLv2 sso: access denied due to LoginRequestDeniedError')
+        set_saml2_response_responder_status_code(login.response,
+                lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
+    except lasso.LoginFederationNotFoundError:
+        logging.info('SAMLv2 sso: access denied due to LoginFederationNotFoundError')
+        set_saml2_response_responder_status_code(login.response,
+                lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
     except:
-        logging.exception('SAMLv2 sso error')
-        do_federation = False
-    else:
-        do_federation = True
+        logging.info('SAMLv2 sso: access denied due to unknown error')
+        set_saml2_response_responder_status_code(login.response,
+                lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
+
     # 5. Lookup the federations
-    if do_federation:
+    if do_success_reply:
         # 3. Build and assertion, fill attributes
-        build_assertion(request, login, nid_format = nid_format)
+        build_assertion(request, login, nid_format = nid_format, attributes=attributes)
     return finish_sso(request, login, user = user, save = save)
 
 def return_login_error(request, login, error):
