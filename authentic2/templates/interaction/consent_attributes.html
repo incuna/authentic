@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %} {% trans "Consent page for attribute propagation" %} {% endblock %}
+
+{% block content %}
+
+
+{% load i18n %}
+<div id="consent">
+<p>
+{% if attributes %}
+{% if provider_id %}
+{% trans "Do you accept to send these attributes to " %} <strong>{{ provider_id }}</strong> ?
+{% else %}
+{% trans "Do you accept to send these attributes?" %}
+{% endif %}
+<ul>
+{% for attribute in attributes %}
+<li>{{ attribute }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+</p>
+<form method="post" action="">
+<input type="hidden" name="next" value="{{ next }}" />
+<input type="hidden" name="nonce" value="{{ nonce }}" />
+<input type="submit" name="accept" value="{% trans 'Accept' %}"/>
+<input type="submit" name="refuse" value="{% trans 'Refuse' %}"/>
+</form>
+</div>
+
+{% endblock %}

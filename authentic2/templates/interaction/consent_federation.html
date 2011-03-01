@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %} {% trans "Consent page for federation" %} {% endblock %}
+
+{% block content %}
+
+
+{% load i18n %}
+<div id="consent">
+<p>
+{% if provider_id %}
+{% trans "Do you accept to federate your account with " %} <strong>{{ provider_id }}</strong> ?
+{% else %}
+{% trans "Do you accept to federate your account ?" %}
+{% endif %}
+{{ provider_id2 }}
+</p>
+<form method="post" action="">
+<input type="hidden" name="next" value="{{ next }}" />
+<input type="hidden" name="nonce" value="{{ nonce }}" />
+<input type="submit" name="accept" value="{% trans 'Accept' %}"/>
+<input type="submit" name="refuse" value="{% trans 'Refuse' %}"/>
+</form>
+</div>
+
+{% endblock %}
