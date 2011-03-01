@@ -510,6 +510,9 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     attributes['__issuer'] = login.assertion.issuer.content
     attributes['__nameid'] = login.assertion.subject.nameID.content
 
+    # Register attributes in session for other applications
+    request.session['attributes'] = attributes
+
     #logger.debug('[authsaml2] SSO: \
     #    attributes in assertion %s' % str(attributes))
 
@@ -545,6 +548,8 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             logger=logger, default_message=False, timer=True)
 
     '''Access granted, now we deal with session management'''
+
+    #XXX: Allow external login of user
 
     user = request.user
 
