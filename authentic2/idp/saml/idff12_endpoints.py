@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 
 from authentic2.saml.models import *
 from authentic2.saml.common import *
-from interaction import consent
+from authentic2.idp.interactions import consent_federation
 
 def fill_assertion(request, saml_request, assertion, provider_id):
     '''Stuff an assertion with information extracted from the user record
@@ -142,7 +142,7 @@ def sso_after_process_request(request, login,
             # i.e. redirect to /idp/consent?id=requestId
             # then check that Consent(id=requestId) exists in the database
             else:
-                return HttpResponseRedirect('consent?id=%s&next=%s' %
+                return HttpResponseRedirect('consent_federation?id=%s&next=%s' %
                         ( login.request.requestId,
                             urllib.quote(request.get_full_path())) )
     # 4. Validate the request, passing authentication and consent status
