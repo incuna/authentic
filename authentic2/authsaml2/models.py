@@ -38,6 +38,12 @@ class MyServiceProvider(models.Model):
     def __unicode__(self):
         return "Service provider core configuration"
 
+class FakePk:
+    name = '_pk'
+
+class FakeMeta:
+    pk = FakePk()
+
 class SAML2TransientUser(object):
     '''Class compatible with django.contrib.auth.models.User
        which represent an user authenticated using a Transient
@@ -48,6 +54,8 @@ class SAML2TransientUser(object):
     is_superuser = False
     _groups = EmptyManager()
     _user_permissions = EmptyManager()
+    _pk = -1
+    _meta = FakeMeta()
 
     def __init__(self, id):
         self.id = id
@@ -109,6 +117,7 @@ class SAML2TransientUser(object):
         return []
 
     def is_anonymous(self):
+        #XXX: Should return True
         return False
 
     def is_authenticated(self):
