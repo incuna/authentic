@@ -1,9 +1,11 @@
 from django.conf.urls.defaults import *
+from django.core.urlresolvers import reverse
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
+import profiles.views
+
 import authentic2.idp.views
 import settings
-
 from forms import AuthenticRegistrationForm
 
 admin.autodiscover()
@@ -26,7 +28,12 @@ urlpatterns = patterns('',
     (r'^logout$', 'authentic2.idp.views.logout'),
     (r'^$', login_required(authentic2.idp.views.homepage), {}, 'index'),
     (r'^profile$', login_required(authentic2.idp.views.profile), {}, 'account_management'),
-    (r'^profiles/', include('profiles.urls')),
+    url(r'^edit_profile$', login_required(profiles.views.edit_profile),
+        kwargs={'success_url': '/profile' },
+        name='profiles_edit_profile'),
+    url(r'^create_profile$', login_required(profiles.views.create_profile),
+        kwargs={'success_url': '/profile' },
+        name='profiles_create_profile'),
 )
 
 urlpatterns += patterns('',
