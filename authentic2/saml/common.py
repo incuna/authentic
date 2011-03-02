@@ -35,6 +35,8 @@ AUTHENTIC_STATUS_CODE_MISSING_DESTINATION = AUTHENTIC_STATUS_CODE_NS + \
 AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR = AUTHENTIC_STATUS_CODE_NS + \
     "InternalServerError"
 
+logger = logging.getLogger('authentic2.saml')
+
 def get_soap_message(request, on_error_raise = True):
     '''Verify that POST content looks like a SOAP message and returns it'''
     if request.method != 'POST' or \
@@ -217,12 +219,15 @@ def load_federation(request, login, user = None):
     '''Load an identity dump from the database'''
     if not user:
         user = request.user
+    logger.debug('load_federation: user is %s' %user.username)
     try:
         q = LibertyIdentityDump.objects.get(user = user)
+        logger.debug('load_federation: identity dump found %s' %q.identity_dump.encode('utf8'))
     except ObjectDoesNotExist:
         pass
     else:
         login.setIdentityFromDump(q.identity_dump.encode('utf8'))
+        logger.debug('load_federation: set identity from dump done %s' %login.identity.dump())
 
 def load_session(request, login, session_key = None):
     '''Load a session dump from the database'''
@@ -230,7 +235,9 @@ def load_session(request, login, session_key = None):
         session_key = request.session.session_key
     try:
         q = LibertySessionDump.objects.get(django_session_key = session_key)
+        logger.debug('load_session: session dump found %s' %q.session_dump.encode('utf8'))
         login.setSessionFromDump(q.session_dump.encode('utf8'))
+        logger.debug('load_session: set session from dump done %s' %login.session.dump())
     except ObjectDoesNotExist:
         pass
 
