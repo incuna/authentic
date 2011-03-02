@@ -20,7 +20,12 @@
   <h2>{% trans "Services" %}</h2>
   <ul>
   {% for service in authorized_services %}
-    <li><a href="{{ service.0 }}">{{ service.1 }}</a></li>
+    <li>
+    <form action="{{ service.0 }}" method="post">
+      <input type="hidden" name="provider_id" value="{{ service.2 }}" />
+      <input type="submit" class="submit-link" value="{{ service.1 }}">
+    </form>
+    </li>
   {% endfor %}
   </ul>
   </div>

@@ -27,6 +27,8 @@ from authentic2.idp.interactions import consent_federation, consent_attributes
 from authentic2.idp import signals as idp_signals
 from authentic2.idp.models import *
 
+from authentic2.authsaml2.models import *
+
 '''SAMLv2 IdP implementation
 
    It contains endpoints to receive:
@@ -164,6 +166,7 @@ def build_assertion(request, login, nid_format = 'transient', attributes=None):
        authentication assertion'''
     now = datetime.datetime.utcnow()
     logger.info("build_assertion: building assertion at %s" %str(now))
+    logger.debug('build_assertion: named Id format is %s' %nid_format)
     # 1 minute ago
     notBefore = now-datetime.timedelta(0,__delta)
     # 1 minute in the future
@@ -403,6 +406,8 @@ def sso_after_process_request(request, login,
     force_authn = login.request.forceAuthn
     passive = login.request.isPassive
 
+    logger.debug('sso_after_process_request: named Id format is %s' %nid_format)
+
     # TODO: If the sp ask for persistent, refuse login creting a transient
 
     # XXX: if not passive and (not user.is_authenticated() or (force_authn and not did_auth)):
@@ -516,6 +521,7 @@ def sso_after_process_request(request, login,
         request.session['attributes_to_send'] = attributes
         return need_consent_for_attributes(request, login, consent_obtained, save, nid_format)
 
+    logger.debug('sso_after_process_request: login dump before processing %s' %login.dump())
     try:
         if not transient:
             logger.debug('sso_after_process_request: load identity dump')
@@ -523,7 +529,7 @@ def sso_after_process_request(request, login,
         load_session(request, login)
         logger.debug('sso_after_process_request: load session')
         login.validateRequestMsg(not user.is_anonymous(), consent_obtained)
-        logger.debug('sso_after_process_request: validateRequestMsg')
+        logger.debug('sso_after_process_request: validateRequestMsg %s' %login.dump())
     except lasso.LoginRequestDeniedError:
         logger.error('sso_after_process_request: access denied due to LoginRequestDeniedError')
         set_saml2_response_responder_status_code(login.response,
@@ -642,10 +648,14 @@ def check_delegated_authentication_permission(request):
 def idp_sso(request, provider_id, user_id = None, nid_format = None):
     '''Initiate an SSO toward provider_id without a prior AuthnRequest
     '''
+    if request.method == 'GET':
+        logger.info('idp_sso: to initiate a sso we need a post form')
+        return error_page(request, _('Error trying to initiate a single sign on'), logger=logger)
+    provider_id = request.POST.get('provider_id')
     if not provider_id:
         logger.info('idp_sso: to initiate a sso we need a provider_id')
         return error_page(request, _('A provider identifier was not provided'), logger=logger)
-    logger.info('idp_sso: sso with %(provider_id)s' % { 'provider_id': provider_id })
+    logger.info('idp_sso: sso initiated with %(provider_id)s' % { 'provider_id': provider_id })
     if user_id:
         logger.info('idp_sso: sso as %s' % user_id)
     server = create_server(request)
@@ -680,6 +690,7 @@ def idp_sso(request, provider_id, user_id = None, nid_format = None):
         logger.error('idp_sso: unsupported protocol binding %r' % binding)
         return error_page(request, _('Server error'), logger=logger)
     # Control nid format policy
+    # XXX: if a federation exist, we should use transient
     if nid_format:
         logger.debug('idp_sso: nameId format is %r' %nid_format)
         if not nid_format in service_provider.accepted_name_id_format:
@@ -688,6 +699,8 @@ def idp_sso(request, provider_id, user_id = None, nid_format = None):
     if not nid_format:
         nid_format = service_provider.default_name_id_format
         logger.debug('idp_sso: nameId format is %r' %nid_format)
+    login.request.nameIdPolicy.format = nidformat_to_saml2_urn(nid_format)
+
     login.processAuthnRequestMsg(None)
 
     return sso_after_process_request(request, login,
