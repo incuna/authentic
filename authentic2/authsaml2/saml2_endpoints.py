@@ -345,7 +345,6 @@ def singleSignOnPost(request):
  # @relay_state
  #
  # Post-authnrequest processing
- # TODO: Proxying
  ###
 def sso_after_response(request, login, relay_state = None, provider=None):
 
@@ -575,11 +574,16 @@ def sso_after_response(request, login, relay_state = None, provider=None):
 
     '''Access granted, now we deal with session management'''
 
+
+    url = get_registered_url(request)
+    if not request.session.has_key('saml_request_id'):
+        #IdP initiated
+        url = '/'
+
     #XXX: Allow external login of user
 
     user = request.user
 
-    url = get_registered_url(request)
     policy = get_idp_options_policy(provider)
     if login.nameIdentifier.format == \
         lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT \
