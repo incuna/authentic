@@ -8,6 +8,20 @@
 
 {% block content %}
 <h2>{% trans "Account Management" %}</h2>
+<h3>{% trans "Profile" %}</h3>
+<div id="profile">
+{% if profile %}
+<dl>
+{% for key, value in profile %}
+<dt>{{ key|capfirst }}</dt>
+<dd>{{ value }}</dd>
+{% endfor %}
+</dl>
+<p> <a href="{% url profiles_edit_profile %}">{% trans "Edit profile" %}</a></p>
+{% else %}
+<p> <a href="{% url profiles_create_profile %}">{% trans "Create profile" %}</a></p>
+{% endif %}
+</div>
 <h3>{% trans "Credentials" %}</h3>
   {% for html_block in frontends_block %}
     {{ html_block|safe }}

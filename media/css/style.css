@@ -292,6 +292,6 @@ h4 {
 	padding-left: 0.5em;
 }
 
-h4 + div {
+h4 + div, div#profile {
 	padding-left: 1em;
 }
