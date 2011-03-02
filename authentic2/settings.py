@@ -134,6 +134,8 @@ EMAIL_HOST = 'localhost'
 DEFAULT_FROM_EMAIL = 'webmaster@entrouvert.com'
 LOGIN_REDIRECT_URL = '/'
 AUTHENTIC2_USER_IFRAME = False
+# Default profile class
+AUTH_PROFILE_MODULE = 'idp.UserProfile'
 
 INTERNAL_IPS = ('127.0.0.1',)
 DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
