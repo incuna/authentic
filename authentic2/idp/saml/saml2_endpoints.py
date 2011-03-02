@@ -709,7 +709,8 @@ def idp_sso(request, provider_id, user_id = None, nid_format = None):
 def finish_slo(request):
     id = request.REQUEST.get('id')
     if not id:
-        return HttpResponseBadRequest('finish_slo needs an id argument')
+        logger.error('finish_slo: missing id argument')
+        return HttpResponseBadRequest('finish_slo: missing id argument')
     logout_dump, session_key = get_and_delete_key_values(id)
     server = create_server(request)
     logout = lasso.Logout.newFromDump(server, logout_dump)
@@ -722,7 +723,7 @@ def finish_slo(request):
     try:
         logout.buildResponseMsg()
     except:
-        logger.exception('SAMLv2 slo failure to build reponse msg')
+        logger.exception('finish_slo: failure to build reponse msg')
         raise NotImplementedError()
     return return_saml2_response(request, logout)
 
@@ -732,6 +733,7 @@ def return_logout_error(logout, error):
     # Hack because response is not initialized before
     # buildResponseMsg
     logout.buildResponseMsg()
+    logger.debug('return_logout_error: send an error message %s' %error)
     return return_saml2_response(request, logout)
 
 def process_logout_request(request, message, binding):
@@ -740,57 +742,64 @@ def process_logout_request(request, message, binding):
     logout = lasso.Logout(server)
     if not message:
         return logout, HttpResponseBadRequest('No message was present')
-    logger.debug('SAMLv2 slo with binding %s message %s' % (binding, message))
+    logger.debug('process_logout_request: slo with binding %s message %s' % (binding, message))
     try:
         try:
             logout.processRequestMsg(message)
         except (lasso.ServerProviderNotFoundError, lasso.ProfileUnknownProviderError), e:
+            logger.debug('process_logout_request: loading provider %s' %logout.remoteProviderId)
             p = load_provider(request, logout.remoteProviderId,
                     server=logout.server)
             if not p:
-                logger.error('SAMLv2 slo unknown provider %s' % logout.remoteProviderId)
+                logger.error('process_logout_request: slo unknown provider %s' %logout.remoteProviderId)
                 return logout, return_logout_error(logout,
                         AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER)
             logout.processRequestMsg(message)
     except lasso.DsError, e:
-        logger.error('SAMLv2 slo signature error on request %s' % message)
+        logger.error('process_logout_request: slo signature error on request %s' % message)
         return logout, return_logout_error(logout,
                 lasso.LIB_STATUS_CODE_INVALID_SIGNATURE)
     except Exception, e:
-        logger.error('SAMLv2 slo unknown error when processing a request %s' % message)
+        logger.error('process_logout_request: slo unknown error when processing a request %s' % message)
         return logout, HttpResponseBadRequest('Invalid logout request')
     if binding != 'SOAP' and not check_destination(request, logout.request):
-        logger.error('SAMLv2 slo wrong or absent destination')
+        logger.error('process_logout_request: slo wrong or absent destination')
         return logout, return_logout_error(AUTHENTIC_STATUS_CODE_MISSING_DESTINATION)
     return logout, None
 
 def log_logout_request(logout):
     name_id = nameid2kwargs(logout.request.nameId)
     session_indexes = logout.request.sessionIndexes
-    logger.info('SAMLv2 slo nameid: %s session_indexes: %s' % (name_id,
+    logger.info('log_logout_request: slo nameid: %s session_indexes: %s' % (name_id,
         session_indexes))
 
 def validate_logout_request(request, logout, idp=True):
     if not isinstance(logout.request.nameId, lasso.Saml2NameID):
-        logger.error('SAMLv2 slo request lacks a NameID')
+        logger.error('validate_logout_request: slo request lacks a NameID')
         return return_logout_error(logout,
                 AUTHENTIC_STATUS_CODE_MISSING_NAMEID)
     # only idp have the right to send logout request without session indexes
     if not logout.request.sessionIndexes and idp:
-        logger.error('SAMLv2 slo request lacks SessionIndex')
+        logger.error('validate_logout_request: slo request lacks SessionIndex')
         return return_logout_error(logout,
                 AUTHENTIC_STATUS_CODE_MISSING_SESSION_INDEX)
+    logger.info('validate_logout_request: valid logout request')
     log_logout_request(logout)
     return None
 
 def logout_synchronous_other_backends(request, logout, django_sessions_keys):
     backends = idp.get_backends()
+    if backends:
+        logger.info('logout_synchronous_other_backends: backends %s' %str(backends))
+    else:
+        logger.info('logout_synchronous_other_backends: no backends')
     ok = True
     for backend in backends:
         ok = ok and backends.can_synchronous_logout(django_sessions_keys)
     if not ok:
         return return_logout_error(logout,
                 lasso.SAML2_STATUS_CODE_UNSUPPORTED_BINDING)
+    logger.info('logout_synchronous_other_backends: treatments ended')
     return None
 
 def get_only_last_session(name_id, session_indexes, but_provider):
@@ -799,7 +808,7 @@ def get_only_last_session(name_id, session_indexes, but_provider):
 
        Enumerate all emitted assertions for the given session, and for each provider only keep the more recent one.
     '''
-    logger.debug('get_only_last_session %s %s' % (name_id.dump(), session_indexes))
+    logger.debug('get_only_last_session: %s %s' % (name_id.dump(), session_indexes))
     lib_session1 = LibertySession.get_for_nameid_and_session_indexes(
             name_id, session_indexes)
     django_session_keys = [ s.django_session_key for s in lib_session1 ]
@@ -812,6 +821,8 @@ def get_only_last_session(name_id, session_indexes, but_provider):
             x = lib_session.filter(provider_id=provider)
             latest = x.latest('creation')
             result.append(latest)
+    if lib_session1:
+        logger.debug('get_only_last_session: last session %s' % lib_session1.dump())
     return lib_session1, result, django_session_keys
 
 def build_session_dump(elements):
@@ -821,79 +832,90 @@ def build_session_dump(elements):
     for x in elements:
         session.append(u'<Assertion RemoteProviderID="%s">%s</Assertion>' % x)
     session.append(u'</Session>')
-    return ''.join(session)
+    s = ''.join(session)
+    logger.debug('build_session_dump: session built %s' %s)
+    return s
 
 def set_session_dump_from_liberty_sessions(profile, lib_sessions):
     '''Extract all assertion from a list of lib_sessions, and create a session
     dump from them'''
+    logger.debug('set_session_dump_from_liberty_sessions: lib_sessions %s' %lib_sessions)
     l = [(lib_session.provider_id, lib_session.assertion.assertion) \
             for lib_session in lib_sessions]
     profile.setSessionFromDump(build_session_dump(l).encode('utf8'))
+    logger.debug('set_session_dump_from_liberty_sessions: profile %s' %profile.session.dump())
 
 @csrf_exempt
 def slo_soap(request):
     """Endpoint for receiveing saml2:AuthnRequest by SOAP"""
     message = get_soap_message(request)
-    logout, response = process_logout_request(request, message, 'SOAP')
-    if response:
-        return response
-    response = validate_logout_request(request, logout, idp=True)
-    if response:
-        return response
+    if not message:
+        logger.error('slo_soap: no message received')
+        return HttpResponseBadRequest('Bad SOAP message')
+    logger.info('slo_soap: soap message received %s' %message)
+    logout, error = process_logout_request(request, message, 'SOAP')
+    if error:
+        return error
+    error = validate_logout_request(request, logout, idp=True)
+    if error:
+        return error
     found, lib_sessions, django_session_keys = \
             get_only_last_session(logout.request.nameId,
                     logout.request.sessionIndexes, logout.remoteProviderId)
     if not found:
+        logger.debug('slo_soap: no session found, return logout error')
         return return_logout_error(logout, AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION)
     for lib_session in lib_sessions:
         p = load_provider(request, lib_session.provider_id,
                 server=logout.provider)
         if not p:
-            logger.error('SAMLv2 slo cannot logout provider %s, it is no more \
-known.' % lib_session.provider_id)
+            logger.error('slo_soap: slo cannot logout provider %s, it is no more \
+                known.' % lib_session.provider_id)
             continue
     set_session_dump_from_liberty_sessions(logout, found[0:1] + lib_sessions)
     try:
         logout.validateRequest()
     except lasso.LogoutUnsupportedProfileError, e:
-        logger.error('SAMLv2 slo cannot do SOAP logout, one provider does \
-not support it %s' % [ s.provider_id for s in lib_sessions])
+        logger.error('slo_soap: slo cannot do SOAP logout, one provider does \
+            not support it %s' % [ s.provider_id for s in lib_sessions])
         logout.buildResponseMsg()
         return return_saml2_response(request, logout)
     except Exception, e:
-        logger.exception('SAMLv2 slo, unknown error')
+        logger.exception('slo_soap: slo, unknown error')
         logout.buildResponseMsg()
         return return_saml2_response(request, logout)
     kill_django_sessions(django_session_keys)
     for lib_session in lib_sessions:
         try:
-            logger.info('SAMLv2 slo, relaying logout to provider %s' % lib_session.provider_id)
+            logger.info('slo_soap: slo, relaying logout to provider %s' % lib_session.provider_id)
             logout.initRequest(lib_session.provider_id)
             logout.buildRequestMsg()
             soap_response = send_soap_request(request, logout)
             logout.processResponseMsg(soap_response)
         except lasso.ProfileNotSuccessError:
-            logger.error('SAMLv2 slo, SOAP realying failed for %s' % lib_session.provider_id)
+            logger.error('slo_soap: slo, SOAP realying failed for %s' % lib_session.provider_id)
         except:
-            logger.exception('SAMLv2 slo, relaying failed %s' %
+            logger.exception('slo_soap: slo, relaying failed %s' %
                     lib_session.provider_id)
     try:
         logout.buildResponseMsg()
     except:
-        logger.exception('SAMLv2 slo failure to build reponse msg')
+        logger.exception('slo_soap: slo failure to build reponse msg')
         raise NotImplementedError()
+    logger.info('slo_soap: processing finished')
     return return_saml2_response(request, logout)
 
 @csrf_exempt
 def slo(request):
     """Endpoint for receiving saml2:AuthnRequests by POST, Redirect.
-       For SOAP a session must be established previously through the login page. No authentication through the SOAP request is supported.
+       For SOAP a session must be established previously through the login page.
+       No authentication through the SOAP request is supported.
     """
     message = get_saml2_request_message_async_binding(request)
     logout, response = process_logout_request(request, message, request.method)
     if response:
         return response
-    logger.debug('SAMLv2 asynchronous slo message %s' % message)
+    logger.debug('slo: asynchronous slo message %s' % message)
     try:
         try:
             logout.processRequestMsg(message)
@@ -902,18 +924,18 @@ def slo(request):
                     server=logout.server)
             logout.processRequestMsg(message)
     except lasso.DsError, e:
-        logger.exception('SAMLv2 signature error %s' % e)
+        logger.exception('slo: signature error %s' % e)
         logout.buildResponseMsg()
         return return_saml2_response(request, logout, title=_('Logout response'))
     except Exception, e:
-        logger.exception('SAMLv2 slo %s' % message)
+        logger.exception('slo: slo %s' % message)
         return error_page(_('Invalid logout request'), logger=logger)
     session_indexes = logout.request.sessionIndexes
     if len(session_indexes) == 0:
-        logger.error('SAMLv2 slo received a request from %s without any SessionIndex, it is forbidden' % logout.remoteProviderId)
+        logger.error('slo: slo received a request from %s without any SessionIndex, it is forbidden' % logout.remoteProviderId)
         logout.buildResponseMsg()
         return return_saml2_response(request, logout, title=_('Logout response'))
-    logger.info('SAMLv2 asynchronous slo from %s' % logout.remoteProviderId)
+    logger.info('slo: asynchronous slo from %s' % logout.remoteProviderId)
     # Filter sessions
     all_sessions = LibertySession.get_for_nameid_and_session_indexes(
             logout.request.nameId, logout.request.sessionIndexes)
@@ -921,7 +943,7 @@ def slo(request):
     remote_provider_sessions = \
             all_sessions.filter(provider_id=logout.remoteProviderId)
     if not remote_provider_sessions.exists():
-        logger.error('SAMLv2 slo refused, since no session exists with the \
+        logger.error('slo: slo refused, since no session exists with the \
             requesting provider')
         return return_logout_error(logout, AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION)
     # Load session dump for the requesting provider
@@ -930,7 +952,7 @@ def slo(request):
     try:
         logout.validateRequest()
     except:
-        logger.exception('SAMLv2 slo error')
+        logger.exception('slo: slo error')
         return return_logout_error(logout,
                 AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR)
     # Now clean sessions for this provider
@@ -965,22 +987,34 @@ def idp_slo(request, provider_id):
     '''
     all = request.REQUEST.get('all')
     next = request.REQUEST.get('next')
+
+    if request.method == 'POST':
+        next = '/'
+        provider_id = request.POST.get('provider_id')
     if not provider_id:
-        return error_page('Missing argument provider_id', logger=logger)
+        logger.info('idp_slo: to initiate a slo we need a provider_id')
+        return error_page(request, _('A provider identifier was not provided'), logger=logger)
+    logger.info('idp_slo: slo initiated with %(provider_id)s' % { 'provider_id': provider_id })
+
     server = create_server(request)
     logout = lasso.Logout(server)
-    logger.info('SAMLv2 idp_slo for %s' % provider_id)
+    logger.info('idp_slo: slo for %s' % provider_id)
     if not load_provider(request, provider_id, server=logout.server):
-        logger.error('SAMLv2 idp_slo failed to load provider')
-    lib_session = LibertySession.objects.filter(
+        logger.error('idp_slo: slo failed to load provider')
+    lib_session = None
+    try:
+        lib_session = LibertySession.objects.get(
             django_session_key=request.session.session_key,
-            provider_id=provider_id).latest('creation')
+            provider_id=provider_id)
+    except:
+        logger.debug('idp_slo: no lib_session found')
     if lib_session:
+        logger.debug('idp_slo: lib_session found')
         set_session_dump_from_liberty_sessions(logout, [lib_session])
     try:
         logout.initRequest(provider_id)
-    except lasso.ProfileMissingAssertionError:
-        logger.error('SAMLv2 idp_slo failed because no sessions exists for %r' % provider_id)
+    except (lasso.ProfileMissingAssertionError, lasso.ProfileSessionNotFoundError):
+        logger.error('idp_slo: slo failed because no sessions exists for %r' % provider_id)
         return redirect_next(request, next) or ko_icon(request)
     if all is not None:
         logout.request.sessionIndexes = []
@@ -988,18 +1022,18 @@ def idp_slo(request, provider_id):
     try:
         logout.buildRequestMsg()
     except:
-        logger.exception('SAMLv2 idp_slo misc error')
+        logger.exception('idp_slo: slo misc error')
         return redirect_next(request, next) or ko_icon(request)
     if logout.msgBody: # SOAP case
-        logger.info('SAMLv2 idp_slo by SOAP')
+        logger.info('idp_slo: slo by SOAP')
         try:
             soap_response = send_soap_request(request, logout)
         except:
-            logger.exception('SAMLv2 idp_slo SOAP failure')
+            logger.exception('idp_slo: slo SOAP failure')
             return redirect_next(request, next) or ko_icon(request)
         return process_logout_response(request, logout, soap_response, next)
     else:
-        logger.info('SAMLv2 idp_slo by redirect')
+        logger.info('idp_slo: slo by redirect')
         save_key_values(logout.request.id, logout.dump(), provider_id, next)
         return HttpResponseRedirect(logout.msgUrl)
 
@@ -1007,7 +1041,8 @@ def process_logout_response(request, logout, soap_response, next):
     try:
         logout.processRequestMsg(soap_response)
     except:
-        logger.exception('SAMLv2 slo error')
+        logger.exception('process_logout_response: \
+            slo error with soap response %s and logout dump %s' %(soap_response, logout.dump()))
         return redirect_next(request, next) or ko_icon(request)
     else:
         LibertySession.objects.filter(
@@ -1016,18 +1051,25 @@ def process_logout_response(request, logout, soap_response, next):
         return redirect_next(request, next) or ok_icon(request)
 
 def slo_return(request):
+    next = None
+    logger.info('slo_return: return from redirect')
     relay_state = request.REQUEST.get('RelayState')
     if not relay_state:
-        logger.error('SAMLv2 idp_slo no relay state in response')
+        logger.error('slo_return: slo no relay state in response')
         return error_page('Missing relay state', logger=logger)
+    else:
+        logger.debug('slo_return: relay_state %s' %relay_state)
     try:
         logout_dump, provider_id, next = get_and_delete_key_values(relay_state)
     except:
-        logger.exception('SAMLv2 idp_slo bad relay state in response')
+        logger.exception('idp_slo: slo bad relay state in response')
         return error_page('Bad relay state', logger=logger)
     server = create_server(request)
     logout = lasso.Logout.newFromDump(server, logout_dump)
-    return process_logout_response(request, logout, get_saml2_query_request(request))
+    provider_id=logout.remoteProviderId
+    if not load_provider(request, provider_id, server=logout.server):
+        logger.error('slo_return: slo failed to load provider')
+    return process_logout_response(request, logout, get_saml2_query_request(request), next)
 
 # Helpers
 
@@ -1089,14 +1131,14 @@ def log_info_authn_request_details(login):
                 'format': nameIdPolicy.format,
                 'spNameQualifier': nameIdPolicy.spNameQualifier }
 
-    logger.info('SAMLv2 authn request details: %r' % details)
+    logger.info('log_info_authn_request_details: %r' % details)
 
 def check_destination(request, req_or_res):
     '''Check that a SAML message Destination has the proper value'''
     destination = request.build_absolute_uri(request.path)
     result = req_or_res.destination == destination
     if not result:
-        logger.error('SAMLv2 check_destination failed, expected: %s got: %s ' % (destination, req_or_res.destination))
+        logger.error('check_destination: failure, expected: %s got: %s ' % (destination, req_or_res.destination))
     return result
 
 urlpatterns = patterns('',

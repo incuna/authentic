@@ -27,9 +27,11 @@ class SamlBackend(object):
             if models.LibertySession.objects.filter(
                     django_session_key=request.session.session_key,
                     provider_id=entity_id).exists():
-                uri = '/idp/%s/idp_slo/%s?next=/' % (protocol, entity_id)
+                #uri = '/idp/%s/idp_slo/%s?next=/' % (protocol, entity_id)
+                uri = '/idp/%s/idp_slo/' %protocol
                 name = liberty_provider.name + ' logout'
-                list.append((uri, name))
+                provider_id = entity_id
+                list.append((uri, name, provider_id))
         return list
 
     def logout_list(self, request):
