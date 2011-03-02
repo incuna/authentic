@@ -285,7 +285,7 @@ def sso(request):
             if not provider_loaded:
                 consent_obtained = False
                 message = _('sso: fail to load unknown provider %s' %provider_id)
-                return error_page(request, message)
+                return error_page(request, message, logger=logger)
             else:
                 logger.info('sso: provider %s loaded with success' %provider_id)
                 consent_obtained = \
@@ -375,9 +375,9 @@ def continue_sso(request):
     login = lasso.Login.newFromDump(server, login_dump)
     logger.debug('continue_sso: login newFromDump done')
     if not login:
-        return error_page(request, _('continue_sso: error loading login'))
+        return error_page(request, _('continue_sso: error loading login'), logger=logger)
     if not load_provider(request, login.remoteProviderId, server=login.server):
-        return error_page(request, _('continue_sso: unknown provider %s') %login.remoteProviderId)
+        return error_page(request, _('continue_sso: unknown provider %s') %login.remoteProviderId, logger=logger)
     if consent_answer == 'refused':
         logger.info('continue_sso: consent answer treatment, the user refused, return request denied to the requester')
         set_saml2_response_responder_status_code(login.response,
@@ -413,8 +413,9 @@ def sso_after_process_request(request, login,
     # Transient user
     # If the SP asks for persistent, reject
     transient = False
-    #if ContentType.objects.get_for_model(request.user) == 'SAML2TransientUser':
-    if str(request.user.__class__).find('SAML2TransientUser') > -1:
+    # XXX: Deal with all kind of transient users
+    type(SAML2TransientUser)
+    if isinstance(request.user, SAML2TransientUser):
         logger.debug('sso_after_process_request: the user is transient')
         transient = True
     if transient and login.request.nameIdPolicy.format == lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
@@ -643,7 +644,7 @@ def idp_sso(request, provider_id, user_id = None, nid_format = None):
     '''
     if not provider_id:
         logger.info('idp_sso: to initiate a sso we need a provider_id')
-        return error_page(request, _('A provider identifier was not provided'))
+        return error_page(request, _('A provider identifier was not provided'), logger=logger)
     logger.info('idp_sso: sso with %(provider_id)s' % { 'provider_id': provider_id })
     if user_id:
         logger.info('idp_sso: sso as %s' % user_id)
@@ -652,7 +653,7 @@ def idp_sso(request, provider_id, user_id = None, nid_format = None):
     liberty_provider = load_provider(request, provider_id, server=login.server)
     if not liberty_provider:
         logger.info('idp_sso: sso for an unknown provider %s' % provider_id)
-        return error_page(request, _('Provider %s is unknown') % provider_id)
+        return error_page(request, _('Provider %s is unknown') % provider_id, logger=logger)
     service_provider = liberty_provider.service_provider
     if user_id:
         user = User.get(id = user_id)
@@ -677,7 +678,7 @@ def idp_sso(request, provider_id, user_id = None, nid_format = None):
         login.request.protocolProfile = lasso.SAML2_METADATA_BINDING_POST
     else:
         logger.error('idp_sso: unsupported protocol binding %r' % binding)
-        return error_page(request, _('Server error'))
+        return error_page(request, _('Server error'), logger=logger)
     # Control nid format policy
     if nid_format:
         logger.debug('idp_sso: nameId format is %r' %nid_format)
@@ -893,7 +894,7 @@ def slo(request):
         return return_saml2_response(request, logout, title=_('Logout response'))
     except Exception, e:
         logger.exception('SAMLv2 slo %s' % message)
-        return error_page(_('Invalid logout request'))
+        return error_page(_('Invalid logout request'), logger=logger)
     session_indexes = logout.request.sessionIndexes
     if len(session_indexes) == 0:
         logger.error('SAMLv2 slo received a request from %s without any SessionIndex, it is forbidden' % logout.remoteProviderId)
@@ -952,7 +953,7 @@ def idp_slo(request, provider_id):
     all = request.REQUEST.get('all')
     next = request.REQUEST.get('next')
     if not provider_id:
-        return error_page('Missing argument provider_id')
+        return error_page('Missing argument provider_id', logger=logger)
     server = create_server(request)
     logout = lasso.Logout(server)
     logger.info('SAMLv2 idp_slo for %s' % provider_id)
@@ -1005,12 +1006,12 @@ def slo_return(request):
     relay_state = request.REQUEST.get('RelayState')
     if not relay_state:
         logger.error('SAMLv2 idp_slo no relay state in response')
-        return error_page('Missing relay state')
+        return error_page('Missing relay state', logger=logger)
     try:
         logout_dump, provider_id, next = get_and_delete_key_values(relay_state)
     except:
         logger.exception('SAMLv2 idp_slo bad relay state in response')
-        return error_page('Bad relay state')
+        return error_page('Bad relay state', logger=logger)
     server = create_server(request)
     logout = lasso.Logout.newFromDump(server, logout_dump)
     return process_logout_response(request, logout, get_saml2_query_request(request))
