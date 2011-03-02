@@ -32,13 +32,19 @@ You must install the following packages to use Authentic
 
    From sources:: http://south.aeracode.org/docs/installation.html
 
+ * Django-profiles::
+
+   From sources:: http://pypi.python.org/pypi/django-profiles
+
 You install all the django libraries quickly using pip::
 
-   pip install django django-registration django-debug-toolbar django-authopenid south
+   pip install django django-profiles django-registration \
+               django-debug-toolbar django-authopenid south
 
 or easy_install::
 
-   easy_install django django-registration django-debug-toolbar django-authopenid south
+   easy_install django django-profiles django-registration \
+                django-debug-toolbar django-authopenid south
 
 Quick Start
 -----------
@@ -79,6 +85,28 @@ You should refer to the Django documentation on databases settings at
 http://docs.djangoproject.com/en/dev/ref/settings/#databases for all
 the details.
 
+How to upgrade to a new version of authentic ?
+----------------------------------------------
+
+Authentic store all its data in a relational database as specified in its
+settings.py or local_settings.py file. So in order to upgrade to a new version
+of authentic you have to update your database schema using the
+migration command — you will need to have installed the dependency django-south,
+see the beginning of this README file.::
+
+  python ./manage.py migrate
+
+Then you will need to create new tables if there are.::
+
+  python ./manage.py syncdb
+
+Using Authentic with an LDAP directory
+======================================
+
+Authentic use the module django_auth_ldap to synchronize the Django user tables
+with an LDAP. For complex use case, we will refer you to the django_auth_ldap
+documentation, see http://packages.python.org/django-auth-ldap/.
+
 How to authenticate users against an LDAP server with anonymous binding ?
 -------------------------------------------------------------------------
 
@@ -86,8 +114,10 @@ How to authenticate users against an LDAP server with anonymous binding ?
 
  pip install django_auth_ldap
 
-2. Configure your local_settings.py file for authenticating agains LDAP.
+2. Configure your local_settings.py file for authenticating against LDAP.
    The next lines must be added::
+
+ AUTHENTICATION_BACKENDS += ( 'django_auth_ldap.backend.LDAPBackend', )
 
  import ldap
  from django_auth_ldap.config import LDAPSearch
@@ -102,10 +132,35 @@ How to authenticate users against an LDAP server with anonymous binding ?
  AUTH_LDAP_USER_SEARCH = LDAPSearch("o=base",
      ldap.SCOPE_SUBTREE, "(uid=%(user)s)") 
 
+How to allow members of an LDAP group to manage Authentic ?
+-----------------------------------------------------------
+
+1. First you must know the objectClass of groups in your LDAP schema, this FAQ
+   will show you the configuration for two usual classes: groupOfNames and
+   groupOfUniqueNames.
+
+2. Find the relevant groupname. We will say it is: cn=admin,o=mycompany
+
+3. Add the following lines::
+
+  from django_auth_ldap.config import GroupOfNamesType
+  AUTH_LDAP_GROUP_TYPE = GroupOfNamesType()
+  AUTH_LDAP_GROUP_SEARCH = LDAPSearch("o=mycompany",
+            ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
+  AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_staff": "cn=admin,o=mycompany"
+  }
+
+For an objectClass of groupOfUniqueNames you would change the string
+GroupOfNamesType to GroupOfUniqueNamesType and grouOfNames to
+groupOfUniqueNames. For more complex cases see the django_auth_ldap
+documentation.
+
+SAML 2.0
+========
+
 How to I authenticate against Authentic2 with a SAMLv2 service provider ?
 ------------------------------------------------------------------------
-
-1. Get the metadata file from the URL::
 
  http[s]://your.domain.com/idp/saml2/metadata
 
@@ -118,6 +173,9 @@ And configure your service provider with it.
 There create a new provider using the service provider metadata and enable it
 as a service provider, you can customize some behaviours like the preferred
 assertion consumer or encryption for the NameID or the Assertion element.
+
+CAS
+===
 
 How to use Authentic2 as a CAS 1.0 or CAS 2.0 identity provider ?
 -----------------------------------------------------------------
@@ -142,23 +200,8 @@ How to use Authentic2 as a CAS 1.0 or CAS 2.0 identity provider ?
 4. If needed configure your service to resolve authenticated user with your
    LDAP directory (if user attributes are needed for your service)
 
-How to upgrade to a new version of authentic ?
-----------------------------------------------
-
-Authentic store all its data in a relational database as specified in its
-settings.py or local_settings.py file. So in order to upgrade to a new version
-of authentic you have to update your database schema using the
-migration command — you will need to have installed the dependency django-south,
-see the beginning of this README file.::
-
-  python ./manage.py migrate
-
-Then you will need to create new tables if there are.::
-
-  python ./manage.py syncdb
-
 Roadmap
--------
+=======
 
  - All (or nearly) settings will be configurable from the /admin panels
  - Login page will remember user choices for authentication and authenticate
