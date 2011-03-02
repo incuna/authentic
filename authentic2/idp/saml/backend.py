@@ -11,15 +11,19 @@ class SamlBackend(object):
         q = models.LibertyServiceProvider.objects.filter(enabled = True, idp_initiated_sso = True)
         list = []
         for service_provider in q:
+            # XXX: Differentiate the services the user knows and the others
             liberty_provider = service_provider.liberty_provider
             entity_id = liberty_provider.entity_id
             if liberty_provider.protocol_conformance < 3:
                 protocol = 'idff12'
             else:
                 protocol = 'saml2'
-            uri = '/idp/%s/idp_sso/%s' % (protocol, entity_id)
-            name = liberty_provider.name
-            list.append((uri, name))
+            #uri = '/idp/%s/idp_sso/%s' % (protocol, entity_id)
+            uri = '/idp/%s/idp_sso/' %protocol
+            name = '%s login' %liberty_provider.name
+            provider_id = entity_id
+            list.append((uri, name, provider_id))
+            # XXX: Check services with open sessions
             if models.LibertySession.objects.filter(
                     django_session_key=request.session.session_key,
                     provider_id=entity_id).exists():
