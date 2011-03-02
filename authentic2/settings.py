@@ -260,28 +260,28 @@ import sys
 _LOCAL = threading.local()
 
 def getlogger():
-    
+
     logger = getattr(_LOCAL, 'logger', None)
     if logger is not None:
         return logger
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
-    formatter = logging.Formatter('[%(asctime)s] %(levelname)-8s"%(message)s"','%Y-%m-%d %a %H:%M:%S') 
-    
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)-8s %(name)s.%(message)s','%Y-%m-%d %a %H:%M:%S')
+
     if LOG_FILENAME:
         log_handler = logging.FileHandler(LOG_FILENAME)
         log_handler.setFormatter(formatter)
         log_handler.setLevel(LOG_FILE_LEVEL)
         logger.addHandler(log_handler)
-    
+
     if LOG_SYSLOG:
         syslog_handler = SysLogHandler(address = '/dev/log')
-        formatter = logging.Formatter('authentic %(levelname)-8s"%(message)s"','%Y-%m-%d %a %H:%M:%S') 
+        formatter = logging.Formatter('authentic %(levelname)-8s %(name)s.%(message)s','%Y-%m-%d %a %H:%M:%S')
         syslog_handler.setFormatter(formatter)
         syslog_handler.setLevel(LOG_SYS_LEVEL)
         logger.addHandler(syslog_handler)
-    
+
     setattr(_LOCAL,'logger',logger)
     return logger
 
