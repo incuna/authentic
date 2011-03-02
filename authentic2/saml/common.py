@@ -587,7 +587,6 @@ def send_soap_request(request, profile):
     #return soap_call(profile.msgUrl, profile.msgBody, p.ssl_certificate)
     return soap_call(profile.msgUrl, profile.msgBody, None)
 
-
 def set_saml2_response_responder_status_code(response, code):
     response.status = lasso.Samlp2Status()
     response.status.statusCode = lasso.Samlp2StatusCode()
@@ -596,6 +595,7 @@ def set_saml2_response_responder_status_code(response, code):
     response.status.statusCode.statusCode.value = code
 
 __root_refererer_re = re.compile('^(https?://[^/]*/?)')
+
 def error_page(request, message, back = None, logger = None):
     '''View that show a simple error page to the user with a back link.
 
