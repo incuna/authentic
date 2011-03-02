@@ -26,6 +26,7 @@ urlpatterns = patterns('',
     (r'^logout$', 'authentic2.idp.views.logout'),
     (r'^$', login_required(authentic2.idp.views.homepage), {}, 'index'),
     (r'^profile$', login_required(authentic2.idp.views.profile), {}, 'account_management'),
+    (r'^profiles/', include('profiles.urls')),
 )
 
 urlpatterns += patterns('',
