@@ -21,9 +21,9 @@ def error_page(request, message=None, back=None, logger=None,
                 or the local root.
     '''
     if logger:
-        logger.error('[authsaml2] %s - Error page' % message)
+        logger.error('Showing message %r on an error page' % message)
     else:
-        logging.error('[authsaml2] %s - Error page' % message)
+        logging.error('Showing message %r on an error page' % message)
     if back is None:
         referer = request.META.get('HTTP_REFERER')
         if referer:
