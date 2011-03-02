@@ -238,7 +238,7 @@ class AuthorizationSPPolicy(models.Model):
 class LibertyProvider(models.Model):
     entity_id = models.URLField(unique = True)
     entity_id_sha1 = models.CharField(max_length = 40, blank=True)
-    name = models.CharField(max_length = 140, unique = True,
+    name = models.CharField(max_length = 140,
             help_text = _("Internal nickname for the service provider"),
             blank = True)
     protocol_conformance = models.IntegerField(max_length = 10,
