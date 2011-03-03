@@ -131,7 +131,7 @@ LOGIN_URL = '/login'
 # Registration settings
 ACCOUNT_ACTIVATION_DAYS = 2
 EMAIL_HOST = 'localhost'
-DEFAULT_FROM_EMAIL = 'webmaster@entrouvert.com'
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'
 LOGIN_REDIRECT_URL = '/'
 # Default profile class
 AUTH_PROFILE_MODULE = 'idp.UserProfile'
@@ -139,16 +139,46 @@ AUTH_PROFILE_MODULE = 'idp.UserProfile'
 INTERNAL_IPS = ('127.0.0.1',)
 DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
 
-# SAML settings
-# Only RSA private keys are currently supported
-AUTH_FRONTENDS = ( 'authentic2.auth2_auth.backend.LoginPasswordBackend',
-        'authentic2.auth2_auth.auth2_openid.backend.OpenIDFrontend',
-        'authentic2.auth2_auth.auth2_oath.frontend.OATHOTPFrontend',
-        'authentic2.auth2_auth.auth2_ssl.frontend.SSLFrontend',
-        'authentic2.authsaml2.frontend.AuthSAML2Frontend')
+###########################
+# Authentication settings
+###########################
 
+# Only RSA private keys are currently supported
+AUTH_FRONTENDS = ( 'authentic2.auth2_auth.backend.LoginPasswordBackend',)
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+# expiration in seconds of authentication events.
+# default: 1 week
+# AUTHENTICATION_EVENT_EXPIRATION = 3600*24*7
+
+# SSL Authentication
+AUTH_SSL = True
+SSLAUTH_CREATE_USER = True
+
+# SAML2 Authentication
+AUTH_SAML2 = True
+
+# OpenID Authentication
+AUTH_OPENID = True
+
+# OATH Authentication
+AUTH_OATH = True
+
+#############################
+# Identity Provider settings
+#############################
+
+# List of IdP backends, mainly used to show available services in the homepage
+# of user, and to handle SLO for each protocols
+IDP_BACKENDS = [ 'authentic2.idp.AdminBackend' ]
+
+# SAML2 IDP
 IDP_SAML2 = True
-IDP_IDFF12 = True
+
+# You MUST changes these keys, they are just for testing !
 SAML_SIGNING_KEY = '''-----BEGIN CERTIFICATE-----
 MIIDIzCCAgugAwIBAgIJANUBoick1pDpMA0GCSqGSIb3DQEBBQUAMBUxEzARBgNV
 BAoTCkVudHJvdXZlcnQwHhcNMTAxMjE0MTUzMzAyWhcNMTEwMTEzMTUzMzAyWjAV
@@ -168,6 +198,7 @@ lG6l41SXp6YgIb2ToT+rOKdIGIQuGDlzeR88fDxWEU0vEujZv/v1PE1YOV0xKjTT
 JumlBc6IViKhJeo1wiBBrVRIIkKKevHKQzteK8pWm9CYWculxT26TZ4VWzGbo06j
 o2zbumirrLLqnt1gmBDvDvlOwC/zAAyL4chbz66eQHTiIYZZvYgy
 -----END CERTIFICATE-----'''
+
 SAML_PRIVATE_KEY = '''-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAvxFkfPdndlGgQPDZgFGXbrNAc/79PULZBuNdWFHDD9P5hNhZ
 n9Kqm4Cp06Pe/A6u+g5wLnYvbZQcFCgfQAEzziJtb3J55OOlB7iMEI/T2AX2WzrU
@@ -195,36 +226,20 @@ gmsgaiMCgYB/nrTk89Fp7050VKCNnIt1mHAcO9cBwDV8qrJ5O3rIVmrg1T6vn0aY
 wRiVcNacaP+BivkrMjr4BlsUM6yH4MOBsNhLURiiCL+tLJV7U0DWlCse/doWij4U
 TKX6tp6oI+7MIJE6ySZ0cBqOiydAkBePZhu57j6ToBkTa0dbHjn1WA==
 -----END RSA PRIVATE KEY-----'''
+
 SAML_METADATA_ROOT = 'metadata'
+# Whether to autoload SAML 2.0 identity providers and services metadata
+# Only https URLS are accepted.
 # Can be none, sp, idp or both
 SAML_METADATA_AUTOLOAD = 'none'
 
-# SSL settings
-AUTH_SSL = True
-SSLAUTH_CREATE_USER = True
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'authentic2.auth2_auth.auth2_ssl.backend.SSLBackend',
-    'authentic2.auth2_auth.auth2_oath.backend.OATHTOTPBackend'
-)
-
-# IDP
-IDP_BACKENDS = [ 'authentic2.idp.saml.backend.SamlBackend',
-        'authentic2.authsaml2.backends.AuthSAML2Backend',
-        'authentic2.idp.AdminBackend' ]
-
-#AuthSAML2 Configuration
-INSTALLED_APPS += ('authentic2.authsaml2',)
-AUTHENTICATION_BACKENDS += (
-        'authentic2.authsaml2.backends.AuthSAML2PersistentBackend',
-        'authentic2.authsaml2.backends.AuthSAML2TransientBackend')
-
 # OpenID settings
-AUTH_OPENID = True
 IDP_OPENID = True
 
 # CAS settings
 IDP_CAS = False
+# expiration time in seconds of the cas tickets
+# CAS_TICKET_EXPIRATION = 240
 
 import logging
 # Logging settings
@@ -232,6 +247,7 @@ LOG_FILENAME = os.path.join(_PROJECT_PATH, 'log.log')
 LOG_FILE_LEVEL = logging.DEBUG
 LOG_SYSLOG = True
 LOG_SYS_LEVEL = logging.WARNING
+
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
@@ -244,8 +260,28 @@ if USE_DEBUG_TOOLBAR:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     INSTALLED_APPS += ('debug_toolbar',)
 
+if AUTH_SAML2:
+    INSTALLED_APPS += ('authentic2.authsaml2',)
+    AUTHENTICATION_BACKENDS += (
+            'authentic2.authsaml2.backends.AuthSAML2PersistentBackend',
+            'authentic2.authsaml2.backends.AuthSAML2TransientBackend')
+    AUTH_FRONTENDS += ('authentic2.authsaml2.frontend.AuthSAML2Frontend',)
+    IDP_BACKENDS += ('authentic2.authsaml2.backends.AuthSAML2Backend',)
+
 if AUTH_OPENID:
     INSTALLED_APPS += ('django_authopenid',)
+    AUTH_FRONTENDS += ('authentic2.auth2_auth.auth2_openid.backend.OpenIDFrontend',)
+
+if AUTH_SSL:
+    AUTHENTICATION_BACKENDS += ('authentic2.auth2_auth.auth2_ssl.backend.SSLBackend',)
+    AUTH_FRONTENDS += ('authentic2.auth2_auth.auth2_ssl.frontend.SSLFrontend',)
+
+if AUTH_OATH:
+    AUTHENTICATION_BACKENDS += ('authentic2.auth2_auth.auth2_oath.backend.OATHTOTPBackend',)
+    AUTH_FRONTENDS += ('authentic2.auth2_auth.auth2_oath.frontend.OATHOTPFrontend',)
+
+if IDP_SAML2:
+    IDP_BACKENDS += ('authentic2.idp.saml.backend.SamlBackend',)
 
 if IDP_OPENID:
     INSTALLED_APPS += ('authentic2.idp.idp_openid',)
@@ -253,7 +289,6 @@ if IDP_OPENID:
 if IDP_CAS:
     INSTALLED_APPS += ('authentic2.idp.idp_cas',)
 
-import logging
 from logging.handlers import SysLogHandler
 import threading
 import sys
