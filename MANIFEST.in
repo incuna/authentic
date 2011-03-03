@@ -1,3 +1,4 @@
+recursive-include data *
 recursive-include tests *.db *.py
 recursive-include media *.css *.js *.ico *.gif *.png *.jpg README
 recursive-include authentic2 README fixtures/*.json templates/*.html templates/*/*.html js/*.js templates/*/*/*.html locale/*/*/*.po xrds.xml *.txt yadis.xrdf
@@ -7,3 +8,4 @@ include README.rst
 include authentic2/vendor/oath/TODO
 include authentic2/vendor/totp_js/README.rst
 include diagnose.py
+include authentic2/auth2_auth/auth2_ssl/authentic_ssl.vhost
