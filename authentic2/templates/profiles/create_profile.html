@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create profile" %}{% endblock %}
+
+{% block content %}
+<form method="post">
+{{ form.as_p }}
+<input type="submit" value="{% trans "Create" %}"/>
+</form>
+{% endblock %}
