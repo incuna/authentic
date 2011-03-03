@@ -613,7 +613,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             logger.debug('sso_after_response: successful login signal sent')
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
-            save_session(request, login)
+            save_session(request, login, kind=LIBERTY_SESSION_DUMP_KIND_SP)
             logger.info('sso_after_response: \
                 login processing ended with success - redirect to target')
             return HttpResponseRedirect(url)
@@ -654,7 +654,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                 signal sent that the session is opened')
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
-            save_session(request, login)
+            save_session(request, login, kind=LIBERTY_SESSION_DUMP_KIND_SP)
             #save_federation(request, login)
             maintain_liberty_session_on_service_provider(request, login)
             logger.info('sso_after_response: \
@@ -668,7 +668,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                     provider_id=login.remoteProviderId)
                 return HttpResponseRedirect(url)
             logger.info('sso_after_response: Account linking required')
-            save_session(request, login)
+            save_session(request, login, kind=LIBERTY_SESSION_DUMP_KIND_SP)
             logger.debug('sso_after_response: \
                 Register identity dump in session')
             save_federation_temp(request, login, attributes=attributes)
@@ -711,7 +711,7 @@ def finish_federation(request):
                     _('finish_federation: \
                     Unable to create Login object'), logger=logger)
 
-            s = load_session(request, login)
+            s = load_session(request, login, kind=LIBERTY_SESSION_DUMP_KIND_SP)
             load_federation_temp(request, login)
             if not login.session:
                 return error_page(request,
@@ -758,7 +758,7 @@ def finish_federation(request):
                login.session.isDirty = True
             if login.identity:
                 login.identity.isDirty = True
-            save_session(request, login)
+            save_session(request, login, kind=LIBERTY_SESSION_DUMP_KIND_SP)
             #save_federation(request, login)
             maintain_liberty_session_on_service_provider(request, login)
             logger.info('finish_federation: \
@@ -811,7 +811,7 @@ def sp_slo(request, provider_id):
     server = create_server(request)
     logout = lasso.Logout(server)
     logger.info('sp_slo: sp_slo for %s' % provider_id)
-    load_session(request, logout)
+    load_session(request, logout, kind=LIBERTY_SESSION_DUMP_KIND_SP)
     provider = load_provider(request, provider_id,
         server=server, sp_or_idp='idp')
     if not provider:
@@ -915,7 +915,7 @@ def logout(request):
         return error_page(request,
             _('logout: Unable to create Login object'),
             logger=logger)
-    load_session(request, logout)
+    load_session(request, logout, kind=LIBERTY_SESSION_DUMP_KIND_SP)
     # Lookup for the Identity provider from session
     q = LibertySessionDump. \
         objects.filter(django_session_key = request.session.session_key)
@@ -1060,7 +1060,7 @@ def singleLogoutReturn(request):
             _('singleLogoutReturn: Unable to create Login object'),
             logger=logger)
 
-    load_session(request, logout)
+    load_session(request, logout, kind=LIBERTY_SESSION_DUMP_KIND_SP)
 
     return slo_return(request, logout, query)
 
@@ -1080,7 +1080,7 @@ def slo_return(request, logout, message):
         return local_logout(request)
     if logout.isSessionDirty:
         if logout.session:
-            save_session(request, logout)
+            save_session(request, logout, kind=LIBERTY_SESSION_DUMP_KIND_SP)
         else:
             delete_session(request)
     remove_liberty_session_sp(request)
@@ -1308,7 +1308,7 @@ def singleLogout(request):
 
     logger.info('singleLogout: from %s' % logout.remoteProviderId)
 
-    load_session(request, logout)
+    load_session(request, logout, kind=LIBERTY_SESSION_DUMP_KIND_SP)
 
     try:
         logout.validateRequest()
@@ -1318,7 +1318,7 @@ def singleLogout(request):
 
     if logout.isSessionDirty:
         if logout.session:
-            save_session(request, logout)
+            save_session(request, logout, kind=LIBERTY_SESSION_DUMP_KIND_SP)
         else:
             delete_session(request)
     remove_liberty_session_sp(request)
@@ -1397,7 +1397,7 @@ def federationTermination(request):
 
     manage = lasso.NameIdManagement(server)
 
-    load_session(request, manage)
+    load_session(request, manage, kind=LIBERTY_SESSION_DUMP_KIND_SP)
     load_federation(request, manage)
     fed = lookup_federation_by_user(request.user, p.entity_id)
     if not fed:

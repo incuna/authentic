@@ -229,12 +229,14 @@ def load_federation(request, login, user = None):
         login.setIdentityFromDump(q.identity_dump.encode('utf8'))
         logger.debug('load_federation: set identity from dump done %s' %login.identity.dump())
 
-def load_session(request, login, session_key = None):
+def load_session(request, login, session_key = None,
+        kind=LIBERTY_SESSION_DUMP_KIND_IDP):
     '''Load a session dump from the database'''
     if not session_key:
         session_key = request.session.session_key
     try:
-        q = LibertySessionDump.objects.get(django_session_key = session_key)
+        q = LibertySessionDump.objects.get(django_session_key=session_key,
+                kind=kind)
         logger.debug('load_session: session dump found %s' %q.session_dump.encode('utf8'))
         login.setSessionFromDump(q.session_dump.encode('utf8'))
         logger.debug('load_session: set session from dump done %s' %login.session.dump())
@@ -253,13 +255,14 @@ def save_federation(request, login, user = None):
             q.identity_dump = None
         q.save()
 
-def save_session(request, login, session_key = None):
+def save_session(request, login, session_key=None,
+        kind=LIBERTY_SESSION_DUMP_KIND_IDP):
     '''Save session dump to database'''
     if not session_key:
         session_key = request.session.session_key
     if login.isSessionDirty:
         q, creation = LibertySessionDump.objects.get_or_create(
-                django_session_key = session_key)
+                django_session_key=session_key, kind=kind)
         if login.session:
             q.session_dump = login.session.dump()
         else:

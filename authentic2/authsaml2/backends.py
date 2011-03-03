@@ -19,15 +19,18 @@ class AuthSAML2Backend:
     def logout_list(self, request):
         pid = None
         q = LibertySessionDump. \
-            objects.filter(django_session_key = request.session.session_key)
-        if q:
-            try:
-                pid = lasso.Session().newFromDump(q[0].session_dump). \
-                    get_assertions().keys()[0]
-                provider_ids = set([pid])
-            except:
-                pass
-        result = []
+            objects.filter(django_session_key=request.session.session_key,
+                    kind=LIBERTY_SESSION_DUMP_KIND_SP)
+        if not q:
+            return []
+        try:
+            pid = lasso.Session().newFromDump(q[0].session_dump). \
+                get_assertions().keys()[0]
+            provider_ids = set([pid])
+        except:
+            pass
+        if not pid:
+            return []
         name = pid
         try:
             name = models.LibertyProvider.objects.get(entity_id=pid).name
@@ -39,8 +42,7 @@ class AuthSAML2Backend:
         code += '<iframe src="%s" marginwidth="0" marginheight="0" \
 scrolling="no" style="border: none" width="16" height="16"></iframe></div>' % \
                 reverse(saml2_endpoints.sp_slo, args=[pid])
-        result.append(code)
-        return result
+        return [ code ]
 
 class AuthSAML2PersistentBackend:
     def authenticate(self, name_id=None, provider_id=None):

@@ -369,6 +369,11 @@ class SessionLinkedManager(models.Manager):
                     store.delete(key)
                     o.delete()
 
+LIBERTY_SESSION_DUMP_KIND_SP = 0
+LIBERTY_SESSION_DUMP_KIND_IDP = 1
+LIBERTY_SESSION_DUMP_KIND = { LIBERTY_SESSION_DUMP_KIND_SP: 'sp',
+        LIBERTY_SESSION_DUMP_KIND_IDP: 'idp' }
+
 class LibertySessionDump(models.Model):
     '''Store lasso session object dump.
 
@@ -376,6 +381,7 @@ class LibertySessionDump(models.Model):
        assertions through the LibertySession object'''
     django_session_key = models.CharField(max_length = 40)
     session_dump = models.TextField(blank = True)
+    kind = models.IntegerField(choices = LIBERTY_SESSION_DUMP_KIND.items())
 
     objects = SessionLinkedManager()
 
