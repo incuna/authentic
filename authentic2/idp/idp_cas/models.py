@@ -9,6 +9,11 @@ class CasTicketManager(models.Manager):
         '''
         self.filter(expire__gte=datetime.now()).delete()
 
+    def cleanup(self):
+        # Keep them 4 minutes
+        expire = getattr(settings, 'CAS_TICKET_EXPIRATION', 240)
+        self.filter(when__lt=date.today()-timedelta(seconds=expire).delete()
+
 class CasTicket(models.Model):
     '''Session ticket with a CAS 1.0 or 2.0 consumer'''
 

@@ -84,10 +84,18 @@ class Association(models.Model):
                 lifetime=association.lifetime,
                 assoc_type=association.assoc_type).save()
 
+class NonceManager(models.Manager):
+    def cleanup(self):
+        expire = openid.store.nonce.SKEW
+        now = calendar.timegm(datetime.datetime.now().utctimetuple())
+        self.filter(timestamp__lt=now-expire).delete()
+
 class Nonce(models.Model):
     salt = models.CharField(max_length=40)
     server_url = models.CharField(max_length=2047)
     timestamp = models.IntegerField()
+
+    objects = NonceManager()
 
     class Meta:
         unique_together = ('server_url', 'salt')

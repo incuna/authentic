@@ -4,6 +4,7 @@ import xml.etree.ElementTree as etree
 import hashlib
 import binascii
 import base64
+from datetime import datetime, timedelta
 
 import lasso
 from django.db import models
@@ -13,6 +14,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.utils.importlib import import_module
 
 from fields import *
 
@@ -353,6 +355,20 @@ class LibertyIdentityDump(models.Model):
     user = models.ForeignKey(User, unique = True)
     identity_dump = models.TextField(blank = True)
 
+class SessionLinkedManager(models.Manager):
+    def cleanup(self):
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        for o in self.all():
+            key = o.django_session_key
+            if not store.exists(key):
+                o.delete()
+            else:
+                session = engine.SessionStore(session_key=key)
+                if session.get_expiry_date() >= datetime.now():
+                    store.delete(key)
+                    o.delete()
+
 class LibertySessionDump(models.Model):
     '''Store lasso session object dump.
 
@@ -360,6 +376,8 @@ class LibertySessionDump(models.Model):
        assertions through the LibertySession object'''
     django_session_key = models.CharField(max_length = 40)
     session_dump = models.TextField(blank = True)
+
+    objects = SessionLinkedManager()
 
 class LibertyManageDump(models.Model):
     '''Store lasso manage dump
@@ -369,6 +387,15 @@ class LibertyManageDump(models.Model):
     django_session_key = models.CharField(max_length = 40)
     manage_dump = models.TextField(blank = True)
 
+    objects = SessionLinkedManager()
+
+class LibertyArtifactManager(models.Manager):
+    def cleanup(self):
+        # keep artifacts 10 minutes
+        expire = getattr(settings, 'SAML2_ARTIFACT_EXPIRATION', 600)
+        before = datetime.now()-timedelta(seconds=expire)
+        self.filter(creation__lt=before).delete()
+
 class LibertyArtifact(models.Model):
     """Store an artifact and the associated XML content"""
     creation = models.DateTimeField(auto_now_add=True)
@@ -377,11 +404,20 @@ class LibertyArtifact(models.Model):
     django_session_key = models.CharField(max_length = 40)
     provider_id = models.CharField(max_length = 80)
 
+    objects = LibertyArtifactManager()
+
 def nameid2kwargs(name_id):
     return { 'name_id_qualifier': name_id.nameQualifier,
         'name_id_sp_name_qualifier': name_id.spNameQualifier,
         'name_id_content': name_id.content,
         'name_id_format': name_id.format }
+
+class LibertyAssertionManager(models.Manager):
+    def cleanup(self):
+        # keep assertions 1 week
+        expire = getattr(settings, 'SAML2_ASSERTION_EXPIRATION', 3600*24*7)
+        before = datetime.now()-timedelta(seconds=expire)
+        self.filter(creation__lt=before).delete()
 
 class LibertyAssertion(models.Model):
     assertion_id = models.CharField(max_length = 50)
@@ -447,6 +483,8 @@ class LibertySession(models.Model):
     name_id_sp_name_qualifier = models.CharField(max_length = 100,
             verbose_name = _("SPNameQualifier"), null = True)
     creation = models.DateTimeField(auto_now_add=True)
+
+    objects = SessionLinkedManager()
 
     def __init__(self, *args, **kwargs):
         saml2_assertion = kwargs.pop('saml2_assertion', None)
