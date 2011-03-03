@@ -31,3 +31,33 @@ class UserConsentAttributes(models.Model):
 
     def __unicode__(self):
         return "User consent for attributes propagation"
+
+class UserProfile(models.Model):
+    user = models.ForeignKey(User, unique=True)
+    first_name = models.CharField(_('first name'),
+            max_length=30,
+            blank=True)
+    last_name = models.CharField(_('last name'),
+            max_length=30,
+            blank=True)
+    email = models.EmailField(_('e-mail address'), blank=True)
+    nickname = models.CharField(_('nickname'), max_length=50, blank=True)
+    url = models.URLField("Website", blank=True)
+    company = models.CharField(verbose_name=_("Company"),
+            max_length=50, blank=True)
+    phone = models.CharField(verbose_name=_("Phone"),
+            max_length=50, blank=True)
+    postal_address = models.TextField(verbose_name=_("Postal address"),
+            max_length=255, blank=True)
+
+    def save(self):
+        # Synchronize with user object
+        self.user.first_name = self.first_name
+        self.user.last_name = self.last_name
+        self.user.save()
+        # TODO: synchronize email
+        super(UserProfile, self).save()
+
+    def get_absolute_url(self):
+        return ('profiles_profile_detail', (), { 'username': self.user.username })
+    get_absolute_url = models.permalink(get_absolute_url)

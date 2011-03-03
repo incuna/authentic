@@ -14,6 +14,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -22,6 +23,7 @@ from django.template import RequestContext
 from django.utils.encoding import smart_unicode
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.generic.simple import redirect_to
+from django.core.exceptions import ObjectDoesNotExist
 
 import authentic2.saml.common
 import authentic2.authsaml2.utils
@@ -69,10 +71,23 @@ def profile(request):
                     if request.session.test_cookie_worked():
                         request.session.delete_test_cookie()
                     return frontend.post(request, form, None, '/profile')
-
+    # User attributes management
+    try:
+        user_profile = request.user.get_profile()
+        profile = []
+        for field_name in user_profile._meta.get_all_field_names():
+            if field_name in ('id', 'user'):
+                continue
+            field = user_profile._meta.get_field_by_name(field_name)[0]
+            value = getattr(user_profile, field_name)
+            if value:
+                profile.append((field.verbose_name, value))
+    except (SiteProfileNotAvailable, ObjectDoesNotExist):
+        profile = ()
+    # Credentials management
     blocks = [ frontend.profile(request, next='/profile') for frontend in frontends \
             if hasattr(frontend, 'profile') ]
-    return render_to_response('idp/account_management.html', { 'frontends_block': blocks },
+    return render_to_response('idp/account_management.html', { 'frontends_block': blocks, 'profile': profile },
             RequestContext(request))
 
 def logout_list(request):
