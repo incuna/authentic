@@ -825,7 +825,7 @@ def get_only_last_session(name_id, session_indexes, but_provider):
             latest = x.latest('creation')
             result.append(latest)
     if lib_session1:
-        logger.debug('get_only_last_session: last session %s' % lib_session1.dump())
+        logger.debug('get_only_last_session: last session %s' % lib_session1)
     return lib_session1, result, django_session_keys
 
 def build_session_dump(elements):
