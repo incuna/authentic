@@ -11,10 +11,6 @@ if settings.IDP_SAML2:
     urlpatterns += patterns('',
         (r'^saml2/', include(saml.saml2_endpoints)),)
 
-if settings.IDP_IDFF12:
-    urlpatterns += patterns('',
-        (r'^idff12/', include(saml.idff12_endpoints)),)
-
 if settings.IDP_CAS:
     from authentic2.idp.idp_cas.views import Authentic2CasProvider
     urlpatterns += patterns('',
