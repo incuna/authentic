@@ -26,6 +26,7 @@ from authentic2.saml.models import *
 from authentic2.authsaml2.utils import *
 from authentic2.authsaml2 import signals
 from authentic2.authsaml2.models import *
+from authentic2.idp.saml.saml2_endpoints import redirect_next
 from backends import AuthSAML2PersistentBackend, \
         AuthSAML2TransientBackend
 
