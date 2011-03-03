@@ -12,6 +12,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
+from django.db import transaction
 
 from models import *
 import models
@@ -293,6 +294,7 @@ def get_manage_dump(request):
     d = LibertyManageDump.objects.filter(django_session_key = request.session.session_key)
     return d
 
+@transaction.commit_on_success
 def retrieve_metadata_and_create(request, provider_id, sp_or_idp):
     if not provider_id.startswith('http'):
         return None
@@ -311,7 +313,7 @@ for entity id %r is not UTF-8' % provider_id)
         return None
     p = LibertyProvider(metadata=metadata)
     try:
-        p.full_clean()
+        p.full_clean(exclude=['entity_id','protocol_conformance'])
     except ValidationError, e:
         logging.error('SAML metadata autoload: retrieved metadata \
 for entity id %r are invalid, %s' % (provider_id, e.args))
@@ -324,7 +326,8 @@ for entity id %r are invalid, %s' % (provider_id, e.args))
         s = LibertyServiceProvider(liberty_provider=p, enabled=True, ask_user_consent=True)
         s.save()
     elif sp_or_idp == 'idp':
-        raise NotImplementedError()
+        s = LibertyIdentityProvider(liberty_provider=p, enabled=True)
+        s.save()
     return p
 
 def load_provider(request, provider_id, server=None, sp_or_idp='sp',
