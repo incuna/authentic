@@ -374,7 +374,9 @@ def continue_sso(request):
     login_dump, consent_obtained, save, nid_format = \
             get_and_delete_key_values(nonce)
     server = create_server(request)
-    # XXX: The following function does not work!
+    # Work Around for lasso < 2.3.6
+    login_dump = login_dump.replace('<Login ', '<lasso:Login ') \
+            .replace('</Login>', '</lasso:Login>')
     login = lasso.Login.newFromDump(server, login_dump)
     logger.debug('continue_sso: login newFromDump done')
     if not login:
