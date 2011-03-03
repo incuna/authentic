@@ -1,4 +1,5 @@
 {% load i18n %}
+{% if form or federations %}
 <h4>{% trans "SAML2 Federations" %}</h4>
 
 <div>
@@ -27,3 +28,4 @@
 </p>
 {% endif %}
 </div>
+{% endif %}

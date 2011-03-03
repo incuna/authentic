@@ -1769,9 +1769,12 @@ def view_profile(request, next='', template_name='profile.html'):
         pass
 
     from frontend import AuthSAML2Frontend
+    form = AuthSAML2Frontend().form()()
+    if not form.fields['provider_id'].choices:
+        form = None
     context = { 'submit_name': 'submit-%s' % AuthSAML2Frontend().id(),
                 REDIRECT_FIELD_NAME: '/profile',
-                'form': AuthSAML2Frontend().form()() }
+                'form': form }
 
     return render_to_string(template_name,
             { 'next': next,
