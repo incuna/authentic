@@ -281,15 +281,12 @@ class LibertyProvider(models.Model):
 
     def clean(self):
         super(LibertyProvider, self).clean()
-        if self.metadata:
-            p = lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_ANY, self.metadata.encode('utf8'))
-            if p:
-                self.entity_id = p.providerId
-                if not self.name:
-                    self.name = organization_name(p)
-                self.protocol_conformance = p.protocolConformance
-        else:
-            print 'coin'
+        p = lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_ANY, self.metadata.encode('utf8'))
+        self.entity_id = p.providerId
+        if not self.name:
+            self.name = organization_name(p)
+        if not self.protocol_conformance:
+            self.protocol_conformance = p.protocolConformance
 
 # TODO: The IdP must look to the preferred binding order for sso in the SP metadata (AssertionConsumerService)
 # expect if the protocol for response is defined in the request (ProtocolBinding attribute)
