@@ -322,7 +322,7 @@ def singleSignOnPost(request):
                 Unable to process Authnresponse - load another provider')
             provider_id = login.remoteProviderId
             provider_loaded = load_provider(request, provider_id,
-                    server=server, sp_or_idp='idp')
+                    server=server, sp_or_idp='idp', autoload=True)
 
             if not provider_loaded:
                 message = _('singleSignOnPost: provider %r unknown' \
