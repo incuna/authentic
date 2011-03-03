@@ -118,7 +118,8 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
             return render_to_response(template, context_instance = context)
     else:
         logger.info('sso: sso with provider %s' % entity_id)
-        p = load_provider(request, entity_id, server=server, sp_or_idp='idp')
+        p = load_provider(request, entity_id, server=server, sp_or_idp='idp',
+                autoload=True)
         if not p:
             return error_page(request,
                 _('sso: The provider does not exist'), logger=logger)

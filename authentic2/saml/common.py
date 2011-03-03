@@ -327,7 +327,8 @@ for entity id %r are invalid' % provider_id)
         raise NotImplementedError()
     return p
 
-def load_provider(request, provider_id, server=None, sp_or_idp='sp'):
+def load_provider(request, provider_id, server=None, sp_or_idp='sp',
+        autoload=False):
     '''Look up a provider in the database, and verify it handles wanted
        role be it sp or idp.
 
@@ -343,7 +344,7 @@ def load_provider(request, provider_id, server=None, sp_or_idp='sp'):
         liberty_provider = LibertyProvider.objects.get(entity_id=provider_id)
     except LibertyProvider.DoesNotExist:
         autoload = getattr(settings, 'SAML_METADATA_AUTOLOAD', 'none')
-        if autoload == 'sp' or autoload == 'both':
+        if autoload and (autoload == 'sp' or autoload == 'both'):
             liberty_provider = retrieve_metadata_and_create(request, provider_id, sp_or_idp)
             if not liberty_provider:
                 return False

@@ -284,7 +284,7 @@ def sso(request):
             provider_id = login.remoteProviderId
             logger.debug('sso: loading provider %s' %provider_id)
             provider_loaded = load_provider(request, provider_id,
-                    server=login.server)
+                    server=login.server, autoload=True)
             if not provider_loaded:
                 consent_obtained = False
                 message = _('sso: fail to load unknown provider %s' %provider_id)
@@ -379,7 +379,8 @@ def continue_sso(request):
     logger.debug('continue_sso: login newFromDump done')
     if not login:
         return error_page(request, _('continue_sso: error loading login'), logger=logger)
-    if not load_provider(request, login.remoteProviderId, server=login.server):
+    if not load_provider(request, login.remoteProviderId, server=login.server,
+            autoload=True):
         return error_page(request, _('continue_sso: unknown provider %s') %login.remoteProviderId, logger=logger)
     if consent_answer == 'refused':
         logger.info('continue_sso: consent answer treatment, the user refused, return request denied to the requester')
