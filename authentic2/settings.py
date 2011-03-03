@@ -133,7 +133,6 @@ ACCOUNT_ACTIVATION_DAYS = 2
 EMAIL_HOST = 'localhost'
 DEFAULT_FROM_EMAIL = 'webmaster@entrouvert.com'
 LOGIN_REDIRECT_URL = '/'
-AUTHENTIC2_USER_IFRAME = False
 # Default profile class
 AUTH_PROFILE_MODULE = 'idp.UserProfile'
 
