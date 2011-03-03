@@ -477,7 +477,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                 logger=logger)
     except:
         return error_page(request,
-            _('sso_after_response: invalid notBefore value ' + notBefore),
+            _('sso_after_response: invalid notBefore value ' + not_before),
             logger=logger)
     try:
         if not_on_or_after and now > iso8601_to_datetime(not_on_or_after):
