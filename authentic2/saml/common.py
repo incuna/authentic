@@ -311,10 +311,10 @@ for entity id %r is not UTF-8' % provider_id)
         return None
     p = LibertyProvider(metadata=metadata)
     try:
-        p.clean()
-    except ValidationError:
+        p.full_clean()
+    except ValidationError, e:
         logging.error('SAML metadata autoload: retrieved metadata \
-for entity id %r are invalid' % provider_id)
+for entity id %r are invalid, %s' % (provider_id, e.args))
         return None
     except:
         logging.exception('SAML metadata autoload: retrieved metadata validation raised an unknown exception')
