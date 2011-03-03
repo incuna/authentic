@@ -31,9 +31,3 @@ def get_backends(setting_name='IDP_BACKENDS'):
     for backend_path in getattr(settings, setting_name, ()):
         backends.append(load_backend(backend_path))
     return backends
-
-class AdminBackend(object):
-    def service_list(self, request):
-        if request.user.is_staff:
-            return (('/admin', _('Authentic administration')),)
-        return []

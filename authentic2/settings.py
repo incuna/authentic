@@ -173,7 +173,7 @@ AUTH_OATH = True
 
 # List of IdP backends, mainly used to show available services in the homepage
 # of user, and to handle SLO for each protocols
-IDP_BACKENDS = [ 'authentic2.idp.AdminBackend' ]
+IDP_BACKENDS = [ ]
 
 # SAML2 IDP
 IDP_SAML2 = True

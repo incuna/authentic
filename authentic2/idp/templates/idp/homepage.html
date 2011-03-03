@@ -31,4 +31,8 @@
   </div>
 {% endif %}
 
+{% if user.is_staff %}
+<p id="administration-link"><a href="/admin">{% trans "Administration" %}</a></p>
+{% endif %}
+
 {% endblock %}
