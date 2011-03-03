@@ -703,34 +703,3 @@ def authz_decision_cb(sender, request=None, attributes={},
 
 signals.authz_decision.connect(authz_decision_cb,
     dispatch_uid='authz_decision_on_attributes')
-
-from authentic2.idp.signals import authorize_service, add_attributes_to_response, avoid_consent
-
-def authorize_service_cb(sender, request=None, user=None,
-            audience=None, **kwargs):
-    dic = {}
-    dic['authz'] = True
-    dic['message'] = _('What else?')
-    return dic
-
-def add_attributes_to_response_cb(sender, request=None, user=None,
-            audience=None, **kwargs):
-    dic = {}
-    if request.session.has_key('attributes'):
-        dic['attributes'] = request.session['attributes']
-    return dic
-
-def avoid_consent_cb(sender, request=None, user=None,
-            audience=None, **kwargs):
-    dic = {}
-    #dic['avoid_consent'] = True
-    return dic
-
-authorize_service.connect(authorize_service_cb,
-    dispatch_uid='authz_decision')
-
-add_attributes_to_response.connect(add_attributes_to_response_cb,
-    dispatch_uid='authz_decision')
-
-avoid_consent.connect(avoid_consent_cb,
-    dispatch_uid='authz_decision')
