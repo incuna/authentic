@@ -4,7 +4,7 @@ import xml.etree.ElementTree as etree
 import hashlib
 import binascii
 import base64
-from datetime import datetime, timedelta
+import datetime
 
 import lasso
 from django.db import models
@@ -365,7 +365,7 @@ class SessionLinkedManager(models.Manager):
                 o.delete()
             else:
                 session = engine.SessionStore(session_key=key)
-                if session.get_expiry_date() >= datetime.now():
+                if session.get_expiry_date() >= datetime.datetime.now():
                     store.delete(key)
                     o.delete()
 
@@ -399,7 +399,7 @@ class LibertyArtifactManager(models.Manager):
     def cleanup(self):
         # keep artifacts 10 minutes
         expire = getattr(settings, 'SAML2_ARTIFACT_EXPIRATION', 600)
-        before = datetime.now()-timedelta(seconds=expire)
+        before = datetime.datetime.now()-datetime.timedelta(seconds=expire)
         self.filter(creation__lt=before).delete()
 
 class LibertyArtifact(models.Model):
@@ -422,7 +422,7 @@ class LibertyAssertionManager(models.Manager):
     def cleanup(self):
         # keep assertions 1 week
         expire = getattr(settings, 'SAML2_ASSERTION_EXPIRATION', 3600*24*7)
-        before = datetime.now()-timedelta(seconds=expire)
+        before = datetime.datetime.now()-datetime.timedelta(seconds=expire)
         self.filter(creation__lt=before).delete()
 
 class LibertyAssertion(models.Model):
