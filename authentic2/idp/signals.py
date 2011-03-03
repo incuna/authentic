@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.dispatch import Signal
 
 '''authorize_decision
@@ -24,3 +25,19 @@ add_attributes_to_response = Signal(providing_args = ["request","user","audience
 Expect a boolean e.g. dic['avoid_consent'] = True or False
 '''
 avoid_consent = Signal(providing_args = ["request","user","audience"])
+
+def add_user_profile_attributes(request, user, audience, **kwargs):
+    try:
+        profile = user.get_profile()
+        attributes = dict()
+        for field_name in profile._meta.get_all_field_names():
+            if field_name == 'user':
+                continue
+            value = getattr(profile, field_name, None)
+            if value is not None or value == '':
+                attributes[field_name] = [ value ]
+        return { 'attributes': attributes }
+    except ObjectDoesNotExist:
+        return { 'attributes': dict() }
+
+add_attributes_to_response.connect(add_user_profile_attributes)
