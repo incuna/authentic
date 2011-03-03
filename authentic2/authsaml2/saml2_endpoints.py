@@ -468,10 +468,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             _('sso_after_response: invalid notOnOrAfter value'),
             logger=logger)
     try:
-        if not_before and \
-            now < datetime.datetime. \
-                fromtimestamp(time. \
-                    mktime(time.strptime(not_before,"%Y-%m-%dT%H:%M:%S"))):
+        if not_before and now < iso8601_to_datetime(not_before):
             return error_page(request,
                 _('sso_after_response: Assertion received too early'),
                 logger=logger)
