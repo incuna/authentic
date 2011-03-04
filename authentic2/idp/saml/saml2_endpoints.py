@@ -973,12 +973,6 @@ def ko_icon(request):
 def ok_icon(request):
     return HttpResponseRedirect('%s/images/ok.png' % settings.MEDIA_URL)
 
-def redirect_next(request, next):
-    if next:
-        return HttpResponseRedirect(next)
-    else:
-        return None
-
 @login_required
 def idp_slo(request, provider_id):
     '''Send a single logout request to a SP, if given a next parameter, return

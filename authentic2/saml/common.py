@@ -631,6 +631,12 @@ def error_page(request, message, back = None, logger = None):
     return render_to_response('error.html', {'msg': message, 'back': back},
             context_instance=RequestContext(request))
 
+def redirect_next(request, next):
+    if next:
+        return HttpResponseRedirect(next)
+    else:
+        return None
+
 def soap_fault(request, faultcode='soap:Client', faultstring=None):
     if faultstring:
         faultstring = '\n        <faultstring>%s</faultstring>\n' % faultstring
