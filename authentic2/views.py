@@ -20,3 +20,11 @@ def server_error(request, template_name='500.html'):
     return render_to_response(template_name,
         context_instance = RequestContext(request)
     )
+
+def registration_success(request, template_name='registration/registration_complete.html'):
+    """
+    Return page after a successful registration.
+    """
+    return render_to_response(template_name,
+        context_instance = RequestContext(request)
+    )
