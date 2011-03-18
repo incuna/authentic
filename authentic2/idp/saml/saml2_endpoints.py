@@ -285,6 +285,9 @@ def sso(request):
             logger.debug('sso: loading provider %s' %provider_id)
             provider_loaded = load_provider(request, provider_id,
                     server=login.server, autoload=True)
+            login.setSignatureVerifyHint(
+                    provider_loaded.service_provider.policy \
+                            .authn_request_signature_check_hint)
             if not provider_loaded:
                 consent_obtained = False
                 message = _('sso: fail to load unknown provider %s' %provider_id)
