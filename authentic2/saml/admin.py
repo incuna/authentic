@@ -136,11 +136,18 @@ class LibertyProviderAdmin(admin.ModelAdmin):
             LibertyIdentityProviderInline
     ]
 
+class LibertyProviderPolicyAdmin(admin.ModelAdmin):
+    inlines = [
+            LibertyServiceProviderInline,
+    ]
+
+
 admin.site.register(IdPOptionsSPPolicy, IdPOptionsSPPolicyAdmin)
 admin.site.register(AuthorizationSPPolicy, AuthorizationSPPolicyAdmin)
 admin.site.register(AuthorizationAttributeMap, AuthorizationAttributeMapAdmin)
 admin.site.register(AuthorizationAttributeMapping, AuthorizationAttributeMappingAdmin)
 admin.site.register(LibertyProvider, LibertyProviderAdmin)
+admin.site.register(LibertyProviderPolicy, LibertyProviderPolicyAdmin)
 
 if settings.DEBUG:
     admin.site.register(LibertySessionDump)

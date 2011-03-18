@@ -139,6 +139,11 @@ USER_CONSENT = (
     ('urn:oasis:names:tc:SAML:2.0:consent:inapplicable', _('Inapplicable'))
 )
 
+SIGNATURE_VERIFY_HINT = {
+        lasso.PROFILE_SIGNATURE_VERIFY_HINT_MAYBE: _('Let authentic decides which signatures to check'),
+        lasso.PROFILE_SIGNATURE_VERIFY_HINT_FORCE: _('Always check signatures'),
+        lasso.PROFILE_SIGNATURE_VERIFY_HINT_IGNORE: _('Does not check signatures') }
+
 class LibertyAttributeMap(models.Model):
     name = models.CharField(max_length = 40, unique = True)
     def __unicode__(self):
@@ -149,6 +154,17 @@ class LibertyAttributeMapping(models.Model):
     attribute_value_format = models.URLField(choices = ATTRIBUTE_VALUE_FORMATS)
     attribute_name = models.CharField(max_length = 40)
     map = models.ForeignKey(LibertyAttributeMap)
+
+class LibertyProviderPolicy(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+    authn_request_signature_check_hint = models.IntegerField(
+            verbose_name=_("How to verify signatures Authentication Request ?"),
+            choices=SIGNATURE_VERIFY_HINT.items(),
+            default=lasso.PROFILE_SIGNATURE_VERIFY_HINT_MAYBE)
+    def __unicode__(self):
+        options = []
+        options.append('AuthnRequest signature: ' + SIGNATURE_VERIFY_HINT[self.authn_request_signature_check_hint])
+        return self.name + ' (%s)' % ', '.join(options)
 
 class IdPOptionsSPPolicy(models.Model):
     name = models.CharField(_('name'), max_length=80, unique=True)
@@ -322,6 +338,8 @@ class LibertyServiceProvider(models.Model):
     # i.e. provider.roles & lasso.PROVIDER_ROLE_SP != 0
     ask_user_consent = models.BooleanField(
         verbose_name = _('Ask user for consent when creating a federation'), default = False)
+    policy = models.ForeignKey(LibertyProviderPolicy,
+            verbose_name=_("Protocol policy"), null=True, default=1)
 
 # TODO: The choice for requests must be restricted by the IdP metadata
 # The SP then chooses the binding in this list.

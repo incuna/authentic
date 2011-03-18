@@ -1,0 +1,6 @@
+- model: saml.libertyproviderpolicy
+  pk: 1
+  fields: {authn_request_signature_check_hint: 0, name: Default}
+- fields: {authn_request_signature_check_hint: 2, name: Shibboleth SP}
+  model: saml.libertyproviderpolicy
+  pk: 2
