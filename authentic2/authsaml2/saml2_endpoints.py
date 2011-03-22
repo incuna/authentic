@@ -298,7 +298,7 @@ def singleSignOnPost(request):
     if not message:
         return error_page(request,
             _('singleSignOnPost: No message given.'), logger=logger)
-    #logger.debug('singleSignOnPost: message %s' % message)
+    logger.debug('singleSignOnPost: message %s' % message)
 
     ''' Binding REDIRECT
 
