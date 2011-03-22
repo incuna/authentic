@@ -332,6 +332,8 @@ def singleSignOnPost(request):
                     provider %s loaded' % provider_id)
                 continue
         except lasso.Error, error:
+            logger.debug('singleSignOnPost: lasso error, login dump is %s' \
+                % login.dump())
             return error_page(request,
                 _('singleSignOnPost: %s') %lasso.strError(error[0]),
                 logger=logger)
