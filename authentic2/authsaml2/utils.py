@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 from django.shortcuts import render_to_response
 from django.contrib.sessions.models import Session
 from django.contrib import messages
+from django.conf import settings
 
 __redirection_timeout = 1600
 
@@ -37,7 +38,8 @@ def error_page(request, message=None, back=None, logger=None,
     if timer:
         context['redir_timeout'] = __redirection_timeout
         context['next_page'] = back
-    if default_message:
+    display_message = getattr(settings, 'DISPLAY_MESSAGE_ERROR_PAGE', ())
+    if default_message and not display_message:
         messages.add_message(request, messages.ERROR,
             _('An error happened. Report this %s to the administrator.') % \
                 time.strftime("[%Y-%m-%d %a %H:%M:%S]", time.localtime()))

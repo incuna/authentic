@@ -267,6 +267,7 @@ if AUTH_SAML2:
             'authentic2.authsaml2.backends.AuthSAML2TransientBackend')
     AUTH_FRONTENDS += ('authentic2.authsaml2.frontend.AuthSAML2Frontend',)
     IDP_BACKENDS += ('authentic2.authsaml2.backends.AuthSAML2Backend',)
+    DISPLAY_MESSAGE_ERROR_PAGE = True
 
 if AUTH_OPENID:
     INSTALLED_APPS += ('django_authopenid',)
