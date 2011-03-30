@@ -55,7 +55,7 @@ metadata_map = (
             lasso.SAML2_METADATA_BINDING_REDIRECT ,
             '/manageNameId', '/manageNameIdReturn'),
 )
-metadata_options = { 'key': settings.SAML_SIGNING_KEY }
+metadata_options = { 'key': settings.SAML_SIGNATURE_PUBLIC_KEY }
 
 def metadata(request):
     '''Endpoint to retrieve the metadata file'''

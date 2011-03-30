@@ -1,6 +1,6 @@
 = Add to settings =
 
-SAML_PRIVATE_KEY = *your_key*
+SAML_SIGNATURE_PRIVATE_KEY = *your_key*
 INSTALLED_APPS += ('*project*.authsaml2', '*project*.authsaml2.saml',)
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',

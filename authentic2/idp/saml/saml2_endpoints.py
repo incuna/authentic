@@ -55,7 +55,7 @@ metadata_map = (
         (saml2utils.Saml2Metadata.SINGLE_LOGOUT_SERVICE, soap_bindings, '/slo/soap'),
         (saml2utils.Saml2Metadata.ARTIFACT_RESOLUTION_SERVICE, lasso.SAML2_METADATA_BINDING_SOAP, '/artifact')
 )
-metadata_options = { 'key': settings.SAML_SIGNING_KEY }
+metadata_options = { 'key': settings.SAML_SIGNATURE_PUBLIC_KEY }
 
 def metadata(request):
     '''Endpoint to retrieve the metadata file'''
