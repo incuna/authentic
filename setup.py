@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #
-# Setup script for Authentic
+# Setup script for Authentic2
 #
 # It started as a copy of ReviewBoard setup.py file, thanks to them, and for
 import distutils.core
@@ -19,8 +19,8 @@ def ls_R(directory, target):
 # Build the authentic package.
 distutils.core.setup(name="authentic2",
       version=authentic2.VERSION,
-      license="GPLv2 or later",
-      description="Authentic, a versatile identity server",
+      license="AGPLv3 or later",
+      description="Authentic2, a versatile identity server",
       url="http://dev.entrouvert.org/projects/authentic/",
       author="Entr'ouvert",
       author_email="authentic-devel@lists.labs.libre-entreprise.org",

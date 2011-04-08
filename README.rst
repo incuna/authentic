@@ -1,10 +1,12 @@
 =====================================
-Authentic - Versatile Identity Server
+Authentic2 - Versatile Identity Server
 =====================================
 
-Authentic is a versatile identity provider aiming to address a broad
+Authentic2 is a versatile identity provider aiming to address a broad
 range of needs, from simple to complex setups; it has support for many
 protocols and can bridge between them.
+
+Authentic2 is under the GNU AGPL version 3 licence.
 
 It has support for SAMLv2 thanks to Lasso, a free (GNU GPL)
 implementation of the Liberty Alliance specifications.
@@ -248,6 +250,6 @@ available in the COPYING file.
 
 The OpenID IdP originates in the project django_openid_provider by Roman
 Barczy¿ski, which is under the Apache 2.0 licence. This imply that you must
-distribute authentic2 under the GPL3 licence when distributing this part of the
-project which is the only GPL licence version compatible with the Apache 2.0
+distribute authentic2 under the AGPL3 licence when distributing this part of the
+project which is the only AGPL licence version compatible with the Apache 2.0
 licence.
