@@ -387,6 +387,11 @@ def continue_sso(request):
     if not load_provider(request, login.remoteProviderId, server=login.server,
             autoload=True):
         return error_page(request, _('continue_sso: unknown provider %s') %login.remoteProviderId, logger=logger)
+    if 'cancel' in request.GET:
+        logger.info('continue_sso: login canceled')
+        set_saml2_response_responder_status_code(login.response,
+                lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
+        return finish_sso(request, login)
     if consent_answer == 'refused':
         logger.info('continue_sso: consent answer treatment, the user refused, return request denied to the requester')
         set_saml2_response_responder_status_code(login.response,
