@@ -1,19 +1,21 @@
 #! /usr/bin/env python
 #
-# Setup script for Authentic2
-#
-# It started as a copy of ReviewBoard setup.py file, thanks to them, and for
+'''
+   Setup script for Authentic2
+
+   It started as a copy of ReviewBoard setup.py file, thanks to them, and for
+'''
 import distutils.core
 import authentic2
 import os
 
-def ls_R(directory, target):
+def ls_r(directory, target):
     '''Recursively list files in @directory'''
     path = os.path.join(os.path.dirname(__file__), directory)
     to_remove = os.path.dirname(path)
-    for root, dirs, files in os.walk(path):
+    for root, _, files in os.walk(path):
         root = root.replace(to_remove + '/', '')
-        file_list = [ os.path.join(root, file) for file in files]
+        file_list = [ os.path.join(root, filename) for filename in files]
         yield (os.path.join(target, root), file_list)
 
 # Build the authentic package.
@@ -58,7 +60,7 @@ distutils.core.setup(name="authentic2",
             ],
       package_data={ '': ['fixtures/*.json',
           'templates/*.html','templates/*/*.html','js/*.js'] },
-      data_files=list(ls_R('media', 'share/authentic2/')),
+      data_files=list(ls_r('media', 'share/authentic2/')),
       requires=[
           'django (>=1.2.0)',
           'registration (>=0.7)',
