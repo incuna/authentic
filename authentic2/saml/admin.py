@@ -1,10 +1,21 @@
+import urllib
+
 from django.contrib import admin
 from django.utils.translation import ugettext as _
 from django.conf import settings
+from django.http import HttpResponseRedirect
 from django.forms import ModelForm
-from django.forms.widgets import MultiWidget
+from django.conf.urls.defaults import patterns, url
 import django.forms
-from models import *
+from django.contrib import messages
+
+from models import LibertyProvider, LibertyServiceProvider
+from models import LibertyIdentityProvider, IdPOptionsSPPolicy
+from models import AuthorizationSPPolicy, AuthorizationAttributeMap
+from models import AuthorizationAttributeMapping, LibertyProviderPolicy
+from models import LibertySessionDump, LibertyIdentityDump, LibertyFederation
+from models import LibertyAssertion, LibertySessionSP, KeyValue
+from models import LibertySession
 
 class AuthorizationAttributeMapAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -116,6 +127,21 @@ class LibertyProviderForm(ModelForm):
     class Meta:
         model = LibertyProvider
 
+def update_metadata(modeladmin, request, queryset):
+    updated = []
+    for provider in queryset:
+        if provider.entity_id.startswith('http'):
+            try:
+                data = urllib.urlopen(provider.entity_id).read()
+                if data != provider.metadata:
+                    provider.metadata = data
+                    updated.append(provider.entity_id)
+                    provider.save()
+            except IOError:
+                pass
+    updated = ', '.join(updated)
+    messages.info(request, _('Metadata update for: %s') % updated)
+
 class LibertyProviderAdmin(admin.ModelAdmin):
     form = LibertyProviderForm
     list_display = ('name', 'entity_id', 'protocol_conformance')
@@ -135,6 +161,8 @@ class LibertyProviderAdmin(admin.ModelAdmin):
             LibertyServiceProviderInline,
             LibertyIdentityProviderInline
     ]
+    actions = [ update_metadata ]
+
 
 class LibertyProviderPolicyAdmin(admin.ModelAdmin):
     inlines = [
