@@ -37,25 +37,29 @@ Dependencies
 
 You must install the following packages to use Authentic
 
- * Python Lasso binding::
+ * Python Lasso binding 2.3.5::
 
    From sources: http://lasso.entrouvert.org/download
    Debian based distribution: apt-get install python-lasso
+ 
+ * Django 1.3::
 
- * Django-registration::
+   From sources: http://www.djangoproject.com/download/1.3/tarball/
+
+ * Django-registration 0.8-alpha-1::
 
     From sources: http://bitbucket.org/ubernostrum/django-registration/downloads
     Debian based distribution: apt-get install python-django-registration
 
- * Django-authopenid::
+ * Django-authopenid 0.9.6::
 
    From sources: http://bitbucket.org/benoitc/django-authopenid/downloads
 
- * Django-south::
+ * Django-south 0.7.3::
 
    From sources:: http://south.aeracode.org/docs/installation.html
 
- * Django-profiles::
+ * Django-profiles 0.2::
 
    From sources:: http://pypi.python.org/pypi/django-profiles
 
