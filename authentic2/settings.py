@@ -241,12 +241,59 @@ IDP_CAS = False
 # expiration time in seconds of the cas tickets
 # CAS_TICKET_EXPIRATION = 240
 
-import logging
 # Logging settings
-LOG_FILENAME = os.path.join(_PROJECT_PATH, 'log.log')
-LOG_FILE_LEVEL = logging.DEBUG
-LOG_SYSLOG = True
-LOG_SYS_LEVEL = logging.WARNING
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)-8s %(name)s.%(message)s',
+            'datefmt': '%Y-%m-%d %a %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'null': {
+            'level':'DEBUG',
+            'class':'django.utils.log.NullHandler',
+        },
+        'console': {
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'local_file': {
+            'level':'DEBUG',
+            'class':'logging.FileHandler',
+            'formatter': 'verbose',
+            'filename': os.path.join(_PROJECT_PATH, 'log.log'),
+        },
+        'syslog': {
+            'level':'INFO',
+            'class':'logging.handlers.SysLogHandler',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers':['null'],
+            'propagate': True,
+            'level':'INFO',
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+    'root': {
+            'handlers': ['console', 'local_file'],
+            'level': 'DEBUG',
+    }
+}
 
 
 # local_settings.py can be used to override environment-specific settings
@@ -289,37 +336,3 @@ if IDP_OPENID:
 
 if IDP_CAS:
     INSTALLED_APPS += ('authentic2.idp.idp_cas',)
-
-from logging.handlers import SysLogHandler
-import threading
-import sys
-
-_LOCAL = threading.local()
-
-def getlogger():
-
-    logger = getattr(_LOCAL, 'logger', None)
-    if logger is not None:
-        return logger
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    formatter = logging.Formatter('[%(asctime)s] %(levelname)-8s %(name)s.%(message)s','%Y-%m-%d %a %H:%M:%S')
-
-    if LOG_FILENAME:
-        log_handler = logging.FileHandler(LOG_FILENAME)
-        log_handler.setFormatter(formatter)
-        log_handler.setLevel(LOG_FILE_LEVEL)
-        logger.addHandler(log_handler)
-
-    if LOG_SYSLOG:
-        syslog_handler = SysLogHandler(address = '/dev/log')
-        formatter = logging.Formatter('authentic %(levelname)-8s %(name)s.%(message)s','%Y-%m-%d %a %H:%M:%S')
-        syslog_handler.setFormatter(formatter)
-        syslog_handler.setLevel(LOG_SYS_LEVEL)
-        logger.addHandler(syslog_handler)
-
-    setattr(_LOCAL,'logger',logger)
-    return logger
-
-getlogger()
