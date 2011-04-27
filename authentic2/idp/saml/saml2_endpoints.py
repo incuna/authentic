@@ -1,23 +1,40 @@
 import datetime
 import logging
+import urllib
 
 import lasso
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.http import *
-from django.shortcuts import render_to_response
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest, Http404
 from django.utils.translation import ugettext as _
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import BACKEND_SESSION_KEY
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth import User
+from django.conf import settings
 
 import authentic2.idp as idp
 import authentic2.idp.views as idp_views
-from authentic2.saml.models import *
-from authentic2.saml.common import *
+from authentic2.saml.models import LibertyAssertion, LibertyArtifact, LibertySession, LibertyFederation
+
+from authentic2.saml.common import redirect_next, asynchronous_bindings, \
+    soap_bindings, nameid2kwargs, load_provider, get_saml2_request_message, \
+    error_page, set_saml2_response_responder_status_code, \
+    saml2_urn_to_nidformat, nidformat_to_saml2_urn, save_key_values, \
+    AUTHENTIC_STATUS_CODE_MISSING_DESTINATION, \
+    get_and_delete_key_values, load_federation, load_session, \
+    return_saml2_response, save_federation, save_session, \
+    get_soap_message, soap_fault, return_saml_soap_response, \
+    AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER, \
+    AUTHENTIC_STATUS_CODE_MISSING_NAMEID, \
+    AUTHENTIC_STATUS_CODE_MISSING_SESSION_INDEX, \
+    AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION, \
+    AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR, \
+    send_soap_request, get_saml2_query_request, \
+    get_saml2_request_message_async_binding, create_saml2_server, \
+    get_saml2_metadata
+
 import authentic2.saml.saml2utils as saml2utils
 from authentic2.auth2_auth.models import AuthenticationEvent
 from common import redirect_to_login, kill_django_sessions
@@ -25,9 +42,9 @@ from authentic2.auth2_auth import NONCE_FIELD_NAME
 from authentic2.idp.interactions import consent_federation, consent_attributes
 
 from authentic2.idp import signals as idp_signals
-from authentic2.idp.models import *
+# from authentic2.idp.models import *
 
-from authentic2.authsaml2.models import *
+from authentic2.authsaml2.models import SAML2TransientUser
 
 '''SAMLv2 IdP implementation
 
@@ -174,7 +191,7 @@ def build_assertion(request, login, nid_format = 'transient', attributes=None):
     ssl = request.environ.has_key('HTTPS')
     if __user_backend_from_session:
         backend = request.session[BACKEND_SESSION_KEY]
-        logger.debug("build_assertion: backend from session %s" %backend)
+        logger.debug("build_assertion: authentication from session %s" %backend)
         if backend in ('django.contrib.auth.backends.ModelBackend',
                 'authentic2.idp.auth_backends.LogginBackend',
                 'django_auth_ldap.backend.LDAPBackend'):
@@ -192,9 +209,9 @@ def build_assertion(request, login, nid_format = 'transient', attributes=None):
         else:
             raise Exception('unknown backend: ' + backend)
     else:
-        logger.debug("build_assertion: backend from stored event %s" %sbackend)
         try:
             auth_event = AuthenticationEvent.objects.get(nonce = login.request.id)
+            logger.debug("build_assertion: authentication from stored event %s" % auth_event)
             if auth_event.how == 'password':
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD
             elif auth_event.how == 'password-on-https':
@@ -204,7 +221,6 @@ def build_assertion(request, login, nid_format = 'transient', attributes=None):
             else:
                 raise NotImplementedError('Unknown authentication method %r' % auth_event.how)
         except ObjectDoesNotExist:
-            logger.debug("build_assertion: backend from stored event not found %s" %backend)
             # TODO: previous session over secure transport (ssl) ?
             authn_context = lasso.SAML2_AUTHN_CONTEXT_PREVIOUS_SESSION
     logger.info("build_assertion: authn_context %s" %authn_context)
@@ -270,9 +286,9 @@ def sso(request):
                 'WebSSO profile with HTTP-Redirect binding: %r') % message)
         except lasso.ProfileInvalidProtocolprofileError:
             log_info_authn_request_details(login)
-            message = N_('SAMLv2 Single Sign On: the request cannot be answered because no valid protocol binding could be found')
+            message = _('SAMLv2 Single Sign On: the request cannot be answered because no valid protocol binding could be found')
             logger.error('sso: the request cannot be answered because no valid protocol binding could be found')
-            return HttpResponseBadRequest(_(message))
+            return HttpResponseBadRequest(message)
         except lasso.DsError, e:
             log_info_authn_request_details(login)
             logger.error('sso: digital signature treatment error: %s' % e)
@@ -730,7 +746,7 @@ def finish_slo(request):
     all_sessions = LibertySession.objects.filter(django_session_key=session_key)
     if all_sessions.exists():
         all_sessions.delete()
-        return return_logout_error(logout, lasso.SAML2_STATUS_CODE_PARTIAL_LOGOUT)
+        return return_logout_error(request, logout, lasso.SAML2_STATUS_CODE_PARTIAL_LOGOUT)
     try:
         logout.buildResponseMsg()
     except:
@@ -738,7 +754,7 @@ def finish_slo(request):
         raise NotImplementedError()
     return return_saml2_response(request, logout)
 
-def return_logout_error(logout, error):
+def return_logout_error(request, logout, error):
     logout.buildResponseMsg()
     set_saml2_response_responder_status_code(logout.response, error)
     # Hack because response is not initialized before
@@ -757,25 +773,25 @@ def process_logout_request(request, message, binding):
     try:
         try:
             logout.processRequestMsg(message)
-        except (lasso.ServerProviderNotFoundError, lasso.ProfileUnknownProviderError), e:
+        except (lasso.ServerProviderNotFoundError, lasso.ProfileUnknownProviderError):
             logger.debug('process_logout_request: loading provider %s' %logout.remoteProviderId)
             p = load_provider(request, logout.remoteProviderId,
                     server=logout.server)
             if not p:
                 logger.error('process_logout_request: slo unknown provider %s' %logout.remoteProviderId)
-                return logout, return_logout_error(logout,
+                return logout, return_logout_error(request, logout,
                         AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER)
             logout.processRequestMsg(message)
-    except lasso.DsError, e:
+    except lasso.DsError:
         logger.error('process_logout_request: slo signature error on request %s' % message)
-        return logout, return_logout_error(logout,
+        return logout, return_logout_error(request, logout,
                 lasso.LIB_STATUS_CODE_INVALID_SIGNATURE)
-    except Exception, e:
+    except Exception:
         logger.error('process_logout_request: slo unknown error when processing a request %s' % message)
         return logout, HttpResponseBadRequest('Invalid logout request')
     if binding != 'SOAP' and not check_destination(request, logout.request):
         logger.error('process_logout_request: slo wrong or absent destination')
-        return logout, return_logout_error(AUTHENTIC_STATUS_CODE_MISSING_DESTINATION)
+        return logout, return_logout_error(request, logout, AUTHENTIC_STATUS_CODE_MISSING_DESTINATION)
     return logout, None
 
 def log_logout_request(logout):
@@ -787,12 +803,12 @@ def log_logout_request(logout):
 def validate_logout_request(request, logout, idp=True):
     if not isinstance(logout.request.nameId, lasso.Saml2NameID):
         logger.error('validate_logout_request: slo request lacks a NameID')
-        return return_logout_error(logout,
+        return return_logout_error(request, logout,
                 AUTHENTIC_STATUS_CODE_MISSING_NAMEID)
     # only idp have the right to send logout request without session indexes
     if not logout.request.sessionIndexes and idp:
         logger.error('validate_logout_request: slo request lacks SessionIndex')
-        return return_logout_error(logout,
+        return return_logout_error(request, logout,
                 AUTHENTIC_STATUS_CODE_MISSING_SESSION_INDEX)
     logger.info('validate_logout_request: valid logout request')
     log_logout_request(logout)
@@ -808,7 +824,7 @@ def logout_synchronous_other_backends(request, logout, django_sessions_keys):
     for backend in backends:
         ok = ok and backends.can_synchronous_logout(django_sessions_keys)
     if not ok:
-        return return_logout_error(logout,
+        return return_logout_error(request, logout,
                 lasso.SAML2_STATUS_CODE_UNSUPPORTED_BINDING)
     logger.info('logout_synchronous_other_backends: treatments ended')
     return None
@@ -875,7 +891,7 @@ def slo_soap(request):
                     logout.request.sessionIndexes, logout.remoteProviderId)
     if not found:
         logger.debug('slo_soap: no session found, return logout error')
-        return return_logout_error(logout, AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION)
+        return return_logout_error(request, logout, AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION)
     for lib_session in lib_sessions:
         p = load_provider(request, lib_session.provider_id,
                 server=logout.provider)
@@ -886,12 +902,12 @@ def slo_soap(request):
     set_session_dump_from_liberty_sessions(logout, found[0:1] + lib_sessions)
     try:
         logout.validateRequest()
-    except lasso.LogoutUnsupportedProfileError, e:
+    except lasso.LogoutUnsupportedProfileError:
         logger.error('slo_soap: slo cannot do SOAP logout, one provider does \
             not support it %s' % [ s.provider_id for s in lib_sessions])
         logout.buildResponseMsg()
         return return_saml2_response(request, logout)
-    except Exception, e:
+    except Exception:
         logger.exception('slo_soap: slo, unknown error')
         logout.buildResponseMsg()
         return return_saml2_response(request, logout)
@@ -956,7 +972,8 @@ def slo(request):
     if not remote_provider_sessions.exists():
         logger.error('slo: slo refused, since no session exists with the \
             requesting provider')
-        return return_logout_error(logout, AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION)
+        return return_logout_error(request, logout,
+                AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION)
     # Load session dump for the requesting provider
     last_session = remote_provider_sessions.latest('creation')
     set_session_dump_from_liberty_sessions(logout, [last_session])
@@ -964,7 +981,7 @@ def slo(request):
         logout.validateRequest()
     except:
         logger.exception('slo: slo error')
-        return return_logout_error(logout,
+        return return_logout_error(request, logout,
                 AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR)
     # Now clean sessions for this provider
     LibertySession.objects.filter(provider_id=logout.remoteProviderId,

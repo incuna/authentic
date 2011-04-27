@@ -7,20 +7,17 @@ import logging
 import hashlib
 import urlparse
 
-from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-from django.utils.http import urlquote
 try:
     from django.views.decorators.csrf import csrf_exempt
 except ImportError:
     from django.contrib.csrf.middleware import csrf_exempt
 import django.forms as forms
 
-from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from openid.consumer.discover import OPENID_IDP_2_0_TYPE, \
     OPENID_2_0_TYPE, OPENID_1_0_TYPE, OPENID_1_1_TYPE
@@ -33,11 +30,20 @@ from openid.message import IDENTIFIER_SELECT
 from openid.extensions.sreg import ns_uri as SREG_TYPE, SRegRequest, \
         SRegResponse, data_fields
 
-from utils import add_sreg_data, get_store, oresponse_to_response
+from utils import get_store, oresponse_to_response
 from authentic2.auth2_auth.views import redirect_to_login
 import models
 
 logger = logging.getLogger('authentic.idp.idp_openid')
+
+
+def check_exploded(exploded, request):
+    username = request.user.username
+    return not exploded.path.startswith(request.path) \
+       or exploded.path[len(request.path):].strip('/') != username \
+       or exploded.params \
+       or exploded.query  \
+       or exploded.fragment
 
 @csrf_exempt
 def openid_server(request):
@@ -46,7 +52,8 @@ def openid_server(request):
     the <link rel="openid.server"> tag. 
     """
     server = Server(get_store(request),
-        op_endpoint=request.build_absolute_uri(reverse('openid-provider-root')))
+        op_endpoint=request.build_absolute_uri(
+            reverse('openid-provider-root')))
 
     # Cancellation
     if 'cancel' in request.REQUEST:
@@ -86,38 +93,41 @@ def openid_server(request):
         if not request.user.is_authenticated():
             # Site does not want interaction
             if orequest.immediate:
-                logger.debug('User not logged and checkid immediate request, returning OpenID failure')
+                logger.debug('User not logged and checkid immediate request, \
+returning OpenID failure')
                 return oresponse_to_response(server, orequest.answer(False))
             else:
             # Try to login
                 request.session['OPENID_REQUEST'] = orequest
-                logger.debug('User not logged and checkid request, redirecting to login page')
+                logger.debug('User not logged and checkid request, \
+redirecting to login page')
                 return redirect_to_login(request, nonce='1')
         else:
             identity = orequest.identity
             if identity != IDENTIFIER_SELECT:
                exploded = urlparse.urlparse(identity)
                # Allows only /openid/<user_id>
-               if not exploded.path.startswith(request.path) \
-                   or not exploded.path[len(request.path):].strip('/') == request.user.username \
-                   or exploded.params \
-                   or exploded.query  \
-                   or exploded.fragment :
+               if check_exploded(exploded, request):
                    # We only support directed identity
                    logger.debug('Invalid OpenID identity %s' % identity)
                    return oresponse_to_response(server, orequest.answer(False))
             try:
-                trusted_root = models.TrustedRoot.objects.get(user=request.user.id,
-                        trust_root=orequest.trust_root)
+                trusted_root = models.TrustedRoot.objects.get(
+                        user=request.user.id, trust_root=orequest.trust_root)
                 # Check the choices are sufficient
-                if not set(sreg_request.required).issubset(set(trusted_root.choices)):
+                if not set(sreg_request.required)\
+                        .issubset(set(trusted_root.choices)):
                     # Current assertion is not sufficent, ask again !
                     if orequest.immediate:
-                        logger.debug('Attributes authorization unsufficient and checkid immediate, returning OpenID failure')
-                        return oresponse_to_response(server, orequest.answer(False))
+                        logger.debug('Attributes authorization unsufficient \
+and checkid immediate, returning OpenID failure')
+                        return oresponse_to_response(server,
+                                orequest.answer(False))
                     request.session['OPENID_REQUEST'] = orequest
-                    logger.debug('Attributes authorization unsufficient for %s, redirecting to consent page' % orequest.trust_root)
-                    return HttpResponseRedirect(reverse('openid-provider-decide'))
+                    logger.debug('Attributes authorization unsufficient \
+for %s, redirecting to consent page' % orequest.trust_root)
+                    return HttpResponseRedirect(
+                            reverse('openid-provider-decide'))
                 user_data = {}
                 for field in trusted_root.choices:
                     if field == 'email':
@@ -126,40 +136,48 @@ def openid_server(request):
                         user_data[field] = '%s %s' % (request.user.first_name,
                                 request.user.last_name)
                     elif field == 'nickname':
-                        user_data[field] = getattr(request.user, 'username', '')
+                        user_data[field] = getattr(request.user, 'username',
+                                '')
                     else:
                         logger.debug('Could not provide SReg field %s' % field)
             except models.TrustedRoot.MultipleObjectsReturned:
                 # Too much trustedroots remove
                 models.TrustedRoot.objects.filter(user=request.user.id,
-			trust_root=orequest.trust_root).delete()
+                        trust_root=orequest.trust_root).delete()
                 # RP does not want any interaction
                 if orequest.immediate:
-                    logger.warning('Too much trusted root records and checkid immediate, returning OpenID failure')
-                    return oresponse_to_response(server, orequest.answer(False))
+                    logger.warning('Too much trusted root records and \
+checkid immediate, returning OpenID failure')
+                    return oresponse_to_response(server,
+                            orequest.answer(False))
                 request.session['OPENID_REQUEST'] = orequest
-                logger.info('Too much trusted root for %s, redirecting to consent page' % orequest.trust_root)
+                logger.info('Too much trusted root for %s, redirecting to \
+consent page' % orequest.trust_root)
                 return HttpResponseRedirect(reverse('openid-provider-decide'))
             except models.TrustedRoot.DoesNotExist:
                 # RP does not want any interaction
                 if orequest.immediate:
-                    logger.info('Trusted root unknown and checkid immediate, returning OpenID failure')
-                    return oresponse_to_response(server, orequest.answer(False))
+                    logger.info('Trusted root unknown and checkid \
+immediate, returning OpenID failure')
+                    return oresponse_to_response(server,
+                            orequest.answer(False))
                 request.session['OPENID_REQUEST'] = orequest
-                logger.info('Trusted root %s unknown, redirecting to consent page' % orequest.trust_root)
+                logger.info('Trusted root %s unknown, redirecting to \
+consent page' % orequest.trust_root)
                 return HttpResponseRedirect(reverse('openid-provider-decide'))
 
         # Create a directed identity if needed
         if identity == IDENTIFIER_SELECT:
-            hash = hashlib.sha1(str(request.user.id)+'|'+orequest.trust_root).hexdigest()
+            hash = hashlib.sha1(str(request.user.id)+'|'+orequest.trust_root) \
+                    .hexdigest()
             claimed_id = request.build_absolute_uri(
                     reverse('openid-provider-identity', args=[hash]))
-            logger.info('Giving directed identity %r to trusted root %r with sreg data %s' %
-                     (claimed_id, orequest.trust_root, user_data))
+            logger.info('Giving directed identity %r to trusted root %r \
+with sreg data %s' % (claimed_id, orequest.trust_root, user_data))
         else:
             claimed_id = identity
-            logger.info('Giving claimed identity %r to trusted root %r with sreg data %s' %
-                     (claimed_id, orequest.trust_root, user_data))
+            logger.info('Giving claimed identity %r to trusted root %r \
+with sreg data %s' % (claimed_id, orequest.trust_root, user_data))
 
         oresponse = orequest.answer(True, identity=claimed_id)
         sreg_response = SRegResponse.extractResponse(sreg_request, user_data)
@@ -190,8 +208,8 @@ class DecideForm(forms.Form):
     def __init__(self, sreg_request=None, *args, **kwargs):
         super(DecideForm, self).__init__(*args, **kwargs)
         for field in sreg_request.optional:
-            self.fields[str(field)] = forms.BooleanField(label=data_fields[str(field)],
-                required=False)
+            self.fields[str(field)] = forms.BooleanField(
+                    label=data_fields[str(field)], required=False)
         logger.info('3SREG request: %s' % self.fields)
 
 def openid_decide(request):
@@ -204,13 +222,15 @@ def openid_decide(request):
     orequest = request.session.get('OPENID_REQUEST')
     # No request ? Failure..
     if not orequest:
-        logger.warning('OpenID decide view failed, because no OpenID request is saved')
+        logger.warning('OpenID decide view failed, \
+because no OpenID request is saved')
         return HttpResponseRedirect('/')
     sreg_request = SRegRequest.fromOpenIDRequest(orequest)
     logger.debug('SREG request: %s' % sreg_request.__dict__)
     if not request.user.is_authenticated():
         # Not authenticated ? Authenticate and go back to the server endpoint
-        return redirect_to_login(request, next=reverse(openid_server), nonce='1')
+        return redirect_to_login(request, next=reverse(openid_server),
+                nonce='1')
 
     if request.method == 'POST':
         if 'cancel' in request.POST:
@@ -222,8 +242,8 @@ def openid_decide(request):
             if form.is_valid():
                 data = form.cleaned_data
                 # Remember the choice
-                t, created = models.TrustedRoot.objects.get_or_create(user=request.user.id,
-                        trust_root=orequest.trust_root)
+                t, created = models.TrustedRoot.objects.get_or_create(
+                        user=request.user.id, trust_root=orequest.trust_root)
 		t.choices = sreg_request.required \
                     + [ field for field in data if data[field] ]
                 t.save()
@@ -235,7 +255,8 @@ def openid_decide(request):
 
     # verify return_to of trust_root
     try:
-        trust_root_valid = verifyReturnTo(orequest.trust_root, orequest.return_to) and "Valid" or "Invalid"
+        trust_root_valid = verifyReturnTo(orequest.trust_root,
+                orequest.return_to) and "Valid" or "Invalid"
     except HTTPFetchingError:
         trust_root_valid = "Unreachable"
     except DiscoveryFailure:

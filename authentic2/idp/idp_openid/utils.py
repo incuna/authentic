@@ -3,7 +3,6 @@
 # some code from http://www.djangosnippets.org/snippets/310/ by simon
 # and from examples/djopenid from python-openid-2.2.4
 
-from openid.extensions import sreg
 import openid.server
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.importlib import import_module
@@ -25,15 +24,6 @@ def oresponse_to_response(server, oresponse):
 def import_module_attr(path):
     package, module = path.rsplit('.', 1)
     return getattr(import_module(package), module)
-
-def add_sreg_data(request, orequest, oresponse):
-    sreg_req = sreg.SRegRequest.fromOpenIDRequest(orequest)
-    sreg_resp = sreg.SRegResponse.extractResponse(sreg_req, {
-        'email': request.user.email,
-        'nickname': request.user.username,
-        'fullname': request.user.get_full_name(),
-    })
-    oresponse.addExtension(sreg_resp)
 
 def get_store(request):
     try:

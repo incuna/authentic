@@ -1,4 +1,3 @@
-import urllib
 
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
@@ -8,7 +7,8 @@ import authentic2.idp.saml.saml2_endpoints as saml2_endpoints
 
 class SamlBackend(object):
     def service_list(self, request):
-        q = models.LibertyServiceProvider.objects.filter(enabled = True, idp_initiated_sso = True)
+        q = models.LibertyServiceProvider.objects.filter(enabled = True,
+                idp_initiated_sso = True)
         list = []
         for service_provider in q:
             liberty_provider = service_provider.liberty_provider
@@ -42,7 +42,7 @@ class SamlBackend(object):
             except models.LibertyProvider.DoesNotExist:
                 pass
             code = '<div>'
-            code += _('Sending logout to %(pid)s....') % { 'pid': pid }
+            code += _('Sending logout to %(name)s....') % { 'name': name}
             code += '<iframe src="%s" marginwidth="0" marginheight="0" \
 scrolling="no" style="border: none" width="16" height="16"></iframe></div>' % \
                     reverse(saml2_endpoints.idp_slo, args=[pid])

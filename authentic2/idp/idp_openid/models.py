@@ -7,9 +7,7 @@ import calendar
 
 import openid.association
 import openid.store.nonce
-from django.utils.translation import ugettext_lazy as _
 from django.db import models
-from django.contrib.auth.models import User
 
 from authentic2.saml.fields import PickledObjectField
 
@@ -26,10 +24,13 @@ class Association(models.Model):
     handle = models.CharField(max_length=255, blank=False)
     secret = PickledObjectField()
     issued = models.DateTimeField(auto_now_add=True,
-            verbose_name="Issue time for this association, as seconds since EPOCH")
+            verbose_name="Issue time for this association, as seconds \
+since EPOCH")
     lifetime = models.IntegerField(
-            verbose_name="Lifetime of this association as seconds since the issued time")
-    expire = models.DateTimeField("After this time, the association will be expired")
+            verbose_name="Lifetime of this association as seconds since \
+the issued time")
+    expire = models.DateTimeField("After this time, the association will \
+be expired")
     assoc_type = models.CharField(max_length=64, blank=False)
 
     class Meta:
@@ -106,7 +107,8 @@ class Nonce(models.Model):
         if timestamp > now or timestamp + openid.store.nonce.SKEW < now:
             return False
 
-        n, created = cls.objects.get_or_create(server_url=server_url, salt=salt)
+        n, created = cls.objects.get_or_create(server_url=server_url,
+                salt=salt)
         if created:
             n.timestamp = timestamp
             n.save()

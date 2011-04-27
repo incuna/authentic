@@ -4,15 +4,19 @@ import urllib
 import lasso
 
 from django.contrib.auth.views import redirect_to_login
-from django.conf.urls.defaults import *
-from django.http import *
+from django.conf.urls.defaults import patterns
+from django.http import HttpResponse, HttpResponseForbidden, \
+    HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
-from authentic2.saml.models import *
-from authentic2.saml.common import *
-from authentic2.idp.interactions import consent_federation
+from authentic2.saml.models import LibertyArtifact
+from authentic2.saml.common import get_idff12_metadata, create_idff12_server, \
+    load_provider, load_federation, load_session, save_federation, \
+    save_session, return_idff12_response, get_idff12_request_message, \
+    get_soap_message, return_saml_soap_response
 
 def fill_assertion(request, saml_request, assertion, provider_id):
     '''Stuff an assertion with information extracted from the user record

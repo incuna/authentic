@@ -1,4 +1,3 @@
-import urllib2
 import logging
 import random
 import datetime
@@ -9,15 +8,22 @@ from django.http import HttpResponseRedirect, HttpResponseBadRequest, \
 from django.core.urlresolvers import reverse
 from django.contrib.auth.views import redirect_to_login, logout
 from django.utils.http import urlquote, urlencode
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns, url
 from django.conf import settings
 
-from constants import *
-from  models import CasTicket
-from authentic2.auth2_auth.views import redirect_to_login as auth2_redirect_to_login
+from models import CasTicket
+from authentic2.auth2_auth.views import redirect_to_login as \
+    auth2_redirect_to_login
 import authentic2.auth2_auth.models as auth2_auth_models
+from constants import SERVICE_PARAM, RENEW_PARAM, GATEWAY_PARAM, ID_PARAM, \
+    CANCEL_PARAM, SERVICE_TICKET_PREFIX, TICKET_PARAM, \
+    CAS10_VALIDATION_FAILURE, CAS10_VALIDATION_SUCCESS, PGT_URL_PARAM, \
+    INVALID_REQUEST_ERROR, INVALID_TICKET_ERROR, INVALID_SERVICE_ERROR, \
+    INTERNAL_ERROR, CAS20_VALIDATION_FAILURE, CAS20_VALIDATION_SUCCESS
 
 logger = logging.getLogger('authentic2.idp.idp_cas')
+
+ALPHABET = string.letters+string.digits+'-'
 
 class CasProvider(object):
     def get_url(self):
@@ -30,7 +36,8 @@ class CasProvider(object):
     url = property(get_url)
 
     def make_id(self, prefix='', length=29):
-        content = ( random.SystemRandom().choice(string.letters+string.digits+'-') for x in range(length-len(prefix)) )
+        l = length-len(prefix)
+        content = ( random.SystemRandom().choice(ALPHABET) for x in range(l) )
         return prefix + ''.join(content)
 
     def create_service_ticket(self, service, renew=False, validity=True,
@@ -118,7 +125,8 @@ renew:%s and gateway:%s' % (service, renew, gateway))
             return self.handle_login_after_authentication(request, st)
 
     def cas_failure(self, request, st, reason):
-        logger.debug('%s, redirecting without ticket to %r' % (reason, service))
+        logger.debug('%s, redirecting without ticket to %r' % (reason, \
+            st.service))
         st.delete()
         return HttpResponseRedirect(st.service)
 
@@ -175,12 +183,14 @@ renew:%s and gateway:%s' % (service, renew, gateway))
 
     def handle_login_after_authentication(self, request, st):
         if not st.valid():
-            return self.cas_failure(request, st, 'service ticket id is not valid')
+            return self.cas_failure(request, st,
+                    'service ticket id is not valid')
         else:
             return self.return_ticket(request, st)
 
     def return_ticket(self, request, st):
-        return HttpResponseRedirect('%s?ticket=%s' % (st.service, st.ticket_id))
+        return HttpResponseRedirect('%s?ticket=%s' % (st.service,
+            st.ticket_id))
 
     def validate(self, request):
         if request.method != 'GET':
@@ -243,9 +253,10 @@ renew:%s and gateway:%s' % (service, renew, gateway))
             if st.service != service:
                 return self.cas20_error(request, INVALID_SERVICE_ERROR)
             if pgt_url:
-                raise NotImplementedError('CAS 2.0 pgtUrl parameter is not handled')
+                raise NotImplementedError(
+                        'CAS 2.0 pgtUrl parameter is not handled')
             return HttpResponse(CAS20_VALIDATION_SUCCESS % st.user)
-        except Exception, e:
+        except Exception:
             return self.cas20_error(INTERNAL_ERROR)
 
     def logout(self, request):
@@ -254,13 +265,14 @@ renew:%s and gateway:%s' % (service, renew, gateway))
 
 class Authentic2CasProvider(CasProvider):
     def authenticate(self, request, st, passive=False):
-        next = '%s?id=%s' % (reverse(self.continue_cas), urlquote(st.ticket_id))
+        next = '%s?id=%s' % (reverse(self.continue_cas),
+                urlquote(st.ticket_id))
         if passive:
             if getattr(settings, 'AUTH_SSL', False):
                 query = { 'next': next,
                     'nonce': st.ticket_id }
-                return HttpResponseRedirect('%s?%s' % (reverse('user_signin_ssl'),
-                    urlencode(query)))
+                return HttpResponseRedirect('%s?%s' %
+                        (reverse('user_signin_ssl'), urlencode(query)))
             else:
                 return self.cas_failure(request, st, 
                     '''user needs to login and no passive authentication \
