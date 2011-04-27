@@ -1,5 +1,3 @@
-import os.path
-import time
 import xml.etree.ElementTree as etree
 import hashlib
 import binascii
@@ -11,12 +9,11 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.files.storage import FileSystemStorage
 from django.utils.translation import ugettext as _
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.importlib import import_module
 
-from fields import *
+from fields import PickledObjectField, MultiSelectField
 
 # TODO: add other name formats with lasso next release
 ATTRIBUTE_VALUE_FORMATS = (
@@ -45,6 +42,7 @@ def get_prefered_content(etrees, languages = [None, 'en']):
        else.
     '''
     best = None
+    best_score = -1
     for tree in etrees:
         if best is not None:
             i = ls_find(languages, get_lang(tree))

@@ -5,6 +5,7 @@ import httplib
 import logging
 import re
 import datetime
+import time
 
 import lasso
 from django.template import RequestContext
@@ -13,12 +14,17 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
 from django.db import transaction
+from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 
-from models import *
+from models import LibertyFederation, LibertyIdentityDump, LibertyProvider, \
+    LibertyManageDump, LibertySessionDump, LibertyServiceProvider, \
+    LibertyIdentityProvider, LibertySessionSP, IdPOptionsSPPolicy, \
+    AuthorizationSPPolicy, AuthorizationAttributeMapping, \
+    LIBERTY_SESSION_DUMP_KIND_IDP
 import models
 import saml2utils
 import saml11utils
-import authentic2.utils
 
 from authentic2.authsaml2 import signals
 
@@ -430,7 +436,7 @@ def lookup_federation_by_user(user, qualifier):
     fed = LibertyFederation.objects.filter(user=user, name_id_qualifier=qualifier)
     if fed and fed.count()>1:
         # TODO: delete all but the last record
-        raise Exception('Unconsistent federation record for %s' % ni)
+        raise Exception('Unconsistent federation record for %s' % qualifier)
     if not fed:
         return None
     return fed[0]

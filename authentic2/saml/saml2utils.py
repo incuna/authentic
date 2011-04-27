@@ -146,12 +146,6 @@ class Saml2Metadata(object):
                     self.tb.start('NameIDFormat', {})
                     self.tb.data(name_id_format)
                     self.tb.end('NameIDFormat')
-            if 'cache_duration' in options:
-                attrib['cacheDuration'] = options['cache_duration']
-            if 'valid_until' in options:
-                attrib['validUntil'] = options['valid_until']
-            if 'error_url' in options:
-                attrib['errorURL'] = options['error_url']
             if 'signing_key' in options:
                 self.add_keyinfo(options['signing_key'], 'signing')
             if 'encryption_key' in options:

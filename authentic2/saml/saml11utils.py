@@ -1,8 +1,6 @@
 import xml.etree.ElementTree as etree
 import lasso
 import x509utils
-import base64
-import binascii
 from saml2utils import bool2xs, NamespacedTreeBuilder, keyinfo
 
 class Saml11Metadata(object):
@@ -156,11 +154,11 @@ class Saml11Metadata(object):
         self.tb.end(self.IDP_SSO_DESCRIPTOR)
 
     def generate_sp_descriptor(self, map, options):
-        self.generate_sso_descriptor(SP_SSO_DESCRIPTOR, map, options)
+        self.generate_sso_descriptor(self.SP_SSO_DESCRIPTOR, map, options)
         # Add AssertionConsumerServiceURL
         self.add_service_url(self.ASSERTION_CONSUMER)
         self.simple_content(self.AUTHN_REQUESTS_SIGNED,
-                bool2xs(options.get(AUTHN_REQUESTS_SIGNED, False)))
+                bool2xs(options.get(self.AUTHN_REQUESTS_SIGNED, False)))
         self.tb.end(self.SP_SSO_DESCRIPTOR)
 
     def root_element(self):

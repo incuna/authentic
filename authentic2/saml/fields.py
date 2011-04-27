@@ -7,8 +7,8 @@ from django import forms
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.text import capfirst
-
-
+from django.contrib.humanize import apnumber
+from django.template.defaultfilters import pluralize
 
 # This is a copy of http://djangosnippets.org/snippets/513/
 #
@@ -115,8 +115,7 @@ class MultiSelectField(models.Field):
         return self.get_choices(include_blank=False)
 
     def _get_FIELD_display(self, field):
-        value = getattr(self, field.attname)
-        choicedict = dict(field.choices)
+        pass
 
     def formfield(self, **kwargs):
         # don't call super, as that overrides default widget if it has choices

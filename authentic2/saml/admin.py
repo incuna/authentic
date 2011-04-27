@@ -3,9 +3,7 @@ import urllib
 from django.contrib import admin
 from django.utils.translation import ugettext as _
 from django.conf import settings
-from django.http import HttpResponseRedirect
 from django.forms import ModelForm
-from django.conf.urls.defaults import patterns, url
 import django.forms
 from django.contrib import messages
 
