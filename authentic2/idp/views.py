@@ -1,39 +1,22 @@
 import urllib
 
 from django.utils.translation import ugettext as _
-from django_authopenid.forms import OpenidDissociateForm, AssociateOpenID
-from django_authopenid.forms import OpenidSigninForm
-from django_authopenid import DjangoOpenIDStore
-from django_authopenid.models import UserAssociation
-from django_authopenid.utils import *
-from django_authopenid.views import associate_failure, complete
-from django_authopenid.views import _build_context, signin_success, signin_failure, not_authenticated
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
-from django.shortcuts import render_to_response as render
 from django.template import RequestContext
-from django.utils.encoding import smart_unicode
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from django.views.generic.simple import redirect_to
 from django.core.exceptions import ObjectDoesNotExist
 
-import authentic2.saml.common
-import authentic2.authsaml2.utils
 from authentic2.idp import get_backends
 from authentic2.authsaml2.models import SAML2TransientUser
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
 
 def accumulate_from_backends(request, method_name):
-    from authentic2.idp import get_backends
     list = []
     for backend in get_backends():
         method = getattr(backend, method_name, None)
@@ -47,8 +30,6 @@ def service_list(request):
 
 def homepage(request):
     '''Homepage of the IdP'''
-    import authentic2.saml.common
-    import authentic2.authsaml2.utils
     tpl_parameters = {}
     type(SAML2TransientUser)
     if not isinstance(request.user, SAML2TransientUser):
