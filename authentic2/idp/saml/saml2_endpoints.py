@@ -11,19 +11,19 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidde
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import BACKEND_SESSION_KEY
-from django.contrib.auth import User
+from django.contrib.auth.models import User
 from django.conf import settings
 
 import authentic2.idp as idp
 import authentic2.idp.views as idp_views
-from authentic2.saml.models import LibertyAssertion, LibertyArtifact, LibertySession, LibertyFederation
-
+from authentic2.saml.models import LibertyAssertion, LibertyArtifact, \
+    LibertySession, LibertyFederation, nameid2kwargs, saml2_urn_to_nidformat, \
+    nidformat_to_saml2_urn, save_key_values, get_and_delete_key_values
 from authentic2.saml.common import redirect_next, asynchronous_bindings, \
-    soap_bindings, nameid2kwargs, load_provider, get_saml2_request_message, \
+    soap_bindings, load_provider, get_saml2_request_message, \
     error_page, set_saml2_response_responder_status_code, \
-    saml2_urn_to_nidformat, nidformat_to_saml2_urn, save_key_values, \
     AUTHENTIC_STATUS_CODE_MISSING_DESTINATION, \
-    get_and_delete_key_values, load_federation, load_session, \
+    load_federation, load_session, \
     return_saml2_response, save_federation, save_session, \
     get_soap_message, soap_fault, return_saml_soap_response, \
     AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER, \

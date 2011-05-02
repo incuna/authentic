@@ -7,7 +7,8 @@ from django import forms
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.text import capfirst
-from django.contrib.humanize import apnumber
+from django.contrib.humanize.templatetags.humanize \
+        import apnumber
 from django.template.defaultfilters import pluralize
 
 # This is a copy of http://djangosnippets.org/snippets/513/
