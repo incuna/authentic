@@ -3,13 +3,14 @@ import random
 
 from django.db import transaction
 from django.contrib.auth.models import User, UserManager
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
-
 import lasso
 
-from authentic2.saml.common import *
+from authentic2.saml.common import \
+    lookup_federation_by_name_id_and_provider_id, add_federation
+from authentic2.saml.models import LIBERTY_SESSION_DUMP_KIND_SP, \
+    LibertySessionDump, LibertyProvider
 from models import SAML2TransientUser
 
 class AuthenticationError(Exception):
@@ -26,19 +27,18 @@ class AuthSAML2Backend:
         try:
             pid = lasso.Session().newFromDump(q[0].session_dump). \
                 get_assertions().keys()[0]
-            provider_ids = set([pid])
         except:
             pass
         if not pid:
             return []
         name = pid
         try:
-            name = models.LibertyProvider.objects.get(entity_id=pid).name
-        except models.LibertyProvider.DoesNotExist:
+            name = LibertyProvider.objects.get(entity_id=pid).name
+        except LibertyProvider.DoesNotExist:
             pass
         import saml2_endpoints
         code = '<div>'
-        code += _('Sending logout to %(pid)s....') % { 'pid': pid }
+        code += _('Sending logout to %(pid)s....') % { 'pid': name or pid }
         code += '<iframe src="%s" marginwidth="0" marginheight="0" \
 scrolling="no" style="border: none" width="16" height="16"></iframe></div>' % \
                 reverse(saml2_endpoints.sp_slo, args=[pid])
