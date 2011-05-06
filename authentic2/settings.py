@@ -295,13 +295,13 @@ LOGGING = {
     }
 }
 
-
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
 try:
     from local_settings import *
-except ImportError:
-    pass
+except ImportError, e:
+    if 'local_settings' in e.args[0]:
+        pass
 
 if USE_DEBUG_TOOLBAR:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
