@@ -301,9 +301,6 @@ def sso(request):
             logger.debug('sso: loading provider %s' %provider_id)
             provider_loaded = load_provider(request, provider_id,
                     server=login.server, autoload=True)
-            login.setSignatureVerifyHint(
-                    provider_loaded.service_provider.policy \
-                            .authn_request_signature_check_hint)
             if not provider_loaded:
                 consent_obtained = False
                 message = _('sso: fail to load unknown provider %s' %provider_id)
@@ -313,6 +310,9 @@ def sso(request):
                 consent_obtained = \
                         not provider_loaded.service_provider.ask_user_consent
                 logger.info('sso: the user consent option given by the requester is %s' %str(consent_obtained))
+            login.setSignatureVerifyHint(
+                    provider_loaded.service_provider.policy \
+                            .authn_request_signature_check_hint)
     if not check_destination(request, login.request):
         logger.error('sso: wrong or absent destination')
         return return_login_error(request, login,
