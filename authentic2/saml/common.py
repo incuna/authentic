@@ -302,7 +302,9 @@ def get_manage_dump(request):
 
 @transaction.commit_on_success
 def retrieve_metadata_and_create(request, provider_id, sp_or_idp):
+    logger.debug('trying to load %s from wkl' % provider_id)
     if not provider_id.startswith('http'):
+        logger.debug('not an http url, failing')
         return None
     # Try the WKL
     try:
@@ -311,6 +313,7 @@ def retrieve_metadata_and_create(request, provider_id, sp_or_idp):
         logging.error('SAML metadata autoload: failure to retrieve metadata \
 for entity id %r' % provider_id)
         return None
+    logger.debug('loaded %d bytes' % len(metadata))
     try:
         metadata = unicode(metadata, 'utf8')
     except:
@@ -328,6 +331,7 @@ for entity id %r are invalid, %s' % (provider_id, e.args))
         logging.exception('SAML metadata autoload: retrieved metadata validation raised an unknown exception')
         return None
     p.save()
+    logger.debug('%s saved' % p)
     if sp_or_idp == 'sp':
         s = LibertyServiceProvider(liberty_provider=p, enabled=True, ask_user_consent=True)
         s.save()
