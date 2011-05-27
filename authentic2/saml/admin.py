@@ -1,4 +1,5 @@
-import urllib
+import urllib2
+import logging
 
 from django.contrib import admin
 from django.utils.translation import ugettext as _
@@ -14,6 +15,9 @@ from models import AuthorizationAttributeMapping, LibertyProviderPolicy
 from models import LibertySessionDump, LibertyIdentityDump, LibertyFederation
 from models import LibertyAssertion, LibertySessionSP, KeyValue
 from models import LibertySession
+from authentic2.http_utils import get_url
+
+logger = logging.getLogger(__name__)
 
 class AuthorizationAttributeMapAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -130,15 +134,17 @@ def update_metadata(modeladmin, request, queryset):
     for provider in queryset:
         if provider.entity_id.startswith('http'):
             try:
-                data = urllib.urlopen(provider.entity_id).read()
+                data = get_url(provider.entity_id)
                 if data != provider.metadata:
                     provider.metadata = data
                     updated.append(provider.entity_id)
                     provider.save()
-            except IOError:
-                pass
-    updated = ', '.join(updated)
-    messages.info(request, _('Metadata update for: %s') % updated)
+            except (urllib2.URLError, IOError), e:
+                messages.error(request, _('Failure to resolve %s: %s') %
+                        (provider.entity_id, e))
+    if updated:
+        updated = ', '.join(updated)
+        messages.info(request, _('Metadata update for: %s') % updated)
 
 class LibertyProviderAdmin(admin.ModelAdmin):
     form = LibertyProviderForm

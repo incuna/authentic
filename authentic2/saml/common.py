@@ -27,6 +27,7 @@ import saml2utils
 import saml11utils
 
 from authentic2.authsaml2 import signals
+from authentic2.http_utils import get_url
 
 AUTHENTIC_STATUS_CODE_NS = "http://authentic.entrouvert.org/status_code/"
 AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER = AUTHENTIC_STATUS_CODE_NS + \
@@ -308,10 +309,10 @@ def retrieve_metadata_and_create(request, provider_id, sp_or_idp):
         return None
     # Try the WKL
     try:
-        metadata = urllib.urlopen(provider_id).read()
-    except:
-        logging.error('SAML metadata autoload: failure to retrieve metadata \
-for entity id %r' % provider_id)
+        metadata = get_url(provider_id)
+    except Exception, e:
+        logging.error('SAML metadata autoload: failure to retrieve metadata '
+                'for entity id %r: %s' % (provider_id, e))
         return None
     logger.debug('loaded %d bytes' % len(metadata))
     try:
