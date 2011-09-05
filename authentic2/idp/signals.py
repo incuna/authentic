@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.dispatch import Signal
+from django.contrib.auth.models import SiteProfileNotAvailable
 
 '''authorize_decision
 Expect a dictionnaries as return with:
@@ -37,7 +38,7 @@ def add_user_profile_attributes(request, user, audience, **kwargs):
             if value is not None or value == '':
                 attributes[field_name] = [ value ]
         return { 'attributes': attributes }
-    except ObjectDoesNotExist:
+    except (ObjectDoesNotExist, SiteProfileNotAvailable):
         return { 'attributes': dict() }
 
 add_attributes_to_response.connect(add_user_profile_attributes)
