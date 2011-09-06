@@ -14,9 +14,9 @@ Expect a dictionnaries as return with:
  - the attributes to add to the response e.g.
    - dic = {}
    - attributes = {}
-   - values = [value1, value2]
-   - attributes[name] = values
-   - attributes[(name, format)] = values
+   - attributes[name] = (value1, value2, )
+   - attributes[(name, format)] = (value1, value2, )
+   - attributes[(name, format, nickname)] = (value1, value2, )
    - dic['attributes'] = attributes
    - return dic
 '''

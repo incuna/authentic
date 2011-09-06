@@ -150,6 +150,11 @@ def saml2_add_attribute_values(assertion, attributes):
                 name, format = key
                 attribute.nameFormat = format
                 values = attributes[(name, format)]
+            elif type(key) is tuple and len(key) == 3:
+                name, format, nickname = key
+                attribute.nameFormat = format
+                attribute.friendlyName = nickname
+                values = attributes[(name, format, nickname)]
             elif type(key) is tuple:
                 return
             else:
