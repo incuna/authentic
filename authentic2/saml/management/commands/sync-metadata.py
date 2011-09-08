@@ -29,10 +29,10 @@ def check_support_saml2(tree):
 
 def load_one_entity(tree, options):
     '''Load or update an EntityDescriptor into the database'''
-    default_name_id_format = options['default_name_id_format']
+    default_name_id_format = options['sp_default_nameid_format']
     if default_name_id_format not in NAME_ID_FORMATS:
         default_name_id_format = 'transient'
-    accepted_name_id_format = map(str.strip, options['accepted_name_id_format'].split(','))
+    accepted_name_id_format = map(str.strip, options['sp_accepted_nameid_format'].split(','))
     accepted_name_id_format = filter(lambda x: x in NAME_ID_FORMATS, accepted_name_id_format)
     if not accepted_name_id_format:
         accepted_name_id_format = 'transient,persistent,email'.split(',')
