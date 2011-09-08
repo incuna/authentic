@@ -29,6 +29,13 @@ def check_support_saml2(tree):
 
 def load_one_entity(tree, options):
     '''Load or update an EntityDescriptor into the database'''
+    default_name_id_format = options['default_name_id_format']
+    if default_name_id_format not in NAME_ID_FORMATS:
+        default_name_id_format = 'transient'
+    accepted_name_id_format = map(str.strip, options['accepted_name_id_format'].split(','))
+    accepted_name_id_format = filter(lambda x: x in NAME_ID_FORMATS, accepted_name_id_format)
+    if not accepted_name_id_format:
+        accepted_name_id_format = 'transient,persistent,email'.split(',')
     entity_id = tree.get(ENTITY_ID)
     organization = tree.find(ORGANIZATION)
     name, org = None, None
@@ -77,6 +84,8 @@ def load_one_entity(tree, options):
             service_provider, created = LibertyServiceProvider.objects.get_or_create(
                     liberty_provider=provider)
             service_provider.enabled = True
+            service_provider.default_name_id_format = default_name_id_format
+            service_provider.accepted_name_id_format = accepted_name_id_format
             service_provider.save()
 
 class Command(BaseCommand):
@@ -96,6 +105,14 @@ class Command(BaseCommand):
             dest='sp',
             default=False,
             help='Load service providers only'),
+        make_option('--sp-default-nameid-format',
+            dest='sp_default_nameid_format',
+            default='transient',
+            help='Default NameID format to return to a service provider'),
+        make_option('--sp-accepted-nameid-format',
+            dest='sp_accepted_nameid_format',
+            default='persistent,transient,email',
+            help='NameID format accepted for a service provider'),
         make_option('--delete',
             action='store_true',
             dest='delete',
