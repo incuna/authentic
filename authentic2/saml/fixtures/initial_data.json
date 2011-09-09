@@ -1,0 +1,12 @@
+[
+  {
+"pk": 1, "model": "saml.libertyproviderpolicy", "fields":{
+"name": "Default", "authn_request_signature_check_hint":0}
+  }
+  ,
+  {
+"pk": 2, "model": "saml.libertyproviderpolicy", "fields":{
+"name": "Shibboleth SP", "authn_request_signature_check_hint":2}
+  }
+
+]
