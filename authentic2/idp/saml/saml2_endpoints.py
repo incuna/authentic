@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.utils.encoding import smart_unicode
 
 import authentic2.idp as idp
 import authentic2.idp.views as idp_views
@@ -166,15 +167,12 @@ def saml2_add_attribute_values(assertion, attributes):
             attribute_value_list = list(attribute.attributeValue)
             for value in values:
                 if value is True:
-                    value = 'true'
+                    value = u'true'
                 elif value is False:
-                    value = 'false'
+                    value = u'false'
                 else:
-                    value = str(value)
-                if type(value) is unicode:
-                    value = value.encode('utf-8')
-                #else:
-                #    value = sitecharset2utf8(value)
+                    value = smart_unicode(value)
+                value = value.encode('utf-8')
                 text_node = lasso.MiscTextNode.newWithString(value)
                 text_node.textChild = True
                 attribute_value = lasso.Saml2AttributeValue()
