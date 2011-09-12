@@ -11,12 +11,14 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from authentic2.saml.models import LibertyArtifact
 from authentic2.saml.common import get_idff12_metadata, create_idff12_server, \
     load_provider, load_federation, load_session, save_federation, \
     save_session, return_idff12_response, get_idff12_request_message, \
     get_soap_message, return_saml_soap_response
+from authentic2.utils import cache_and_validate
 
 def fill_assertion(request, saml_request, assertion, provider_id):
     '''Stuff an assertion with information extracted from the user record
@@ -49,6 +51,7 @@ def build_assertion(request, login):
     assertion = login.assertion
     fill_assertion(request, login.request, assertion, login.remoteProviderId)
 
+@cache_and_validate(settings.LOCAL_METADATA_CACHE_TIMEOUT)
 def metadata(request):
     '''Return ID-FFv1.2 metadata for our IdP'''
     return HttpResponse(get_idff12_metadata(request, reverse(metadata)),

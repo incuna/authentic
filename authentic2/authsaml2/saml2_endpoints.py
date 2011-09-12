@@ -28,6 +28,7 @@ from authentic2.authsaml2 import signals
 from authentic2.authsaml2.models import *
 from backends import AuthSAML2PersistentBackend, \
         AuthSAML2TransientBackend
+from authentic2.utils import cache_and_validate
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
 
@@ -57,6 +58,7 @@ metadata_map = (
 )
 metadata_options = { 'key': settings.SAML_SIGNATURE_PUBLIC_KEY }
 
+@cache_and_validate(settings.LOCAL_METADATA_CACHE_TIMEOUT)
 def metadata(request):
     '''Endpoint to retrieve the metadata file'''
     logger.info('metadata: return metadata')

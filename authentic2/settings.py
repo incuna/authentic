@@ -90,6 +90,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
     'django.contrib.csrf.middleware.CsrfMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -179,6 +180,7 @@ IDP_BACKENDS = [ ]
 IDP_SAML2 = True
 
 # You MUST changes these keys, they are just for testing !
+LOCAL_METADATA_CACHE_TIMEOUT = 600
 SAML_SIGNATURE_PUBLIC_KEY = '''-----BEGIN CERTIFICATE-----
 MIIDIzCCAgugAwIBAgIJANUBoick1pDpMA0GCSqGSIb3DQEBBQUAMBUxEzARBgNV
 BAoTCkVudHJvdXZlcnQwHhcNMTAxMjE0MTUzMzAyWhcNMTEwMTEzMTUzMzAyWjAV

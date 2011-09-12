@@ -46,6 +46,7 @@ from authentic2.idp import signals as idp_signals
 # from authentic2.idp.models import *
 
 from authentic2.authsaml2.models import SAML2TransientUser
+from authentic2.utils import cache_and_validate
 
 '''SAMLv2 IdP implementation
 
@@ -75,6 +76,7 @@ metadata_map = (
 )
 metadata_options = { 'key': settings.SAML_SIGNATURE_PUBLIC_KEY }
 
+@cache_and_validate(settings.LOCAL_METADATA_CACHE_TIMEOUT)
 def metadata(request):
     '''Endpoint to retrieve the metadata file'''
     logger.info('metadata: return metadata')
@@ -252,6 +254,10 @@ def build_assertion(request, login, nid_format = 'transient', attributes=None):
     else:
         logger.debug("build_assertion: nameID not persistent, no federation management")
         federation = None
+        kwargs = nameid2kwargs(login.assertion.subject.nameID)
+    kwargs['entity_id'] = login.remoteProviderId
+    kwargs['user'] = request.user
+    logger.info('build_assertion: sending nameID %(name_id_format)s:%(name_id_content)s to %(entity_id)s for user %(user)s' % kwargs)
     if attributes:
         logger.debug("build_assertion: add attributes to the assertion")
         saml2_add_attribute_values(login.assertion, attributes)
