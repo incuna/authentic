@@ -1,6 +1,7 @@
 import datetime
 import logging
 import urllib
+import xml.etree.cElementTree as ctree
 
 import lasso
 from django.conf.urls.defaults import patterns
@@ -168,15 +169,20 @@ def saml2_add_attribute_values(assertion, attributes):
             attribute_statement.attribute = list(attribute_statement.attribute) + [ attribute ]
             attribute_value_list = list(attribute.attributeValue)
             for value in values:
-                if value is True:
-                    value = u'true'
-                elif value is False:
-                    value = u'false'
-                else:
-                    value = smart_unicode(value)
-                value = value.encode('utf-8')
-                text_node = lasso.MiscTextNode.newWithString(value)
-                text_node.textChild = True
+                try:
+                    # duck type the ElemenTree interface
+                    value.makeelement and value.tag
+                    text_node = lasso.MiscTextNode.newWithXmlNode(ctree.tostring(value))
+                except AttributeError:
+                    if value is True:
+                        value = u'true'
+                    elif value is False:
+                        value = u'false'
+                    else:
+                        value = smart_unicode(value)
+                    value = value.encode('utf-8')
+                    text_node = lasso.MiscTextNode.newWithString(value)
+                    text_node.textChild = True
                 attribute_value = lasso.Saml2AttributeValue()
                 attribute_value.any = [ text_node ]
                 attribute_value_list.append(attribute_value)
