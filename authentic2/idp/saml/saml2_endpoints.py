@@ -630,7 +630,7 @@ def finish_sso(request, login, user = None, save = False):
 def save_artifact(request, login):
     '''Remember an artifact message for later retrieving'''
     LibertyArtifact(artifact=login.artifact,
-            content=login.artifactMessage,
+            content=login.artifactMessage.decode('utf-8'),
             django_session_key=request.session.session_key,
             provider_id=login.remoteProviderId).save()
     logger.debug('save_artifact: artifact saved')
@@ -639,7 +639,7 @@ def reload_artifact(login):
     try:
         art = LibertyArtifact.objects.get(artifact=login.artifact)
         logger.debug('reload_artifact: artifact found')
-        login.artifactMessage = art.content
+        login.artifactMessage = art.content.encode('utf-8')
         logger.debug('reload_artifact: artifact loaded')
         art.delete()
         logger.debug('reload_artifact: artifact deleted')
