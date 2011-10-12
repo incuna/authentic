@@ -40,42 +40,142 @@ logger = logging.getLogger('authentic2.idp.attributes')
 def add_data_to_dic(attributes, name, values,
         format=lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC,
         namespace_out='Default', required=False):
-    logger.debug('add_data_to_dic: add %s in %s with values %s' \
+    logger.debug('add_data_to_dic: dic is at beginning %s' % attributes)
+    logger.debug('add_data_to_dic: ask to add %s with %s and values %s' \
         % (name, format, str(values)))
     if format == lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI:
         if namespace_out == 'Default':
-            logger.debug('provide_attributes_at_sso: out in default')
-            attributes[(get_oid_from_def_name(name),
-                lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name)] = values
+            logger.debug('add_data_to_dic: out in default')
+            if (get_oid_from_def_name(name),
+                lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name) in attributes:
+                old_values = attributes[(get_oid_from_def_name(name),
+                    lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name)]
+                for value in values:
+                    if not value in old_values:
+                        old_values.append(value)
+                attributes[(get_oid_from_def_name(name),
+                    lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name)] = \
+                        old_values
+                logger.debug('add_data_to_dic: updated %s %s %s %s' \
+                    % (get_oid_from_def_name(name),
+                    lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name,
+                    str(old_values)))
+            else:
+                attributes[(get_oid_from_def_name(name),
+                    lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name)] = values
+                logger.debug('add_data_to_dic: added %s %s %s %s' \
+                    % (get_oid_from_def_name(name),
+                    lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name, str(values)))
         else:
-            logger.debug('provide_attributes_at_sso: out in %s' \
+            logger.debug('add_data_to_dic: out in %s' \
                 % namespace_out)
             name_in_ns = get_attribute_name_in_namespace(name, namespace_out)
             if name_in_ns:
                 fn = \
                 get_attribute_friendly_name_in_namespace(name, namespace_out)
                 if fn:
-                    attributes[(name_in_ns,
-                        lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, fn)] = values
+                    if (name_in_ns, lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI,
+                            fn) in attributes:
+                        old_values = attributes[(name_in_ns,
+                            lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, fn)]
+                        for value in values:
+                            if not value in old_values:
+                                old_values.append(value)
+                        attributes[(name_in_ns,
+                            lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, fn)] = \
+                                old_values
+                        logger.debug('add_data_to_dic: updated %s %s %s %s' \
+                            % (name_in_ns,
+                            lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, fn,
+                            str(old_values)))
+                    else:
+                        attributes[(name_in_ns,
+                            lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, fn)] \
+                                = values
+                        logger.debug('add_data_to_dic: added %s %s %s %s' \
+                            % (name_in_ns,
+                            lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI,
+                            fn, str(values)))
                 else:
-                    attributes[(name_in_ns,
-                        lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI)] = values
+                    if (name_in_ns, lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI) \
+                            in attributes:
+                        old_values = attributes[(name_in_ns,
+                            lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI)]
+                        for value in values:
+                            if not value in old_values:
+                                old_values.append(value)
+                        attributes[(name_in_ns,
+                            lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI)] = \
+                                old_values
+                        logger.debug('add_data_to_dic: updated %s %s %s' \
+                            % (name_in_ns,
+                            lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI,
+                            str(old_values)))
+                    else:
+                        attributes[(name_in_ns,
+                            lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI)] = values
+                        logger.debug('add_data_to_dic: added %s %s %s' \
+                            % (name_in_ns,
+                            lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI,
+                            str(values)))
             elif required:
                 raise Exception('Missing a required attribute')
+            else:
+                logger.info('add_data_to_dic: The attribute %s \
+                    is not found in %s' % (name, namespace_out))
     else:
         if namespace_out == 'Default':
-            logger.debug('provide_attributes_at_sso: out in default')
-            attributes[(name,
-                lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC)] = values
-        else:
-            logger.debug('provide_attributes_at_sso: out in %s' \
-                % namespace_out)
-            name_in_ns = get_attribute_name_in_namespace(name)
-            if name_in_ns:
-                attributes[(name_in_ns,
+            logger.debug('add_data_to_dic: out in default')
+            if (name, lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC) \
+                    in attributes:
+                old_values = attributes[(name,
+                    lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC)]
+                for value in values:
+                    if not value in old_values:
+                        old_values.append(value)
+                attributes[(name,
+                    lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC)] = \
+                        old_values
+                logger.debug('add_data_to_dic: updated %s %s %s' \
+                    % (name,
+                    lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC,
+                    str(old_values)))
+            else:
+                attributes[(name,
                     lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC)] = values
+                logger.debug('add_data_to_dic: added %s %s %s' % (name,
+                    lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC, str(values)))
+        else:
+            logger.debug('add_data_to_dic: out in %s' \
+                % namespace_out)
+            name_in_ns = get_attribute_name_in_namespace(name, namespace_out)
+            if name_in_ns:
+                if (name_in_ns, lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC) \
+                        in attributes:
+                    old_values = attributes[(name_in_ns,
+                        lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC)]
+                    for value in values:
+                        if not value in old_values:
+                            old_values.append(value)
+                    attributes[(name_in_ns,
+                        lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC)] = \
+                            old_values
+                    logger.debug('add_data_to_dic: updated %s %s %s' \
+                        % (name_in_ns,
+                        lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC,
+                        str(old_values)))
+                else:
+                    attributes[(name_in_ns,
+                        lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC)] = values
+                    logger.debug('add_data_to_dic: added %s %s %s' \
+                        % (name_in_ns,
+                        lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC, str(values)))
             elif required:
                 raise Exception('Missing a required attribute')
+            else:
+                logger.info('add_data_to_dic: The attribute %s \
+                    is not found in %s' % (name, namespace_out))
+    logger.debug('add_data_to_dic: dic is now %s' % attributes)
 
 
 def provide_attributes_at_sso(request, user, audience, **kwargs):
@@ -155,14 +255,18 @@ def provide_attributes_at_sso(request, user, audience, **kwargs):
                         % [x.__unicode__() for x in data])
 #           d = data.sort(key=lambda x: x.expiration_date, reverse=True)[0]
                     d = data[0]
-                    add_data_to_dic(attributes, a.attribute_name,
-                        d.get_values(),
-                        a.output_name_format,
-                        a.output_namespace,
-                        # Send error if required and attribute required
-                        (attribute_policy.\
+                    try:
+                        add_data_to_dic(attributes, a.attribute_name,
+                            d.get_values(),
+                            a.output_name_format,
+                            a.output_namespace,
+                            # Send error if required and attribute required
+                            (attribute_policy.\
                         send_error_and_no_attrs_if_missing_required_attrs \
-                        and a.required))
+                            and a.required))
+                    except:
+                        # Missing required attribute
+                        pass
 
             logger.debug('provide_attributes_at_sso: attributes returned \
                 from pull source %s' % str(attributes))
@@ -211,9 +315,9 @@ def provide_attributes_at_sso(request, user, audience, **kwargs):
                         source = AttributeSource.objects.get(name=entity_id)
                     except:
                         try:
-                            p = \
+                            lp = \
                             LibertyProvider.objects.get(entity_id=entity_id)
-                            source = AttributeSource.objects.get(name=p.name)
+                            source = AttributeSource.objects.get(name=lp.name)
                         except:
                             pass
                 namespace_in = 'Default'
