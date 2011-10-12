@@ -720,3 +720,20 @@ def authz_decision_cb(sender, request=None, attributes={},
 
 signals.authz_decision.connect(authz_decision_cb,
     dispatch_uid='authz_decision_on_attributes')
+
+def get_session_not_on_or_after(assertion):
+    '''Extract the minimal value for the SessionNotOnOrAfter found in the given
+       assertion AuthenticationStatement(s).
+    '''
+    session_not_on_or_afters = []
+    if hasattr(assertion, 'authnStatement'):
+        for authn_statement in assertion.authnStatement:
+            if authn_statement.sessionNotOnOrAfter:
+                value = authn_statement.sessionNotOnOrAfter
+                try:
+                    session_not_on_or_afters.append(iso8601_to_datetime(value))
+                except ValueError:
+                    logging.getLogger(__name__).error('unable to parse SessionNotOnOrAfter value %s, will use default value for session length.', value)
+    if session_not_on_or_afters:
+        return reduce(min, session_not_on_or_afters)
+    return None
