@@ -123,6 +123,7 @@ INSTALLED_APPS = (
     'authentic2.auth2_auth.auth2_oath',
     'authentic2.auth2_auth.auth2_ssl',
     'south',
+    'authentic2.attribute_aggregator',
 )
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'

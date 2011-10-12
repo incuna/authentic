@@ -1,0 +1,478 @@
+#
+# 60supann.ldif - version 389 Directory Server du schéma SupAnn version 2009.6
+#
+# (cf original à http://www.cru.fr/_media/documentation/supann/supann_2009.schema.txt)
+#
+# Modifications :
+# 21 mai   10 (JML): supannRefId : suppression du SINGLE-VALUE mis par erreur
+# 23 fevr. 10 (JML): import du fichier OpenLDAP supann_2009.schema.txt pour 389 Directory Server
+#
+#
+################################################################################
+#
+dn: cn=schema
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.1
+  NAME 'supannListeRouge'
+  DESC 'indique que l entree correspondante n est pas publique'
+  EQUALITY booleanMatch
+  SINGLE-VALUE
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.2
+  NAME 'supannActivite'
+  DESC 'activite ou metier de la personne'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.3
+  NAME 'supannOrganisme'
+  DESC 'code organisme d appartenance'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SINGLE-VALUE
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.4
+  NAME 'supannCivilite'
+  DESC 'civilite : M., Mme, Mlle'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SINGLE-VALUE
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.44{32}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.5
+  NAME 'supannAffectation'
+  DESC 'affectation'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.6
+  NAME 'supannCodeEntite'
+  DESC 'identifiant d entite'
+  EQUALITY caseIgnoreIA5Match
+  SUBSTR caseIgnoreIA5SubstringsMatch
+  SINGLE-VALUE
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.7
+  NAME 'supannCodeEntiteParent'
+  DESC 'identifiant d entite parente'
+  EQUALITY caseIgnoreIA5Match
+  SUBSTR caseIgnoreIA5SubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.8
+  NAME 'supannEntiteAffectation'
+  DESC 'identifiant d entite d affectation'
+  EQUALITY caseIgnoreIA5Match
+  SUBSTR caseIgnoreIA5SubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.9
+  NAME 'supannCodeINE'
+  DESC 'code INE'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.44{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.10
+  NAME 'supannEtuId'
+  DESC 'identifiant scolarite'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.11
+  NAME 'supannEmpId'
+  DESC 'identifiant personnel'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.12
+  NAME 'supannAutreTelephone'
+  SUP telephoneNumber
+  DESC 'numeros de telephone secondaires'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.50
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.13
+  NAME 'supannEntiteAffectationPrincipale'
+  DESC 'identifiant d entite principale d affectation'
+  EQUALITY caseIgnoreIA5Match
+  SUBSTR caseIgnoreIA5SubstringsMatch
+  SINGLE-VALUE
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.14
+  NAME 'supannEtablissement'
+  DESC 'code d etablissement'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.15
+  NAME 'supannMailPerso'
+  DESC 'Mailbox RFC822 privee'
+  EQUALITY caseIgnoreIA5Match
+  SUBSTR caseIgnoreIA5SubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.16
+  NAME 'supannTypeEntite'
+  DESC 'type de structure ou entite'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.17
+  NAME 'supannParrainDN' 
+  SUP distinguishedName
+  DESC 'dn du responsable de cette entree'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.18
+  NAME 'supannGroupeDateFin'
+  DESC 'indique la date de fin de validite de l entree correspondante'
+  EQUALITY generalizedTimeMatch
+  ORDERING generalizedTimeOrderingMatch
+  SINGLE-VALUE
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.24
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.19
+  NAME 'supannGroupeAdminDN' 
+  SUP distinguishedName
+  DESC 'dn des administrateurs du groupe concerne'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.20
+  NAME 'supannAliasLogin'
+  DESC 'login personalise'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SINGLE-VALUE
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.21
+  NAME 'supannRole'
+  DESC 'role'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.22
+  NAME 'supannGroupeLecteurDN' 
+  SUP distinguishedName
+  DESC 'dn des entites habilite a lire le contenu d un groupe'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.23
+  NAME 'supannRoleGenerique'
+  DESC 'role generique d une personne'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.24
+  NAME 'supannRoleEntite'
+  DESC 'role contextuel'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{512}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.25
+  NAME 'supannEtuAnneeInscription'
+  DESC 'annee inscription'
+  EQUALITY numericStringMatch
+  ORDERING numericStringOrderingMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.36{4}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.26
+  NAME 'supannEtuCursusAnnee'
+  DESC 'cursus et annee dans le diplome'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.27
+  NAME 'supannEtuDiplome'
+  DESC 'diplome'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.28
+  NAME 'supannEtuElementPedagogique'
+  DESC 'element pedagogique'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.29
+  NAME 'supannEtuEtape'
+  DESC 'etape'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (  1.3.6.1.4.1.7135.1.2.1.30
+  NAME 'supannEtuInscription'
+  DESC 'description d inscriptions'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{4096}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.31
+  NAME 'supannEtuRegimeInscription'
+  DESC 'regime d inscription'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.32
+  NAME 'supannEtuSecteurDisciplinaire'
+  DESC 'secteur disciplinaire'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.33
+  NAME 'supannEtuTypeDiplome'
+  DESC 'type de diplome'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.34
+  NAME 'supannAutreMail'
+  SUP mail
+  DESC 'adresses mail non institutionnelles'
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.35
+  NAME 'supannEmpCorps'
+  DESC 'corps d appartenance d un agent'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.36
+  NAME 'supannTypeEntiteAffectation'
+  DESC 'type de structure ou entite d affectation'
+  EQUALITY caseIgnoreMatch
+  SUBSTR caseIgnoreSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+attributeTypes: (
+  1.3.6.1.4.1.7135.1.2.1.37
+  NAME 'supannRefId'
+  DESC 'identifiant partage avec autre brique du SI'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{128}
+  )
+#
+################################################################################
+#
+objectClasses: (
+  1.3.6.1.4.1.7135.1.2.2.1
+  NAME 'supannPerson'
+  SUP top AUXILIARY
+  DESC 'classe d infos complementaires sur personnes supann'
+  MAY ( supannOrganisme $ supannCivilite $ supannAutreTelephone $ supannAffectation $ supannEmpId $ supannCodeINE $ supannEtuId $ supannAliasLogin $ supannParrainDN $ supannActivite $ supannEntiteAffectation $ supannEntiteAffectationPrincipale $ supannMailPerso $ supannRole $ supannRoleEntite $ supannRoleGenerique $ supannEtuAnneeInscription $ supannEtuCursusAnnee $ supannEtuDiplome $ supannEtuElementPedagogique $ supannEtuEtape $ supannEtuInscription $ supannEtuRegimeInscription $ supannEtuSecteurDisciplinaire $ supannEtuTypeDiplome $ supannEtablissement $ supannListeRouge $ supannAutreMail $ mailForwardingAddress $ supannEmpCorps $ supannTypeEntiteAffectation $ supannRefId )
+  )
+#
+################################################################################
+#
+objectClasses: (
+  1.3.6.1.4.1.7135.1.2.2.2
+  NAME 'supannOrg'
+  SUP top AUXILIARY
+  DESC 'classe d infos complementaires pour etablissement'
+  MAY ( supannEtablissement )
+  )
+#
+################################################################################
+#
+objectClasses: (
+  1.3.6.1.4.1.7135.1.2.2.3
+  NAME 'supannEntite'
+  SUP top AUXILIARY
+  DESC 'classe d infos complementaires pour entite'
+  MUST ( supannCodeEntite )
+  MAY ( supannTypeEntite  $ supannCodeEntiteParent $ supannRefId )
+  )
+#
+################################################################################
+#
+#objectClasses: (
+#  1.3.6.1.4.1.7135.1.2.2.4
+#  NAME 'entree disponible'
+#  )
+#
+################################################################################
+#
+#objectClasses: (
+#  1.3.6.1.4.1.7135.1.2.2.5
+#  NAME 'entree disponible'
+#  )
+#
+################################################################################
+#
+objectClasses: (
+  1.3.6.1.4.1.7135.1.2.2.6
+  NAME 'supannGroupe'
+  SUP top AUXILIARY
+  DESC 'attributs specifiques des groupes'
+  MAY ( supannGroupeDateFin  $ supannGroupeAdminDN $ supannGroupeLecteurDN $ supannRefId )
+  )
+#
+################################################################################
+#
