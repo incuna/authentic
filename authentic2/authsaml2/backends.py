@@ -53,8 +53,7 @@ class AuthSAML2PersistentBackend:
         fed = lookup_federation_by_name_id_and_provider_id(name_id, provider_id)
         if fed is None:
             return None
-        fed.user.backend = \
-            'authentic2.authsaml2.backends.AuthSAML2PersistentBackend'
+        fed.user.backend = '%s.%s' % (__name__, self.__class__.__name__)
         return fed.user
 
     def get_user(self, user_id):
