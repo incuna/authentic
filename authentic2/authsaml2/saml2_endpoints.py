@@ -29,7 +29,7 @@ from authentic2.saml.common import get_idp_list, load_provider, \
     remove_liberty_session_sp, get_session_index, get_soap_message, \
     load_federation, save_manage, lookup_federation_by_user, \
     get_manage_dump, get_saml2_metadata, create_saml2_server, \
-    maintain_liberty_session_on_service_provider
+    maintain_liberty_session_on_service_provider, get_session_not_on_or_after
 from authentic2.saml.models import LibertyProvider, LibertyFederation, \
     LibertySessionSP, LibertySessionDump, LIBERTY_SESSION_DUMP_KIND_SP, \
     save_key_values, NAME_ID_FORMATS
@@ -622,6 +622,10 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                     logger=logger)
             auth_login(request, user)
             logger.debug('sso_after_response: django session opened')
+            session_not_on_or_after = get_session_not_on_or_after(login.assertion)
+            if session_not_on_or_after:
+                request.session.set_expiry(session_not_on_or_after)
+                logger.debug('sso_after_response: session set to expire on %s by SessionNotOnOrAfter attribute', session_not_on_or_after)
             signals.auth_login.send(sender=None,
                 request=request, attributes=attributes)
             logger.debug('sso_after_response: successful login signal sent')
