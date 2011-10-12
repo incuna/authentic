@@ -1,33 +1,44 @@
-import datetime, time
+import datetime
 import logging
 
 import lasso
 
 from django.conf import settings
-from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
-from django.http import *
+from django.http import HttpResponse, HttpResponseRedirect, \
+    HttpResponseBadRequest, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic.simple import direct_to_template
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.contrib.auth import get_user
 from django.contrib.auth import login as auth_login, authenticate
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.utils.translation import ugettext as _
 
-from authentic2.saml.common import *
-from authentic2.saml.models import *
-from authentic2.authsaml2.utils import *
+from authentic2.saml.common import get_idp_list, load_provider, \
+    return_saml2_request, get_saml2_request_message, get_saml2_query_request, \
+    get_saml2_post_response, soap_call, iso8601_to_datetime, \
+    lookup_federation_by_name_identifier, get_authorization_policy, \
+    get_idp_options_policy, save_session, \
+    add_federation, load_session, send_soap_request, \
+    redirect_next, delete_session, SOAPException, \
+    remove_liberty_session_sp, get_session_index, get_soap_message, \
+    load_federation, save_manage, lookup_federation_by_user, \
+    get_manage_dump, get_saml2_metadata, create_saml2_server, \
+    maintain_liberty_session_on_service_provider, get_session_not_on_or_after
+from authentic2.saml.models import LibertyProvider, LibertyFederation, \
+    LibertySessionSP, LibertySessionDump, LIBERTY_SESSION_DUMP_KIND_SP, \
+    save_key_values, NAME_ID_FORMATS
+from authentic2.authsaml2.utils import get_service_provider_settings, \
+    error_page, register_next_target, register_request_id, get_registered_url, \
+    check_response_id, save_federation_temp, load_federation_temp, \
+    is_sp_configured
 from authentic2.authsaml2 import signals
-from authentic2.authsaml2.models import *
-from backends import AuthSAML2PersistentBackend, \
-        AuthSAML2TransientBackend
+from authentic2.authsaml2.backends import AuthSAML2PersistentBackend
 from authentic2.utils import cache_and_validate
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
@@ -110,6 +121,7 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
         else:
             logger.debug('sso: \
                 No SAML2 identity provider selected')
+            context = RequestContext(request)
             context['message'] = _('No SAML2 identity provider selected')
             context['redir_timeout'] = __logout_redirection_timeout
             template = 'auth/saml2/logout.html'
@@ -247,7 +259,7 @@ def singleSignOnArtifact(request):
         logger.debug('singleSignOnArtifact: soap message %s' % login.msgBody)
         soap_answer = soap_call(login.msgUrl,
             login.msgBody, client_cert = client_cert)
-    except Exception, e:
+    except Exception:
         return error_page(request,
             _('singleSignOnArtifact: Failure to communicate \
             with artifact resolver %r') % login.msgUrl,
@@ -655,6 +667,10 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                     logger=logger)
             auth_login(request, user)
             logger.debug('sso_after_response: django session opened')
+            session_not_on_or_after = get_session_not_on_or_after(login.assertion)
+            if session_not_on_or_after:
+                request.session.set_expiry(session_not_on_or_after)
+                logger.debug('sso_after_response: session set to expire on %s by SessionNotOnOrAfter attribute', session_not_on_or_after)
             signals.auth_login.send(sender=None,
                 request=request, attributes=attributes)
             logger.debug('sso_after_response: successful login signal sent')
@@ -851,7 +867,6 @@ def ok_icon(request):
     return HttpResponseRedirect('%s/images/ok.png' % settings.MEDIA_URL)
 
 def sp_slo(request, provider_id):
-    all = request.REQUEST.get('all')
     next = request.REQUEST.get('next')
     if not provider_id:
         return HttpResponseRedirect(next) or ko_icon(request)
@@ -973,7 +988,7 @@ def logout(request):
     try:
         pid = lasso.Session().newFromDump(q[0].session_dump). \
             get_assertions().keys()[0]
-        p = LibertyProvider.objects.get(entity_id=pid)
+        LibertyProvider.objects.get(entity_id=pid)
     except:
         return error_page(request,
             _('logout: Session malformed.'),
@@ -1122,7 +1137,7 @@ def singleLogoutReturn(request):
 def slo_return(request, logout, message):
     try:
         logout.processResponseMsg(message)
-    except lasso.Error, error:
+    except lasso.Error:
         # Silent local logout
         return local_logout(request)
     if logout.isSessionDirty:
@@ -1301,9 +1316,9 @@ def singleLogoutSOAP(request):
 def finishSingleLogoutSOAP(logout):
     try:
         logout.buildResponseMsg()
-    except:
-        logger.warning('singleLogoutSOAP \
-            buildResponseMsg: %s' %lasso.strError(error[0]))
+    except lasso.Error, error:
+        message = 'singleLogoutSOAP \
+            buildResponseMsg: %s' % lasso.strError(error[0])
         return http_response_forbidden_request(message)
 
     django_response = HttpResponse()

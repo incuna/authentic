@@ -1,10 +1,7 @@
 from django.db import models
-from django.contrib.sessions.models import Session
 from django.utils.translation import ugettext as _
 from django.db.models.manager import EmptyManager
-import lasso
-
-from authentic2.saml.models import *
+from django.contrib.auth.models import _user_get_all_permissions, _user_has_perm, _user_has_module_perms
 
 AUTHSAML2_UNAUTH_PERSISTENT = (
     ('AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH',

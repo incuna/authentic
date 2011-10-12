@@ -1,6 +1,9 @@
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns
 
-from saml2_endpoints import *
+from saml2_endpoints import metadata, sso, finish_federation, \
+    singleSignOnArtifact, singleSignOnPost, sp_slo, logout, singleLogoutReturn, \
+    singleLogoutSOAP, singleLogout, federationTermination, manageNameIdReturn, \
+    manageNameIdSOAP, manageNameId, delete_federation
 
 urlpatterns = patterns('',
     (r'^metadata$', metadata),

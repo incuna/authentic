@@ -1,13 +1,12 @@
 import re
-import datetime, time
+import time
+import logging
 
 from django.template import RequestContext
-from django.http import HttpResponseRedirect
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from models import MyServiceProvider
 from django.utils.translation import ugettext as _
 from django.shortcuts import render_to_response
-from django.contrib.sessions.models import Session
 from django.contrib import messages
 from django.conf import settings
 
