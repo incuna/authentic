@@ -545,6 +545,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                 attribute value is not utf8 encoded %r'
                 logger.warning(message % value)
                 continue
+
     # Keep the issuer
     attributes['__issuer'] = login.assertion.issuer.content
     attributes['__nameid'] = login.assertion.subject.nameID.content
@@ -552,8 +553,52 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     # Register attributes in session for other applications
     request.session['attributes'] = attributes
 
-    #logger.debug('sso_after_response: \
-    #    attributes in assertion %s' % str(attributes))
+    attrs = {}
+
+    for att_statement in login.assertion.attributeStatement:
+        for attribute in att_statement.attribute:
+            try:
+                name, format, nickname = \
+                    attribute.name.decode('ascii'), \
+                    attribute.nameFormat.decode('ascii'), \
+                    attribute.friendlyName
+            except UnicodeDecodeError:
+                message = 'sso_after_response: name or \
+                    format of an attribute failed to decode as ascii: %r %r'
+                logger.warning(message % (attribute.name, attribute.format))
+                continue
+            try:
+                if name:
+                    if format:
+                        if nickname:
+                            key = (name, format, nickname)
+                        else:
+                            key = (name, format)
+                    else:
+                        key = (name)
+                attrs[key] = list()
+                for value in attribute.attributeValue:
+                    content = []
+                    for any in value.any:
+                        content.append(any.exportToXml())
+                    content = ''.join(content)
+                    attrs[key].append(content.decode('utf8'))
+            except UnicodeDecodeError:
+                message = 'sso_after_response: \
+                attribute value is not utf8 encoded %r'
+                logger.warning(message % value)
+                continue
+
+
+    if not 'multisource_attributes' in request.session:
+        request.session['multisource_attributes'] = dict()
+    request.session['multisource_attributes'] \
+        [login.assertion.issuer.content] = attrs
+
+    logger.debug('sso_after_response: \
+        attributes in assertion %s from %s' \
+        % (str(attrs), login.assertion.issuer.content))
+
 
     '''Access control processing'''
 

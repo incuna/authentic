@@ -15,9 +15,8 @@ from django.utils.importlib import import_module
 
 from fields import PickledObjectField, MultiSelectField
 
-# TODO: add other name formats with lasso next release
-ATTRIBUTE_VALUE_FORMATS = (
-        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, 'SAMLv2 URI'),)
+from idp.models import AttributePolicy
+
 
 def metadata_validator(meta):
     provider=lasso.Provider.newFromBuffer(lasso.PROVIDER_ROLE_ANY, meta.encode('utf8'))
@@ -142,16 +141,6 @@ SIGNATURE_VERIFY_HINT = {
         lasso.PROFILE_SIGNATURE_VERIFY_HINT_FORCE: _('Always check signatures'),
         lasso.PROFILE_SIGNATURE_VERIFY_HINT_IGNORE: _('Does not check signatures') }
 
-class LibertyAttributeMap(models.Model):
-    name = models.CharField(max_length = 40, unique = True)
-    def __unicode__(self):
-        return self.name
-
-class LibertyAttributeMapping(models.Model):
-    source_attribute_name = models.CharField(max_length = 40)
-    attribute_value_format = models.URLField(choices = ATTRIBUTE_VALUE_FORMATS)
-    attribute_name = models.CharField(max_length = 40)
-    map = models.ForeignKey(LibertyAttributeMap)
 
 class LibertyProviderPolicy(models.Model):
     name = models.CharField(max_length=64, unique=True)
@@ -318,11 +307,6 @@ class LibertyServiceProvider(models.Model):
             verbose_name = _("AuthnRequest signed"))
     idp_initiated_sso = models.BooleanField(
             verbose_name = _("Allow IdP initiated SSO"))
-    # Mapping to use to produce attributes in the assertions or in Attribute
-    # requests
-    attribute_map = models.ForeignKey(LibertyAttributeMap,
-            related_name = "service_providers",
-            blank = True, null = True)
     # XXX: format in the metadata file, should be suffixed with a star to mark
     # them as special
     default_name_id_format = models.CharField(max_length = 20,
@@ -338,6 +322,17 @@ class LibertyServiceProvider(models.Model):
         verbose_name = _('Ask user for consent when creating a federation'), default = False)
     policy = models.ForeignKey(LibertyProviderPolicy,
             verbose_name=_("Protocol policy"), null=True, default=1)
+    attribute_policy = models.ForeignKey(AttributePolicy,
+            verbose_name=_("Attribute policy"), null=True, blank=True)
+
+
+def get_attribute_policy_from_entity_id(entity_id):
+    try:
+        provider = LibertyProvider.objects.get(entity_id=entity_id)
+        return provider.service_provider.attribute_policy
+    except:
+        return None
+
 
 # TODO: The choice for requests must be restricted by the IdP metadata
 # The SP then chooses the binding in this list.

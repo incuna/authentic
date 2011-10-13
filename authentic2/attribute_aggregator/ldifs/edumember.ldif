@@ -1,0 +1,28 @@
+# SCHEMA 'EDUMEMBER'
+
+# The isMemberOf attribute associated with an entity is a
+# collection of values each of which identifies a group to
+# which that entity belongs.
+attributetype ( 1.3.6.1.4.1.5923.1.5.1.1
+    NAME 'isMemberOf'
+    DESC 'identifiers for groups to which containing entity belongs'
+    EQUALITY caseExactMatch
+    SYNTAX '1.3.6.1.4.1.1466.115.121.1.15' )
+
+# The hasMember attribute associated with a group is a collection
+# of values each of which identifies an entity that belongs to the
+# group.
+attributetype ( 1.3.6.1.4.1.5923.1.5.1.2
+    NAME 'hasMember'
+    DESC 'identifiers for entities that are members of the group'
+    EQUALITY caseExactMatch
+    SYNTAX '1.3.6.1.4.1.1466.115.121.1.15' )
+
+# The eduMember objectclass is a convenient container for an
+# extensible set of attributes concerning group memberships
+objectclass ( 1.3.6.1.4.1.5923.1.5.2
+    NAME 'eduMember'
+    AUXILIARY
+    MAY ( isMemberOf $ hasMember )
+    )
+
