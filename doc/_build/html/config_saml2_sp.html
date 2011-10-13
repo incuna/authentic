@@ -1,0 +1,140 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Configure SAML 2.0 service providers &mdash; Authentic2 1.9.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Authentic2 1.9.2 documentation" href="index.html" />
+    <link rel="next" title="Configure Authentic2 as a SAML2 service provider" href="config_saml2_idp.html" />
+    <link rel="prev" title="Authentication on Authentic2 with PAM" href="auth_pam.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="config_saml2_idp.html" title="Configure Authentic2 as a SAML2 service provider"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="auth_pam.html" title="Authentication on Authentic2 with PAM"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Authentic2 1.9.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="configure-saml-2-0-service-providers">
+<span id="config-saml2-sp"></span><h1>Configure SAML 2.0 service providers<a class="headerlink" href="#configure-saml-2-0-service-providers" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="how-to-i-authenticate-against-authentic2-with-a-samlv2-service-provider">
+<h2>How to I authenticate against Authentic2 with a SAMLv2 service provider ?<a class="headerlink" href="#how-to-i-authenticate-against-authentic2-with-a-samlv2-service-provider" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Grab the SAML2 IdP metadata:</p>
+<blockquote>
+<div><p>http[s]://your.domain.com/idp/saml2/metadata</p>
+</div></blockquote>
+</li>
+<li><p class="first">And configure your service provider with it.</p>
+</li>
+<li><p class="first">Go to the providers admin panel on:</p>
+<blockquote>
+<div><p>http[s]://your.domain.com/admin/saml/libertyprovider/add/</p>
+</div></blockquote>
+</li>
+</ol>
+<p>There create a new provider using the service provider metadata and enable it
+as a service provider, you can customize some behaviours like the preferred
+assertion consumer or encryption for the NameID or the Assertion element.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Configure SAML 2.0 service providers</a><ul>
+<li><a class="reference internal" href="#how-to-i-authenticate-against-authentic2-with-a-samlv2-service-provider">How to I authenticate against Authentic2 with a SAMLv2 service provider ?</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="auth_pam.html"
+                        title="previous chapter">Authentication on Authentic2 with PAM</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="config_saml2_idp.html"
+                        title="next chapter">Configure Authentic2 as a SAML2 service provider</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/config_saml2_sp.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="config_saml2_idp.html" title="Configure Authentic2 as a SAML2 service provider"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="auth_pam.html" title="Authentication on Authentic2 with PAM"
+             >previous</a> |</li>
+        <li><a href="index.html">Authentic2 1.9.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Mikaël Ates.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>
