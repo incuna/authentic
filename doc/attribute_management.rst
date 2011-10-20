@@ -323,7 +323,7 @@ with the source indicate per attribute item of the list. For this select the opt
 .. image:: pictures/attribute_item.png
    :width: 800 px
 
-The default name format is BASIC. You can however change the name format and namespace with the option **'Map attributes from push sources'** and the parameters **'Output name format'** and **'Output namespace'**.
+The default name format is URI. You can however change the name format and namespace with the option **'Map attributes from push sources'** and the parameters **'Output name format'** and **'Output namespace'**.
 
 Using the option **'Map attributes of filtered attributes'** the output name format and namespace are the ones indicated per attribute item of the list.
 

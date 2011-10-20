@@ -38,7 +38,7 @@ logger = logging.getLogger('authentic2.idp.attributes')
 
 
 def add_data_to_dic(attributes, name, values,
-        format=lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC,
+        format=lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI,
         namespace_out='Default', required=False):
     logger.debug('add_data_to_dic: dic is at beginning %s' % attributes)
     logger.debug('add_data_to_dic: ask to add %s with %s and values %s' \
@@ -421,7 +421,7 @@ def provide_attributes_at_sso(request, user, audience, **kwargs):
                         if d:
                             namespace_out = 'Default'
                             name_format_out = \
-                                lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC
+                                lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI
                             if attribute_policy.\
                                     map_attributes_of_filtered_attributes:
                                 namespace_out = att.output_namespace
@@ -446,7 +446,7 @@ def provide_attributes_at_sso(request, user, audience, **kwargs):
                                 and att.required))
             else:
                 namespace_out = 'Default'
-                name_format_out = lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC
+                name_format_out = lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI
                 if attribute_policy.map_attributes_from_push_sources:
                     namespace_out = attribute_policy.output_namespace
                     name_format_out = attribute_policy.output_name_format

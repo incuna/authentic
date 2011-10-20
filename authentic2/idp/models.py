@@ -19,8 +19,8 @@ ATTRIBUTES_NS = [('Default', 'Default')] \
     + [(ns, ns) for ns in ATTRIBUTE_NAMESPACES]
 
 ATTRIBUTE_VALUE_FORMATS = (
-        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC, 'SAMLv2 BASIC'),
-        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, 'SAMLv2 URI'))
+        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, 'SAMLv2 URI'),
+        (lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC, 'SAMLv2 BASIC'))
 
 
 def set_user_consent_attributes(user, provider, attributes):
