@@ -39,11 +39,30 @@ class AttributePolicyAdmin(admin.ModelAdmin):
             }),
     )
 
+
+class LdapSourceAdmin(admin.ModelAdmin):
+    fieldsets = (
+            (None, {
+                'fields' : (
+                    'name',
+                    'server',
+                    'user',
+                    'password',
+                    'base',
+                    'port',
+                    'ldaps',
+                    'certificate',
+                    'is_auth_backend',
+                )
+            }),
+    )
+
+
 admin.site.register(AttributeItem)
 admin.site.register(AttributeList, AttributeListAdmin)
 admin.site.register(AttributePolicy, AttributePolicyAdmin)
 admin.site.register(AttributeSource)
-admin.site.register(LdapSource)
+admin.site.register(LdapSource, LdapSourceAdmin)
 admin.site.register(UserAliasInSource)
 
 if settings.DEBUG:
