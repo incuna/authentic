@@ -577,12 +577,49 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     if not 'multisource_attributes' in request.session:
         request.session['multisource_attributes'] = dict()
     request.session['multisource_attributes'] \
-        [login.assertion.issuer.content] = attrs
-
+        [login.assertion.issuer.content] = list()
+    a8n = dict()
+    a8n['certificate_type'] = 'SAML2_assertion'
+    try:
+        a8n['nameid'] = \
+            login.assertion.subject.nameID.content
+    except:
+        pass
+    try:
+        a8n['subject_confirmation_method'] = \
+            login.assertion.subject.subjectConfirmation.method
+    except:
+        pass
+    try:
+        a8n['not_before'] = \
+            login.assertion.subject. \
+            subjectConfirmation.subjectConfirmationData.notBefore
+    except:
+        pass
+    try:
+        a8n['not_on_or_after'] = \
+            login.assertion.subject.subjectConfirmation. \
+            subjectConfirmationData.notOnOrAfter
+    except:
+        pass
+    try:
+        a8n['authn_context'] = \
+            login.assertion.authnStatement[0]. \
+            authnContext.authnContextClassRef
+    except:
+        pass
+    try:
+        a8n['authn_instant'] = \
+            login.assertion.authnStatement[0].authnInstant
+    except:
+        pass
+    a8n['attributes'] = attrs
+    request.session['multisource_attributes'] \
+        [login.assertion.issuer.content].append(a8n)
     logger.debug('sso_after_response: \
         attributes in assertion %s from %s' \
         % (str(attrs), login.assertion.issuer.content))
-
+    #authncontext
 
     '''Access control processing'''
 
