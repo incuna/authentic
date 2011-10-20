@@ -19,7 +19,8 @@
 
 
 def urn_to_oid(urn):
-    return urn.split('urn:oid:')[2]
+    _, _, oid = urn.partition('urn:oid:')
+    return oid
 
 
 def oid_to_urn(oid):
