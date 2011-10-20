@@ -4,7 +4,6 @@ import logging
 
 from django.template import RequestContext
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from models import MyServiceProvider
 from django.utils.translation import ugettext as _
 from django.shortcuts import render_to_response
 from django.contrib import messages
@@ -46,18 +45,6 @@ def error_page(request, message=None, back=None, logger=None,
         messages.add_message(request, messages.ERROR, message)
     return render_to_response('error_authsaml2.html', {'back': back},
             context_instance=context)
-
-def is_sp_configured():
-    cfg = MyServiceProvider.objects.all()
-    if not cfg or not cfg[0]:
-        return False
-    return True
-
-def get_service_provider_settings():
-    cfg = MyServiceProvider.objects.all()
-    if not cfg or not cfg[0]:
-       return None
-    return cfg[0]
 
 # Used to register requested url during SAML redirections
 def register_next_target(request, url=None):

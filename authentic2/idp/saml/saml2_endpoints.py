@@ -35,7 +35,7 @@ from authentic2.saml.common import redirect_next, asynchronous_bindings, \
     AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR, \
     send_soap_request, get_saml2_query_request, \
     get_saml2_request_message_async_binding, create_saml2_server, \
-    get_saml2_metadata
+    get_saml2_metadata, get_sp_options_policy
 
 import authentic2.saml.saml2utils as saml2utils
 from authentic2.auth2_auth.models import AuthenticationEvent
@@ -289,6 +289,7 @@ def sso(request):
         logger.warn("sso: missing query string")
         return HttpResponseForbidden('A SAMLv2 Single Sign On request need a query string')
     logger.debug('sso: processing sso request %r' % message)
+    policy = None
     while True:
         try:
             login.processAuthnRequestMsg(message)
@@ -321,9 +322,13 @@ def sso(request):
                 message = _('sso: fail to load unknown provider %s' %provider_id)
                 return error_page(request, message, logger=logger)
             else:
+                policy = get_sp_options_policy(provider_loaded)
+                if not policy:
+                    logger.error('sso: No policy defined')
+                    return error_page(request, _('sso: No SP policy defined'), logger=logger)
                 logger.info('sso: provider %s loaded with success' %provider_id)
                 consent_obtained = \
-                        not provider_loaded.service_provider.ask_user_consent
+                        not policy.ask_user_consent
                 logger.info('sso: the user consent option given by the requester is %s' %str(consent_obtained))
             login.setSignatureVerifyHint(
                     provider_loaded.service_provider.policy \
@@ -349,10 +354,9 @@ def sso(request):
                 lasso.SAML2_NAME_IDENTIFIER_FORMAT_UNSPECIFIED:
         nid_format = saml2_urn_to_nidformat(name_id_policy.format)
         logger.debug('sso: nameID format %s' %nid_format)
-        default_nid_format = provider_loaded.service_provider.default_name_id_format
+        default_nid_format = policy.default_name_id_format
         logger.debug('sso: default nameID format %s' %default_nid_format)
-        accepted_nid_format = \
-                provider_loaded.service_provider.accepted_name_id_format
+        accepted_nid_format = policy.accepted_name_id_format
         logger.debug('sso: nameID format accepted %s' %str(accepted_nid_format))
         if (not nid_format or nid_format not in accepted_nid_format) and \
            default_nid_format != nid_format:
@@ -362,7 +366,7 @@ def sso(request):
             return finish_sso(request, login)
     else:
         logger.debug('sso: no nameID policy format')
-        nid_format = provider_loaded.service_provider.default_name_id_format
+        nid_format = policy.default_name_id_format
         logger.debug('sso: set nameID policy format %s' %nid_format)
         name_id_policy.format = nidformat_to_saml2_urn(nid_format)
     return sso_after_process_request(request, login,
@@ -720,7 +724,12 @@ def idp_sso(request, provider_id, user_id = None, nid_format = None):
     logger.debug('idp_sso: federation loaded')
     login.initIdpInitiatedAuthnRequest(provider_id)
     # Control assertion consumer binding
-    binding = service_provider.prefered_assertion_consumer_binding
+    policy = get_sp_options_policy(liberty_provider)
+    if not policy:
+        logger.error('idp_sso: No policy defined, \
+            unable to set protocol binding')
+        return error_page(request, _('idp_sso: No SP policy defined'), logger=logger)
+    binding = policy.prefered_assertion_consumer_binding
     logger.debug('idp_sso: binding is %r' %binding)
     if binding == 'meta':
         pass
@@ -735,11 +744,11 @@ def idp_sso(request, provider_id, user_id = None, nid_format = None):
     # XXX: if a federation exist, we should use transient
     if nid_format:
         logger.debug('idp_sso: nameId format is %r' %nid_format)
-        if not nid_format in service_provider.accepted_name_id_format:
+        if not nid_format in policy.accepted_name_id_format:
             logger.error('idp_sso: name id format %r is not supported by %r' % (nid_format, provider_id))
             raise Http404('Provider %r does not support this name id format' % provider_id)
     if not nid_format:
-        nid_format = service_provider.default_name_id_format
+        nid_format = policy.default_name_id_format
         logger.debug('idp_sso: nameId format is %r' %nid_format)
     login.request.nameIdPolicy.format = nidformat_to_saml2_urn(nid_format)
 

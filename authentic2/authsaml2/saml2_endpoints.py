@@ -33,10 +33,9 @@ from authentic2.saml.common import get_idp_list, load_provider, \
 from authentic2.saml.models import LibertyProvider, LibertyFederation, \
     LibertySessionSP, LibertySessionDump, LIBERTY_SESSION_DUMP_KIND_SP, \
     save_key_values, NAME_ID_FORMATS
-from authentic2.authsaml2.utils import get_service_provider_settings, \
-    error_page, register_next_target, register_request_id, get_registered_url, \
-    check_response_id, save_federation_temp, load_federation_temp, \
-    is_sp_configured
+from authentic2.authsaml2.utils import error_page, register_next_target, \
+    register_request_id, get_registered_url, \
+    check_response_id, save_federation_temp, load_federation_temp
 from authentic2.authsaml2 import signals
 from authentic2.authsaml2.backends import AuthSAML2PersistentBackend
 from authentic2.utils import cache_and_validate
@@ -96,10 +95,6 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
        user even if it is already authenticated.
     '''
     entity_id = request.REQUEST.get('entity_id')
-    s = get_service_provider_settings()
-    if not s:
-        return error_page(request,
-            _('sso: Service provider not configured'), logger=logger)
     # 1. Save the target page
     logger.info('sso: save next url in session %s' \
         % request.session.session_key)
@@ -119,17 +114,10 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
         if providers_list.count() == 1:
             p = providers_list[0]
         else:
-            logger.debug('sso: \
-                No SAML2 identity provider selected')
-            context = RequestContext(request)
-            context['message'] = _('No SAML2 identity provider selected')
-            context['redir_timeout'] = __logout_redirection_timeout
-            template = 'auth/saml2/logout.html'
-            if not s.back_url:
-                context[REDIRECT_FIELD_NAME] = '/'
-            else:
-                context[REDIRECT_FIELD_NAME] = s.back_url
-            return render_to_response(template, context_instance = context)
+            logger.error('sso: No SAML2 identity provider selected')
+            return error_page(request,
+                _('sso: so: No SAML2 identity provider selected'),
+                logger=logger)
     else:
         logger.info('sso: sso with provider %s' % entity_id)
         p = load_provider(request, entity_id, server=server, sp_or_idp='idp',
@@ -160,7 +148,10 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
             logger=logger)
 
     # 5. Request setting
-    setAuthnrequestOptions(p, login, force_authn, is_passive)
+    if not setAuthnrequestOptions(p, login, force_authn, is_passive):
+        logger.error('sso: No policy defined')
+        return error_page(request, _('sso: No IdP policy defined'),
+            logger=logger)
     try:
         login.buildAuthnRequestMsg()
     except lasso.Error, error:
@@ -364,14 +355,7 @@ def singleSignOnPost(request):
  # Post-authnrequest processing
  ###
 def sso_after_response(request, login, relay_state = None, provider=None):
-
     logger.info('sso_after_response: Authnresponse processing begins...')
-    s = get_service_provider_settings()
-    if not s:
-        return error_page(request,
-            _('sso_after_response: Service provider not configured'),
-            logger=logger)
-
     # If there is no inResponseTo: IDP initiated
     # else, check that the response id is the same
     irt = None
@@ -634,27 +618,30 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     '''Access granted, now we deal with session management'''
 
 
-    url = get_registered_url(request)
-    if not request.session.has_key('saml_request_id'):
-        #IdP initiated
-        url = '/'
-
     #XXX: Allow external login of user
 
     user = request.user
 
     policy = get_idp_options_policy(provider)
+    if not policy:
+        logger.error('sso_after_response: No policy defined')
+        return error_page(request,
+            _('sso_after_response: No IdP policy defined'), logger=logger)
+    url = get_registered_url(request)
+    if not request.session.has_key('saml_request_id'):
+        #IdP initiated
+        url = policy.back_url
     if login.nameIdentifier.format == \
         lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT \
         and (policy is None \
              or not policy.transient_is_persistent):
         logger.info('sso_after_response: Transient nameID')
-        if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
+        if policy.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
             return error_page(request,
                 _('sso_after_response: \
                 Transient access policy not yet implemented'),
                 logger=logger)
-        if s.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
+        if policy.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
             logger.info('sso_after_response: \
                 Opening session for transient with nameID')
             logger.debug('sso_after_response: \
@@ -698,7 +685,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             authenticate(name_id=login.nameIdentifier,
                 provider_id=login.remoteProviderId)
         if not user and \
-                s.handle_persistent == \
+                policy.handle_persistent == \
                     'AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS':
             # Auto-create an user then do the authentication again
             logger.info('sso_after_response: Account creation')
@@ -723,7 +710,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             logger.info('sso_after_response: \
                 Login processing ended with success - redirect to target')
             return HttpResponseRedirect(url)
-        elif s.handle_persistent == \
+        elif policy.handle_persistent == \
                 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
             if request.user.is_authenticated():
                 logger.info('sso_after_response: Add federation')
@@ -959,10 +946,6 @@ def process_logout_response(request, logout, soap_response, next):
  # Single Logout Request from UI
  ###
 def logout(request):
-    if not is_sp_configured():
-        return error_page(request,
-            _('logout: Service provider not configured'),
-            logger=logger)
     if request.user.is_anonymous():
         return error_page(request,
             _('logout: not a logged in user'),
@@ -1098,11 +1081,6 @@ def localLogout(request, error):
  # Single Logout SOAP SP initiated
  ###
 def singleLogoutReturn(request):
-    if not is_sp_configured():
-        return error_page(request,
-            _('singleLogoutReturn: Service provider not configured'),
-            logger=logger)
-
     server = build_service_provider(request)
     if not server:
         return error_page(request,
@@ -1155,11 +1133,7 @@ def local_logout(request):
         context['redir_timeout'] = __logout_redirection_timeout
         context['message'] = 'You are logged out'
         template = 'auth/saml2/logout.html'
-        s = get_service_provider_settings()
-        if not s or not s.back_url:
-            context['next_page'] = '/'
-        else:
-            context['next_page'] = s.back_url
+        context['next_page'] = '/'
         signals.auth_logout.send(sender = None, user = request.user)
         auth_logout(request)
         return render_to_response(template, context_instance = context)
@@ -1185,10 +1159,6 @@ def singleLogoutSOAP(request):
     if request_type != lasso.REQUEST_TYPE_LOGOUT:
         return http_response_bad_request('singleLogoutSOAP: \
         SOAP message is not a slo message')
-
-    if not is_sp_configured():
-        return http_response_forbidden_request('singleLogoutSOAP: \
-        Service provider not configured')
 
     server = build_service_provider(request)
     if not server:
@@ -1334,10 +1304,6 @@ def finishSingleLogoutSOAP(logout):
  # Single Logout Redirect IdP initiated
  ###
 def singleLogout(request):
-    if not is_sp_configured():
-        return http_response_forbidden_request('singleLogout: \
-            Service provider not configured')
-
     query = get_saml2_query_request(request)
     if not query:
         return http_response_forbidden_request('singleLogout: \
@@ -1388,7 +1354,7 @@ def singleLogout(request):
     auth_logout(request)
 
 
-    # TODO: we cannot call slo_return_response, 
+    # TODO: we cannot call slo_return_response,
     # else django raise an error due an httpresponse return missing
     try:
         logout.buildResponseMsg()
@@ -1429,11 +1395,6 @@ def slo_return_response(logout):
  ###
 def federationTermination(request):
     entity_id = request.REQUEST.get('entity_id')
-    if not is_sp_configured():
-        return error_page(request,
-            _('fedTerm/SP UI: Service provider not configured'),
-            logger=logger)
-
     if not entity_id:
         return error_page(request,
             _('fedTerm/SP UI: No provider for defederation'),
@@ -1641,10 +1602,6 @@ def manageNameIdSOAP(request):
         return http_response_bad_request('fedTerm/IdP SOAP: \
             SOAP message is not a slo message')
 
-    if not is_sp_configured():
-        return http_response_forbidden_request('fedTerm/IdP SOAP: \
-            Service provider not configured')
-
     server = build_service_provider(request)
     if not server:
         return http_response_forbidden_request('fedTerm/IdP SOAP: \
@@ -1703,10 +1660,6 @@ def manageNameIdSOAP(request):
  # Federation termination: request from Redirect IdP initiated
  ###
 def manageNameId(request):
-    if not is_sp_configured():
-        return http_response_forbidden_request('fedTerm/IdP Redirect: \
-            Service provider not configured')
-
     query = get_saml2_query_request(request)
     if not query:
         return http_response_forbidden_request('fedTerm/IdP Redirect: \
@@ -1747,7 +1700,7 @@ def manageNameId(request):
     return HttpResponseRedirect(manage.msgUrl)
 
 #############################################
-# Helper functions 
+# Helper functions
 #############################################
 
 def get_provider_id_and_options(provider_id):
@@ -1781,11 +1734,11 @@ def build_service_provider(request):
 
 def setAuthnrequestOptions(provider, login, force_authn, is_passive):
     if not provider or not login:
-        return False
+        return None
 
     p = get_idp_options_policy(provider)
     if not p:
-        return False
+        return None
 
     if p.no_nameid_policy:
         login.request.nameIDPolicy = None
@@ -1807,7 +1760,7 @@ def setAuthnrequestOptions(provider, login, force_authn, is_passive):
     login.request.isPassive = is_passive
 
     login.request.consent = p.user_consent
-    return True
+    return p
 
 def view_profile(request, next='', template_name='profile.html'):
     if request.session.has_key('next'):

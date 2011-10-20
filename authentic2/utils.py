@@ -101,4 +101,3 @@ def cache_and_validate(timeout, hashing=hashlib.md5):
                 return content
         return replacement
     return transform
-

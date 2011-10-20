@@ -10,6 +10,7 @@ from django.contrib import messages
 
 from models import LibertyProvider, LibertyServiceProvider
 from models import LibertyIdentityProvider, IdPOptionsSPPolicy
+from models import SPOptionsIdPPolicy
 from models import AuthorizationSPPolicy, AuthorizationAttributeMap
 from models import AuthorizationAttributeMapping, LibertyProviderPolicy
 from models import LibertySessionDump, LibertyIdentityDump, LibertyFederation
@@ -59,6 +60,9 @@ class IdPOptionsSPPolicyAdmin(admin.ModelAdmin):
                     'want_force_authn_request',
                     'want_is_passive_authn_request',
                     'want_authn_request_signed',
+                    'handle_persistent',
+                    'handle_transient',
+                    'back_url',
                 )
             }),
     )
@@ -86,8 +90,8 @@ class LibertyIdentityProviderInline(admin.StackedInline):
                     'enabled',
                     'enable_following_idp_options_policy',
                     'idp_options_policy',
-                    'enable_following_authorization_policy',
-                    'authorization_policy',
+#                    'enable_following_authorization_policy',
+#                    'authorization_policy',
                 )
             }),
     )
@@ -175,9 +179,10 @@ class LibertyProviderPolicyAdmin(admin.ModelAdmin):
 
 
 admin.site.register(IdPOptionsSPPolicy, IdPOptionsSPPolicyAdmin)
-admin.site.register(AuthorizationSPPolicy, AuthorizationSPPolicyAdmin)
+admin.site.register(SPOptionsIdPPolicy)
+#admin.site.register(AuthorizationSPPolicy, AuthorizationSPPolicyAdmin)
 admin.site.register(AuthorizationAttributeMap, AuthorizationAttributeMapAdmin)
-admin.site.register(AuthorizationAttributeMapping, AuthorizationAttributeMappingAdmin)
+#admin.site.register(AuthorizationAttributeMapping, AuthorizationAttributeMappingAdmin)
 admin.site.register(LibertyProvider, LibertyProviderAdmin)
 admin.site.register(LibertyProviderPolicy, LibertyProviderPolicyAdmin)
 

@@ -4,30 +4,32 @@ from django.utils.translation import ugettext as _
 
 import authentic2.saml.models as models
 import authentic2.idp.saml.saml2_endpoints as saml2_endpoints
+import authentic2.saml.common as common
 
 class SamlBackend(object):
     def service_list(self, request):
-        q = models.LibertyServiceProvider.objects.filter(enabled = True,
-                idp_initiated_sso = True)
+        q = models.LibertyServiceProvider.objects.filter(enabled = True)
         list = []
         for service_provider in q:
             liberty_provider = service_provider.liberty_provider
-            entity_id = liberty_provider.entity_id
-            if liberty_provider.protocol_conformance < 3:
-                protocol = 'idff12'
-            else:
-                protocol = 'saml2'
-            uri = '/idp/%s/idp_sso/' %protocol
-            name = '%s login' %liberty_provider.name
-            provider_id = entity_id
-            list.append((uri, name, provider_id))
-            if models.LibertySession.objects.filter(
-                    django_session_key=request.session.session_key,
-                    provider_id=entity_id).exists():
-                uri = '/idp/%s/idp_slo/' %protocol
-                name = liberty_provider.name + ' logout'
+            policy = common.get_sp_options_policy(liberty_provider)
+            if policy and policy.idp_initiated_sso:
+                entity_id = liberty_provider.entity_id
+                if liberty_provider.protocol_conformance < 3:
+                    protocol = 'idff12'
+                else:
+                    protocol = 'saml2'
+                uri = '/idp/%s/idp_sso/' %protocol
+                name = '%s login' %liberty_provider.name
                 provider_id = entity_id
                 list.append((uri, name, provider_id))
+                if models.LibertySession.objects.filter(
+                        django_session_key=request.session.session_key,
+                        provider_id=entity_id).exists():
+                    uri = '/idp/%s/idp_slo/' %protocol
+                    name = liberty_provider.name + ' logout'
+                    provider_id = entity_id
+                    list.append((uri, name, provider_id))
         return list
 
     def logout_list(self, request):

@@ -153,12 +153,26 @@ class LibertyProviderPolicy(models.Model):
         options.append('AuthnRequest signature: ' + SIGNATURE_VERIFY_HINT[self.authn_request_signature_check_hint])
         return self.name + ' (%s)' % ', '.join(options)
 
+
+AUTHSAML2_UNAUTH_PERSISTENT = (
+    ('AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH',
+        _('Account linking by authentication')),
+    ('AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS',
+        _('Create new account')),
+)
+
+AUTHSAML2_UNAUTH_TRANSIENT = (
+    ('AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH', _('Ask authentication')),
+    ('AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION', _('Open a session')),
+)
+
+
 class IdPOptionsSPPolicy(models.Model):
-    name = models.CharField(_('name'), max_length=80, unique=True)
+    name = models.CharField(_('name'), max_length=200, unique=True)
     enabled = models.BooleanField(verbose_name = _('Enabled'))
     no_nameid_policy = models.BooleanField(
             verbose_name = _("Do not send a nameId Policy"))
-    requested_name_id_format = models.CharField(max_length = 20,
+    requested_name_id_format = models.CharField(max_length = 200,
             default = DEFAULT_NAME_ID_FORMAT,
             choices = NAME_ID_FORMATS_CHOICES)
     transient_is_persistent = models.BooleanField(
@@ -171,14 +185,14 @@ class IdPOptionsSPPolicy(models.Model):
             verbose_name = _('Binding for Authnresponse \
             (taken from metadata by the IdP if not enabled)'))
     binding_for_sso_response = models.CharField(
-            max_length = 60, choices = BINDING_SSO_IDP,
+            max_length = 200, choices = BINDING_SSO_IDP,
             verbose_name = '',
             default = lasso.SAML2_METADATA_BINDING_ARTIFACT)
     enable_http_method_for_slo_request = models.BooleanField(
             verbose_name = _('HTTP method for single logout request \
             (taken from metadata if not enabled)'))
     http_method_for_slo_request = models.IntegerField(
-            max_length = 60, choices = HTTP_METHOD,
+            max_length = 200, choices = HTTP_METHOD,
             verbose_name = '',
             default = lasso.HTTP_METHOD_REDIRECT)
     enable_http_method_for_defederation_request = models.BooleanField(
@@ -186,11 +200,11 @@ class IdPOptionsSPPolicy(models.Model):
             _('HTTP method for federation termination request \
             (taken from metadata if not enabled)'))
     http_method_for_defederation_request = models.IntegerField(
-            max_length = 60, choices = HTTP_METHOD,
+            max_length = 200, choices = HTTP_METHOD,
             verbose_name = '',
             default = lasso.HTTP_METHOD_SOAP)
     user_consent = models.CharField(
-            max_length = 60, choices = USER_CONSENT,
+            max_length = 200, choices = USER_CONSENT,
             verbose_name = _("Ask user consent"),
             default = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit')
     want_force_authn_request = models.BooleanField(
@@ -200,12 +214,63 @@ class IdPOptionsSPPolicy(models.Model):
     want_authn_request_signed = models.BooleanField(
             verbose_name = _("Want AuthnRequest signed"))
 
+    handle_persistent = models.CharField(
+            max_length=200,
+            verbose_name = 'Behavior with persistent nameId',
+            choices=AUTHSAML2_UNAUTH_PERSISTENT,
+            default = 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH')
+    handle_transient = models.CharField(
+            max_length=200,
+            verbose_name = 'Behavior with transient nameId',
+            choices=AUTHSAML2_UNAUTH_TRANSIENT,
+            default = '')
+    back_url = models.CharField(
+            max_length = 200,
+            default = '/',
+            verbose_name = 'Return URL after a successful authentication')
+
     class Meta:
         verbose_name = _('identity provider options policy')
         verbose_name_plural = _('identity provider options policies')
 
     def __unicode__(self):
         return self.name
+
+
+class SPOptionsIdPPolicy(models.Model):
+    name = models.CharField(_('name'), max_length=80, unique=True)
+    enabled = models.BooleanField(verbose_name = _('Enabled'))
+    prefered_assertion_consumer_binding = models.CharField(
+            default = 'meta',
+            max_length = 4, choices = ASSERTION_CONSUMER_PROFILES)
+    encrypt_nameid = models.BooleanField(verbose_name = _("Encrypt NameID"))
+    encrypt_assertion = models.BooleanField(
+            verbose_name = _("Encrypt Assertion"))
+    authn_request_signed = models.BooleanField(
+            verbose_name = _("AuthnRequest signed"))
+    idp_initiated_sso = models.BooleanField(
+            verbose_name = _("Allow IdP initiated SSO"))
+    # XXX: format in the metadata file, should be suffixed with a star to mark
+    # them as special
+    default_name_id_format = models.CharField(max_length = 200,
+            default = DEFAULT_NAME_ID_FORMAT,
+            choices = NAME_ID_FORMATS_CHOICES)
+    accepted_name_id_format = MultiSelectField(
+            max_length=ACCEPTED_NAME_ID_FORMAT_LENGTH,
+            blank=True, choices=NAME_ID_FORMATS_CHOICES)
+    # TODO: add clean method which checks that the LassoProvider we can create
+    # with the metadata file support the SP role
+    # i.e. provider.roles & lasso.PROVIDER_ROLE_SP != 0
+    ask_user_consent = models.BooleanField(
+        verbose_name = _('Ask user for consent when creating a federation'), default = False)
+
+    class Meta:
+        verbose_name = _('service provider options policy')
+        verbose_name_plural = _('service provider options policies')
+
+    def __unicode__(self):
+        return self.name
+
 
 class AuthorizationAttributeMap(models.Model):
     name = models.CharField(max_length = 40, unique = True)
@@ -297,29 +362,9 @@ class LibertyServiceProvider(models.Model):
     liberty_provider = models.OneToOneField(LibertyProvider,
             primary_key = True, related_name = 'service_provider')
     enabled = models.BooleanField(verbose_name = _('Enabled'))
-    prefered_assertion_consumer_binding = models.CharField(
-            default = 'meta',
-            max_length = 4, choices = ASSERTION_CONSUMER_PROFILES)
-    encrypt_nameid = models.BooleanField(verbose_name = _("Encrypt NameID"))
-    encrypt_assertion = models.BooleanField(
-            verbose_name = _("Encrypt Assertion"))
-    authn_request_signed = models.BooleanField(
-            verbose_name = _("AuthnRequest signed"))
-    idp_initiated_sso = models.BooleanField(
-            verbose_name = _("Allow IdP initiated SSO"))
-    # XXX: format in the metadata file, should be suffixed with a star to mark
-    # them as special
-    default_name_id_format = models.CharField(max_length = 20,
-            default = DEFAULT_NAME_ID_FORMAT,
-            choices = NAME_ID_FORMATS_CHOICES)
-    accepted_name_id_format = MultiSelectField(
-            max_length=ACCEPTED_NAME_ID_FORMAT_LENGTH,
-            blank=True, choices=NAME_ID_FORMATS_CHOICES)
-    # TODO: add clean method which checks that the LassoProvider we can create
-    # with the metadata file support the SP role
-    # i.e. provider.roles & lasso.PROVIDER_ROLE_SP != 0
-    ask_user_consent = models.BooleanField(
-        verbose_name = _('Ask user for consent when creating a federation'), default = False)
+    enable_following_sp_options_policy = models.BooleanField(verbose_name = \
+        _('The following options policy will apply except if a policy for all identity provider is defined.'))
+    sp_options_policy = models.ForeignKey(SPOptionsIdPPolicy, related_name = "sp_options_policy", verbose_name = _('SP Options Policy'), blank=True, null=True)
     policy = models.ForeignKey(LibertyProviderPolicy,
             verbose_name=_("Protocol policy"), null=True, default=1)
     attribute_policy = models.ForeignKey(AttributePolicy,

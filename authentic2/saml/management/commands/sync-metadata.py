@@ -27,15 +27,8 @@ def check_support_saml2(tree):
         return True
     return False
 
-def load_one_entity(tree, options):
+def load_one_entity(tree, options, sp_policy=None, idp_policy=None):
     '''Load or update an EntityDescriptor into the database'''
-    default_name_id_format = options['sp_default_nameid_format']
-    if default_name_id_format not in NAME_ID_FORMATS:
-        default_name_id_format = 'transient'
-    accepted_name_id_format = map(str.strip, options['sp_accepted_nameid_format'].split(','))
-    accepted_name_id_format = filter(lambda x: x in NAME_ID_FORMATS, accepted_name_id_format)
-    if not accepted_name_id_format:
-        accepted_name_id_format = 'transient,persistent,email'.split(',')
     entity_id = tree.get(ENTITY_ID)
     organization = tree.find(ORGANIZATION)
     name, org = None, None
@@ -78,14 +71,15 @@ def load_one_entity(tree, options):
             identity_provider, created = LibertyIdentityProvider.objects.get_or_create(
                     liberty_provider=provider)
             identity_provider.enabled = True
-            identity_provider.allow_create = True
+            if idp_policy:
+                identity_provider.idp_options_policy = idp_policy
             identity_provider.save()
         if sp:
             service_provider, created = LibertyServiceProvider.objects.get_or_create(
                     liberty_provider=provider)
             service_provider.enabled = True
-            service_provider.default_name_id_format = default_name_id_format
-            service_provider.accepted_name_id_format = accepted_name_id_format
+            if sp_policy:
+                service_provider.sp_options_policy = sp_policy
             service_provider.save()
 
 class Command(BaseCommand):
@@ -105,14 +99,14 @@ class Command(BaseCommand):
             dest='sp',
             default=False,
             help='Load service providers only'),
-        make_option('--sp-default-nameid-format',
-            dest='sp_default_nameid_format',
-            default='transient',
-            help='Default NameID format to return to a service provider'),
-        make_option('--sp-accepted-nameid-format',
-            dest='sp_accepted_nameid_format',
-            default='persistent,transient,email',
-            help='NameID format accepted for a service provider'),
+        make_option('--sp-policy',
+            dest='sp_policy',
+            default=None,
+            help='SAML2 service provider options policy'),
+        make_option('--idp-policy',
+            dest='idp_policy',
+            default=None,
+            help='SAML2 identity provider options policy'),
         make_option('--delete',
             action='store_true',
             dest='delete',
@@ -156,10 +150,32 @@ existing providers with the same tag will be removed if they do not exist\
             if doc.getroot().tag == ENTITY_DESCRIPTOR_TN:
                 load_one_entity(doc.getroot(), options)
             elif doc.getroot().tag == ENTITIES_DESCRIPTOR_TN:
+                sp_policy = None
+                if 'sp_policy' in options and options['sp_policy']:
+                    sp_policy_name = options['sp_policy']
+                    try:
+                        sp_policy = SPOptionsIdPPolicy.objects.get(name=sp_policy_name)
+                        print 'Service providers are set with the following SAML2 \
+                            options policy: %s' % sp_policy
+                    except:
+                        print 'SAML2 service provider options policy with name %s not found' % sp_policy_name
+                else:
+                        print 'No SAML2 service provider options policy provided'
+                idp_policy = None
+                if 'idp_policy' in options and options['idp_policy']:
+                    idp_policy_name = options['idp_policy']
+                    try:
+                        idp_policy = IdPOptionsSPPolicy.objects.get(name=idp_policy_name)
+                        print 'Identity providers are set with the following SAML2 \
+                            options policy: %s' % idp_policy
+                    except:
+                        print 'SAML2 identity provider options policy with name %s not found' % idp_policy_name
+                else:
+                        print 'No SAML2 identity provider options policy provided'
                 loaded = []
                 for entity_descriptor in doc.getroot().findall(ENTITY_DESCRIPTOR_TN):
                     try:
-                        load_one_entity(entity_descriptor, options)
+                        load_one_entity(entity_descriptor, options, sp_policy=sp_policy, idp_policy=idp_policy)
                         loaded.append(entity_descriptor.get(ENTITY_ID))
                     except Exception, e:
                         raise

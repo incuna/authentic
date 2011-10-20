@@ -20,6 +20,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from models import LibertyFederation, LibertyIdentityDump, LibertyProvider, \
     LibertyManageDump, LibertySessionDump, LibertyServiceProvider, \
     LibertyIdentityProvider, LibertySessionSP, IdPOptionsSPPolicy, \
+    SPOptionsIdPPolicy, \
     AuthorizationSPPolicy, AuthorizationAttributeMapping, \
     LIBERTY_SESSION_DUMP_KIND_IDP
 import models
@@ -481,11 +482,11 @@ def get_idp_user_not_federated_list(request):
     return p_list
 
 # The session_index is the "session on the IdP" identifiers
-# One identifier is dedicated for each sp for each user session 
+# One identifier is dedicated for each sp for each user session
 # to not be a factor of linkability between sp
 # (like the nameId dedicated for each sp)
 # A same user IdP session is thus made of as many session index as SP having received an auth a8n
-# The session index is only useful to maintain 
+# The session index is only useful to maintain
 # the coherence between the sessions on the IdP and on the SP
 # for the global logout:
 # If one session is broken somewhere, when a session is restablished there
@@ -679,6 +680,20 @@ def get_idp_options_policy(provider):
     try:
         return IdPOptionsSPPolicy.objects.get(name='Default', enabled=True)
     except IdPOptionsSPPolicy.DoesNotExist:
+        pass
+    return None
+
+def get_sp_options_policy(provider):
+    try:
+        return SPOptionsIdPPolicy.objects.get(name='All', enabled=True)
+    except SPOptionsIdPPolicy.DoesNotExist:
+        pass
+    if provider.service_provider.enable_following_sp_options_policy:
+        if provider.service_provider.sp_options_policy:
+            return provider.service_provider.sp_options_policy
+    try:
+        return SPOptionsIdPPolicy.objects.get(name='Default', enabled=True)
+    except SPOptionsIdPPolicy.DoesNotExist:
         pass
     return None
 

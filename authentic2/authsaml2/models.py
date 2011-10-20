@@ -3,37 +3,6 @@ from django.utils.translation import ugettext as _
 from django.db.models.manager import EmptyManager
 from django.contrib.auth.models import _user_get_all_permissions, _user_has_perm, _user_has_module_perms
 
-AUTHSAML2_UNAUTH_PERSISTENT = (
-    ('AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH',
-        _('Account linking by authentication')),
-    ('AUTHSAML2_UNAUTH_PERSISTENT_CREATE_USER_PSEUDONYMOUS',
-        _('Create new account')),
-)
-
-AUTHSAML2_UNAUTH_TRANSIENT = (
-    ('AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH', _('Ask authentication')),
-    ('AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION', _('Open a session')),
-)
-
-# TODO: remove options after handling
-class MyServiceProvider(models.Model):
-    handle_persistent = models.CharField(
-            max_length=80,
-            verbose_name = 'Account Policy with persistent nameId',
-            choices=AUTHSAML2_UNAUTH_PERSISTENT)
-    handle_transient = models.CharField(
-            max_length=80,
-            verbose_name = 'Access Policy with transient nameId',
-            choices=AUTHSAML2_UNAUTH_TRANSIENT)
-    back_url = models.CharField(
-            max_length = 80,
-            verbose_name = 'Return URL after a successful authentication')
-
-    class Meta:
-        verbose_name = _('Service provider core configuration')
-
-    def __unicode__(self):
-        return "Service provider core configuration"
 
 class FakePk:
     name = '_pk'
