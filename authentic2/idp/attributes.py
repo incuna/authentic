@@ -289,11 +289,21 @@ def provide_attributes_at_sso(request, user, audience, **kwargs):
             for entity_id, l \
                     in request.session['multisource_attributes'].items():
                 if entity_id in s_names:
-                    logger.debug('provide_attributes_at_sso: keep in dic %s' \
-                        % str({entity_id: l}))
-                    attrs.update({entity_id: l})
+                    for token in l:
+                        if 'attributes' in token:
+                            logger.debug('provide_attributes_at_sso: \
+                                keep in dic %s' \
+                                % str({entity_id: token['attributes']}))
+                            attrs.update({entity_id: token['attributes']})
         else:
-            attrs = request.session['multisource_attributes']
+            for entity_id, l \
+                    in request.session['multisource_attributes'].items():
+                for token in l:
+                    if 'attributes' in token:
+                        logger.debug('provide_attributes_at_sso: \
+                            keep in dic %s' \
+                            % str({entity_id: token['attributes']}))
+                        attrs.update({entity_id: token['attributes']})
 
         logger.debug('provide_attributes_at_sso: attributes are %s' \
             % str(attrs))
