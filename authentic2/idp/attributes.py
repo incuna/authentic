@@ -29,6 +29,7 @@ from attribute_aggregator.core import get_def_name_from_oid, \
     load_or_create_user_profile, get_oid_from_def_name, \
     get_attribute_name_in_namespace, get_definition_from_alias, \
     get_attribute_friendly_name_in_namespace
+from attribute_aggregator.utils import oid_to_urn, urn_to_oid
 
 from authentic2.saml.models import LibertyProvider, \
     get_attribute_policy_from_entity_id
@@ -46,25 +47,25 @@ def add_data_to_dic(attributes, name, values,
     if format == lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI:
         if namespace_out == 'Default':
             logger.debug('add_data_to_dic: out in default')
-            if (get_oid_from_def_name(name),
+            if (oid_to_urn(get_oid_from_def_name(name)),
                 lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name) in attributes:
-                old_values = attributes[(get_oid_from_def_name(name),
+                old_values = attributes[(oid_to_urn(get_oid_from_def_name(name)),
                     lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name)]
                 for value in values:
                     if not value in old_values:
                         old_values.append(value)
-                attributes[(get_oid_from_def_name(name),
+                attributes[(oid_to_urn(get_oid_from_def_name(name)),
                     lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name)] = \
                         old_values
                 logger.debug('add_data_to_dic: updated %s %s %s %s' \
-                    % (get_oid_from_def_name(name),
+                    % (oid_to_urn(get_oid_from_def_name(name)),
                     lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name,
                     str(old_values)))
             else:
-                attributes[(get_oid_from_def_name(name),
+                attributes[(oid_to_urn(get_oid_from_def_name(name)),
                     lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name)] = values
                 logger.debug('add_data_to_dic: added %s %s %s %s' \
-                    % (get_oid_from_def_name(name),
+                    % (oid_to_urn(get_oid_from_def_name(name)),
                     lasso.SAML2_ATTRIBUTE_NAME_FORMAT_URI, name, str(values)))
         else:
             logger.debug('add_data_to_dic: out in %s' \
@@ -367,7 +368,8 @@ def provide_attributes_at_sso(request, user, audience, **kwargs):
                             if name in ATTRIBUTE_MAPPING:
                                 definition = name
                             else:
-                                definition = get_def_name_from_oid(name)
+                                definition = \
+                                    get_def_name_from_oid(urn_to_oid(name))
                                 if not definition:
                                     definition = \
                                         get_definition_from_alias(name)

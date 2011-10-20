@@ -22,5 +22,5 @@ def urn_to_oid(urn):
     return urn.split('urn:oid:')[2]
 
 
-def oid_to_oid(oid):
-    return 'urn:oid:'.join(oid)
+def oid_to_urn(oid):
+    return 'urn:oid:%s' % oid
