@@ -61,7 +61,17 @@ _________________________________
 
 Add an attribute source named USER_PROFILE with namespace 'Default'.
 
-Then, it is necessary that users create their profile.
+1. Go to http[s]://your.domain.com/admin/attribute_aggregator/attributesource/add/
+
+2. Write 'USER_PROFILE' in name field
+
+.. image:: pictures/user_profile_source.png
+   :width: 800 px
+
+3. Save
+
+.. image:: pictures/user_profile_source_saved.png
+   :width: 800 px
 
 Add an LDAP Source
 __________________
