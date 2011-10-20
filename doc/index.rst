@@ -55,6 +55,10 @@ Documentation content
 
    attribute_management
 
+   attribute_management_explained
+
+   attributes_in_session
+
 Copyright
 =========
 
