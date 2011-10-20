@@ -1,0 +1,15 @@
+\BOOKMARK [0][-]{chapter.1}{Documentation content}{}
+\BOOKMARK [1][-]{section.1.1}{Features}{chapter.1}
+\BOOKMARK [1][-]{section.1.2}{Download}{chapter.1}
+\BOOKMARK [1][-]{section.1.3}{Installation}{chapter.1}
+\BOOKMARK [1][-]{section.1.4}{Authentication with an existing LDAP directory}{chapter.1}
+\BOOKMARK [1][-]{section.1.5}{Authentication on Authentic2 with PAM}{chapter.1}
+\BOOKMARK [1][-]{section.1.6}{How global policies are used in Authentic2 administration}{chapter.1}
+\BOOKMARK [1][-]{section.1.7}{Where do I find the Authentic2 SAML2 metadata?}{chapter.1}
+\BOOKMARK [1][-]{section.1.8}{Configure SAML 2.0 service providers}{chapter.1}
+\BOOKMARK [1][-]{section.1.9}{Configure Authentic2 as a SAML2 service provider or a SAML2 proxy}{chapter.1}
+\BOOKMARK [1][-]{section.1.10}{How to create/import and delete in bulk SAML2 identity and service providers with the sync-metadata script?}{chapter.1}
+\BOOKMARK [1][-]{section.1.11}{Configure Authentic2 as a CAS server}{chapter.1}
+\BOOKMARK [1][-]{section.1.12}{Configure Authentic2 as a CAS client}{chapter.1}
+\BOOKMARK [1][-]{section.1.13}{Attribute Management in Authentic2}{chapter.1}
+\BOOKMARK [0][-]{chapter.2}{Copyright}{}

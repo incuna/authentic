@@ -1,0 +1,146 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>How global policies are used in Authentic2 administration &mdash; Authentic2 1.9.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Authentic2 1.9.2 documentation" href="index.html" />
+    <link rel="next" title="Where do I find the Authentic2 SAML2 metadata?" href="where_metadata.html" />
+    <link rel="prev" title="Authentication on Authentic2 with PAM" href="auth_pam.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="where_metadata.html" title="Where do I find the Authentic2 SAML2 metadata?"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="auth_pam.html" title="Authentication on Authentic2 with PAM"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Authentic2 1.9.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="how-global-policies-are-used-in-authentic2-administration">
+<span id="administration-with-policies"></span><h1>How global policies are used in Authentic2 administration<a class="headerlink" href="#how-global-policies-are-used-in-authentic2-administration" title="Permalink to this headline">¶</a></h1>
+<p>The policy management with global policies is nearly used for any kind of
+policy in Authentic2.</p>
+<p>For each kind of these policies, the system takes in account two special
+global policies named &#8216;Default&#8217; and &#8216;All&#8217;:</p>
+<blockquote>
+<div><ul class="simple">
+<li>If no other policy applies, the policy &#8216;Default&#8217; will apply.</li>
+<li>A policy can be created and attached to any related object. This policy is authoritative on policy &#8216;Default&#8217;.</li>
+<li>If the policy &#8216;All&#8217; exists, it is authoritative on any other policy.</li>
+<li>The global policies must be created by the administrator if necessary.</li>
+</ul>
+</div></blockquote>
+<p><strong>A policy is taken in account only if it is enabled.</strong></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">get_sample_policy</span><span class="p">(</span><span class="n">any_object</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SamplePolicy</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;All&#39;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">SamplePolicy</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">if</span> <span class="n">any_object</span><span class="o">.</span><span class="n">enable_following_sample_policy</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">any_object</span><span class="o">.</span><span class="n">sample_policy</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">any_object</span><span class="o">.</span><span class="n">sample_policy</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SamplePolicy</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Default&#39;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">SamplePolicy</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="bp">None</span>
+</pre></div>
+</div>
+<p><em>It is advised to add a &#8216;Default&#8217; global policy when it is expected to apply a
+policy to all related objects. Add e regular policy to some objects are then
+used to handle particular configurations.</em></p>
+<p><em>A &#8216;Default&#8217; global policy should be defined to avoid misonfiguration.</em></p>
+<p><em>A &#8216;All&#8217; global policy should be used to enforce a global configuration for
+all related objects or for testing purposes.</em></p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="auth_pam.html"
+                        title="previous chapter">Authentication on Authentic2 with PAM</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="where_metadata.html"
+                        title="next chapter">Where do I find the Authentic2 SAML2 metadata?</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/administration_with_policies.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="where_metadata.html" title="Where do I find the Authentic2 SAML2 metadata?"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="auth_pam.html" title="Authentication on Authentic2 with PAM"
+             >previous</a> |</li>
+        <li><a href="index.html">Authentic2 1.9.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Mikaël Ates.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>

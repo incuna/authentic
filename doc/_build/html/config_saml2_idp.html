@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Authentic2 1.9.2 documentation" href="index.html" />
-    <link rel="next" title="Configure Authentic2 as a CAS server" href="config_cas_sp.html" />
+    <link rel="next" title="How to create/import and delete in bulk SAML2 identity and service providers with the sync-metadata script?" href="sync-metadata_script.html" />
     <link rel="prev" title="Configure SAML 2.0 service providers" href="config_saml2_sp.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="config_cas_sp.html" title="Configure Authentic2 as a CAS server"
+          <a href="sync-metadata_script.html" title="How to create/import and delete in bulk SAML2 identity and service providers with the sync-metadata script?"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="config_saml2_sp.html" title="Configure SAML 2.0 service providers"
@@ -53,11 +53,86 @@
             
   <div class="section" id="configure-authentic2-as-a-saml2-service-provider-or-a-saml2-proxy">
 <span id="config-saml2-idp"></span><h1>Configure Authentic2 as a SAML2 service provider or a SAML2 proxy<a class="headerlink" href="#configure-authentic2-as-a-saml2-service-provider-or-a-saml2-proxy" title="Permalink to this headline">¶</a></h1>
+<p><strong>The configuration to make Authentic2 a SAML2 service provider or a SAML2
+proxy is the same. The difference comes from that Authentic2 is may be
+configured or not as a SAML2 identity provider.</strong></p>
+<div class="section" id="how-do-i-authenticate-against-a-third-saml2-identity-provider">
+<h2>How do I authenticate against a third SAML2 identity provider?<a class="headerlink" href="#how-do-i-authenticate-against-a-third-saml2-identity-provider" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li>Create instance of SP settings</li>
-<li>Declare IdP</li>
-<li>Get authsaml2 md</li>
+<li>Declare Authentic2 as a SAML2 service provider on your SAML2 identity provider using the SAML2 service provider metadata of Authentic2.</li>
 </ol>
+<p>Go to http[s]://your.domain.com/authsaml2/metadata</p>
+<ol class="arabic simple" start="2">
+<li>Add and configure a SAML2 identity provider entry in Authentic2 using the metadata of the identity provider.</li>
+</ol>
+</div>
+<div class="section" id="how-do-i-add-and-configure-a-saml2-identity-provider-in-authentic2">
+<h2>How do I add and configure a SAML2 identity provider in Authentic2?<a class="headerlink" href="#how-do-i-add-and-configure-a-saml2-identity-provider-in-authentic2" title="Permalink to this headline">¶</a></h2>
+<p>You first need to create a SAML2 identity provider entry with the SAML2
+metadata of the identity provider. Then, you configure it.</p>
+<p>If your identity provider is Authentic2, the metadata are available at:</p>
+<blockquote>
+<div>http[s]://your.domain.com/idp/saml2/metadata</div></blockquote>
+<p>See <a class="reference internal" href="where_metadata.html#where-metadata"><em>Where do I find the Authentic2 SAML2 metadata?</em></a> for more information.</p>
+<div class="section" id="create-a-saml2-identity-provider-entry">
+<h3>Create a SAML2 identity provider entry<a class="headerlink" href="#create-a-saml2-identity-provider-entry" title="Permalink to this headline">¶</a></h3>
+<p>You first need to create a new SAML2 identity provider entry. This requires
+the SAML2 metadata of the identity provider.</p>
+<ol class="arabic">
+<li><p class="first">Go to</p>
+<blockquote>
+<div><p>http[s]://your.domain.com/admin/saml/libertyprovider/add/</p>
+</div></blockquote>
+</li>
+<li><p class="first">Fill the form fields</p>
+</li>
+</ol>
+<img alt="_images/new_saml2_idp_1.png" src="_images/new_saml2_idp_1.png" style="width: 800px;" />
+<img alt="_images/new_saml2_idp_2.png" src="_images/new_saml2_idp_2.png" style="width: 800px;" />
+<p><strong>The identity provider must be enabled.</strong></p>
+<p>See below about configuring the identity provider with policies:</p>
+<ul class="simple">
+<li>options of the identity provider</li>
+</ul>
+<ol class="arabic simple" start="3">
+<li>Save</li>
+</ol>
+<img alt="_images/new_saml2_idp_saved.png" src="_images/new_saml2_idp_saved.png" style="width: 800px;" />
+</div>
+<div class="section" id="configure-the-saml2-identity-provider-options">
+<h3>Configure the SAML2 identity provider options<a class="headerlink" href="#configure-the-saml2-identity-provider-options" title="Permalink to this headline">¶</a></h3>
+<p>The SAML2 options of the service provider are configured using sp options
+policies.</p>
+<p>See the <em>administration with policy principle</em> page <a class="reference internal" href="administration_with_policies.html#administration-with-policies"><em>How global policies are used in Authentic2 administration</em></a>.</p>
+<p>You may create a regular policy and configure your service provider to use it.</p>
+<p>Go to:</p>
+<blockquote>
+<div>http[s]://your.domain.com/admin/saml/idpoptionssppolicy/add/</div></blockquote>
+<img alt="_images/sp_options_regular.png" src="_images/sp_options_regular.png" style="width: 800px;" />
+<img alt="_images/sp_options_regular_saved.png" src="_images/sp_options_regular_saved.png" style="width: 800px;" />
+<img alt="_images/sp_options_regular_modify_sp.png" src="_images/sp_options_regular_modify_sp.png" style="width: 800px;" />
+<p>Exemple with a policy &#8216;Default&#8217;:</p>
+<img alt="_images/sp_options_default.png" src="_images/sp_options_default.png" style="width: 800px;" />
+<p>Exemple with a policy &#8216;All&#8217;:</p>
+<img alt="_images/sp_options_all.png" src="_images/sp_options_all.png" style="width: 800px;" />
+<p>If no policy is found for the configuration of the SAML2 options of an identity
+provider, the following error is displayed when a SSO request is initiated.</p>
+<img alt="_images/error_no_idp_options.png" src="_images/error_no_idp_options.png" style="width: 800px;" />
+</div>
+<div class="section" id="how-to-refresh-metadata-of-an-identity-provider-hosted-at-a-well-known-location">
+<h3>How to refresh metadata of an identity provider hosted at a Well-Known Location?<a class="headerlink" href="#how-to-refresh-metadata-of-an-identity-provider-hosted-at-a-well-known-location" title="Permalink to this headline">¶</a></h3>
+<p>The Well-Known Location (WKL) means that the entity Id of the provider is a
+URL at which the provider metadata are hosted.</p>
+<p>To refresh them, select the provider on the list of provider, then select in
+the menu &#8216;Update metadata&#8217;, then click on &#8216;Go&#8217;.</p>
+<img alt="_images/update_metadata.png" src="_images/update_metadata.png" style="width: 800px;" />
+<img alt="_images/update_metadata_done.png" src="_images/update_metadata_done.png" style="width: 800px;" />
+</div>
+<div class="section" id="how-to-create-in-bulk-identity-providers-with-the-sync-metadata-script">
+<h3>How to create in bulk identity providers with the sync-metadata script?<a class="headerlink" href="#how-to-create-in-bulk-identity-providers-with-the-sync-metadata-script" title="Permalink to this headline">¶</a></h3>
+<p>See the page explaining the use of the script sync-metadata <a class="reference internal" href="sync-metadata_script.html#sync-metadata-script"><em>How to create/import and delete in bulk SAML2 identity and service providers with the sync-metadata script?</em></a>.</p>
+</div>
+</div>
 </div>
 
 
@@ -66,12 +141,27 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Configure Authentic2 as a SAML2 service provider or a SAML2 proxy</a><ul>
+<li><a class="reference internal" href="#how-do-i-authenticate-against-a-third-saml2-identity-provider">How do I authenticate against a third SAML2 identity provider?</a></li>
+<li><a class="reference internal" href="#how-do-i-add-and-configure-a-saml2-identity-provider-in-authentic2">How do I add and configure a SAML2 identity provider in Authentic2?</a><ul>
+<li><a class="reference internal" href="#create-a-saml2-identity-provider-entry">Create a SAML2 identity provider entry</a></li>
+<li><a class="reference internal" href="#configure-the-saml2-identity-provider-options">Configure the SAML2 identity provider options</a></li>
+<li><a class="reference internal" href="#how-to-refresh-metadata-of-an-identity-provider-hosted-at-a-well-known-location">How to refresh metadata of an identity provider hosted at a Well-Known Location?</a></li>
+<li><a class="reference internal" href="#how-to-create-in-bulk-identity-providers-with-the-sync-metadata-script">How to create in bulk identity providers with the sync-metadata script?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="config_saml2_sp.html"
                         title="previous chapter">Configure SAML 2.0 service providers</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="config_cas_sp.html"
-                        title="next chapter">Configure Authentic2 as a CAS server</a></p>
+  <p class="topless"><a href="sync-metadata_script.html"
+                        title="next chapter">How to create/import and delete in bulk SAML2 identity and service providers with the sync-metadata script?</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/config_saml2_idp.txt"
@@ -101,7 +191,7 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="config_cas_sp.html" title="Configure Authentic2 as a CAS server"
+          <a href="sync-metadata_script.html" title="How to create/import and delete in bulk SAML2 identity and service providers with the sync-metadata script?"
              >next</a> |</li>
         <li class="right" >
           <a href="config_saml2_sp.html" title="Configure SAML 2.0 service providers"

@@ -39,9 +39,15 @@ Documentation content
 
    auth_pam
 
+   administration_with_policies
+
+   where_metadata
+
    config_saml2_sp
 
    config_saml2_idp
+
+   sync-metadata_script
 
    config_cas_sp
 
@@ -52,9 +58,8 @@ Documentation content
 Copyright
 =========
 
-Authentic is copyrighted by Entr'ouvert and is licensed through the GNU General
-Public Licence, version 2 or later. A copy of the whole license text is
-available in the COPYING file.
+Authentic and Authentic2 are copyrighted by Entr'ouvert and are licensed through the GNU General
+Public Licence, version 2 or later. A copy of the whole license text is available in the COPYING file.
 
 The OpenID IdP originates in the project django_openid_provider by Roman
 Barczy¿ski, which is under the Apache 2.0 licence. This imply that you must
@@ -68,4 +73,3 @@ licence.
 .. * :ref:`genindex`
 .. * :ref:`modindex`
 .. * :ref:`search`
-
