@@ -207,7 +207,7 @@ class AttributePolicy(models.Model):
                     names.append(sp.name)
             except:
                 pass
-        l = ''.join(names)
+        l = ', '.join(names)
         if l:
             return '%s associated with %s' % (self.name, l)
         return '%s not yet associated with a service provider' % self.name
