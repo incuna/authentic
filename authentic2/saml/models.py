@@ -363,20 +363,15 @@ class LibertyServiceProvider(models.Model):
             primary_key = True, related_name = 'service_provider')
     enabled = models.BooleanField(verbose_name = _('Enabled'))
     enable_following_sp_options_policy = models.BooleanField(verbose_name = \
-        _('The following options policy will apply except if a policy for all identity provider is defined.'))
+        _('The following options policy will apply except if a policy for all service provider is defined.'))
     sp_options_policy = models.ForeignKey(SPOptionsIdPPolicy, related_name = "sp_options_policy", verbose_name = _('SP Options Policy'), blank=True, null=True)
     policy = models.ForeignKey(LibertyProviderPolicy,
             verbose_name=_("Protocol policy"), null=True, default=1)
+    enable_following_attribute_policy = models.BooleanField(verbose_name = \
+        _('The following attribute policy will apply except if a policy for all service provider is defined.'))
     attribute_policy = models.ForeignKey(AttributePolicy,
+             related_name = "attribute_policy",
             verbose_name=_("Attribute policy"), null=True, blank=True)
-
-
-def get_attribute_policy_from_entity_id(entity_id):
-    try:
-        provider = LibertyProvider.objects.get(entity_id=entity_id)
-        return provider.service_provider.attribute_policy
-    except:
-        return None
 
 
 # TODO: The choice for requests must be restricted by the IdP metadata

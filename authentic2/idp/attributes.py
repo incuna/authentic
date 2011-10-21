@@ -31,9 +31,9 @@ from attribute_aggregator.core import get_def_name_from_oid, \
     get_attribute_friendly_name_in_namespace
 from attribute_aggregator.utils import oid_to_urn, urn_to_oid
 
-from authentic2.saml.models import LibertyProvider, \
-    get_attribute_policy_from_entity_id
+from authentic2.saml.models import LibertyProvider
 
+from authentic2.idp.models import get_attribute_policy
 
 logger = logging.getLogger('authentic2.idp.attributes')
 
@@ -189,7 +189,13 @@ def provide_attributes_at_sso(request, user, audience, **kwargs):
                     % user)
     logger.debug('provide_attributes_at_sso: attributes for %s' \
                     % audience)
-    attribute_policy = get_attribute_policy_from_entity_id(audience)
+    provider = None
+    try:
+        provider = LibertyProvider.objects.get(entity_id=audience)
+    except:
+        logger.debug('provide_attributes_at_sso: Provider with name %s not \
+            found' % audience)
+    attribute_policy = get_attribute_policy(provider)
     if not attribute_policy:
         logger.debug('provide_attributes_at_sso: no attribute policy found \
             for %s' % audience)

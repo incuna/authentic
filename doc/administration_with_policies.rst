@@ -20,16 +20,22 @@ global policies named 'Default' and 'All':
 
 **A policy is taken in account only if it is enabled.**
 
+**When a regular policy is associated with an object, it is taken in account
+only if the option 'enable the following policy' is checked.**
+
 ::
 
     def get_sample_policy(any_object):
+        # Look for a global policy 'All'
         try:
             return SamplePolicy.objects.get(name='All', enabled=True)
         except SamplePolicy.DoesNotExist:
             pass
+        # Look for a regular policy
         if any_object.enable_following_sample_policy:
             if any_object.sample_policy:
                 return any_object.sample_policy
+        # Look for a global policy 'Default'
         try:
             return SamplePolicy.objects.get(name='Default', enabled=True)
         except SamplePolicy.DoesNotExist:

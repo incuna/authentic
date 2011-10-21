@@ -174,6 +174,9 @@ ______________________________________
 Create or modify an attribute policy
 ____________________________________
 
+You can create a global policy 'All' or 'Default'. For details, see :ref:`administration_with_policies`.
+Or you can create a regular policy and associate it to a service provider.
+
 1. Go to http[s]://your.domain.com/admin/idp/attributepolicy/add/
 
 2. Add list to the policy
@@ -191,7 +194,7 @@ __________________________________________
 
 1. Go to http[s]://your.domain.com/admin/saml/libertyprovider/1/
 
-2. Add policy to the service provider
+2. Associate the policy to the service provider and **enable it**
 
 .. image:: pictures/sp_policy_pull.png
    :width: 800 px

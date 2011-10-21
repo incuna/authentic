@@ -132,6 +132,7 @@ class AttributeList(models.Model):
 
 class AttributePolicy(models.Model):
     name = models.CharField(max_length = 100, unique = True)
+    enabled = models.BooleanField(verbose_name = _('Enabled'))
     # List of attributes to provide from pull sources at SSO Login.
     # If an attribute is indicate without a source, from any source.
     # The output format and namespace is given by each attribute.
@@ -211,3 +212,21 @@ class AttributePolicy(models.Model):
         if l:
             return '%s associated with %s' % (self.name, l)
         return '%s not yet associated with a service provider' % self.name
+
+
+def get_attribute_policy(provider):
+    try:
+        return AttributePolicy.objects.get(name='All', enabled=True)
+    except AttributePolicy.DoesNotExist:
+        pass
+    try:
+        if provider.service_provider.enable_following_attribute_policy:
+            if provider.service_provider.attribute_policy:
+                return provider.service_provider.attribute_policy
+    except:
+        pass
+    try:
+        return AttributePolicy.objects.get(name='Default', enabled=True)
+    except AttributePolicy.DoesNotExist:
+        pass
+    return None

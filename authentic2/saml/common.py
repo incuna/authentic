@@ -688,9 +688,12 @@ def get_sp_options_policy(provider):
         return SPOptionsIdPPolicy.objects.get(name='All', enabled=True)
     except SPOptionsIdPPolicy.DoesNotExist:
         pass
-    if provider.service_provider.enable_following_sp_options_policy:
-        if provider.service_provider.sp_options_policy:
-            return provider.service_provider.sp_options_policy
+    try:
+        if provider.service_provider.enable_following_sp_options_policy:
+            if provider.service_provider.sp_options_policy:
+                return provider.service_provider.sp_options_policy
+    except:
+        pass
     try:
         return SPOptionsIdPPolicy.objects.get(name='Default', enabled=True)
     except SPOptionsIdPPolicy.DoesNotExist:
@@ -702,9 +705,12 @@ def get_authorization_policy(provider):
         return AuthorizationSPPolicy.objects.get(name='All', enabled=True)
     except AuthorizationSPPolicy.DoesNotExist:
         pass
-    if provider.identity_provider.enable_following_authorization_policy:
-        if provider.identity_provider.authorization_policy:
-            return provider.identity_provider.authorization_policy
+    try:
+        if provider.identity_provider.enable_following_authorization_policy:
+            if provider.identity_provider.authorization_policy:
+                return provider.identity_provider.authorization_policy
+    except:
+        pass
     try:
         return AuthorizationSPPolicy.objects.get(name='Default', enabled=True)
     except AuthorizationSPPolicy.DoesNotExist:
