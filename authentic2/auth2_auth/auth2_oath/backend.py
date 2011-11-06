@@ -1,11 +1,16 @@
 import logging
 
-import models
-import authentic2.vendor.oath.hotp as hotp
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.conf import settings
 
+import authentic2.vendor.oath.hotp as hotp
+from authentic2.nonce import accept_nonce
+import models
 logger = logging.getLogger('authentic.auth.auth2_oath')
+
+NONCE_TIMEOUT = getattr(settings, 'OATH_NONCE_TIMEOUT',
+        getattr(settings, 'NONCE_TIMEOUT', 3600))
 
 class OATHTOTPBackend:
     supports_object_permissions = False
@@ -27,6 +32,10 @@ class OATHTOTPBackend:
             raise
 
         if accepted:
+            if not accept_nonce(oath_otp, 'OATH_OTP', NONCE_TIMEOUT):
+                logger.error('already used OTP %r', oath_otp)
+                return None
+
             secret.drift = drift
             return User.objects.get(username=username)
         else:

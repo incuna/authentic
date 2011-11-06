@@ -114,6 +114,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'django.contrib.sites',
+    'authentic2.nonce',
     'authentic2.saml',
     'authentic2.idp',
     'authentic2.idp.saml',

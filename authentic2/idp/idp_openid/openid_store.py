@@ -1,16 +1,24 @@
 # -*- coding: utf-8 -*-
 # vim: set ts=4 sw=4 : */
 
+import time
+
 import openid.store.interface
+from django.conf import settings
 
 import models
+from authentic2 import nonce
+
+
+NONCE_TIMEOUT = getattr(settings, 'OPENID_NONCE_TIMEOUT',
+        getattr(settings, 'NONCE_TIMEOUT', openid.store.nonce.SKEW))
 
 class DjangoOpenIDStore(openid.store.interface.OpenIDStore):
     def cleanupAssociations(self):
         return models.Association.cleanup_associations()
 
     def cleanupNonces(self):
-        return models.Association.cleanup_nonces()
+        nonce.cleanup_nonces()
 
     def storeAssociation(self, server_url, association):
         return models.Association.store_association(server_url, association)
@@ -22,4 +30,9 @@ class DjangoOpenIDStore(openid.store.interface.OpenIDStore):
         return models.Association.remove_association(server_url, handle)
 
     def useNonce(self, server_url, timestamp, salt):
-        return models.Nonce.use_nonce(server_url, timestamp, salt)
+        now = time.time()
+        if not (timestamp < now < (timestamp + NONCE_TIMEOUT)):
+            return False
+        value = '%s_%s_%s' % (server_url, timestamp, salt)
+
+        return nonce.accept_nonce(value, 'OpenID', NONCE_TIMEOUT)

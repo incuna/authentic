@@ -1,12 +1,13 @@
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
-from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 import profiles.views
 
 import authentic2.idp.views
 import settings
 from forms import AuthenticRegistrationForm
+
+from .admin import admin
 
 admin.autodiscover()
 handler500 = 'authentic2.views.server_error'
