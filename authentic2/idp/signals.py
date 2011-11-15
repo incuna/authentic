@@ -1,6 +1,6 @@
 from django.dispatch import Signal
 
-from attributes import provide_attributes_at_sso
+from authentic2.idp.attributes import provide_attributes_at_sso
 
 
 '''authorize_decision

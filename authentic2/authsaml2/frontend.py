@@ -7,7 +7,7 @@ from django.utils.translation import gettext_noop
 from django.http import HttpResponseRedirect
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
-from saml2_endpoints import view_profile
+from authentic2.authsaml2.saml2_endpoints import view_profile
 
 class AuthSAML2Form(forms.Form):
     def __init__(self, *args, **kwargs):

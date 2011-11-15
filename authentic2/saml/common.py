@@ -17,15 +17,15 @@ from django.db import transaction
 from django.core.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
 
-from models import LibertyFederation, LibertyIdentityDump, LibertyProvider, \
+from authentic2.saml.models import LibertyFederation, LibertyIdentityDump, LibertyProvider, \
     LibertyManageDump, LibertySessionDump, LibertyServiceProvider, \
     LibertyIdentityProvider, LibertySessionSP, IdPOptionsSPPolicy, \
     SPOptionsIdPPolicy, \
     AuthorizationSPPolicy, AuthorizationAttributeMapping, \
     LIBERTY_SESSION_DUMP_KIND_IDP
-import models
-import saml2utils
-import saml11utils
+from authentic2.saml import models
+from authentic2.saml import saml2utils
+from authentic2.saml import saml11utils
 
 from authentic2.authsaml2 import signals
 from authentic2.http_utils import get_url

@@ -2,7 +2,7 @@ from django.contrib import admin
 from models import UserConsentAttributes
 from django.conf import settings
 
-from models import AttributeItem, AttributeList, AttributePolicy
+from authentic2.idp.models import AttributeItem, AttributeList, AttributePolicy
 from authentic2.attribute_aggregator.models import AttributeSource, \
     LdapSource, UserAliasInSource
 

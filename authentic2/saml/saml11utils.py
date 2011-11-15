@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as etree
 import lasso
-import x509utils
-from saml2utils import bool2xs, NamespacedTreeBuilder, keyinfo
+from authentic2.saml import x509utils
+from authentic2.saml.saml2utils import bool2xs, NamespacedTreeBuilder, keyinfo
 
 class Saml11Metadata(object):
     ENTITY_DESCRIPTOR = 'EntityDescriptor'

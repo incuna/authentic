@@ -15,7 +15,7 @@ from django.utils.importlib import import_module
 
 from fields import PickledObjectField, MultiSelectField
 
-from idp.models import AttributePolicy
+from authentic2.idp.models import AttributePolicy
 
 
 def metadata_validator(meta):

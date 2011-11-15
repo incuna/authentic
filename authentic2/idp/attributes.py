@@ -22,14 +22,14 @@ import logging
 import lasso
 
 
-from attribute_aggregator.models import AttributeSource
-from attribute_aggregator.mapping import ATTRIBUTE_MAPPING
-from attribute_aggregator.core import get_def_name_from_oid, \
+from authentic2.attribute_aggregator.models import AttributeSource
+from authentic2.attribute_aggregator.mapping import ATTRIBUTE_MAPPING
+from authentic2.attribute_aggregator.core import get_def_name_from_oid, \
     get_def_name_from_name_and_ns_of_attribute, \
     load_or_create_user_profile, get_oid_from_def_name, \
     get_attribute_name_in_namespace, get_definition_from_alias, \
     get_attribute_friendly_name_in_namespace
-from attribute_aggregator.utils import oid_to_urn, urn_to_oid
+from authentic2.attribute_aggregator.utils import oid_to_urn, urn_to_oid
 
 from authentic2.saml.models import LibertyProvider
 

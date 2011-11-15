@@ -8,14 +8,14 @@ from django.forms import ModelForm
 import django.forms
 from django.contrib import messages
 
-from models import LibertyProvider, LibertyServiceProvider
-from models import LibertyIdentityProvider, IdPOptionsSPPolicy
-from models import SPOptionsIdPPolicy
-from models import AuthorizationSPPolicy, AuthorizationAttributeMap
-from models import AuthorizationAttributeMapping, LibertyProviderPolicy
-from models import LibertySessionDump, LibertyIdentityDump, LibertyFederation
-from models import LibertyAssertion, LibertySessionSP, KeyValue
-from models import LibertySession
+from authentic2.saml.models import LibertyProvider, LibertyServiceProvider
+from authentic2.saml.models import LibertyIdentityProvider, IdPOptionsSPPolicy
+from authentic2.saml.models import SPOptionsIdPPolicy
+from authentic2.saml.models import AuthorizationSPPolicy, AuthorizationAttributeMap
+from authentic2.saml.models import AuthorizationAttributeMapping, LibertyProviderPolicy
+from authentic2.saml.models import LibertySessionDump, LibertyIdentityDump, LibertyFederation
+from authentic2.saml.models import LibertyAssertion, LibertySessionSP, KeyValue
+from authentic2.saml.models import LibertySession
 from authentic2.http_utils import get_url
 
 logger = logging.getLogger(__name__)

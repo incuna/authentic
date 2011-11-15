@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from authentic2.attribute_aggregator.mapping import ATTRIBUTE_MAPPING, \
     ATTRIBUTE_NAMESPACES
 
-from attribute_aggregator.models import AttributeSource
+from authentic2.attribute_aggregator.models import AttributeSource
 
 
 ATTRIBUTES = [(key, key) \

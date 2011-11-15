@@ -11,7 +11,7 @@ from authentic2.saml.common import \
     lookup_federation_by_name_id_and_provider_id, add_federation
 from authentic2.saml.models import LIBERTY_SESSION_DUMP_KIND_SP, \
     LibertySessionDump, LibertyProvider
-from models import SAML2TransientUser
+from authentic2.authsaml2.models import SAML2TransientUser
 
 class AuthenticationError(Exception):
     pass
