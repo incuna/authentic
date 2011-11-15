@@ -210,7 +210,7 @@ def build_assertion(request, login, nid_format = 'transient', attributes=None):
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD_PROTECTED_TRANSPORT
             else:
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD
-        elif backend == 'authentic2.sslauth.backends.SSLAuthBackend':
+        elif backend == 'authentic2.auth2_auth.auth2_ssl.backend.SSLBackend':
             authn_context = lasso.SAML2_AUTHN_CONTEXT_X509
         # XXX: grab context from the assertion received
         elif backend == 'authentic2.authsaml2.backends.AuthSAML2PersistentBackend':
