@@ -21,7 +21,7 @@
 import logging
 import ldap
 
-from attribute_aggregator.core import get_user_alias_in_source
+from authentic2.attribute_aggregator.core import get_user_alias_in_source
 
 
 logger = logging.getLogger('attribute_aggregator.ldap_sources')

@@ -27,11 +27,11 @@ from django.utils.translation import ugettext as _
 from django.db import models
 from django.contrib.auth.models import User
 
-from attribute_aggregator.signals import any_attributes_call, \
+from authentic2.attribute_aggregator.signals import any_attributes_call, \
     listed_attributes_call, listed_attributes_with_source_call
-from attribute_aggregator.mapping import ATTRIBUTE_MAPPING, \
+from authentic2.attribute_aggregator.mapping import ATTRIBUTE_MAPPING, \
     ATTRIBUTE_NAMESPACES
-from attribute_aggregator.core import convert_from_string, \
+from authentic2.attribute_aggregator.core import convert_from_string, \
     get_def_name_from_name_and_ns_of_attribute, iso8601_to_datetime, \
     get_def_name_from_oid, get_def_name_from_alias, \
     is_alias_of_definition, is_oid_of_definition

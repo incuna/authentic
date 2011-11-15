@@ -23,7 +23,7 @@ import logging
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist
 
-from core import get_profile_field_name_from_definition, \
+from authentic2.attribute_aggregator.core import get_profile_field_name_from_definition, \
     get_definition_from_profile_field_name
 
 
