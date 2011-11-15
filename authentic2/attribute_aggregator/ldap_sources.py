@@ -58,7 +58,7 @@ def get_attributes(user, definitions=None, source=None, **kwargs):
     logger.debug('get_attributes: Searching attributes for user %s' \
         % user)
 
-    from attribute_aggregator.models import LdapSource
+    from authentic2.attribute_aggregator.models import LdapSource
     sources = None
     if source:
         logger.debug('get_attributes: The required source is %s' % source)

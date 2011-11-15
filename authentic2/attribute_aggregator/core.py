@@ -50,7 +50,7 @@ def get_all_attribute_definitions():
 
 
 def get_all_sources():
-    from attribute_aggregator.models import AttributeSource
+    from authentic2.attribute_aggregator.models import AttributeSource
     return AttributeSource.objects.all()
 
 
@@ -250,7 +250,7 @@ def load_or_create_user_profile(user=None, no_cleanup=False):
         If no_cleanup: return profile if any without removing outdated
         assertions
     '''
-    from attribute_aggregator.models import UserAttributeProfile
+    from authentic2.attribute_aggregator.models import UserAttributeProfile
     profile = None
     try:
         if user:
@@ -291,7 +291,7 @@ def load_or_create_user_profile(user=None, no_cleanup=False):
 
 
 def get_user_alias_in_source(user, source):
-    from attribute_aggregator.models import UserAliasInSource
+    from authentic2.attribute_aggregator.models import UserAliasInSource
     try:
         alias = UserAliasInSource.objects.get(user=user, source=source)
         return alias.name
@@ -300,7 +300,7 @@ def get_user_alias_in_source(user, source):
 
 
 def set_user_alias_in_source(user, source, name, force_change=False):
-    from attribute_aggregator.models import UserAliasInSource
+    from authentic2.attribute_aggregator.models import UserAliasInSource
     logger.debug('set_user_alias_in_source: set alias %s for user %s in \
         source %s' % (name, user, source))
     alias = None
