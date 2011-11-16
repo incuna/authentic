@@ -200,18 +200,7 @@ class AttributePolicy(models.Model):
         verbose_name_plural = _('attribute options policies')
 
     def __unicode__(self):
-        from authentic2.saml.models import LibertyProvider
-        names = []
-        for sp in LibertyProvider.objects.all():
-            try:
-                if sp.service_provider.attribute_policy.id == self.id:
-                    names.append(sp.name)
-            except:
-                pass
-        l = ', '.join(names)
-        if l:
-            return '%s associated with %s' % (self.name, l)
-        return '%s not yet associated with a service provider' % self.name
+        return self.name
 
 
 def get_attribute_policy(provider):
