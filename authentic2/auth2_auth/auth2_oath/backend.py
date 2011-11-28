@@ -8,8 +8,8 @@ from django.db import transaction
 logger = logging.getLogger('authentic.auth.auth2_oath')
 
 class OATHTOTPBackend:
-
-    support_oath_otp = True
+    supports_object_permissions = False
+    supports_anonymous_user = False
 
     @transaction.commit_on_success()
     def authenticate(self, username, oath_otp, format='dec6'):

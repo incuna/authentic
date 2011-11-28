@@ -45,6 +45,9 @@ scrolling="no" style="border: none" width="16" height="16"></iframe></div>' % \
         return [ code ]
 
 class AuthSAML2PersistentBackend:
+    supports_object_permissions = False
+    supports_anonymous_user = False
+
     def authenticate(self, name_id=None, provider_id=None):
         '''Authenticate persistent NameID'''
         if not name_id or not provider_id:# or not name_id.nameQualifier:
@@ -83,6 +86,9 @@ class AuthSAML2PersistentBackend:
         return user
 
 class AuthSAML2TransientBackend:
+    supports_object_permissions = False
+    supports_anonymous_user = False
+
     def authenticate(self, name_id=None):
         '''Create temporary user for transient NameID'''
         if not name_id or \

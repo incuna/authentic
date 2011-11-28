@@ -17,6 +17,8 @@ class SSLBackend:
     In all methods, the ssl_info parameter is supposed to be an SSLInfo
     instance
     """
+    supports_object_permissions = False
+    supports_anonymous_user = False
 
     def authenticate(self, ssl_info):
         cert = self.get_certificate(ssl_info)
