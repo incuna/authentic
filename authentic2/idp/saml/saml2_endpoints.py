@@ -302,8 +302,20 @@ def sso(request):
                 'WebSSO profile with HTTP-Redirect binding: %r') % message)
         except lasso.ProfileInvalidProtocolprofileError:
             log_info_authn_request_details(login)
-            message = _('SAMLv2 Single Sign On: the request cannot be answered because no valid protocol binding could be found')
-            logger.error('sso: the request cannot be answered because no valid protocol binding could be found')
+            message = _('SAMLv2 Single Sign On: the request cannot be answered '
+                    'because no valid protocol binding could be found')
+            logger.error('sso: the request cannot be answered because no valid '
+                    'protocol binding could be found')
+            return HttpResponseBadRequest(message)
+        except lasso.ProviderMissingPublicKeyError:
+            message = _('SAMLv2 Single Sign On: the signature on the '
+                    'authentication request cannot be validated because no '
+                    'public key was found for this provider. Maybe this provider '
+                    'does not support AuthnRequest signatures ? You should '
+                    'change the Protocol Policy to deactivate signature '
+                    'checking.')
+            logger.error('sso: AuthnRequest signature cannot be validated, no '
+                    'public key found.')
             return HttpResponseBadRequest(message)
         except lasso.DsError, e:
             log_info_authn_request_details(login)
