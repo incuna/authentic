@@ -29,6 +29,7 @@ from authentic2.saml import saml11utils
 
 from authentic2.authsaml2 import signals
 from authentic2.http_utils import get_url
+from .. import nonce
 
 AUTHENTIC_STATUS_CODE_NS = "http://authentic.entrouvert.org/status_code/"
 AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER = AUTHENTIC_STATUS_CODE_NS + \
@@ -45,6 +46,12 @@ AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR = AUTHENTIC_STATUS_CODE_NS + \
     "InternalServerError"
 
 logger = logging.getLogger('authentic2.saml')
+
+# timeout for messages and assertions issue instant
+NONCE_TIMEOUT = getattr(settings, 'SAML2_NONCE_TIMEOUT',
+        getattr(settings, 'NONCE_TIMEOUT', 30))
+# do we check id on SAML2 messages ?
+CHECKS_ID = getattr(settings, 'SAML2_CHECKS_ID', True)
 
 def get_soap_message(request, on_error_raise = True):
     '''Verify that POST content looks like a SOAP message and returns it'''
@@ -164,6 +171,38 @@ def return_saml2(request, profile, field_name, title = ''):
         return HttpResponseRedirect(profile.msgUrl)
     else:
         raise TypeError('profile do not contain a response')
+
+def check_id_and_issue_instant(request_response_or_assertion, now=None):
+    '''
+       Check that issue instant is not older than a timeout and also checks
+       that the id has never been seen before.
+
+       Nonce are cached for two times the relative timeout length of the issue
+       instant.
+    '''
+    if now is None:
+        now = datetime.datetime.utcnow()
+    try:
+        issue_instant = request_response_or_assertion.issueInstant
+        issue_instant = iso8601_to_datetime(issue_instant)
+        delta = datetime.timedelta(seconds=NONCE_TIMEOUT)
+        if not (now - delta <= issue_instant < now + delta):
+            logger.warning('IssueInstant %s not in the interval [%s, %s[',
+                    issue_instant, now-delta, now+delta)
+            return False
+    except ValueError:
+        logger.error('Unable to parse an IssueInstant: %r', issue_instant)
+        return False
+    if CHECKS_ID:
+        _id = request_response_or_assertion.id
+        if _id is None:
+            logger.warning('missing ID')
+            return False
+        if not nonce.accept_nonce(_id, 'SAML', 2*NONCE_TIMEOUT):
+            logger.warning("ID '%r' already used, request/response/assertion "
+                    "refused", _id)
+            return False
+    return True
 
 # ID-FF 1.2 methods
 def get_idff12_metadata(request, metadata):
