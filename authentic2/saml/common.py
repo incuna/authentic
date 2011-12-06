@@ -45,7 +45,7 @@ AUTHENTIC_STATUS_CODE_MISSING_DESTINATION = AUTHENTIC_STATUS_CODE_NS + \
 AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR = AUTHENTIC_STATUS_CODE_NS + \
     "InternalServerError"
 
-logger = logging.getLogger('authentic2.saml')
+logger = logging.getLogger('authentic2.saml.common')
 
 # timeout for messages and assertions issue instant
 NONCE_TIMEOUT = getattr(settings, 'SAML2_NONCE_TIMEOUT',
@@ -56,7 +56,7 @@ CHECKS_ID = getattr(settings, 'SAML2_CHECKS_ID', True)
 def get_soap_message(request, on_error_raise = True):
     '''Verify that POST content looks like a SOAP message and returns it'''
     if request.method != 'POST' or \
-            request.META['CONTENT_TYPE'] != 'text/xml':
+            'text/xml' not in request.META['CONTENT_TYPE']:
        if on_error_raise:
            raise Http404(_('Only SOAP messages here'))
        else:
