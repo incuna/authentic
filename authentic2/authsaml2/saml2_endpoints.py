@@ -721,12 +721,13 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             Transient access policy: Configuration error'),
             logger=logger)
 
-    if login.nameIdentifier.format == \
-        lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT \
-        or (login.nameIdentifier.format == \
+    elif login.nameIdentifier.format != \
             lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT \
-                and policy is not None and policy.transient_is_persistent):
-        logger.info('sso_after_response: Persistent nameID')
+            or (policy is not None and policy.transient_is_persistent):
+        '''
+            Consider that all kinds of nameId not transient are persistent.
+        '''
+        logger.info('sso_after_response: The nameId is not transient')
         if policy is not None and policy.transient_is_persistent:
             logger.info('sso_after_response: \
                 Transient nameID %s treated as persistent' % \
