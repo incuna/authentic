@@ -13,6 +13,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.contrib.auth.models import User
+from django.contrib.auth import logout as auth_logout
 from django.conf import settings
 from django.utils.encoding import smart_unicode
 
@@ -776,7 +777,7 @@ def finish_slo(request):
         logout.buildResponseMsg()
     except:
         logger.exception('finish_slo: failure to build reponse msg')
-        raise NotImplementedError()
+        pass
     return return_saml2_response(request, logout)
 
 def return_logout_error(request, logout, error):
@@ -1098,7 +1099,6 @@ def idp_slo(request, provider_id):
         provider_id = request.GET.get('provider_id')
         logger.debug('idp_slo: provider_id from GET %s' % str(provider_id))
     if request.method == 'POST' and 'provider_id' in request.POST:
-        next = '/'
         provider_id = request.POST.get('provider_id')
         logger.debug('idp_slo: provider_id from POST %s' % str(provider_id))
     if not provider_id:

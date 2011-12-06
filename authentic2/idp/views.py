@@ -1,4 +1,5 @@
 import urllib
+import logging
 
 from django.utils.translation import ugettext as _
 from django.conf import settings
@@ -13,6 +14,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from authentic2.idp import get_backends
 from authentic2.authsaml2.models import SAML2TransientUser
+
+logger = logging.getLogger('authentic2.idp.views')
 
 __logout_redirection_timeout = getattr(settings, 'IDP_LOGOUT_TIMEOUT', 600)
 
@@ -79,7 +82,7 @@ def logout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME,
         template = 'idp/logout.html'):
     global __logout_redirection_timeout
     "Logs out the user and displays 'You are logged out' message."
-    do_local = request.REQUEST.has_key('local')
+    do_local = 'local' in request.REQUEST
     l = logout_list(request)
     context = RequestContext(request)
     context['redir_timeout'] = __logout_redirection_timeout
@@ -87,7 +90,14 @@ def logout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME,
     if l and not do_local:
         # Full logout
         next_page = '?local&next=%s' % urllib.quote(next_page)
+        code = '<div>'
+        code += _('Local logout...')
+        code += '<iframe src="/logout%s" marginwidth="0" marginheight="0" \
+            scrolling="no" style="border: none" width="0" height="0"> \
+            </iframe></div>' % next_page
+        l += [code]
         context['logout_list'] = l
+        logger.debug('logout: %s' % str(context['logout_list']))
         context['next_page'] = next_page
         context['message'] = _('Logging out from all your services')
         return render_to_response(template, context_instance = context)
