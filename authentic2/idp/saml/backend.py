@@ -1,3 +1,4 @@
+import logging
 
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
@@ -5,6 +6,9 @@ from django.utils.translation import ugettext as _
 import authentic2.saml.models as models
 import authentic2.idp.saml.saml2_endpoints as saml2_endpoints
 import authentic2.saml.common as common
+
+logger = logging.getLogger('authentic2.idp.saml.backend')
+
 
 class SamlBackend(object):
     def service_list(self, request):
@@ -35,7 +39,9 @@ class SamlBackend(object):
     def logout_list(self, request):
         all_sessions = models.LibertySession.objects.filter(
                 django_session_key=request.session.session_key)
+        logger.debug("logout_list: all_sessions %s" % str(all_sessions))
         provider_ids = set([s.provider_id for s in all_sessions])
+        logger.debug("logout_list: provider_ids %s" % str(provider_ids))
         result = []
         for pid in provider_ids:
             name = pid
@@ -43,11 +49,13 @@ class SamlBackend(object):
                 name = models.LibertyProvider.objects.get(entity_id=pid).name
             except models.LibertyProvider.DoesNotExist:
                 pass
+            logger.debug("logout_list: name %s" % str(name))
             code = '<div>'
             code += _('Sending logout to %(name)s....') % { 'name': name}
-            code += '<iframe src="%s" marginwidth="0" marginheight="0" \
+            code += '<iframe src="%s?provider_id=%s" marginwidth="0" marginheight="0" \
 scrolling="no" style="border: none" width="16" height="16"></iframe></div>' % \
-                    reverse(saml2_endpoints.idp_slo, args=[pid])
+                    (reverse(saml2_endpoints.idp_slo, args=[pid]), pid)
+            logger.debug("logout_list: code %s" % str(code))
             result.append(code)
         return result
 
