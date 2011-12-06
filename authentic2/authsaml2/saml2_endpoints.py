@@ -32,7 +32,8 @@ from authentic2.saml.common import get_idp_list, load_provider, \
     maintain_liberty_session_on_service_provider, get_session_not_on_or_after
 from authentic2.saml.models import LibertyProvider, LibertyFederation, \
     LibertySessionSP, LibertySessionDump, LIBERTY_SESSION_DUMP_KIND_SP, \
-    save_key_values, NAME_ID_FORMATS
+    save_key_values, NAME_ID_FORMATS, LibertySession
+from authentic2.idp.saml.saml2_endpoints import return_logout_error
 from authentic2.authsaml2.utils import error_page, register_next_target, \
     register_request_id, get_registered_url, \
     check_response_id, save_federation_temp, load_federation_temp
@@ -890,21 +891,26 @@ def finish_federation(request):
  there is only idp logged remaining'''
 
 
-###
- # sp_slo
- # @request
- # @provider_id
- #
- # slo request send from another application
- # Does not deal with the local session.
- ###
+'''
+    Single Logout (SLO)
+
+    Initiated by SP or by IdP with SOAP or with Redirect
+'''
+
+
 def ko_icon(request):
     return HttpResponseRedirect('%s/images/ko.png' % settings.MEDIA_URL)
+
 
 def ok_icon(request):
     return HttpResponseRedirect('%s/images/ok.png' % settings.MEDIA_URL)
 
+
 def sp_slo(request, provider_id):
+    '''
+        To make another module call the SLO function.
+        Does not deal with the local django session.
+    '''
     next = request.REQUEST.get('next')
     if not provider_id:
         return HttpResponseRedirect(next) or ko_icon(request)
@@ -915,7 +921,7 @@ def sp_slo(request, provider_id):
     provider = load_provider(request, provider_id,
         server=server, sp_or_idp='idp')
     if not provider:
-        logger.error('sp_slo:  sp_slo failed to load provider')
+        logger.error('sp_slo: sp_slo failed to load provider')
         return HttpResponseRedirect(next) or ko_icon(request)
     policy =  get_idp_options_policy(provider)
     if policy and policy.enable_http_method_for_slo_request \
@@ -979,6 +985,7 @@ def sp_slo(request, provider_id):
         save_key_values(logout.request.id, logout.dump(), provider_id, next)
         return HttpResponseRedirect(logout.msgUrl)
 
+
 def process_logout_response(request, logout, soap_response, next):
     try:
         logout.processRequestMsg(soap_response)
@@ -990,13 +997,11 @@ def process_logout_response(request, logout, soap_response, next):
         delete_session(request)
         return redirect_next(request, next) or ok_icon(request)
 
-###
- # logout
- # @request
- #
- # Single Logout Request from UI
- ###
+
 def logout(request):
+    '''
+        To call from a UI
+    '''
     if request.user.is_anonymous():
         return error_page(request,
             _('logout: not a logged in user'),
@@ -1110,6 +1115,7 @@ def logout(request):
             _('logout:  Unknown HTTP method.'),
             logger=logger)
 
+
 def localLogout(request, error):
     remove_liberty_session_sp(request)
     signals.auth_logout.send(sender=None, user=request.user)
@@ -1124,14 +1130,11 @@ def localLogout(request, error):
         logout performed.') %lasso.strError(error[0]),
         logger=logger)
 
-###
- # singleLogoutReturn
- # @request
- #
- # Response from Redirect
- # Single Logout SOAP SP initiated
- ###
+
 def singleLogoutReturn(request):
+    '''
+        IdP response to a SLO SP initiated by redirect
+    '''
     server = build_service_provider(request)
     if not server:
         return error_page(request,
@@ -1155,14 +1158,7 @@ def singleLogoutReturn(request):
 
     return slo_return(request, logout, query)
 
-###
- # slo_return
- # @request
- # @logout
- # @message
- #
- # Post-response processing
- ###
+
 def slo_return(request, logout, message):
     try:
         logout.processResponseMsg(message)
@@ -1177,6 +1173,7 @@ def slo_return(request, logout, message):
     remove_liberty_session_sp(request)
     return local_logout(request)
 
+
 def local_logout(request):
         global __logout_redirection_timeout
         "Logs out the user and displays 'You are logged out' message."
@@ -1189,15 +1186,59 @@ def local_logout(request):
         auth_logout(request)
         return render_to_response(template, context_instance = context)
 
-###
- # singleLogoutSOAP
- # @request
- #
- # Single Logout SOAP IdP initiated
- # TODO: Manage valid soap responses on error (else error 500)
- ###
+
+def slo_soap_as_idp(request, logout, session=None):
+    logger.debug('slo_soap_as_idp: start slo proxying to sp processing')
+    from authentic2.idp.saml import saml2_endpoints
+    error = saml2_endpoints. \
+        validate_logout_request(request, logout, idp=False)
+    if error:
+        return error
+    if not session:
+        key = request.session.session_key
+    else:
+        key = session.django_session_key
+    lib_sessions = LibertySession.objects.filter(
+            django_session_key=key)
+    if not lib_sessions:
+        logger.debug('slo_soap_as_idp: no sp session')
+    else:
+        server = saml2_endpoints.create_server(request)
+        logout2 = lasso.Logout(server)
+        for lib_session in lib_sessions:
+            logger.info('slo_soap_as_idp: logout to provider %s' \
+                % lib_session.provider_id)
+            p = load_provider(request, lib_session.provider_id,
+                    server=server)
+            if p:
+                try:
+                    l = [(lib_session.provider_id, lib_session.assertion.assertion)]
+                    logout2.setSessionFromDump(saml2_endpoints.build_session_dump(l).encode('utf8'))
+                    logout2.initRequest(None, lasso.HTTP_METHOD_SOAP)
+                    logout2.buildRequestMsg()
+                    soap_response = send_soap_request(request, logout2)
+                except Exception, e:
+                    logger.error('slo_soap_as_idp: error building request to \
+                        provider %s due to %s' \
+                        % (lib_session.provider_id, str(e)))
+                else:
+                    try:
+                        logout2.processResponseMsg(soap_response)
+                    except Exception, e:
+                        logger.error('slo_soap_as_idp: error received from \
+                            provider %s due to %s' \
+                            % (lib_session.provider_id, str(e)))
+            else:
+                logger.error('slo_soap_as_idp: unable to load provider %s' \
+                    % lib_session.provider_id)
+    logger.debug('slo_soap_as_idp: end slo proxying to sp processing')
+
+
 @csrf_exempt
 def singleLogoutSOAP(request):
+    '''
+         Single Logout IdP initiated by SOAP
+    '''
     try:
         soap_message = get_soap_message(request)
     except:
@@ -1232,14 +1273,14 @@ def singleLogoutSOAP(request):
                     server=server, sp_or_idp='idp')
 
             if not provider_loaded:
-                message = _('SLO/SOAP: provider %r unknown') % provider_id
-                return error_page(request, message, logger=logger)
+                message = _('singleLogoutSOAP: provider %r unknown') % provider_id
+                return logout, return_logout_error(request, logout,
+                        AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER)
             else:
                 continue
         except lasso.Error, error:
-            message = 'singleLogoutSOAP \
-            processRequestMsg: %s' %lasso.strError(error[0])
-            return http_response_forbidden_request(message)
+            return return_logout_error(request, logout,
+                AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR)
 
     # Look for a session index
     try:
@@ -1249,8 +1290,10 @@ def singleLogoutSOAP(request):
 
     fed = lookup_federation_by_name_identifier(profile=logout)
     if not fed:
-        return http_response_forbidden_request('singleLogoutSOAP: \
-        Unable to find user')
+        logger.warning('singleLogoutSOAP: unknown user for %s' \
+            % logout.request.dump())
+        return logout, return_logout_error(request, logout,
+                lasso.LOGOUT_ERROR_FEDERATION_NOT_FOUND)
 
     session = None
     if session_index:
@@ -1268,6 +1311,7 @@ def singleLogoutSOAP(request):
                 objects.get(federation=fed, session_index=session_index)
         except:
             pass
+        #XXX: deal with the session index
 #    else:
 #        # No session index take the last session
 #        # with the same name identifier
@@ -1275,44 +1319,48 @@ def singleLogoutSOAP(request):
 #        for session_candidate in get_session_manager().values():
 #            if name_identifier in (session_candidate.name_identifiers or []):
 #                session = session_candidate
-        try:
-            session = LibertySessionSP.objects.get(federation=fed)
-        except:
-            # no session, build straight failure answer
-           pass
+
     if session:
         q = LibertySessionDump. \
             objects.filter(django_session_key = session.django_session_key)
         if not q:
             logger.warning('singleLogoutSOAP: No session dump for this session')
-            finishSingleLogoutSOAP(logout)
+            return logout, return_logout_error(request, logout,
+                    lasso.LOGOUT_ERROR_UNKNOWN_PRINCIPAL)
         logger.info('singleLogoutSOAP from %s, \
             for session index %s and session %s' % \
             (logout.remoteProviderId, session_index, session.id))
-        logout.setSessionFromDump(q[0].session_dump.encode('utf8'))
+        try:
+            #XXX: ajouter a session dump: creation = models.DateTimeField(auto_now_add=True)
+            #pour faire q.latest('creation')
+            logout.setSessionFromDump(q[0].session_dump.encode('utf8'))
+        except:
+            q.delete()
+            logger.error('singleLogoutSOAP: unable to set session from dump')
+            return logout, return_logout_error(request, logout,
+                    lasso.LOGOUT_ERROR_UNKNOWN_PRINCIPAL)
+        q.delete()
     else:
         logger.warning('singleLogoutSOAP: No Liberty session found')
-        return finishSingleLogoutSOAP(logout)
-#    authentic.identities.get_store().load_identities()
-#    try:
-#       identity = authentic.identities.get_store().get_identity(session.user)
-#    except KeyError:
-#        pass
-#    else:
-#        if identity.lasso_dump:
-#            logout.setIdentityFromDump(identity.lasso_dump)
-#    if session.proxied_idp:
-#        self.proxy_slo_soap(session, identity)
-#        logout.setSessionFromDump(session.lasso_session_dump)
+        return logout, return_logout_error(request, logout,
+                lasso.LOGOUT_ERROR_UNKNOWN_PRINCIPAL)
+
     try:
         logout.validateRequest()
     except lasso.Error, error:
-        message = 'singleLogoutSOAP validateRequest: %s' %lasso.strError(error[0])
+        message = 'singleLogoutSOAP validateRequest: %s' \
+            % lasso.strError(error[0])
         logger.info(message)
         # We continue the process
+
+    '''
+        Play the role of IdP sending a SLO to all SP
+    '''
+    slo_soap_as_idp(request, logout, session)
+
+    '''Break local session and respond to the IdP initiating the SLO'''
     django_session_key = session.django_session_key
     session.delete()
-    q[0].delete()
     from django.contrib.sessions.models import Session
     try:
         ss = Session.objects.all()
@@ -1331,8 +1379,8 @@ def singleLogoutSOAP(request):
         logger.warning('singleLogoutSOAP: \
             Unable to delete user session: %s' %sys.exc_info()[0])
         return finishSingleLogoutSOAP(logout)
-
     return finishSingleLogoutSOAP(logout)
+
 
 def finishSingleLogoutSOAP(logout):
     try:
@@ -1341,20 +1389,17 @@ def finishSingleLogoutSOAP(logout):
         message = 'singleLogoutSOAP \
             buildResponseMsg: %s' % lasso.strError(error[0])
         return http_response_forbidden_request(message)
-
     django_response = HttpResponse()
     django_response.status_code = 200
     django_response.content_type = 'text/xml'
     django_response.content = logout.msgBody
     return django_response
 
-###
- # singleLogout
- # @request
- #
- # Single Logout Redirect IdP initiated
- ###
+
 def singleLogout(request):
+    '''
+        Single Logout IdP initiated by Redirect
+    '''
     query = get_saml2_query_request(request)
     if not query:
         return http_response_forbidden_request('singleLogout: \
@@ -1395,6 +1440,12 @@ def singleLogout(request):
         logger.error('singleLogout: %s' %lasso.strError(error[0]))
         return slo_return_response(logout)
 
+    '''
+        Play the role of IdP sending a SLO to all SP
+    '''
+    slo_soap_as_idp(request, logout)
+
+    '''Break local session and respond to the IdP initiating the SLO'''
     if logout.isSessionDirty:
         if logout.session:
             save_session(request, logout, kind=LIBERTY_SESSION_DUMP_KIND_SP)
@@ -1403,19 +1454,8 @@ def singleLogout(request):
     remove_liberty_session_sp(request)
     signals.auth_logout.send(sender=None, user=request.user)
     auth_logout(request)
+    return slo_return_response(logout)
 
-
-    # TODO: we cannot call slo_return_response,
-    # else django raise an error due an httpresponse return missing
-    try:
-        logout.buildResponseMsg()
-    except lasso.Error, error:
-        logger.error('singleLogout: error building response %s' %lasso.strError(error[0]))
-        return http_response_forbidden_request('singleLogout: %s') % \
-            lasso.strError(error[0])
-    else:
-        logger.info('singleLogout: redirect to %s' %logout.msgUrl)
-        return HttpResponseRedirect(logout.msgUrl)
 
 def slo_return_response(logout):
     try:
@@ -1424,7 +1464,9 @@ def slo_return_response(logout):
         return http_response_forbidden_request('slo_return_response: %s') \
             %lasso.strError(error[0])
     else:
+        logger.info('singleLogout: redirect to %s' %logout.msgUrl)
         return HttpResponseRedirect(logout.msgUrl)
+
 
 ###
  # federationTermination
