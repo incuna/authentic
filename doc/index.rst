@@ -23,6 +23,8 @@ specifications of SAML2, ID-FF1.2 and ID-WSF2.
 - `Authentic2 project site <http://dev.entrouvert.org/projects/authentic>`_
 - `Authentic2 roadmap <http://dev.entrouvert.org/projects/authentic/roadmap>`_
 
+:download:`Documentation in PDF<docs/Authentic2.pdf>`
+
 Documentation content
 =====================
 
