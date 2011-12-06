@@ -502,33 +502,40 @@ def sso_after_response(request, login, relay_state = None, provider=None):
 
     for att_statement in login.assertion.attributeStatement:
         for attribute in att_statement.attribute:
+            name = None
+            format = lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC
+            nickname = None
             try:
-                name, format, nickname = \
-                    attribute.name.decode('ascii'), \
-                    attribute.nameFormat.decode('ascii'), \
-                    attribute.friendlyName
-            except UnicodeDecodeError:
-                message = 'sso_after_response: name or \
-                    format of an attribute failed to decode as ascii: %r %r'
-                logger.warning(message % (attribute.name, attribute.format))
-                continue
-            try:
-                values = attribute.attributeValue
-                if values:
-                    attributes[(name, format)] = []
-                    if nickname:
-                        attributes[nickname] = attributes[(name, format)]
-                for value in values:
-                    content = []
-                    for any in value.any:
-                        content.append(any.exportToXml())
-                    content = ''.join(content)
-                    attributes[(name, format)].append(content.decode('utf8'))
-            except UnicodeDecodeError:
-                message = 'sso_after_response: \
-                attribute value is not utf8 encoded %r'
-                logger.warning(message % value)
-                continue
+                name = attribute.name.decode('ascii')
+            except:
+                logger.warning('sso_after_response: error decoding name of \
+                    attribute %s' % attribute.dump())
+            else:
+                try:
+                    if attribute.nameFormat:
+                        format = attribute.nameFormat.decode('ascii')
+                    if attribute.friendlyName:
+                        nickname = attribute.friendlyName
+                except Exception, e:
+                    message = 'sso_after_response: name or format of an \
+                        attribute failed to decode as ascii: %s due to %s'
+                    logger.warning(message % (attribute.dump(), str(e)))
+                try:
+                    values = attribute.attributeValue
+                    if values:
+                        attributes[(name, format)] = []
+                        if nickname:
+                            attributes[nickname] = attributes[(name, format)]
+                    for value in values:
+                        content = []
+                        for any in value.any:
+                            content.append(any.exportToXml())
+                        content = ''.join(content)
+                        attributes[(name, format)].append(content.decode('utf8'))
+                except Exception, e:
+                    message = 'sso_after_response: value of an \
+                        attribute failed to decode as ascii: %s due to %s'
+                    logger.warning(message % (attribute.dump(), str(e)))
 
     # Keep the issuer
     attributes['__issuer'] = login.assertion.issuer.content
@@ -541,38 +548,44 @@ def sso_after_response(request, login, relay_state = None, provider=None):
 
     for att_statement in login.assertion.attributeStatement:
         for attribute in att_statement.attribute:
+            name = None
+            format = lasso.SAML2_ATTRIBUTE_NAME_FORMAT_BASIC
+            nickname = None
             try:
-                name, format, nickname = \
-                    attribute.name.decode('ascii'), \
-                    attribute.nameFormat.decode('ascii'), \
-                    attribute.friendlyName
-            except UnicodeDecodeError:
-                message = 'sso_after_response: name or \
-                    format of an attribute failed to decode as ascii: %r %r'
-                logger.warning(message % (attribute.name, attribute.format))
-                continue
-            try:
-                if name:
-                    if format:
-                        if nickname:
-                            key = (name, format, nickname)
+                name = attribute.name.decode('ascii')
+            except:
+                logger.warning('sso_after_response: error decoding name of \
+                    attribute %s' % attribute.dump())
+            else:
+                try:
+                    if attribute.nameFormat:
+                        format = attribute.nameFormat.decode('ascii')
+                    if attribute.friendlyName:
+                        nickname = attribute.friendlyName
+                except Exception, e:
+                    message = 'sso_after_response: name or format of an \
+                        attribute failed to decode as ascii: %s due to %s'
+                    logger.warning(message % (attribute.dump(), str(e)))
+                try:
+                    if name:
+                        if format:
+                            if nickname:
+                                key = (name, format, nickname)
+                            else:
+                                key = (name, format)
                         else:
-                            key = (name, format)
-                    else:
-                        key = (name)
-                attrs[key] = list()
-                for value in attribute.attributeValue:
-                    content = []
-                    for any in value.any:
-                        content.append(any.exportToXml())
-                    content = ''.join(content)
-                    attrs[key].append(content.decode('utf8'))
-            except UnicodeDecodeError:
-                message = 'sso_after_response: \
-                attribute value is not utf8 encoded %r'
-                logger.warning(message % value)
-                continue
-
+                            key = (name)
+                    attrs[key] = list()
+                    for value in attribute.attributeValue:
+                        content = []
+                        for any in value.any:
+                            content.append(any.exportToXml())
+                        content = ''.join(content)
+                        attrs[key].append(content.decode('utf8'))
+                except Exception, e:
+                    message = 'sso_after_response: value of an \
+                        attribute failed to decode as ascii: %s due to %s'
+                    logger.warning(message % (attribute.dump(), str(e)))
 
     if not 'multisource_attributes' in request.session:
         request.session['multisource_attributes'] = dict()
