@@ -168,6 +168,12 @@ AUTHSAML2_UNAUTH_TRANSIENT = (
 
 
 class IdPOptionsSPPolicy(models.Model):
+    '''
+        Policies configured as a SAML2 service provider.
+
+        Used to define SAML2 parameters employed with third SAML2 identity
+        providers
+    '''
     name = models.CharField(_('name'), max_length=200, unique=True)
     enabled = models.BooleanField(verbose_name = _('Enabled'))
     no_nameid_policy = models.BooleanField(
@@ -213,7 +219,6 @@ class IdPOptionsSPPolicy(models.Model):
             verbose_name = _("Passive authentication"))
     want_authn_request_signed = models.BooleanField(
             verbose_name = _("Want AuthnRequest signed"))
-
     handle_persistent = models.CharField(
             max_length=200,
             verbose_name = 'Behavior with persistent nameId',
@@ -228,6 +233,9 @@ class IdPOptionsSPPolicy(models.Model):
             max_length = 200,
             default = '/',
             verbose_name = 'Return URL after a successful authentication')
+    accept_slo = models.BooleanField(\
+            verbose_name = _("Accept to receive Single Logout requests"),
+            default=True)
 
     class Meta:
         verbose_name = _('identity provider options policy')

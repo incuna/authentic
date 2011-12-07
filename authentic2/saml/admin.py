@@ -63,6 +63,7 @@ class IdPOptionsSPPolicyAdmin(admin.ModelAdmin):
                     'handle_persistent',
                     'handle_transient',
                     'back_url',
+                    'accept_slo',
                 )
             }),
     )

@@ -29,7 +29,14 @@ from authentic2.saml.common import get_idp_list, load_provider, \
     remove_liberty_session_sp, get_session_index, get_soap_message, \
     load_federation, save_manage, lookup_federation_by_user, \
     get_manage_dump, get_saml2_metadata, create_saml2_server, \
-    maintain_liberty_session_on_service_provider, get_session_not_on_or_after
+    maintain_liberty_session_on_service_provider, \
+    get_session_not_on_or_after, \
+    AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER, \
+    AUTHENTIC_STATUS_CODE_MISSING_NAMEID, \
+    AUTHENTIC_STATUS_CODE_MISSING_SESSION_INDEX, \
+    AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION, \
+    AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR, \
+    AUTHENTIC_STATUS_CODE_UNAUTHORIZED
 from authentic2.saml.models import LibertyProvider, LibertyFederation, \
     LibertySessionSP, LibertySessionDump, LIBERTY_SESSION_DUMP_KIND_SP, \
     save_key_values, NAME_ID_FORMATS, LibertySession
@@ -1258,6 +1265,7 @@ def singleLogoutSOAP(request):
         return http_response_forbidden_request('singleLogoutSOAP: \
         Unable to create Login object')
 
+    provider_loaded = None
     while True:
         try:
             logout.processRequestMsg(soap_message)
@@ -1269,14 +1277,27 @@ def singleLogoutSOAP(request):
                     server=server, sp_or_idp='idp')
 
             if not provider_loaded:
-                message = _('singleLogoutSOAP: provider %r unknown') % provider_id
-                return logout, return_logout_error(request, logout,
+                logger.warn('singleLogoutSOAP: provider %r unknown' \
+                    % provider_id)
+                return return_logout_error(request, logout,
                         AUTHENTIC_STATUS_CODE_UNKNOWN_PROVIDER)
             else:
                 continue
         except lasso.Error, error:
             return return_logout_error(request, logout,
                 AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR)
+
+    policy = get_idp_options_policy(provider_loaded)
+    if not policy:
+        logger.error('singleLogout: No policy found for %s'\
+             % logout.remoteProviderId)
+        return return_logout_error(request, logout,
+            AUTHENTIC_STATUS_CODE_UNAUTHORIZED)
+    if not policy.accept_slo:
+        logger.warn('singleLogout: received slo from %s not authorized'\
+             % logout.remoteProviderId)
+        return return_logout_error(request, logout,
+            AUTHENTIC_STATUS_CODE_UNAUTHORIZED)
 
     # Look for a session index
     try:
@@ -1396,6 +1417,7 @@ def singleLogout(request):
             Service provider not configured')
 
     logout = lasso.Logout(server)
+    provider_loaded = None
     while True:
         try:
             logout.processRequestMsg(query)
@@ -1416,6 +1438,18 @@ def singleLogout(request):
             return slo_return_response(logout)
 
     logger.info('singleLogout: from %s' % logout.remoteProviderId)
+
+    policy = get_idp_options_policy(provider_loaded)
+    if not policy:
+        logger.error('singleLogout: No policy found for %s'\
+             % logout.remoteProviderId)
+        return return_logout_error(request, logout,
+            AUTHENTIC_STATUS_CODE_UNAUTHORIZED)
+    if not policy.accept_slo:
+        logger.warn('singleLogout: received slo from %s not authorized'\
+             % logout.remoteProviderId)
+        return return_logout_error(request, logout,
+            AUTHENTIC_STATUS_CODE_UNAUTHORIZED)
 
     load_session(request, logout, kind=LIBERTY_SESSION_DUMP_KIND_SP)
 
@@ -1449,7 +1483,7 @@ def slo_return_response(logout):
         return http_response_forbidden_request('slo_return_response: %s') \
             %lasso.strError(error[0])
     else:
-        logger.info('singleLogout: redirect to %s' %logout.msgUrl)
+        logger.info('slo_return_response: redirect to %s' %logout.msgUrl)
         return HttpResponseRedirect(logout.msgUrl)
 
 
