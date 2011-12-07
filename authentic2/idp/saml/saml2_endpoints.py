@@ -200,7 +200,7 @@ def build_assertion(request, login, nid_format = 'transient', attributes=None):
     notBefore = now-datetime.timedelta(0,__delta)
     # 1 minute in the future
     notOnOrAfter = now+datetime.timedelta(0,__delta)
-    ssl = request.environ.has_key('HTTPS')
+    ssl = 'HTTPS' in request.environ
     if __user_backend_from_session:
         backend = request.session[BACKEND_SESSION_KEY]
         logger.debug("build_assertion: authentication from session %s" %backend)
@@ -493,9 +493,9 @@ def sso_after_process_request(request, login,
         logger.info('sso_after_process_request: authorize_service connected to function %s' % \
             decision[0].__name__)
         dic = decision[1]
-        if dic and dic.has_key('authz'):
+        if dic and 'authz' in dic:
             logger.info('sso_after_process_request: decision is %s' %dic['authz'])
-            if dic.has_key('message'):
+            if 'message' in dic:
                 logger.info('sso_after_process_request: with message %s' %dic['message'])
             if not dic['authz']:
                 logger.info('sso_after_process_request: access denied by an external function')
@@ -517,7 +517,7 @@ def sso_after_process_request(request, login,
     for attrs in attributes_provided:
         logger.info('sso_after_process_request: add_attributes_to_response connected to function %s' % \
             attrs[0].__name__)
-        if attrs[1] and attrs[1].has_key('attributes'):
+        if attrs[1] and 'attributes' in attrs[1]:
             dic = attrs[1]
             logger.info('sso_after_process_request: attributes provided are %s' %str(dic['attributes']))
             for key in dic['attributes'].keys():
@@ -553,7 +553,7 @@ def sso_after_process_request(request, login,
         for c in avoid_consent:
             logger.info('sso_after_process_request: avoid_consent connected to function %s' % \
                 c[0].__name__)
-            if c[1] and c[1].has_key('avoid_consent') and c[1]['avoid_consent']:
+            if c[1] and 'avoid_consent' in c[1] and c[1]['avoid_consent']:
                 logger.info('sso_after_process_request: avoid_consent')
                 consent_obtained = True
 

@@ -15,9 +15,9 @@ def consent_federation(request, nonce = '', next = None, provider_id = None):
             context_instance=RequestContext(request))
     else:
         next = '/'
-        if request.POST.has_key('next'):
+        if 'next' in request.POST:
             next = request.POST['next']
-        if request.POST.has_key('accept'):
+        if 'accept' in request.POST:
             next = next + '&consent_answer=accepted'
             return HttpResponseRedirect(next)
         else:
@@ -30,7 +30,7 @@ def consent_attributes(request, nonce = '', next = None, provider_id = None):
        On a POST handle the form and redirect to next'''
     if request.method == "GET":
         attributes = []
-        if request.session.has_key('attributes_to_send'):
+        if 'attributes_to_send' in request.session:
             attrs = request.session['attributes_to_send']
             for key in attrs:
                 name = None
@@ -64,9 +64,9 @@ def consent_attributes(request, nonce = '', next = None, provider_id = None):
             context_instance=RequestContext(request))
     else:
         next = '/'
-        if request.POST.has_key('next'):
+        if 'next' in request.POST:
             next = request.POST['next']
-        if request.POST.has_key('accept'):
+        if 'accept' in request.POST:
             next = next + '&consent_answer=accepted'
             return HttpResponseRedirect(next)
         else:

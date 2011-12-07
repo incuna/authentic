@@ -31,9 +31,9 @@ logger = logging.getLogger('auth2_ssl')
 
 def handle_request(request,):
     #next = request.GET.get(REDIRECT_FIELD_NAME,settings.LOGIN_REDIRECT_URL)
-    if request.session.has_key('next'):
+    if 'next' in request.session:
         next = request.session['next']
-    elif request.GET.has_key('next'):
+    elif 'next' in request.GET:
         next = request.GET['next']
     else:
         next = '/'
@@ -64,7 +64,7 @@ def handle_request(request,):
     # If the user is logged in, no need to create an account
     # If there is an SSL entries, no need for account creation,
     # just need to login, treated after
-    if request.session.has_key('do_creation') and not user \
+    if 'do_creation' in request.session and not user \
             and not request.user.is_authenticated():
         from backend import SSLBackend
         logger.info('[auth2_ssl]: Account creation treatment')
@@ -141,11 +141,11 @@ def handle_request(request,):
 def post_account_linking(request):
     logger.info('[auth2_ssl] Return after account linking form filled')
     if request.method == "POST":
-        if request.POST.has_key('do_creation') \
+        if 'do_creation' in request.POST \
                 and request.POST['do_creation'] == 'on':
             logger.info('[auth2_ssl]: account creation asked')
             request.session['do_creation'] = 'do_creation'
-            if request.session.has_key('next'):
+            if 'next' in request.session:
                 next = request.session['next']
             else:
                 next = request.path
@@ -186,7 +186,7 @@ def post_account_linking(request):
                 context_instance=RequestContext(request))
 
 def profile(request, next='', template_name='ssl/profile.html'):
-    if request.session.has_key('next'):
+    if 'next' in request.session:
         next = request.session['next']
     else:
         next = next
@@ -214,7 +214,7 @@ def profile(request, next='', template_name='ssl/profile.html'):
             RequestContext(request))
 
 def delete_certificate(request, next='/'):
-    if request.session.has_key('next'):
+    if 'next' in request.session:
         next = request.session['next']
     else:
         next = next
@@ -223,7 +223,7 @@ def delete_certificate(request, next='/'):
         or not hasattr(request.user, '_meta'):
         return HttpResponseRedirect(next)
 
-    if not request.POST.has_key('cert_name'):
+    if not 'cert_name' in request.POST:
         logger.error('[auth2_ssl]: No certificate name provided for deletion')
         messages.add_message(request, messages.ERROR,
             _('No certificate name provided for deletion.'))

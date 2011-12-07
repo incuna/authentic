@@ -57,7 +57,7 @@ def register_next_target(request, url=None):
     request.session['next'] = next
 
 def get_registered_url(request):
-    if request.session.has_key('next'):
+    if 'next' in request.session:
         return request.session['next']
     return None
 
@@ -65,7 +65,7 @@ def register_request_id(request, request_id):
     request.session['saml_request_id'] = request_id
 
 def check_response_id(request, login):
-    if request.session.has_key('saml_request_id') and \
+    if 'saml_request_id' in request.session and \
         request.session['saml_request_id'] == login.response.inResponseTo:
         return True
     return False
@@ -79,5 +79,5 @@ def save_federation_temp(request, login, attributes=None):
         request.session['attributes'] = attributes
 
 def load_federation_temp(request, login):
-    if request.session.has_key('identity_dump'):
+    if 'identity_dump' in request.session:
         login.setIdentityFromDump(request.session['identity_dump'])

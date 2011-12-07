@@ -29,15 +29,15 @@ class WithNonceAuthenticationForm(AuthenticationForm):
 
     def __init__(self, request = None, **kwargs):
         AuthenticationForm.__init__(self, request, **kwargs)
-        if request and request.REQUEST.has_key(NONCE_FIELD_NAME):
+        if request and NONCE_FIELD_NAME in request.REQUEST:
             self.initial[NONCE_FIELD_NAME] = request.REQUEST.get(NONCE_FIELD_NAME)
 
     def clean(self):
         res = AuthenticationForm.clean(self)
         # create an authentication event
-        if self.user_cache and self.cleaned_data.has_key(NONCE_FIELD_NAME):
+        if self.user_cache and NONCE_FIELD_NAME in self.cleaned_data:
             how = 'password'
-            if self.request and self.request.environ.has_key('HTTPS'):
+            if self.request and 'HTTPS' in self.request.environ:
                 how = 'password-on-https'
             models.AuthenticationEvent(who=self.user_cache.username,
                     how=how, nonce=self.cleaned_data[NONCE_FIELD_NAME]).save()
@@ -66,8 +66,8 @@ def login(request, template_name='auth/login.html',
     redirect_to = request.REQUEST.get(redirect_field_name)
     if not redirect_to or ' ' in redirect_to:
         redirect_to = settings.LOGIN_REDIRECT_URL
-    # Heavier security check -- redirects to http://example.com should 
-    # not be allowed, but things like /view/?param=http://example.com 
+    # Heavier security check -- redirects to http://example.com should
+    # not be allowed, but things like /view/?param=http://example.com
     # should be allowed. This regex checks if there is a '//' *before* a
     # question mark.
     elif '//' in redirect_to and re.match(r'[^\?]*//', redirect_to):
@@ -147,7 +147,7 @@ def password_change(request, template = 'authopenid/password_change_form.html',
 
     if request.user.password == '!':
         context = RequestContext(request)
-        context['set_password'] = True 
+        context['set_password'] = True
     else:
         context = RequestContext(request)
 

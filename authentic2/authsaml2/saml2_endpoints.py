@@ -646,11 +646,11 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             %decision[0].__name__)
         dic = decision[1]
         logger.debug('sso_after_response: decision is %s' %dic['authz'])
-        if dic.has_key('message'):
+        if 'message' in dic:
             logger.debug('sso_after_response: with message %s' %dic['message'])
         if not dic['authz']:
             access_granted = False
-            if dic.has_key('message'):
+            if 'message' in dic:
                 one_message = True
                 messages.add_message(request, messages.ERROR, dic['message'])
 
@@ -675,7 +675,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
         return error_page(request,
             _('sso_after_response: No IdP policy defined'), logger=logger)
     url = get_registered_url(request)
-    if not request.session.has_key('saml_request_id'):
+    if not 'saml_request_id' in request.session:
         #IdP initiated
         url = policy.back_url
     if login.nameIdentifier.format == \
@@ -823,7 +823,7 @@ def finish_federation(request):
                 login.nameIdentifier.dump())
 
             provider_id = None
-            if request.session.has_key('remoteProviderId'):
+            if 'remoteProviderId' in request.session:
                 provider_id = request.session['remoteProviderId']
             fed = add_federation(form.get_user(),
                 name_id=login.nameIdentifier,
@@ -843,7 +843,7 @@ def finish_federation(request):
             logger.debug('finish_federation: session opened')
 
             attributes = []
-            if request.session.has_key('attributes'):
+            if 'attributes' in request.session:
                 attributes = request.session['attributes']
             signals.auth_login.send(sender=None,
                 request=request, attributes=attributes)
@@ -1843,7 +1843,7 @@ def setAuthnrequestOptions(provider, login, force_authn, is_passive):
     return p
 
 def view_profile(request, next='', template_name='profile.html'):
-    if request.session.has_key('next'):
+    if 'next' in request.session:
         next = request.session['next']
     else:
         next = next
@@ -1883,28 +1883,26 @@ def view_profile(request, next='', template_name='profile.html'):
 @login_required
 @csrf_exempt
 def delete_federation(request):
-    if request.POST.has_key('next'):
+    if 'next' in request.POST:
         next = request.POST['next']
     else:
         next = '/'
-    logger.info('[authsaml2] Ask for federation deletion')
+    logger.info('delete_federation: federation deletion requested')
     if request.method == "POST":
-        if request.POST.has_key('fed'):
+        if 'fed' in request.POST:
             try:
                 p = LibertyProvider.objects.get(name=request.POST['fed'])
-                f = LibertyFederation.objects. \
-                    get(user=request.user, idp_id=p.entity_id)
-                f.delete()
-                logger.info('[authsaml2]: federation with %s deleted' \
-                    %request.POST['fed'])
+                LibertyFederation.objects. \
+                    get(user=request.user, idp_id=p.entity_id).delete()
+                logger.info('delete_federation: federation %s deleted' \
+                    % request.POST['fed'])
                 messages.add_message(request, messages.INFO,
                 _('Successful federation deletion.'))
                 return HttpResponseRedirect(next)
             except:
                 pass
 
-    logger.error('[authsaml2]: Failed to delete federation'\
-        %request.POST.has_key('fed'))
+    logger.error('[authsaml2]: Failed to delete federation')
     messages.add_message(request, messages.INFO,
         _('Federation deletion failure.'))
     return HttpResponseRedirect(next)

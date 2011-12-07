@@ -28,7 +28,7 @@ X509_KEYS = {
     'issuer_d': 'SSL_CLIENT_I_DN_D',
     'issuer_uid': 'SSL_CLIENT_I_DN_UID',
     'issuer_email': 'SSL_CLIENT_I_DN_Email',
-    'serial': 'SSL_CLIENT_M_SERIAL', 
+    'serial': 'SSL_CLIENT_M_SERIAL',
     'cert': 'SSL_CLIENT_CERT',
     'verify': 'SSL_CLIENT_VERIFY',
 }
@@ -67,7 +67,7 @@ class SSLInfo(object):
 
     def read_env(self, env):
         for attr,key in X509_KEYS.iteritems():
-            if env.has_key(key) and env[key]:
+            if key in env and env[key]:
                 self.__dict__[attr] = env[key]
             else:
                 self.__dict__[attr] = None

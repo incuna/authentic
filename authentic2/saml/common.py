@@ -749,7 +749,7 @@ def attributesMatch(attributes, attributes_to_check):
     attrs = AuthorizationAttributeMapping. \
         objects.filter(map=attributes_to_check)
     for attr in attrs:
-        if not attributes.has_key(attr.attribute_name):
+        if not attr.attribute_name in attributes:
             raise Exception('Attribute %s not provided' %attr.attribute_name)
         if not attr.attribute_value in attributes[attr.attribute_name]:
             return False
