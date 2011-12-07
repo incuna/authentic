@@ -528,9 +528,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                         if nickname:
                             attributes[nickname] = attributes[(name, format)]
                     for value in values:
-                        content = []
-                        for any in value.any:
-                            content.append(any.exportToXml())
+                        content = [any.exportToXml() for any in value.any]
                         content = ''.join(content)
                         attributes[(name, format)].append(content.decode('utf8'))
                 except Exception, e:
@@ -578,9 +576,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
                             key = (name)
                     attrs[key] = list()
                     for value in attribute.attributeValue:
-                        content = []
-                        for any in value.any:
-                            content.append(any.exportToXml())
+                        content = [any.exportToXml() for any in value.any]
                         content = ''.join(content)
                         attrs[key].append(content.decode('utf8'))
                 except Exception, e:
@@ -1359,25 +1355,14 @@ def singleLogoutSOAP(request):
     slo_soap_as_idp(request, logout, session)
 
     '''Break local session and respond to the IdP initiating the SLO'''
-    django_session_key = session.django_session_key
-    session.delete()
     from django.contrib.sessions.models import Session
     try:
-        ss = Session.objects.all()
-        for s in ss:
-            if s.session_key == django_session_key:
-                session_django = s
-    except:
-        import sys
-        logger.warning('singleLogoutSOAP: \
-            Unable to grab user session: %s' %sys.exc_info()[0])
-        return finishSingleLogoutSOAP(logout)
-    try:
-        session_django.delete()
-    except:
-        import sys
-        logger.warning('singleLogoutSOAP: \
-            Unable to delete user session: %s' %sys.exc_info()[0])
+        Session.objects.\
+            filter(session_key = session.django_session_key).delete()
+        session.delete()
+    except Exception, e:
+        logger.error('singleLogoutSOAP: Error at session deletion due to %s' \
+            % str(e))
         return finishSingleLogoutSOAP(logout)
     return finishSingleLogoutSOAP(logout)
 
@@ -1616,16 +1601,18 @@ def manageNameIdReturn(request):
 
     manage_dump = get_manage_dump(request)
     manage = None
-    if manage_dump and manage_dump.count()>1:
-        for md in manage_dump:
-            md.delete()
+    if manage_dump.exists() and manage_dump.count()>1:
+        manage_dump.delete()
         return error_page(request,
             _('fedTerm/SP Redirect: Error managing manage dump'),
             logger=logger)
-    elif manage_dump:
-        manage = \
-            lasso.NameIdManagement.newFromDump(server,
-            manage_dump[0].manage_dump)
+    elif manage_dump.exists():
+        try:
+            manage = \
+                lasso.NameIdManagement.newFromDump(server,
+                manage_dump[0].manage_dump)
+        except:
+            pass
         manage_dump.delete()
     else:
         manage = lasso.NameIdManagement(server)
@@ -1865,16 +1852,19 @@ def view_profile(request, next='', template_name='profile.html'):
         or not hasattr(request.user, '_meta'):
         return HttpResponseRedirect(next)
 
+    logger.info('view_profile: View profile of user %s' % str(request.user))
+
     #Add creation date
     federations = []
-    try:
-        feds = LibertyFederation.objects.filter(user=request.user)
-        for f in feds:
-            if f.idp_id:
-                p = LibertyProvider.objects.get(entity_id=f.idp_id)
-                federations.append(p.name)
-    except:
-        pass
+    for federation in LibertyFederation.objects.\
+            filter(user=request.user):
+        logger.debug('view_profile: federation found %s' % str(federation))
+        try:
+            provider = LibertyProvider.objects.get(entity_id=federation.idp_id)
+            logger.debug('view_profile: provider found %s' % str(provider))
+            federations.append(provider.name)
+        except Exception, e:
+            logger.error('view_profile: Exception %s' % str(e))
 
     from frontend import AuthSAML2Frontend
     form = AuthSAML2Frontend().form()()
