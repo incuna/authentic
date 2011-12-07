@@ -13,7 +13,6 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.contrib.auth.models import User
-from django.contrib.auth import logout as auth_logout
 from django.conf import settings
 from django.utils.encoding import smart_unicode
 
