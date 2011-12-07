@@ -319,12 +319,11 @@ def save_session(request, login, session_key=None,
 
 def delete_session(request):
     '''Delete all liberty sessions for a django session'''
-    all_sessions = LibertySessionDump.objects.filter(django_session_key = request.session.session_key)
     try:
-        for session in all_sessions:
-            session.delete()
-    except:
-        pass
+        LibertySessionDump.objects.\
+            filter(django_session_key = request.session.session_key).delete()
+    except Exception, e:
+        logger.error('delete_session: Exception %s' % str(e))
 
 def save_manage(request, manage):
     if not request or not manage:
@@ -497,25 +496,16 @@ def get_idp_user_federated_list(request):
     user = request.user
     if request.user.is_anonymous():
         return None
-    providers_list = get_idp_list()
-    p_list = []
-    for p in providers_list:
-        fed = lookup_federation_by_user(user, p.entity_id)
-        if fed:
-            p_list.append(p)
-    return p_list
+    return [p for p in get_idp_list() \
+        if lookup_federation_by_user(user, p.entity_id)]
 
 def get_idp_user_not_federated_list(request):
     user = request.user
     if request.user.is_anonymous():
         return None
-    providers_list = get_idp_list()
-    p_list = []
-    for p in providers_list:
-        fed = lookup_federation_by_user(user, p.entity_id)
-        if not fed:
-            p_list.append(p)
-    return p_list
+    return [p for p in get_idp_list() \
+        if not lookup_federation_by_user(user, p.entity_id)]
+
 
 # The session_index is the "session on the IdP" identifiers
 # One identifier is dedicated for each sp for each user session
@@ -583,14 +573,11 @@ def get_session_index(request):
         return None
 
 def remove_liberty_session_sp(request):
-    if not request:
-        return None
     try:
-        ss = LibertySessionSP.objects.filter(django_session_key=request.session.session_key)
-        for s in ss:
-            s.delete()
-    except:
-        return None
+        LibertySessionSP.objects.\
+            filter(django_session_key=request.session.session_key).delete()
+    except Exception, e:
+        logger.error('remove_liberty_session_sp: Exception %s' % str(e))
 
 def get_provider_of_active_session(request):
     if not request:
@@ -624,17 +611,22 @@ def soap_call(url, msg, client_cert = None):
         host, query = urllib.splithost(url[6:])
         conn = httplib.HTTPSConnection(host,
                 key_file = client_cert, cert_file = client_cert)
+    logger.debug('soap_call: host %s' % host)
+    logger.debug('soap_call: query %s' % query)
+    logger.debug('soap_call: msg %s' % msg)
     try:
         conn.request('POST', query, msg, {'Content-Type': 'text/xml'})
         response = conn.getresponse()
     except Exception, err:
         logging.error('SOAP error (on %s): %s' % (url, err))
         raise SOAPException(url)
+    logger.debug('soap_call: response %s' % str(response))
     try:
         data = response.read()
     except Exception, err:
         logging.error('SOAP error (on %s): %s' % (url, err))
         raise SOAPException(url)
+    logger.debug('soap_call: data %s' % str(data))
     conn.close()
     if response.status not in (200, 204): # 204 ok for federation termination
         logging.warning('SOAP error (%s) (on %s)' % (response.status, url))
