@@ -521,6 +521,10 @@ class LibertyFederation(models.Model):
         unique_together = (("name_id_qualifier", "name_id_format",
             "name_id_content", "name_id_sp_name_qualifier"))
 
+    def __unicode__(self):
+        return '<LibertyFederation %s>' % self.__dict__
+
+
 class LibertySession(models.Model):
     """Store the link between a Django session and a Liberty session"""
     django_session_key = models.CharField(max_length = 40)
