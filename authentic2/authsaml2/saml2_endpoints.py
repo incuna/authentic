@@ -927,7 +927,15 @@ def sp_slo(request, provider_id):
         logger.error('sp_slo: sp_slo failed to load provider')
         return HttpResponseRedirect(next) or ko_icon(request)
     policy =  get_idp_options_policy(provider)
-    if policy and policy.enable_http_method_for_slo_request \
+    if not policy:
+        logger.error('sp_slo: No policy found for %s'\
+             % provider)
+        return HttpResponseRedirect(next) or ko_icon(request)
+    if not policy.forward_slo:
+        logger.warn('sp_slo: slo asked for %s configured to not reveive slo' \
+             % provider)
+        return HttpResponseRedirect(next) or ko_icon(request)
+    if policy.enable_http_method_for_slo_request \
             and policy.http_method_for_slo_request:
         if policy.http_method_for_slo_request == lasso.HTTP_METHOD_SOAP:
             logger.info('sp_slo: sp_slo by SOAP')

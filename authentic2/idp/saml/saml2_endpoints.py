@@ -36,8 +36,7 @@ from authentic2.saml.common import redirect_next, asynchronous_bindings, \
     AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR, \
     send_soap_request, get_saml2_query_request, \
     get_saml2_request_message_async_binding, create_saml2_server, \
-    get_saml2_metadata, get_sp_options_policy
-
+    get_saml2_metadata, get_sp_options_policy, get_idp_options_policy
 import authentic2.saml.saml2utils as saml2utils
 from authentic2.auth2_auth.models import AuthenticationEvent
 from common import redirect_to_login, kill_django_sessions
@@ -985,19 +984,27 @@ def slo_soap(request):
                     logout2.setSessionFromDump(s.session_dump.encode('utf8'))
                     provider = load_provider(request, pid,
                         server=server, sp_or_idp='idp')
-                    '''
-                        As we are in a synchronous binding,
-                        we need SOAP support
-                    '''
-                    logout2.initRequest(None, lasso.HTTP_METHOD_SOAP)
-                    logout2.buildRequestMsg()
-                    soap_response = send_soap_request(request, logout2)
-                    logout2.processRequestMsg(soap_response)
-                    logger.info('slo_soap: sp_slo successful SLO with %s' \
-                        % pid)
+                    policy =  get_idp_options_policy(provider)
+                    if not policy:
+                        logger.error('slo_soap: No policy found for %s'\
+                             % provider)
+                    elif not policy.forward_slo:
+                        logger.info('slo_soap: %s configured to not reveive \
+                            slo' % provider)
+                    else:
+                        '''
+                            As we are in a synchronous binding,
+                            we need SOAP support
+                        '''
+                        logout2.initRequest(None, lasso.HTTP_METHOD_SOAP)
+                        logout2.buildRequestMsg()
+                        soap_response = send_soap_request(request, logout2)
+                        logout2.processRequestMsg(soap_response)
+                        logger.info('slo_soap: successful SLO with %s' \
+                            % pid)
                 except Exception, e:
-                    logger.error('slo_soap: error treating SLO with IdP due \
-                        to %s' % str(e))
+                    logger.error('slo_soap: error treating SLO with IdP %s' \
+                        % str(e))
 
     '''
         Respond to the SP initiating SLO

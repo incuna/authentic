@@ -1,20 +1,26 @@
 import string
 import random
+import logging
+import lasso
 
 from django.db import transaction
 from django.contrib.auth.models import User, UserManager
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
-import lasso
 
 from authentic2.saml.common import \
-    lookup_federation_by_name_id_and_provider_id, add_federation
+    lookup_federation_by_name_id_and_provider_id, add_federation, \
+    get_idp_options_policy
 from authentic2.saml.models import LIBERTY_SESSION_DUMP_KIND_SP, \
     LibertySessionDump, LibertyProvider
 from authentic2.authsaml2.models import SAML2TransientUser
 
+logger = logging.getLogger('authentic2.authsaml2.backends')
+
+
 class AuthenticationError(Exception):
     pass
+
 
 class AuthSAML2Backend:
     def logout_list(self, request):
@@ -24,25 +30,44 @@ class AuthSAML2Backend:
                     kind=LIBERTY_SESSION_DUMP_KIND_SP)
         if not q:
             return []
+        '''
+            We deal with a single IdP session
+        '''
         try:
-            pid = lasso.Session().newFromDump(q[0].session_dump). \
+            provider_id = lasso.Session().newFromDump(q[0].session_dump). \
                 get_assertions().keys()[0]
         except:
-            pass
-        if not pid:
             return []
-        name = pid
+        if not provider_id:
+            return []
+        logger.debug('logout_list: Found session for %s' % provider_id)
+        name = provider_id
+        provider = None
         try:
-            name = LibertyProvider.objects.get(entity_id=pid).name
+            provider = LibertyProvider.objects.get(entity_id=provider_id)
+            name = provider.name
         except LibertyProvider.DoesNotExist:
-            pass
-        import saml2_endpoints
-        code = '<div>'
-        code += _('Sending logout to %(pid)s....') % { 'pid': name or pid }
-        code += '<iframe src="%s" marginwidth="0" marginheight="0" \
-scrolling="no" style="border: none" width="16" height="16"></iframe></div>' % \
-                reverse(saml2_endpoints.sp_slo, args=[pid])
-        return [ code ]
+            logger.error('logout_list: session found for unknown provider %s' \
+                % provider_id)
+            return []
+
+        policy =  get_idp_options_policy(provider)
+        if not policy:
+            logger.error('logout_list: No policy found for %s' % provider)
+            return []
+        elif not policy.forward_slo:
+            logger.info('logout_list: %s configured to not reveive slo' \
+                % provider)
+            return []
+        else:
+            import saml2_endpoints
+            code = '<div>'
+            code += _('Sending logout to %(pid)s....') % { 'pid': name or provider_id }
+            code += '<iframe src="%s" marginwidth="0" marginheight="0" \
+    scrolling="no" style="border: none" width="16" height="16"></iframe></div>' % \
+                    reverse(saml2_endpoints.sp_slo, args=[provider_id])
+            return [ code ]
+
 
 class AuthSAML2PersistentBackend:
     supports_object_permissions = False
