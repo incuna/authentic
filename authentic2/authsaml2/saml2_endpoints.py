@@ -903,11 +903,11 @@ def finish_federation(request):
 
 
 def ko_icon(request):
-    return HttpResponseRedirect('%s/images/ko.png' % settings.MEDIA_URL)
+    return HttpResponseRedirect('%s/authentic2/images/ko.png' % settings.STATIC_URL)
 
 
 def ok_icon(request):
-    return HttpResponseRedirect('%s/images/ok.png' % settings.MEDIA_URL)
+    return HttpResponseRedirect('%s/authentic2/images/ok.png' % settings.STATIC_URL)
 
 
 def sp_slo(request, provider_id):
