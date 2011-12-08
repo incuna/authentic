@@ -5,8 +5,8 @@ import os
 gettext_noop = lambda s: s
 
 DEBUG = True
-USE_DEBUG_TOOLBAR = False
-STATIC_SERVE = True
+USE_DEBUG_TOOLBAR = DEBUG
+STATIC_SERVE = DEBUG
 TEMPLATE_DEBUG = DEBUG
 _PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
 
@@ -62,12 +62,15 @@ MEDIA_ROOT = os.path.join(_PROJECT_PATH, 'media')
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/media/'
+
+STATIC_ROOT = os.path.join(_PROJECT_PATH, 'static')
+print STATIC_ROOT
+STATIC_URL = '/static/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/admin/'
+ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '0!=(1kc6kri-ui+tmj@mr+*0bvj!(p*r0duu2n=)7@!p=pvf9n'
@@ -86,6 +89,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.media',
     'django.core.context_processors.request',
     'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.static',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -108,6 +112,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'django.contrib.staticfiles',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
