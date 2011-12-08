@@ -1052,6 +1052,27 @@ def slo(request):
     if response:
         return response
     logger.debug('slo: asynchronous slo message %s' % message)
+
+    try:
+        provider = \
+            LibertyProvider.objects.get(entity_id=logout.remoteProviderId)
+    except:
+        logger.warn('slo: provider %r unknown' \
+            % logout.remoteProviderId)
+        return return_logout_error(request, logout,
+                AUTHENTIC_STATUS_CODE_UNAUTHORIZED)
+    policy = get_sp_options_policy(provider)
+    if not policy:
+        logger.error('slo: No policy found for %s'\
+             % logout.remoteProviderId)
+        return return_logout_error(request, logout,
+            AUTHENTIC_STATUS_CODE_UNAUTHORIZED)
+    if not policy.accept_slo:
+        logger.warn('slo: received slo from %s not authorized'\
+             % logout.remoteProviderId)
+        return return_logout_error(request, logout,
+            AUTHENTIC_STATUS_CODE_UNAUTHORIZED)
+
     try:
         try:
             logout.processRequestMsg(message)
