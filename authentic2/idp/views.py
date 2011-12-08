@@ -89,7 +89,7 @@ def logout(request, next_page='/', redirect_field_name=REDIRECT_FIELD_NAME,
     next_page = request.REQUEST.get(redirect_field_name, next_page)
     if l and not do_local:
         # Full logout
-        next_page = '?local&next=%s' % urllib.quote(next_page)
+        next_page = '?local=ok&next=%s' % urllib.quote(next_page)
         code = '<div>'
         code += _('Local logout...')
         code += '<iframe src="/logout%s" marginwidth="0" marginheight="0" \

@@ -43,20 +43,30 @@ class SamlBackend(object):
         provider_ids = set([s.provider_id for s in all_sessions])
         logger.debug("logout_list: provider_ids %s" % str(provider_ids))
         result = []
-        for pid in provider_ids:
-            name = pid
+        for provider_id in provider_ids:
+            name = provider_id
+            provider = None
             try:
-                name = models.LibertyProvider.objects.get(entity_id=pid).name
-            except models.LibertyProvider.DoesNotExist:
-                pass
-            logger.debug("logout_list: name %s" % str(name))
-            code = '<div>'
-            code += _('Sending logout to %(name)s....') % { 'name': name}
-            code += '<iframe src="%s?provider_id=%s" marginwidth="0" marginheight="0" \
-scrolling="no" style="border: none" width="16" height="16"></iframe></div>' % \
-                    (reverse(saml2_endpoints.idp_slo, args=[pid]), pid)
-            logger.debug("logout_list: code %s" % str(code))
-            result.append(code)
+                provider = models.LibertyProvider.objects.get(entity_id=provider_id)
+                name = provider.name
+            except LibertyProvider.DoesNotExist:
+                logger.error('logout_list: session found for unknown provider %s' \
+                    % provider_id)
+            else:
+                policy = common.get_sp_options_policy(provider)
+                if not policy:
+                    logger.error('logout_list: No policy found for %s' % provider_id)
+                elif not policy.forward_slo:
+                    logger.info('logout_list: %s configured to not reveive slo' \
+                        % provider_id)
+                else:
+                    code = '<div>'
+                    code += _('Sending logout to %(name)s....') % { 'name': name or provider_id}
+                    code += '<iframe src="%s?provider_id=%s" marginwidth="0" marginheight="0" \
+        scrolling="no" style="border: none" width="16" height="16"></iframe></div>' % \
+                            (reverse(saml2_endpoints.idp_slo, args=[provider_id]), provider_id)
+                    logger.debug("logout_list: code %s" % str(code))
+                    result.append(code)
         return result
 
     def can_synchronous_logout(self, django_sessions_keys):

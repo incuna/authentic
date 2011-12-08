@@ -36,7 +36,8 @@ from authentic2.saml.common import get_idp_list, load_provider, \
     AUTHENTIC_STATUS_CODE_MISSING_SESSION_INDEX, \
     AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION, \
     AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR, \
-    AUTHENTIC_STATUS_CODE_UNAUTHORIZED
+    AUTHENTIC_STATUS_CODE_UNAUTHORIZED, \
+    get_sp_options_policy
 from authentic2.saml.models import LibertyProvider, LibertyFederation, \
     LibertySessionSP, LibertySessionDump, LIBERTY_SESSION_DUMP_KIND_SP, \
     save_key_values, NAME_ID_FORMATS, LibertySession
@@ -929,11 +930,11 @@ def sp_slo(request, provider_id):
     policy =  get_idp_options_policy(provider)
     if not policy:
         logger.error('sp_slo: No policy found for %s'\
-             % provider)
+             % provider_id)
         return HttpResponseRedirect(next) or ko_icon(request)
     if not policy.forward_slo:
         logger.warn('sp_slo: slo asked for %s configured to not reveive slo' \
-             % provider)
+             % provider_id)
         return HttpResponseRedirect(next) or ko_icon(request)
     if policy.enable_http_method_for_slo_request \
             and policy.http_method_for_slo_request:
@@ -954,6 +955,7 @@ def sp_slo(request, provider_id):
             except:
                 logger.exception('sp_slo: sp_slo SOAP failure')
                 return HttpResponseRedirect(next) or ko_icon(request)
+            logger.info('sp_slo: successful soap call')
             return process_logout_response(request,
                 logout, soap_response, next)
         else:
@@ -1222,23 +1224,31 @@ def slo_soap_as_idp(request, logout, session=None):
             p = load_provider(request, lib_session.provider_id,
                     server=server)
             if p:
-                try:
-                    l = [(lib_session.provider_id, lib_session.assertion.assertion)]
-                    logout2.setSessionFromDump(saml2_endpoints.build_session_dump(l).encode('utf8'))
-                    logout2.initRequest(None, lasso.HTTP_METHOD_SOAP)
-                    logout2.buildRequestMsg()
-                    soap_response = send_soap_request(request, logout2)
-                except Exception, e:
-                    logger.error('slo_soap_as_idp: error building request to \
-                        provider %s due to %s' \
-                        % (lib_session.provider_id, str(e)))
+                policy = get_sp_options_policy(p)
+                if not policy:
+                    logger.error('slo_soap_as_idp: No policy found for %s' \
+                        % lib_session.provider_id)
+                elif not policy.forward_slo:
+                    logger.info('slo_soap_as_idp: %s configured to not reveive slo' \
+                        % lib_session.provider_id)
                 else:
                     try:
-                        logout2.processResponseMsg(soap_response)
+                        l = [(lib_session.provider_id, lib_session.assertion.assertion)]
+                        logout2.setSessionFromDump(saml2_endpoints.build_session_dump(l).encode('utf8'))
+                        logout2.initRequest(None, lasso.HTTP_METHOD_SOAP)
+                        logout2.buildRequestMsg()
+                        soap_response = send_soap_request(request, logout2)
                     except Exception, e:
-                        logger.error('slo_soap_as_idp: error received from \
+                        logger.error('slo_soap_as_idp: error building request to \
                             provider %s due to %s' \
                             % (lib_session.provider_id, str(e)))
+                    else:
+                        try:
+                            logout2.processResponseMsg(soap_response)
+                        except Exception, e:
+                            logger.error('slo_soap_as_idp: error received from \
+                                provider %s due to %s' \
+                                % (lib_session.provider_id, str(e)))
             else:
                 logger.error('slo_soap_as_idp: unable to load provider %s' \
                     % lib_session.provider_id)

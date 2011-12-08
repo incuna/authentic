@@ -282,6 +282,9 @@ class SPOptionsIdPPolicy(models.Model):
     accept_slo = models.BooleanField(\
             verbose_name = _("Accept to receive Single Logout requests"),
             default=True)
+    forward_slo = models.BooleanField(\
+            verbose_name = _("Forward Single Logout requests"),
+            default=True)
 
     class Meta:
         verbose_name = _('service provider options policy')

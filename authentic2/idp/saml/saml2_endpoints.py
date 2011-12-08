@@ -951,6 +951,15 @@ def slo_soap(request):
                 continue
             else:
                 logger.info('slo_soap: provider %s loaded' % str(p))
+                policy = get_sp_options_policy(p)
+                if not policy:
+                    logger.error('slo_soap: No policy found for %s' \
+                        % lib_session.provider_id)
+                elif not policy.forward_slo:
+                    logger.info('slo_soap: %s configured to not reveive slo' \
+                        % lib_session.provider_id)
+                if not policy or not policy.forward_slo:
+                    lib_sessions.remove(lib_session)
         set_session_dump_from_liberty_sessions(logout, found[0:1] + lib_sessions)
         try:
             logout.validateRequest()
@@ -1158,8 +1167,20 @@ def idp_slo(request, provider_id):
 
     server = create_server(request)
     logout = lasso.Logout(server)
-    if not load_provider(request, provider_id, server=logout.server):
+
+    provider = load_provider(request, provider_id, server=logout.server)
+    if not provider:
         logger.error('idp_slo: slo failed to load provider')
+    policy =  get_sp_options_policy(provider)
+    if not policy:
+        logger.error('idp_slo: No policy found for %s'\
+             % provider_id)
+        return HttpResponseRedirect(next) or ko_icon(request)
+    if not policy.forward_slo:
+        logger.warn('idp_slo: slo asked for %s configured to not reveive slo' \
+             % provider_id)
+        return HttpResponseRedirect(next) or ko_icon(request)
+
     lib_session = None
     try:
         lib_session = LibertySession.objects.get(

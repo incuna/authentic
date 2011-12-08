@@ -53,11 +53,11 @@ class AuthSAML2Backend:
 
         policy =  get_idp_options_policy(provider)
         if not policy:
-            logger.error('logout_list: No policy found for %s' % provider)
+            logger.error('logout_list: No policy found for %s' % provider_id)
             return []
         elif not policy.forward_slo:
             logger.info('logout_list: %s configured to not reveive slo' \
-                % provider)
+                % provider_id)
             return []
         else:
             import saml2_endpoints
