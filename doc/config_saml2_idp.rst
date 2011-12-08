@@ -43,9 +43,11 @@ the SAML2 metadata of the identity provider.
 
 .. image:: pictures/new_saml2_idp_1.png
    :width: 800 px
+   :align: center
 
 .. image:: pictures/new_saml2_idp_2.png
    :width: 800 px
+   :align: center
 
 **The identity provider must be enabled.**
 
@@ -57,6 +59,7 @@ See below about configuring the identity provider with policies:
 
 .. image:: pictures/new_saml2_idp_saved.png
    :width: 800 px
+   :align: center
 
 Configure the SAML2 identity provider options
 ---------------------------------------------
@@ -74,28 +77,34 @@ Go to:
 
 .. image:: pictures/sp_options_regular.png
    :width: 800 px
+   :align: center
 
 .. image:: pictures/sp_options_regular_saved.png
    :width: 800 px
+   :align: center
 
 .. image:: pictures/sp_options_regular_modify_sp.png
    :width: 800 px
+   :align: center
 
 Exemple with a policy 'Default':
 
 .. image:: pictures/sp_options_default.png
    :width: 800 px
+   :align: center
 
 Exemple with a policy 'All':
 
 .. image:: pictures/sp_options_all.png
    :width: 800 px
+   :align: center
 
 If no policy is found for the configuration of the SAML2 options of an identity
 provider, the following error is displayed when a SSO request is initiated.
 
 .. image:: pictures/error_no_idp_options.png
    :width: 800 px
+   :align: center
 
 How to refresh metadata of an identity provider hosted at a Well-Known Location?
 --------------------------------------------------------------------------------
@@ -108,9 +117,11 @@ the menu 'Update metadata', then click on 'Go'.
 
 .. image:: pictures/update_metadata.png
    :width: 800 px
+   :align: center
 
 .. image:: pictures/update_metadata_done.png
    :width: 800 px
+   :align: center
 
 How to create in bulk identity providers with the sync-metadata script?
 -----------------------------------------------------------------------

@@ -9,7 +9,7 @@ Authentic2's documentation
 
 Authentic2 is a versatile identity provider addressing a broad
 range of needs, from simple to advanced setups, around web authentication,
-attribute sharing, namespace mapping and authorization management.
+attribute sharing and namespace mapping.
 
 Authentic2 supports many protocols and standards, including SAML2, CAS, OpenID,
 LDAP, X509, OATH, and can bridge between them.
@@ -20,9 +20,11 @@ It has support for SAMLv2 thanks to `Lasso <http://lasso.entrouvert.org>`_,
 a free (GNU GPL) implementation of the Liberty Alliance and OASIS
 specifications of SAML2, ID-FF1.2 and ID-WSF2.
 
+The Documentation is under the licence Creative Commons `CC BY-SA 2.0 <http://creativecommons.org/licenses/by-sa/2.0/>`_.
+
 - `Authentic2 project site <http://dev.entrouvert.org/projects/authentic>`_
 - `Authentic2 roadmap <http://dev.entrouvert.org/projects/authentic/roadmap>`_
-- `Documentation in PDF <http://dev.entrouvert.org/attachments/147/Authentic2.pdf>`_
+- `Documentation in PDF <http://dev.entrouvert.org/attachments/148/Authentic2.pdf>`_
 
 Documentation content
 =====================
@@ -48,11 +50,11 @@ Documentation content
 
    config_saml2_idp
 
+   saml2_slo
+
    sync-metadata_script
 
    config_cas_sp
-
-   config_cas_idp
 
    attribute_management
 
@@ -63,14 +65,18 @@ Documentation content
 Copyright
 =========
 
-Authentic and Authentic2 are copyrighted by Entr'ouvert and are licensed through the GNU General
-Public Licence, version 2 or later. A copy of the whole license text is available in the COPYING file.
+Authentic and Authentic2 are copyrighted by Entr'ouvert and are licensed
+through the GNU AFFERO GENERAL PUBLIC LICENSE, version 3 or later. A copy of
+the whole license text is available in the COPYING file.
 
 The OpenID IdP originates in the project django_openid_provider by Roman
-Barczy¿ski, which is under the Apache 2.0 licence. This imply that you must
+Barczyski, which is under the Apache 2.0 licence. This imply that you must
 distribute authentic2 under the AGPL3 licence when distributing this part of the
 project which is the only AGPL licence version compatible with the Apache 2.0
 licence.
+
+The Documentation is under the licence Creative Commons
+`CC BY-SA 2.0 <http://creativecommons.org/licenses/by-sa/2.0/>`_.
 
 .. Indices and tables
 .. ==================

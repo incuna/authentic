@@ -67,11 +67,13 @@ Add an attribute source named USER_PROFILE with namespace 'Default'.
 
 .. image:: pictures/user_profile_source.png
    :width: 800 px
+   :align: center
 
 3. Save
 
 .. image:: pictures/user_profile_source_saved.png
    :width: 800 px
+   :align: center
 
 Add an LDAP Source
 __________________
@@ -93,11 +95,13 @@ namespace is based on LDAP.**
 
 .. image:: pictures/ldapsource.png
    :width: 800 px
+   :align: center
 
 3. Save
 
 .. image:: pictures/ldapsource_saved.png
    :width: 800 px
+   :align: center
 
 Manage user distinguished names in LDAP directories
 ___________________________________________________
@@ -117,11 +121,13 @@ user alias in source is created for the user:
 
 .. image:: pictures/alias_in_source.png
    :width: 800 px
+   :align: center
 
 3. Save
 
 .. image:: pictures/alias_in_source_saved.png
    :width: 800 px
+   :align: center
 
 Configure attributes from local sources pushed to SAML2 service providers in SSO response
 -----------------------------------------------------------------------------------------
@@ -150,11 +156,13 @@ ______________________
 
 .. image:: pictures/attribute_item.png
    :width: 800 px
+   :align: center
 
 3. Save
 
 .. image:: pictures/attribute_item_saved.png
    :width: 800 px
+   :align: center
 
 Create a named list of attribute items
 ______________________________________
@@ -165,11 +173,13 @@ ______________________________________
 
 .. image:: pictures/attribute_list.png
    :width: 800 px
+   :align: center
 
 3. Save
 
 .. image:: pictures/attribute_list_saved.png
    :width: 800 px
+   :align: center
 
 Create or modify an attribute policy
 ____________________________________
@@ -183,11 +193,13 @@ Or you can create a regular policy and associate it to a service provider.
 
 .. image:: pictures/policy_pull.png
    :width: 800 px
+   :align: center
 
 3. Save
 
 .. image:: pictures/policy_pull_saved.png
    :width: 800 px
+   :align: center
 
 Associate the policy to a service provider
 __________________________________________
@@ -198,16 +210,19 @@ __________________________________________
 
 .. image:: pictures/sp_policy_pull.png
    :width: 800 px
+   :align: center
 
 3. Save
 
 .. image:: pictures/sp_policy_pull_saved.png
    :width: 800 px
+   :align: center
 
 4. The display name of the policy has changed
 
 .. image:: pictures/policy_pull_renamed.png
    :width: 800 px
+   :align: center
 
 Handle attributes provided by other Identity providers and pushed to SAML2 service providers in SSO response (proxy attributes)
 -------------------------------------------------------------------------------------------------------------------------------
@@ -225,6 +240,7 @@ Create or modify an attribute policy activating the option 'Forward attributes f
 
 .. image:: pictures/attr_policy_forward.png
    :width: 800 px
+   :align: center
 
 **Attach policy to the service provider if it is not yet the case.**
 
@@ -247,17 +263,20 @@ identity provider.**
 
 .. image:: pictures/attr_source_idp.png
    :width: 800 px
+   :align: center
 
 3. Save
 
 .. image:: pictures/attr_source_idp_saved.png
    :width: 800 px
+   :align: center
 
 Then create or modify an attribute policy activating the option **'Forward attributes from push sources'**.
 You then select the source you want to forward attributes through the selection box and you save.
 
 .. image:: pictures/attr_policy_filter_source.png
    :width: 800 px
+   :align: center
 
 **Attach policy to the service provider if it is not yet the case.**
 
@@ -279,6 +298,7 @@ http://schemas.xmlsoap.org/ws/2005/05/identity/claims.
 
 .. image:: pictures/attr_source_idp_claims.png
    :width: 800 px
+   :align: center
 
 Then create or modify an attribute policy activating the options 'Forward attributes from push sources',
 **'Map attributes from push sources'**. You also choose the output namespace expected with the
@@ -286,6 +306,7 @@ parameters **'Output name format'** and **'Output namespace'**.
 
 .. image:: pictures/attr_policy_map_ns.png
    :width: 800 px
+   :align: center
 
 Remind that the default namespace is X500/LDAP + edu* + supann and the only other supported namespace is
 http://schemas.xmlsoap.org/ws/2005/05/identity/claims.
@@ -308,6 +329,7 @@ http://schemas.xmlsoap.org/ws/2005/05/identity/claims.
 
 .. image:: pictures/attr_source_idp_claims.png
    :width: 800 px
+   :align: center
 
 You then create an attribute list as described in section *'Create a named list of attribute items'*.
 
@@ -316,15 +338,18 @@ You then associate the list of attributes.
 
 .. image:: pictures/attr_policy_filter_attributes.png
    :width: 800 px
+   :align: center
 
 If you want to also filter according to the source you can configure it as defined in section *'Filter attributes from source only'*. You can also choose to filter
 with the source indicate per attribute item of the list. For this select the option **'Filter source of filtered attributes'**.
 
 .. image:: pictures/attr_policy_filter_attributes_source.png
    :width: 800 px
+   :align: center
 
 .. image:: pictures/attribute_item.png
    :width: 800 px
+   :align: center
 
 The default name format is URI. You can however change the name format and namespace with the option **'Map attributes from push sources'** and the parameters **'Output name format'** and **'Output namespace'**.
 
@@ -332,9 +357,11 @@ Using the option **'Map attributes of filtered attributes'** the output name for
 
 .. image:: pictures/attr_policy_filter_attributes_map.png
    :width: 800 px
+   :align: center
 
 .. image:: pictures/attribute_item.png
    :width: 800 px
+   :align: center
 
 
 Push manually (writing bits of code) attributes to SAML2 service providers in SSO response
