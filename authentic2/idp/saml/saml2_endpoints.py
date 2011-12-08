@@ -21,7 +21,8 @@ import authentic2.idp.views as idp_views
 from authentic2.saml.models import LibertyAssertion, LibertyArtifact, \
     LibertySession, LibertyFederation, LibertySessionDump, \
     nameid2kwargs, saml2_urn_to_nidformat, LIBERTY_SESSION_DUMP_KIND_SP, \
-    nidformat_to_saml2_urn, save_key_values, get_and_delete_key_values
+    nidformat_to_saml2_urn, save_key_values, get_and_delete_key_values, \
+    LibertyProvider
 from authentic2.saml.common import redirect_next, asynchronous_bindings, \
     soap_bindings, load_provider, get_saml2_request_message, \
     error_page, set_saml2_response_responder_status_code, \
@@ -34,6 +35,7 @@ from authentic2.saml.common import redirect_next, asynchronous_bindings, \
     AUTHENTIC_STATUS_CODE_MISSING_SESSION_INDEX, \
     AUTHENTIC_STATUS_CODE_UNKNOWN_SESSION, \
     AUTHENTIC_STATUS_CODE_INTERNAL_SERVER_ERROR, \
+    AUTHENTIC_STATUS_CODE_UNAUTHORIZED, \
     send_soap_request, get_saml2_query_request, \
     get_saml2_request_message_async_binding, create_saml2_server, \
     get_saml2_metadata, get_sp_options_policy, get_idp_options_policy
@@ -911,6 +913,27 @@ def slo_soap(request):
     error = validate_logout_request(request, logout, idp=True)
     if error:
         return error
+
+    try:
+        provider = \
+            LibertyProvider.objects.get(entity_id=logout.remoteProviderId)
+    except:
+        logger.warn('slo_soap: provider %r unknown' \
+            % logout.remoteProviderId)
+        return return_logout_error(request, logout,
+                AUTHENTIC_STATUS_CODE_UNAUTHORIZED)
+    policy = get_sp_options_policy(provider)
+    if not policy:
+        logger.error('slo_soap: No policy found for %s'\
+             % logout.remoteProviderId)
+        return return_logout_error(request, logout,
+            AUTHENTIC_STATUS_CODE_UNAUTHORIZED)
+    if not policy.accept_slo:
+        logger.warn('slo_soap: received slo from %s not authorized'\
+             % logout.remoteProviderId)
+        return return_logout_error(request, logout,
+            AUTHENTIC_STATUS_CODE_UNAUTHORIZED)
+
     '''Find all active sessions on SPs but the SP initiating the SLO'''
     found, lib_sessions, django_session_keys = \
             get_only_last_session(logout.request.nameId,

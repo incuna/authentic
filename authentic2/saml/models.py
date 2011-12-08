@@ -249,6 +249,11 @@ class IdPOptionsSPPolicy(models.Model):
 
 
 class SPOptionsIdPPolicy(models.Model):
+    '''
+        Policies configured as a SAML2 identity provider.
+
+        Used to define SAML2 parameters employed with service providers.
+    '''
     name = models.CharField(_('name'), max_length=80, unique=True)
     enabled = models.BooleanField(verbose_name = _('Enabled'))
     prefered_assertion_consumer_binding = models.CharField(
@@ -274,6 +279,9 @@ class SPOptionsIdPPolicy(models.Model):
     # i.e. provider.roles & lasso.PROVIDER_ROLE_SP != 0
     ask_user_consent = models.BooleanField(
         verbose_name = _('Ask user for consent when creating a federation'), default = False)
+    accept_slo = models.BooleanField(\
+            verbose_name = _("Accept to receive Single Logout requests"),
+            default=True)
 
     class Meta:
         verbose_name = _('service provider options policy')
