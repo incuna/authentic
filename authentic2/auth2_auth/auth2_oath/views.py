@@ -1,6 +1,7 @@
 import urllib
 import string
 import random
+import base64
 
 from django.contrib.auth.models import User
 from django.views.generic.simple import redirect_to
@@ -18,7 +19,6 @@ def new_totp_secret(request, next='/'):
        or request.method != 'POST':
         return HttpResponseBadRequest()
     key = ''.join([random.choice(_hexachars) for x in range(40)])
-    print 'key', key, len(key)
     secret, _ = models.OATHTOTPSecret.objects.get_or_create(user=request.user)
     secret.key = key
     secret.save()
@@ -41,16 +41,21 @@ def totp_profile(request, next='', template_name='oath/totp_profile.html'):
         return ''
     if next:
         next = '?next=%s' % urllib.quote(next)
-    key, bookmarklet = '', ''
+    google_authenticator, key, bookmarklet = '', '', ''
     try:
         secret = models.OATHTOTPSecret.objects.get(user=request.user)
         key = secret.key
         bookmarklet = totp_bookmarklet.otp_doc(secret.key)
+        google_authenticator = 'otpauth://totp/%(user)s@localhost?secret=%(b32_secret)s' % \
+                { 'user': request.user.username,
+                  'domain': request.get_host(),
+                  'b32_secret': base64.b32encode(key.decode('hex')) }
     except models.OATHTOTPSecret.DoesNotExist:
         pass
     return render_to_string(template_name,
             { 'key': key, 
               'bookmarklet': bookmarklet, 
+              'google_authenticator': google_authenticator,
               'next': next,
               'base': '/oath'},
             RequestContext(request))
