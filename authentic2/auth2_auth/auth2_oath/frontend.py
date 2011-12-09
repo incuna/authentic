@@ -49,9 +49,9 @@ class OATHOTPFrontend(object):
         login(request, form.get_user())
         # Keep a trace
         if 'HTTPS' in request.environ.get('HTTPS','').lower() == 'on':
-            how = 'oath-otp-on-https'
+            how = 'oath-totp-on-https'
         else:
-            how = 'oath-otp'
+            how = 'oath-totp'
         if nonce:
             models.AuthenticationEvent(who=form.get_user().username, how=how,
                     nonce=nonce).save()
