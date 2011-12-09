@@ -116,11 +116,7 @@ def handle_request(request,):
     # check that the SSL entry for the certificate is this user.
     # else, we make this certificate point on that user.
     if user.username != request.user.username:
-        import sys
-        print >> sys.stderr, 'The certificate currently belongs to %s, \
-            but %s is logged with, we change the association!' \
-            %(user.username, request.user.username)
-        logger.warning('auth2_ssl: The certificate belongs to %s, \
+        logger.warning('[auth2_ssl]: The certificate belongs to %s, \
             but %s is logged with, we change the association!' \
             %(user.username, request.user.username))
         from backend import SSLBackend

@@ -92,7 +92,6 @@ class BreadcrumbNode(Node):
             try:
                 url = val.resolve(context)
             except VariableDoesNotExist:
-                print 'URL does not exist', val
                 url = None
 
         return create_crumb(title, url)

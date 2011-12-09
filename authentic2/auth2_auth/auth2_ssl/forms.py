@@ -77,5 +77,4 @@ class RegistrationForm(forms.Form):
         cert.save()
         # Automatically log in the new user
         login(self.request, new_user)
-        print 'ok', new_user
         return new_user
