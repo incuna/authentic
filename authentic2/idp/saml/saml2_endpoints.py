@@ -232,6 +232,8 @@ def build_assertion(request, login, nid_format = 'transient', attributes=None):
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_PASSWORD_PROTECTED_TRANSPORT
             elif auth_event.how == 'ssl':
                 authn_context = lasso.SAML2_AUTHN_CONTEXT_X509
+            elif auth_event.how.startswith('oath-totp'):
+                authn_context = lasso.SAML2_AUTHN_CONTEXT_TIME_SYNC_TOKEN
             else:
                 raise NotImplementedError('Unknown authentication method %r' % auth_event.how)
         except ObjectDoesNotExist:
