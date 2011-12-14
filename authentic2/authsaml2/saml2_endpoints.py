@@ -496,7 +496,6 @@ def sso_after_response(request, login, relay_state = None, provider=None):
     logger.debug('sso_after_response: assertion validity timeslice respected : \
         %s <= %s < %s ' % (not_before, str(now), not_on_or_after))
 
-
     try:
         login.acceptSso()
     except lasso.Error, error:
@@ -672,16 +671,16 @@ def sso_after_response(request, login, relay_state = None, provider=None):
 
     '''Access granted, now we deal with session management'''
 
-
     #XXX: Allow external login of user
-
-    user = request.user
 
     policy = get_idp_options_policy(provider)
     if not policy:
         logger.error('sso_after_response: No policy defined')
         return error_page(request,
             _('sso_after_response: No IdP policy defined'), logger=logger)
+
+    user = request.user
+
     url = get_registered_url(request)
     if not 'saml_request_id' in request.session:
         #IdP initiated
@@ -768,6 +767,15 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             return HttpResponseRedirect(url)
         elif policy.handle_persistent == \
                 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH':
+            '''Check if the user consent for federation has been given'''
+            if policy.force_user_consent \
+                    and not login.response.consent in \
+                    ('urn:oasis:names:tc:SAML:2.0:consent:obtained',
+                    'urn:oasis:names:tc:SAML:2.0:consent:current-explicit',
+                    'urn:oasis:names:tc:SAML:2.0:consent:current-implicit'):
+                return error_page(request, _('sso_after_response: You were \
+                    not asked your consent for account linking'),
+                    logger=logger)
             if request.user.is_authenticated():
                 logger.info('sso_after_response: Add federation')
                 add_federation(request.user, name_id=login.nameIdentifier,
@@ -1891,7 +1899,6 @@ def setAuthnrequestOptions(provider, login, force_authn, is_passive):
         is_passive = p.want_is_passive_authn_request
     login.request.isPassive = is_passive
 
-    login.request.consent = p.user_consent
     return p
 
 def view_profile(request, next='', template_name='profile.html'):

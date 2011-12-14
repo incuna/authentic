@@ -121,20 +121,13 @@ BINDING_SSO_IDP = (
     (lasso.SAML2_METADATA_BINDING_ARTIFACT, _('Artifact binding')),
     (lasso.SAML2_METADATA_BINDING_POST, _('POST binding'))
 )
+
+
 HTTP_METHOD = (
     (lasso.HTTP_METHOD_REDIRECT, _('Redirect binding')),
     (lasso.HTTP_METHOD_SOAP, _('SOAP binding'))
 )
 
-USER_CONSENT = (
-    ('urn:oasis:names:tc:SAML:2.0:consent:unspecified', _('Unspecified')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:obtained', _('Obtained')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:prior', _('Prior')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:current-explicit', _('Explicit')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:current-implicit', _('Implicit')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:unavailable', _('Unavailable')),
-    ('urn:oasis:names:tc:SAML:2.0:consent:inapplicable', _('Inapplicable'))
-)
 
 SIGNATURE_VERIFY_HINT = {
         lasso.PROFILE_SIGNATURE_VERIFY_HINT_MAYBE: _('Let authentic decides which signatures to check'),
@@ -209,10 +202,9 @@ class IdPOptionsSPPolicy(models.Model):
             max_length = 200, choices = HTTP_METHOD,
             verbose_name = '',
             default = lasso.HTTP_METHOD_SOAP)
-    user_consent = models.CharField(
-            max_length = 200, choices = USER_CONSENT,
-            verbose_name = _("Ask user consent"),
-            default = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit')
+    force_user_consent = models.BooleanField(\
+            verbose_name = _("Require the user consent be given at account linking"),
+            default=False)
     want_force_authn_request = models.BooleanField(
             verbose_name = _("Force authentication"))
     want_is_passive_authn_request = models.BooleanField(

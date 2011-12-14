@@ -56,7 +56,7 @@ class IdPOptionsSPPolicyAdmin(admin.ModelAdmin):
                         'http_method_for_slo_request'),
                     ('enable_http_method_for_defederation_request',
                         'http_method_for_defederation_request'),
-                    'user_consent',
+                    'force_user_consent',
                     'want_force_authn_request',
                     'want_is_passive_authn_request',
                     'want_authn_request_signed',
