@@ -594,19 +594,18 @@ def sso_after_process_request(request, login, consent_obtained = False,
             '''The user consent is bypassed by the policy'''
             consent_value = 'urn:oasis:names:tc:SAML:2.0:consent:unspecified'
 
-    if not consent_obtained and not transient:
-        try:
-            LibertyFederation.objects.get(user=request.user,
-                sp_id=login.remoteProviderId)
-            logger.debug('sso_after_process_request: consent already \
-                given (existing federation) for %s' % login.remoteProviderId)
-            consent_obtained = True
-            '''This is abusive since a federation may exist even if we have
-            not previously asked the user consent.'''
-            consent_value = 'urn:oasis:names:tc:SAML:2.0:consent:prior'
-        except:
-            logger.debug('sso_after_process_request: consent not given \
-                (no existing federation) for %s' % login.remoteProviderId)
+    try:
+        LibertyFederation.objects.get(user=request.user,
+            sp_id=login.remoteProviderId)
+        logger.debug('sso_after_process_request: consent already \
+            given (existing federation) for %s' % login.remoteProviderId)
+        consent_obtained = True
+        '''This is abusive since a federation may exist even if we have
+        not previously asked the user consent.'''
+        consent_value = 'urn:oasis:names:tc:SAML:2.0:consent:prior'
+    except:
+        logger.debug('sso_after_process_request: consent not yet given \
+            (no existing federation) for %s' % login.remoteProviderId)
 
     if not consent_obtained and not transient:
         logger.debug('sso_after_process_request: signal avoid_consent sent')
