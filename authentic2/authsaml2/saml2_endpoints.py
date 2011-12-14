@@ -771,6 +771,7 @@ def sso_after_response(request, login, relay_state = None, provider=None):
             if policy.force_user_consent \
                     and not login.response.consent in \
                     ('urn:oasis:names:tc:SAML:2.0:consent:obtained',
+                    'urn:oasis:names:tc:SAML:2.0:consent:prior',
                     'urn:oasis:names:tc:SAML:2.0:consent:current-explicit',
                     'urn:oasis:names:tc:SAML:2.0:consent:current-implicit'):
                 return error_page(request, _('sso_after_response: You were \
