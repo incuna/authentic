@@ -590,10 +590,13 @@ def sso_after_process_request(request, login, consent_obtained = True,
         if not consent_attribute_answer:
             logger.info('sso_after_process_request: consent for attribute propagation')
             request.session['attributes_to_send'] = attributes
-            return need_consent_for_attributes(request, login, consent_obtained, save, nid_format)
-        if consent_attribute_answer == 'accepted':
+            request.session['allow_attributes_selection'] = \
+                policy.allow_attributes_selection
+            return need_consent_for_attributes(request, login,
+                consent_obtained, save, nid_format)
+        if consent_attribute_answer == 'accepted' and policy.allow_attributes_selection:
             attributes = request.session['attributes_to_send']
-        else:
+        elif consent_attribute_answer == 'refused':
             attributes = None
 
     logger.debug('sso_after_process_request: login dump before processing %s' %login.dump())

@@ -64,21 +64,23 @@ def consent_attributes(request, nonce = '', next = None, provider_id = None):
             return render_to_response('interaction/consent_attributes.html',
                 {'provider_id': name,
                  'attributes': attributes,
+                 'allow_selection': request.session['allow_attributes_selection'],
                  'nonce': request.GET.get('nonce', ''),
                  'next': next},
                 context_instance=RequestContext(request))
 
     elif request.method == "POST":
-        vals = \
-            [int(value) for key, value in request.POST.items() \
-                if 'attribute_nb' in key]
-        attributes_to_send = dict()
-        i = 0
-        for k, v in request.session['attributes_to_send'].items():
-            if i in vals:
-                attributes_to_send[k] = v
-            i = i + 1
-        request.session['attributes_to_send'] = attributes_to_send
+        if request.session['allow_attributes_selection']:
+            vals = \
+                [int(value) for key, value in request.POST.items() \
+                    if 'attribute_nb' in key]
+            attributes_to_send = dict()
+            i = 0
+            for k, v in request.session['attributes_to_send'].items():
+                if i in vals:
+                    attributes_to_send[k] = v
+                i = i + 1
+            request.session['attributes_to_send'] = attributes_to_send
         if 'next' in request.POST:
             next = request.POST['next']
         if 'accept' in request.POST:

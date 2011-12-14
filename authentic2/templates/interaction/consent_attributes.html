@@ -15,7 +15,11 @@
 
 <ul>
 {% for i, name, values in attributes %}
-<li><input type="checkbox" name="attribute_nb_{{ i }}" value="{{ i }}" checked="checked"/>{{ name }} : <strong>{% for v in values %}{{ v }} {% endfor %}</strong></li>
+<li>
+{% if allow_selection %}
+<input type="checkbox" name="attribute_nb_{{ i }}" value="{{ i }}" checked="checked"/>
+{% endif %}
+{{ name }} : <strong>{% for v in values %}{{ v }} {% endfor %}</strong></li>
 {% endfor %}
 </ul>
 
@@ -23,7 +27,11 @@
 
 <input type="hidden" name="next" value="{{ next }}" />
 <input type="hidden" name="nonce" value="{{ nonce }}" />
+{% if allow_selection %}
 <input type="submit" name="accept" value="{% trans 'Send selected' %}"/>
+{% else %}
+<input type="submit" name="accept" value="{% trans 'Send all' %}"/>
+{% endif %}
 <input type="submit" name="refuse" value="{% trans 'Refuse all' %}"/>
 </form>
 </div>
