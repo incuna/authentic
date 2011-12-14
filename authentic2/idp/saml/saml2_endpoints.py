@@ -18,6 +18,7 @@ from django.utils.encoding import smart_unicode
 
 import authentic2.idp as idp
 import authentic2.idp.views as idp_views
+from authentic2.idp.models import get_attribute_policy
 from authentic2.saml.models import LibertyAssertion, LibertyArtifact, \
     LibertySession, LibertyFederation, LibertySessionDump, \
     nameid2kwargs, saml2_urn_to_nidformat, LIBERTY_SESSION_DUMP_KIND_SP, \
@@ -384,29 +385,42 @@ def need_login(request, login, consent_obtained, save, nid_format):
     return redirect_to_login(url,
             other_keys={NONCE_FIELD_NAME: nonce})
 
+def get_url_with_nonce(request, function, nonce):
+    url = reverse(function) + '?%s=%s' % (NONCE_FIELD_NAME, nonce)
+    return urllib.quote(url)
+
 def need_consent_for_federation(request, login, consent_obtained, save, nid_format):
     nonce = login.request.id
     save_key_values(nonce, login.dump(), consent_obtained, save, nid_format)
-    url = '%s?%s=%s&next=%s&provider_id=%s' % (reverse(consent_federation), NONCE_FIELD_NAME,
-        nonce, urllib.quote(request.get_full_path()), urllib.quote(login.request.issuer.content))
+    url = '%s?%s=%s&next=%s&provider_id=%s' \
+        % (reverse(consent_federation), NONCE_FIELD_NAME,
+            nonce, get_url_with_nonce(request, continue_sso, nonce),
+            urllib.quote(login.request.issuer.content))
     logger.debug('need_consent_for_federation: redirect to url %s' %url)
     return HttpResponseRedirect(url)
 
 def need_consent_for_attributes(request, login, consent_obtained, save, nid_format):
     nonce = login.request.id
     save_key_values(nonce, login.dump(), consent_obtained, save, nid_format)
-    url = '%s?%s=%s&next=%s&provider_id=%s' % (reverse(consent_attributes), NONCE_FIELD_NAME,
-        nonce, urllib.quote(request.get_full_path()), urllib.quote(login.request.issuer.content))
+    url = '%s?%s=%s&next=%s&provider_id=%s' \
+        % (reverse(consent_attributes), NONCE_FIELD_NAME,
+            nonce, get_url_with_nonce(request, continue_sso, nonce),
+            urllib.quote(login.request.issuer.content))
     logger.debug('need_consent_for_attributes: redirect to url %s' %url)
     return HttpResponseRedirect(url)
 
 def continue_sso(request):
     consent_answer = None
+    consent_attribute_answer = None
     if request.method == "GET":
+        print request.GET
         logger.debug('continue_sso: called by GET')
         consent_answer = request.GET.get('consent_answer', '')
         if consent_answer:
             logger.info('continue_sso: back from the consent page for federation with answer %s' %consent_answer)
+        consent_attribute_answer = request.GET.get('consent_attribute_answer', '')
+        if consent_attribute_answer:
+            logger.info('continue_sso: back from the consent page for attributes %s' %consent_attribute_answer)
     nonce = request.REQUEST.get(NONCE_FIELD_NAME, '')
     if not nonce:
         logger.error('continue_sso: nonce not found')
@@ -438,10 +452,12 @@ def continue_sso(request):
         logger.info('continue_sso: consent answer treatment, the user accepted, continue')
         consent_obtained = True
     return sso_after_process_request(request, login,
-            consent_obtained = consent_obtained, nid_format = nid_format)
+            consent_obtained = consent_obtained,
+            consent_attribute_answer = consent_attribute_answer,
+            nid_format = nid_format)
 
-def sso_after_process_request(request, login,
-        consent_obtained = True, user = None, save = True, nid_format = 'transient'):
+def sso_after_process_request(request, login, consent_obtained = True,
+        consent_attribute_answer = False, user = None, save = True, nid_format = 'transient'):
     '''Common path for sso and idp_initiated_sso.
 
        consent_obtained: whether the user has given his consent to this federation
@@ -562,12 +578,23 @@ def sso_after_process_request(request, login,
         logger.info('sso_after_process_request: Ask the user consent now')
         return need_consent_for_federation(request, login, consent_obtained, save, nid_format)
 
-    # XXX: Here treat with consent on attributes
-    consent_attributes = True
-    if not consent_attributes:
-        logger.info('sso_after_process_request: consent for attribute propagation')
-        request.session['attributes_to_send'] = attributes
-        return need_consent_for_attributes(request, login, consent_obtained, save, nid_format)
+    provider = load_provider(request, login.remoteProviderId, server=login.server)
+    if not provider:
+        logger.info('sso_after_process_request: sso for an unknown provider %s' % login.remoteProviderId)
+        return error_page(request, _('Provider %s is unknown') % login.remoteProviderId, logger=logger)
+    policy = get_attribute_policy(provider)
+    if not policy:
+        logger.error('sso_after_process_request: No policy defined for provider %s' % login.remoteProviderId)
+        return error_page(request, _('idp_sso: No SP policy defined'), logger=logger)
+    if policy.ask_consent_attributes and attributes:
+        if not consent_attribute_answer:
+            logger.info('sso_after_process_request: consent for attribute propagation')
+            request.session['attributes_to_send'] = attributes
+            return need_consent_for_attributes(request, login, consent_obtained, save, nid_format)
+        if consent_attribute_answer == 'accepted':
+            attributes = request.session['attributes_to_send']
+        else:
+            attributes = None
 
     logger.debug('sso_after_process_request: login dump before processing %s' %login.dump())
     try:

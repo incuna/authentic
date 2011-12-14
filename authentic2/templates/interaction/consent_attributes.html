@@ -8,25 +8,23 @@
 
 {% load i18n %}
 <div id="consent">
+<form method="post" action="">
+
 <p>
-{% if attributes %}
-{% if provider_id %}
-{% trans "Do you accept to send these attributes to " %} <strong>{{ provider_id }}</strong> ?
-{% else %}
-{% trans "Do you accept to send these attributes?" %}
-{% endif %}
+{% trans "Choose attributes to send to " %} <strong>{{ provider_id }}</strong> ?
+
 <ul>
-{% for attribute in attributes %}
-<li>{{ attribute }}</li>
+{% for i, name, values in attributes %}
+<li><input type="checkbox" name="attribute_nb_{{ i }}" value="{{ i }}" checked="checked"/>{{ name }} : <strong>{% for v in values %}{{ v }} {% endfor %}</strong></li>
 {% endfor %}
 </ul>
-{% endif %}
+
 </p>
-<form method="post" action="">
+
 <input type="hidden" name="next" value="{{ next }}" />
 <input type="hidden" name="nonce" value="{{ nonce }}" />
-<input type="submit" name="accept" value="{% trans 'Accept' %}"/>
-<input type="submit" name="refuse" value="{% trans 'Refuse' %}"/>
+<input type="submit" name="accept" value="{% trans 'Send selected' %}"/>
+<input type="submit" name="refuse" value="{% trans 'Refuse all' %}"/>
 </form>
 </div>
 

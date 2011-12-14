@@ -133,6 +133,9 @@ class AttributeList(models.Model):
 class AttributePolicy(models.Model):
     name = models.CharField(max_length = 100, unique = True)
     enabled = models.BooleanField(verbose_name = _('Enabled'))
+    ask_consent_attributes = models.BooleanField(\
+            verbose_name = _("Ask the user consent before forwarding attributes"),
+            default=True)
     # List of attributes to provide from pull sources at SSO Login.
     # If an attribute is indicate without a source, from any source.
     # The output format and namespace is given by each attribute.

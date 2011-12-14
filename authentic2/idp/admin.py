@@ -26,6 +26,7 @@ class AttributePolicyAdmin(admin.ModelAdmin):
                 'fields' : (
                     'name',
                     'enabled',
+                    'ask_consent_attributes',
                     'attribute_list_for_sso_from_pull_sources',
                     'forward_attributes_from_push_sources',
                     'map_attributes_from_push_sources',
