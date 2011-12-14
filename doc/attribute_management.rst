@@ -22,6 +22,9 @@ the user session.
 Attributes can thus be proxyfied during SSO with Authentic2
 configured as a SAML2 proxy.
 
+*If there is no attribute policy associate with a service provider, no
+attribute is forwarded to it.*
+
 The namespace of attributes received from another SAML2 IdP and of attributes
 pushed in the assertion given to service providers can be configured per
 attribute or per service provider.

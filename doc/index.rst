@@ -62,6 +62,8 @@ Documentation content
 
    attributes_in_session
 
+   consent_management
+
 Copyright
 =========
 
