@@ -278,7 +278,6 @@ def sso(request):
        For SOAP a session must be established previously through the login page. No authentication through the SOAP request is supported.
     """
     logger.info("sso: performing sso")
-    consent_answer = None
     if request.method == "GET":
         logger.debug('sso: called by GET')
         consent_answer = request.GET.get('consent_answer', '')
@@ -321,7 +320,6 @@ def sso(request):
             provider_loaded = load_provider(request, provider_id,
                     server=login.server, autoload=True)
             if not provider_loaded:
-                consent_obtained = False
                 message = _('sso: fail to load unknown provider %s' %provider_id)
                 return error_page(request, message, logger=logger)
             else:
@@ -330,9 +328,6 @@ def sso(request):
                     logger.error('sso: No policy defined')
                     return error_page(request, _('sso: No SP policy defined'), logger=logger)
                 logger.info('sso: provider %s loaded with success' %provider_id)
-                consent_obtained = \
-                        not policy.ask_user_consent
-                logger.info('sso: the user consent option given by the requester is %s' %str(consent_obtained))
             login.setSignatureVerifyHint(
                     provider_loaded.service_provider.policy \
                             .authn_request_signature_check_hint)
@@ -341,15 +336,6 @@ def sso(request):
         return return_login_error(request, login,
                 AUTHENTIC_STATUS_CODE_MISSING_DESTINATION)
     # Check NameIDPolicy or force the NameIDPolicy
-    if consent_answer == 'refused':
-        #XXX: Handle option to send transient to the SP
-        logger.info('sso: consent answer treatment, the user refused, return request denied to the requester')
-        set_saml2_response_responder_status_code(login.response,
-                lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
-        return finish_sso(request, login)
-    if consent_answer == 'accepted':
-        logger.info('sso: consent answer treatment, the user accepted, continue')
-        consent_obtained = True
     name_id_policy = login.request.nameIdPolicy
     logger.debug('sso: nameID policy is %s' %name_id_policy.dump())
     if name_id_policy.format and \
@@ -373,13 +359,13 @@ def sso(request):
         logger.debug('sso: set nameID policy format %s' %nid_format)
         name_id_policy.format = nidformat_to_saml2_urn(nid_format)
     return sso_after_process_request(request, login,
-        consent_obtained = consent_obtained, nid_format = nid_format)
+        nid_format = nid_format)
 
-def need_login(request, login, consent_obtained, save, nid_format):
+def need_login(request, login, save, nid_format):
     '''Redirect to the login page with a nonce parameter to verify later that
        the login form was submitted'''
     nonce = login.request.id
-    save_key_values(nonce, login.dump(), consent_obtained, save, nid_format)
+    save_key_values(nonce, login.dump(), False, save, nid_format)
     url = reverse(continue_sso)+'?%s=%s' % (NONCE_FIELD_NAME, nonce)
     logger.debug('need_login: redirect to login page with next url %s' %url)
     return redirect_to_login(url,
@@ -389,9 +375,9 @@ def get_url_with_nonce(request, function, nonce):
     url = reverse(function) + '?%s=%s' % (NONCE_FIELD_NAME, nonce)
     return urllib.quote(url)
 
-def need_consent_for_federation(request, login, consent_obtained, save, nid_format):
+def need_consent_for_federation(request, login, save, nid_format):
     nonce = login.request.id
-    save_key_values(nonce, login.dump(), consent_obtained, save, nid_format)
+    save_key_values(nonce, login.dump(), False, save, nid_format)
     url = '%s?%s=%s&next=%s&provider_id=%s' \
         % (reverse(consent_federation), NONCE_FIELD_NAME,
             nonce, get_url_with_nonce(request, continue_sso, nonce),
@@ -413,7 +399,6 @@ def continue_sso(request):
     consent_answer = None
     consent_attribute_answer = None
     if request.method == "GET":
-        print request.GET
         logger.debug('continue_sso: called by GET')
         consent_answer = request.GET.get('consent_answer', '')
         if consent_answer:
@@ -456,7 +441,7 @@ def continue_sso(request):
             consent_attribute_answer = consent_attribute_answer,
             nid_format = nid_format)
 
-def sso_after_process_request(request, login, consent_obtained = True,
+def sso_after_process_request(request, login, consent_obtained = False,
         consent_attribute_answer = False, user = None, save = True, nid_format = 'transient'):
     '''Common path for sso and idp_initiated_sso.
 
@@ -477,7 +462,7 @@ def sso_after_process_request(request, login, consent_obtained = True,
     # XXX: if not passive and (not user.is_authenticated() or (force_authn and not did_auth)):
     if not passive and (user.is_anonymous() or (force_authn and not did_auth)):
         logger.info('sso_after_process_request: login required')
-        return need_login(request, login, consent_obtained, save, nid_format)
+        return need_login(request, login, save, nid_format)
 
     # Transient user
     # If the SP asks for persistent, reject
@@ -540,53 +525,114 @@ def sso_after_process_request(request, login, consent_obtained = True,
             for key in dic['attributes'].keys():
                 attributes[key] = dic['attributes'][key]
 
-    '''User consent management
-       1- Check if it is required from the sp request, done in sso()
-       2- Yes, check if a positive answer has already been given i.e. there is an existing federation
-       3- No, Send signal to grab instructions to bypass consent
-       4- No, ask for the user consent
-       5- Yes, continue, No, return error to the service provider
-    '''
-    # TODO: manage the consentment on attributes
-    # Use another model and another page
-
-    if not consent_obtained and not transient:
-        logger.info('sso_after_process_request: consent required')
-        # If transient user, do not need consent for federation
-        # Else, if there is a federation, the consent was already given
-        try:
-            LibertyFederation.objects.get(user=request.user, sp_id=login.remoteProviderId)
-            logger.info('sso_after_process_request: consent already given (existing federation) for %s' %login.remoteProviderId)
-            consent_obtained = True
-        except:
-            logger.info('sso_after_process_request: consent not already given (no existing federation) for %s' %login.remoteProviderId)
-
-    # Signal to bypass user consent
-    if not consent_obtained and not transient:
-        logger.info('sso_after_process_request: signal avoid_consent sent')
-        avoid_consent = idp_signals.avoid_consent.send(sender=None,
-             request=request, user=request.user, audience=login.remoteProviderId)
-
-        for c in avoid_consent:
-            logger.info('sso_after_process_request: avoid_consent connected to function %s' % \
-                c[0].__name__)
-            if c[1] and 'avoid_consent' in c[1] and c[1]['avoid_consent']:
-                logger.info('sso_after_process_request: avoid_consent')
-                consent_obtained = True
-
-    if not consent_obtained and not transient:
-        logger.info('sso_after_process_request: Ask the user consent now')
-        return need_consent_for_federation(request, login, consent_obtained, save, nid_format)
-
     provider = load_provider(request, login.remoteProviderId, server=login.server)
     if not provider:
         logger.info('sso_after_process_request: sso for an unknown provider %s' % login.remoteProviderId)
         return error_page(request, _('Provider %s is unknown') % login.remoteProviderId, logger=logger)
-    policy = get_attribute_policy(provider)
+    policy = get_sp_options_policy(provider)
     if not policy:
-        logger.error('sso_after_process_request: No policy defined for provider %s' % login.remoteProviderId)
-        return error_page(request, _('idp_sso: No SP policy defined'), logger=logger)
-    if policy.ask_consent_attributes and attributes:
+        logger.error('sso_after_process_request: No policy defined for \
+            provider %s' % login.remoteProviderId)
+        return error_page(request, _('No service provider policy defined'),
+            logger=logger)
+
+    '''User consent for federation management
+
+       1- Check if the policy enforce the consent
+       2- Check if there is an existing federation (consent already given)
+       3- If no, send a signal to bypass consent
+       4- If no bypass captured, ask for the user consent
+       5- Yes, continue, No, return error to the service provider
+
+    From the core SAML2 specs.
+
+        'urn:oasis:names:tc:SAML:2.0:consent:unspecified'
+    No claim as to principal consent is being made.
+
+        'urn:oasis:names:tc:SAML:2.0:consent:obtained'
+    Indicates that a principal's consent has been obtained by the issuer of
+    the message.
+
+        'urn:oasis:names:tc:SAML:2.0:consent:prior'
+    Indicates that a principal's consent has been obtained by the issuer of
+    the message at some point prior to the action that initiated the message.
+
+        'urn:oasis:names:tc:SAML:2.0:consent:current-implicit'
+    Indicates that a principal's consent has been implicitly obtained by the
+    issuer of the message during the action that initiated the message, as
+    part of a broader indication of consent. Implicit consent is typically
+    more proximal to the action in time and presentation than prior consent,
+    such as part of a session of activities.
+
+        'urn:oasis:names:tc:SAML:2.0:consent:current-explicit'
+    Indicates that a principal's consent has been explicitly obtained by the
+    issuer of the message during the action that initiated the message.
+
+        'urn:oasis:names:tc:SAML:2.0:consent:unavailable'
+    Indicates that the issuer of the message did not obtain consent.
+
+        'urn:oasis:names:tc:SAML:2.0:consent:inapplicable'
+    Indicates that the issuer of the message does not believe that they need
+    to obtain or report consent
+    '''
+
+    logger.debug('sso: the user consent status before process is %s' \
+        % str(consent_obtained))
+
+    consent_value = None
+    if consent_obtained:
+        consent_value = 'urn:oasis:names:tc:SAML:2.0:consent:current-explicit'
+    else:
+        consent_value = 'urn:oasis:names:tc:SAML:2.0:consent:unavailable'
+
+    if not consent_obtained and not transient:
+        consent_obtained = \
+                not policy.ask_user_consent
+        logger.debug('sso_after_process_request: the policy says %s' \
+            % str(consent_obtained))
+        if consent_obtained:
+            '''The user consent is bypassed by the policy'''
+            consent_value = 'urn:oasis:names:tc:SAML:2.0:consent:unspecified'
+
+    if not consent_obtained and not transient:
+        try:
+            LibertyFederation.objects.get(user=request.user,
+                sp_id=login.remoteProviderId)
+            logger.debug('sso_after_process_request: consent already \
+                given (existing federation) for %s' % login.remoteProviderId)
+            consent_obtained = True
+            '''This is abusive since a federation may exist even if we have
+            not previously asked the user consent.'''
+            consent_value = 'urn:oasis:names:tc:SAML:2.0:consent:prior'
+        except:
+            logger.debug('sso_after_process_request: consent not given \
+                (no existing federation) for %s' % login.remoteProviderId)
+
+    if not consent_obtained and not transient:
+        logger.debug('sso_after_process_request: signal avoid_consent sent')
+        avoid_consent = idp_signals.avoid_consent.send(sender=None,
+             request=request, user=request.user, audience=login.remoteProviderId)
+        for c in avoid_consent:
+            logger.info('sso_after_process_request: avoid_consent connected to function %s' % \
+                c[0].__name__)
+            if c[1] and 'avoid_consent' in c[1] and c[1]['avoid_consent']:
+                logger.debug('sso_after_process_request: \
+                    avoid consent by signal')
+                consent_obtained = True
+                '''The user consent is bypassed by the signal'''
+                consent_value = 'urn:oasis:names:tc:SAML:2.0:consent:unspecified'
+
+    if not consent_obtained and not transient:
+        logger.debug('sso_after_process_request: ask the user consent now')
+        return need_consent_for_federation(request, login, save, nid_format)
+
+    policy = get_attribute_policy(provider)
+
+    if not policy and attributes:
+        logger.info('sso_after_process_request: no attribute policy, we do \
+            not forward attributes')
+        attributes = None
+    elif policy and policy.ask_consent_attributes and attributes:
         if not consent_attribute_answer:
             logger.info('sso_after_process_request: consent for attribute propagation')
             request.session['attributes_to_send'] = attributes
@@ -623,6 +669,8 @@ def sso_after_process_request(request, login, consent_obtained = True,
         set_saml2_response_responder_status_code(login.response,
                 lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
         return finish_sso(request, login, user = user, save = save)
+
+    login.response.consent = consent_value
 
     build_assertion(request, login, nid_format = nid_format, attributes=attributes)
     return finish_sso(request, login, user = user, save = save)
