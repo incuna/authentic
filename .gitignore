@@ -4,6 +4,7 @@ MANIFEST
 *.db
 .*.swp
 dist/
+static/
 doc/_build
 authentic.egg-info
 local_settings.py
