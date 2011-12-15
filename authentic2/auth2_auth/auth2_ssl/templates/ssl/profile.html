@@ -14,7 +14,7 @@
 {% endfor %}
 <p>
   <form action="sslauth" method="get">
-    <label for="id_del_cert">Add a certificate?</label>
+    <label for="id_del_cert">{% trans "Add a certificate?" %}</label>
     <input type="hidden" name="next" value="/profile" />
     <input type="submit" class="submit-link" value="{% trans "Add" %}">
   </form>

@@ -6,7 +6,7 @@
 
 {% if federations %}
 <p>
-<h5>Delete a federation?</h5>
+<h5>{% trans "Delete a federation?" %}</h5>
 {% for f in federations %}
 <form action="authsaml2/delete_federation" method="post">
   <label for="id_del_fed">{{ f }}</label>
@@ -20,7 +20,7 @@
 
 {% if form %}
 <p>
-<h5>Add a federation?</h5>
+<h5>{% trans "Add a federation?" %}</h5>
 <form method="post" action="">
 {{ form.as_p }}
 <input type="submit" name="{{ submit_name }}" value="{% trans "Log in" %}"/>

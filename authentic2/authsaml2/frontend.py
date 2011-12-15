@@ -6,6 +6,7 @@ import authentic2.saml.common as saml_common
 from django.utils.translation import gettext_noop
 from django.http import HttpResponseRedirect
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.utils.translation import ugettext as _
 
 from authentic2.authsaml2.saml2_endpoints import view_profile
 
@@ -16,7 +17,7 @@ class AuthSAML2Form(forms.Form):
         self.fields['provider_id'].choices = \
                 [(p['entity_id'], p['name']) for p in idp_list]
 
-    provider_id = forms.ChoiceField(label='Choose your identity provider',
+    provider_id = forms.ChoiceField(label=_('Choose your identity provider'),
             choices=())
 
 class AuthSAML2Frontend(object):
