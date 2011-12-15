@@ -29,13 +29,15 @@ class AuthSAML2Backend:
             objects.filter(django_session_key=request.session.session_key,
                     kind=LIBERTY_SESSION_DUMP_KIND_SP)
         if not q:
+            logger.debug('logout_list: no LibertySessionDump found')
             return []
         '''
             We deal with a single IdP session
         '''
         try:
-            provider_id = lasso.Session().newFromDump(q[0].session_dump). \
-                get_assertions().keys()[0]
+            provider_id = lasso.Session(). \
+                newFromDump(q[0].session_dump.encode('utf-8')). \
+                    get_assertions().keys()[0]
         except:
             return []
         if not provider_id:
