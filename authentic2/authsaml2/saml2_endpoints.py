@@ -919,14 +919,26 @@ def ok_icon(request):
     return HttpResponseRedirect('%s/authentic2/images/ok.png' % settings.STATIC_URL)
 
 
-def sp_slo(request, provider_id):
+def sp_slo(request, provider_id=None):
     '''
         To make another module call the SLO function.
         Does not deal with the local django session.
     '''
     next = request.REQUEST.get('next')
+
+    logger.debug('idp_slo: provider_id in parameter %s' % str(provider_id))
+
+    if request.method == 'GET' and 'provider_id' in request.GET:
+        provider_id = request.GET.get('provider_id')
+        logger.debug('sp_slo: provider_id from GET %s' % str(provider_id))
+    if request.method == 'POST' and 'provider_id' in request.POST:
+        provider_id = request.POST.get('provider_id')
+        logger.debug('sp_slo: provider_id from POST %s' % str(provider_id))
     if not provider_id:
+        logger.info('sp_slo: to initiate a slo we need a provider_id')
         return HttpResponseRedirect(next) or ko_icon(request)
+    logger.info('sp_slo: slo initiated with %(provider_id)s' % { 'provider_id': provider_id })
+
     server = create_server(request)
     logout = lasso.Logout(server)
     logger.info('sp_slo: sp_slo for %s' % provider_id)
