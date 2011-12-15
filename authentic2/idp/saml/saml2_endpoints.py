@@ -1218,7 +1218,7 @@ def ok_icon(request):
     return HttpResponseRedirect('%s/authentic2/images/ok.png' % settings.STATIC_URL)
 
 @login_required
-def idp_slo(request, provider_id):
+def idp_slo(request, provider_id=None):
     '''Send a single logout request to a SP, if given a next parameter, return
     to this URL, otherwise redirect to an icon symbolizing failure or success
     of the request
@@ -1239,7 +1239,7 @@ def idp_slo(request, provider_id):
         logger.debug('idp_slo: provider_id from POST %s' % str(provider_id))
     if not provider_id:
         logger.info('idp_slo: to initiate a slo we need a provider_id')
-        return error_page(request, _('A provider identifier was not provided'), logger=logger)
+        return HttpResponseRedirect(next) or ko_icon(request)
     logger.info('idp_slo: slo initiated with %(provider_id)s' % { 'provider_id': provider_id })
 
     server = create_server(request)
