@@ -1269,16 +1269,12 @@ def idp_slo(request, provider_id=None):
              % provider_id)
         return HttpResponseRedirect(next) or ko_icon(request)
 
-    lib_session = None
-    try:
-        lib_session = LibertySession.objects.get(
-            django_session_key=request.session.session_key,
-            provider_id=provider_id)
-    except:
-        logger.debug('idp_slo: no lib_session found')
-    if lib_session:
-        logger.debug('idp_slo: lib_session found')
-        set_session_dump_from_liberty_sessions(logout, [lib_session])
+    lib_sessions = LibertySession.objects.filter(
+        django_session_key=request.session.session_key,
+        provider_id=provider_id)
+    if lib_sessions:
+        logger.debug('idp_slo: %d lib_sessions found', lib_sessions.count())
+        set_session_dump_from_liberty_sessions(logout, [lib_sessions[0]])
     try:
         logout.initRequest(provider_id)
     except (lasso.ProfileMissingAssertionError, lasso.ProfileSessionNotFoundError):
@@ -1286,6 +1282,9 @@ def idp_slo(request, provider_id=None):
         return redirect_next(request, next) or ko_icon(request)
     if all is not None:
         logout.request.sessionIndexes = []
+    else:
+        session_indexes = lib_sessions.values_list('session_index', flat=True)
+        logout.request.sessionIndexes = tuple(map(lambda x: x.encode('utf8'), session_indexes))
     logout.msgRelayState = logout.request.id
     try:
         logout.buildRequestMsg()
