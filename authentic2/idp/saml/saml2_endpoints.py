@@ -1301,7 +1301,7 @@ def idp_slo(request, provider_id=None):
 def process_logout_response(request, logout, soap_response, next):
     logger.info('idp_slo: soap_response is %s' % str(soap_response))
     try:
-        logout.processRequestMsg(soap_response)
+        logout.processResponseMsg(soap_response)
     except:
         logger.exception('process_logout_response: \
             slo error with soap response %s and logout dump %s' %(soap_response, logout.dump()))
