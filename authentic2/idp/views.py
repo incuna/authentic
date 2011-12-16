@@ -34,7 +34,6 @@ def service_list(request):
 def homepage(request):
     '''Homepage of the IdP'''
     tpl_parameters = {}
-    type(SAML2TransientUser)
     if not isinstance(request.user, SAML2TransientUser):
         tpl_parameters['account_management'] = 'account_management'
         tpl_parameters['authorized_services'] = service_list(request)
