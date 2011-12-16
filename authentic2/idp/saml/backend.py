@@ -9,6 +9,13 @@ import authentic2.saml.common as common
 
 logger = logging.getLogger('authentic2.idp.saml.backend')
 
+class Service(object):
+    url = None
+    name = None
+    actions = []
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 class SamlBackend(object):
     def service_list(self, request):
@@ -18,22 +25,22 @@ class SamlBackend(object):
             liberty_provider = service_provider.liberty_provider
             policy = common.get_sp_options_policy(liberty_provider)
             if policy and policy.idp_initiated_sso:
+                actions = []
                 entity_id = liberty_provider.entity_id
                 if liberty_provider.protocol_conformance < 3:
                     protocol = 'idff12'
                 else:
                     protocol = 'saml2'
-                uri = '/idp/%s/idp_sso/' %protocol
-                name = '%s login' %liberty_provider.name
-                provider_id = entity_id
-                list.append((uri, name, provider_id))
+                name = liberty_provider.name
+                actions.append(('login', 'POST',
+                    '/idp/%s/idp_sso/' % protocol,
+                    (('provider_id', entity_id ),)))
                 if models.LibertySession.objects.filter(
                         django_session_key=request.session.session_key,
                         provider_id=entity_id).exists():
-                    uri = '/idp/%s/idp_slo/' %protocol
-                    name = liberty_provider.name + ' logout'
-                    provider_id = entity_id
-                    list.append((uri, name, provider_id))
+                    actions.append(('logout', 'POST',
+                        '/idp/%s/idp_slo/' % protocol,
+                        (( 'provider_id', entity_id ),)))
         return list
 
     def logout_list(self, request):

@@ -19,13 +19,22 @@
   <div id="login-actions">
   <h2>{% trans "Services" %}</h2>
   <ul>
-  {% for service in authorized_services %}
-    <li>
-    <form action="{{ service.0 }}" method="post">
-      <input type="hidden" name="provider_id" value="{{ service.2 }}" />
-      <input type="submit" class="submit-link" value="{{ service.1 }}">
-    </form>
+    {% for service in authorized_services %}
+    {% if service.actions %}
+    <li>{% if service.url %}<a href="{{ service.url }}">{% endif %}{{ service.name }}{% if service.url %}</a>{% endif %} 
+    <div class="actions">
+    {% for action in service.actions %}
+      <form action="{{ action.2 }}" method="{{ action.1 }}">
+        {% for key, value in action.3 %}
+          <input type="hidden" name="{{ key }}" value="{{ value }}" />
+        {% endfor %}
+        <input type="hidden" name="next" value="/"/>
+        <input type="submit" class="submit-link" value="{{ action.0 }}">
+      </form>
+    {% endfor %}
+    </div>
     </li>
+    {% endif %}
   {% endfor %}
   </ul>
   </div>

@@ -295,3 +295,7 @@ h4 {
 h4 + div, div#profile {
 	padding-left: 1em;
 }
+
+.actions form {
+	display: inline;
+}
