@@ -372,7 +372,7 @@ for entity id %r are invalid, %s' % (provider_id, e.args))
     p.save()
     logger.debug('%s saved' % p)
     if sp_or_idp == 'sp':
-        s = LibertyServiceProvider(liberty_provider=p, enabled=True, ask_user_consent=True)
+        s = LibertyServiceProvider(liberty_provider=p, enabled=True)
         s.save()
     elif sp_or_idp == 'idp':
         s = LibertyIdentityProvider(liberty_provider=p, enabled=True)
