@@ -2,6 +2,7 @@ import datetime
 import logging
 import urllib
 import xml.etree.cElementTree as ctree
+import hashlib
 
 import lasso
 from django.conf.urls.defaults import patterns
@@ -126,9 +127,15 @@ def fill_assertion(request, saml_request, assertion, provider_id, nid_format):
     assertion.authnStatement[0].sessionIndex = assertion.id
     logger.debug('fill_assertion: assertion.authnStatement[0].sessionIndex = %s' %assertion.id)
     # NameID
-    if nid_format in ('persistent', 'transient'):
-        logger.debug("fill_assertion: nid_format in ('persistent', 'transient')")
-        pass
+    if nid_format == 'persistent':
+        logger.debug("fill_assertion: nid_format is persistent")
+    elif nid_format == 'transient':
+        logger.debug("fill_assertion: nid_format is transient")
+        # Generate the transient identifier from the session key, to fix it for
+        # a session duration, without that logout is broken as you can send
+        # many session_index in a logout request but only one NameID
+        _hash = hashlib.sha1(request.session.session_key + settings.SECRET_KEY).hexdigest()
+        assertion.subject.nameID.content = '_%s' % _hash.upper()
     elif nid_format == 'email':
         logger.debug("fill_assertion: nid_format is email")
         assertion.subject.nameID.content = request.user.email
