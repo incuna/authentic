@@ -171,39 +171,41 @@ class IdPOptionsSPPolicy(models.Model):
     enabled = models.BooleanField(verbose_name = _('Enabled'))
     no_nameid_policy = models.BooleanField(
             verbose_name = _("Do not send a nameId Policy"))
-    requested_name_id_format = models.CharField(max_length = 200,
+    requested_name_id_format = models.CharField(
+            verbose_name = _("Requested NameID format"),
+            max_length = 200,
             default = DEFAULT_NAME_ID_FORMAT,
             choices = NAME_ID_FORMATS_CHOICES)
     transient_is_persistent = models.BooleanField(
             verbose_name = \
-            _("This IdP falsely sends a transient NameID \
-            which is in fact persistent"))
+_("This IdP falsely sends a transient NameID which is in fact persistent"))
     allow_create = models.BooleanField(
             verbose_name = _("Allow IdP to create an identity"))
     enable_binding_for_sso_response = models.BooleanField(
             verbose_name = _('Binding for Authnresponse \
             (taken from metadata by the IdP if not enabled)'))
     binding_for_sso_response = models.CharField(
+            verbose_name = _("Binding for the SSO responses"),
             max_length = 200, choices = BINDING_SSO_IDP,
-            verbose_name = '',
             default = lasso.SAML2_METADATA_BINDING_ARTIFACT)
     enable_http_method_for_slo_request = models.BooleanField(
             verbose_name = _('HTTP method for single logout request \
             (taken from metadata if not enabled)'))
     http_method_for_slo_request = models.IntegerField(
+            verbose_name = _("HTTP binding for the SLO requests"),
             max_length = 200, choices = HTTP_METHOD,
-            verbose_name = '',
             default = lasso.HTTP_METHOD_REDIRECT)
     enable_http_method_for_defederation_request = models.BooleanField(
             verbose_name = \
             _('HTTP method for federation termination request \
             (taken from metadata if not enabled)'))
     http_method_for_defederation_request = models.IntegerField(
+            verbose_name = _("HTTP method for the SLO requests"),
             max_length = 200, choices = HTTP_METHOD,
-            verbose_name = '',
             default = lasso.HTTP_METHOD_SOAP)
     force_user_consent = models.BooleanField(\
-            verbose_name = _("Require the user consent be given at account linking"),
+            verbose_name = \
+                _("Require the user consent be given at account linking"),
             default=False)
     want_force_authn_request = models.BooleanField(
             verbose_name = _("Force authentication"))
@@ -213,18 +215,18 @@ class IdPOptionsSPPolicy(models.Model):
             verbose_name = _("Want AuthnRequest signed"))
     handle_persistent = models.CharField(
             max_length=200,
-            verbose_name = 'Behavior with persistent nameId',
+            verbose_name = _('Behavior with persistent NameID'),
             choices=AUTHSAML2_UNAUTH_PERSISTENT,
             default = 'AUTHSAML2_UNAUTH_PERSISTENT_ACCOUNT_LINKING_BY_AUTH')
     handle_transient = models.CharField(
             max_length=200,
-            verbose_name = 'Behavior with transient nameId',
+            verbose_name = _('Behavior with transient NameID'),
             choices=AUTHSAML2_UNAUTH_TRANSIENT,
             default = '')
     back_url = models.CharField(
             max_length = 200,
             default = '/',
-            verbose_name = 'Return URL after a successful authentication')
+            verbose_name = _('Return URL after a successful authentication'))
     accept_slo = models.BooleanField(\
             verbose_name = _("Accept to receive Single Logout requests"),
             default=True)
@@ -249,13 +251,14 @@ class SPOptionsIdPPolicy(models.Model):
     name = models.CharField(_('name'), max_length=80, unique=True)
     enabled = models.BooleanField(verbose_name = _('Enabled'))
     prefered_assertion_consumer_binding = models.CharField(
+            verbose_name = _("Prefered assertion consumer binding"),
             default = 'meta',
             max_length = 4, choices = ASSERTION_CONSUMER_PROFILES)
     encrypt_nameid = models.BooleanField(verbose_name = _("Encrypt NameID"))
     encrypt_assertion = models.BooleanField(
             verbose_name = _("Encrypt Assertion"))
     authn_request_signed = models.BooleanField(
-            verbose_name = _("AuthnRequest signed"))
+            verbose_name = _("Authentication request signed"))
     idp_initiated_sso = models.BooleanField(
             verbose_name = _("Allow IdP initiated SSO"))
     # XXX: format in the metadata file, should be suffixed with a star to mark
@@ -264,6 +267,7 @@ class SPOptionsIdPPolicy(models.Model):
             default = DEFAULT_NAME_ID_FORMAT,
             choices = NAME_ID_FORMATS_CHOICES)
     accepted_name_id_format = MultiSelectField(
+            verbose_name = _("NameID formats accepted"),
             max_length=ACCEPTED_NAME_ID_FORMAT_LENGTH,
             blank=True, choices=NAME_ID_FORMATS_CHOICES)
     # TODO: add clean method which checks that the LassoProvider we can create
