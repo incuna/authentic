@@ -183,7 +183,7 @@ class LibertyProviderPolicyAdmin(admin.ModelAdmin):
 admin.site.register(IdPOptionsSPPolicy, IdPOptionsSPPolicyAdmin)
 admin.site.register(SPOptionsIdPPolicy)
 #admin.site.register(AuthorizationSPPolicy, AuthorizationSPPolicyAdmin)
-admin.site.register(AuthorizationAttributeMap, AuthorizationAttributeMapAdmin)
+#admin.site.register(AuthorizationAttributeMap, AuthorizationAttributeMapAdmin)
 #admin.site.register(AuthorizationAttributeMapping, AuthorizationAttributeMappingAdmin)
 admin.site.register(LibertyProvider, LibertyProviderAdmin)
 admin.site.register(LibertyProviderPolicy, LibertyProviderPolicyAdmin)
