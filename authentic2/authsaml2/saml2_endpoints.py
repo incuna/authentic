@@ -125,7 +125,7 @@ def sso(request, is_passive=None, force_authn=None, http_method=None):
         else:
             logger.error('sso: No SAML2 identity provider selected')
             return error_page(request,
-                _('sso: so: No SAML2 identity provider selected'),
+                _('sso: No SAML2 identity provider selected'),
                 logger=logger)
     else:
         logger.info('sso: sso with provider %s' % entity_id)
