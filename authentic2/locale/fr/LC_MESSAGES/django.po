@@ -1,5 +1,5 @@
 # French translation of Authentic
-# Copyright (C) 2010 Entr'ouvert
+# Copyright (C) 2010, 2011 Entr'ouvert
 # This file is distributed under the same license as the Authentic package.
 # Frederic Peters <fpeters@entrouvert.com>, 2010.
 #
@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-15 15:51+0100\n"
+"POT-Creation-Date: 2011-12-20 14:39+0100\n"
 "PO-Revision-Date: 2010-06-01 11:03+0200\n"
-"Last-Translator: Frederic Peters <fpeters@0d.be>\n"
+"Last-Translator: Mikaël Ates <mates@entrouvert.com>\n"
 "Language-Team: None\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -35,1273 +35,60 @@ msgstr "Anglais"
 msgid "French"
 msgstr "Français"
 
-#: attribute_aggregator/mapping.py:31
-#: attribute_aggregator/ldifs/ldap_system.py:5
-msgid "top"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:38
-#: attribute_aggregator/ldifs/ldap_system.py:12
-msgid "extensibleObject"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:45
-#: attribute_aggregator/ldifs/ldap_system.py:19
-msgid "alias"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:52
-#: attribute_aggregator/ldifs/ldap_system.py:26
-msgid "referral"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:59
-#: attribute_aggregator/ldifs/ldap_system.py:33
-msgid "OpenLDAProotDSE LDAProotDSE"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:67
-#: attribute_aggregator/ldifs/ldap_system.py:41
-msgid "subentry"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:74
-#: attribute_aggregator/ldifs/ldap_system.py:48
-msgid "subschema"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:81
-#: attribute_aggregator/ldifs/ldap_system.py:55
-msgid "collectiveAttributeSubentry"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:88
-#: attribute_aggregator/ldifs/ldap_system.py:62
-msgid "dynamicObject"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:95
-#: attribute_aggregator/ldifs/ldap_system.py:69
-msgid "glue"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:102
-#: attribute_aggregator/ldifs/ldap_system.py:76
-msgid "syncConsumerSubentry"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:109
-#: attribute_aggregator/ldifs/ldap_system.py:83
-msgid "syncProviderSubentry"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:116
-#: attribute_aggregator/ldifs/ldap_system.py:90
-msgid "objectClass"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:124
-#: attribute_aggregator/ldifs/ldap_system.py:98
-msgid "structuralObjectClass"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:132
-#: attribute_aggregator/ldifs/ldap_system.py:106
-msgid "createTimestamp"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:140
-#: attribute_aggregator/ldifs/ldap_system.py:114
-msgid "modifyTimestamp"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:148
-#: attribute_aggregator/ldifs/ldap_system.py:122
-msgid "creatorsName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:156
-#: attribute_aggregator/ldifs/ldap_system.py:130
-msgid "modifiersName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:164
-#: attribute_aggregator/ldifs/ldap_system.py:138
-msgid "hasSubordinates"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:172
-#: attribute_aggregator/ldifs/ldap_system.py:146
-msgid "subschemaSubentry"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:180
-#: attribute_aggregator/ldifs/ldap_system.py:154
-msgid "collectiveAttributeSubentries"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:188
-#: attribute_aggregator/ldifs/ldap_system.py:162
-msgid "collectiveExclusions"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:196
-#: attribute_aggregator/ldifs/ldap_system.py:170
-msgid "entryDN"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:204
-#: attribute_aggregator/ldifs/ldap_system.py:178
-msgid "entryUUID"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:212
-#: attribute_aggregator/ldifs/ldap_system.py:186
-msgid "entryCSN"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:220
-#: attribute_aggregator/ldifs/ldap_system.py:194
-msgid "namingCSN"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:228
-#: attribute_aggregator/ldifs/ldap_system.py:202
-msgid "superiorUUID"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:236
-#: attribute_aggregator/ldifs/ldap_system.py:210
-msgid "syncreplCookie"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:244
-#: attribute_aggregator/ldifs/ldap_system.py:218
-msgid "contextCSN"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:252
-#: attribute_aggregator/ldifs/ldap_system.py:226
-msgid "syncTimestamp"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:260
-#: attribute_aggregator/ldifs/ldap_system.py:234
-msgid "altServer"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:268
-#: attribute_aggregator/ldifs/ldap_system.py:242
-msgid "namingContexts"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:276
-#: attribute_aggregator/ldifs/ldap_system.py:250
-msgid "supportedControl"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:284
-#: attribute_aggregator/ldifs/ldap_system.py:258
-msgid "supportedExtension"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:292
-#: attribute_aggregator/ldifs/ldap_system.py:266
-msgid "supportedLDAPVersion"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:300
-#: attribute_aggregator/ldifs/ldap_system.py:274
-msgid "supportedSASLMechanisms"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:308
-#: attribute_aggregator/ldifs/ldap_system.py:282
-msgid "supportedFeatures"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:316
-#: attribute_aggregator/ldifs/ldap_system.py:290
-msgid "monitorContext"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:324
-#: attribute_aggregator/ldifs/ldap_system.py:298
-msgid "configContext"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:332
-#: attribute_aggregator/ldifs/ldap_system.py:306
-msgid "vendorName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:340
-#: attribute_aggregator/ldifs/ldap_system.py:314
-msgid "vendorVersion"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:348
-#: attribute_aggregator/ldifs/ldap_system.py:322
-#, fuzzy
-msgid "administrativeRole"
-msgstr "Administration d'Authentic"
-
-#: attribute_aggregator/mapping.py:356
-#: attribute_aggregator/ldifs/ldap_system.py:330
-msgid "subtreeSpecification"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:364
-#: attribute_aggregator/ldifs/ldap_system.py:338
-msgid "dITStructureRules"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:372
-#: attribute_aggregator/ldifs/ldap_system.py:346
-msgid "dITContentRules"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:380
-#: attribute_aggregator/ldifs/ldap_system.py:354
-msgid "matchingRules"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:388
-#: attribute_aggregator/ldifs/ldap_system.py:362
-msgid "attributeTypes"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:396
-#: attribute_aggregator/ldifs/ldap_system.py:370
-msgid "objectClasses"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:404
-#: attribute_aggregator/ldifs/ldap_system.py:378
-#, fuzzy
-msgid "nameForms"
-msgstr "Format pour le NameID"
-
-#: attribute_aggregator/mapping.py:412
-#: attribute_aggregator/ldifs/ldap_system.py:386
-msgid "matchingRuleUse"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:420
-#: attribute_aggregator/ldifs/ldap_system.py:394
-msgid "ldapSyntaxes"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:428
-#: attribute_aggregator/ldifs/ldap_system.py:402
-msgid "aliasedObjectName aliasedEntryName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:437
-#: attribute_aggregator/ldifs/ldap_system.py:411
-msgid "ref"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:445
-#: attribute_aggregator/ldifs/ldap_system.py:419
-msgid "entry"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:453
-#: attribute_aggregator/ldifs/ldap_system.py:427
-msgid "children"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:461
-#: attribute_aggregator/ldifs/ldap_system.py:435
-msgid "authzTo saslAuthzTo"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:470
-#: attribute_aggregator/ldifs/ldap_system.py:444
-msgid "authzFrom saslAuthzFrom"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:479
-#: attribute_aggregator/ldifs/ldap_system.py:453
-msgid "entryTtl"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:487
-#: attribute_aggregator/ldifs/ldap_system.py:461
-msgid "dynamicSubtrees"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:495
-#: attribute_aggregator/ldifs/ldap_system.py:469
-msgid "distinguishedName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:503
-#: attribute_aggregator/ldifs/ldap_system.py:477 saml/models.py:170
-#: saml/models.py:249 saml/models.py:304
-#, fuzzy
-msgid "name"
-msgstr "Identifiant"
-
-#: attribute_aggregator/mapping.py:511
-#: attribute_aggregator/ldifs/ldap_system.py:485
-msgid "cn commonName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:519
-#: attribute_aggregator/ldifs/ldap_system.py:493
-msgid "uid userid"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:528
-#: attribute_aggregator/ldifs/ldap_system.py:502
-msgid "uidNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:536
-#: attribute_aggregator/ldifs/ldap_system.py:510
-msgid "gidNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:544
-#: attribute_aggregator/ldifs/ldap_system.py:518
-#, fuzzy
-msgid "userPassword"
-msgstr "Mot de passe"
-
-#: attribute_aggregator/mapping.py:552
-#: attribute_aggregator/ldifs/ldap_system.py:526
-msgid "labeledURI"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:560
-#: attribute_aggregator/ldifs/ldap_system.py:534
-#, fuzzy
-msgid "authPassword"
-msgstr "Mot de passe"
-
-#: attribute_aggregator/mapping.py:568
-#: attribute_aggregator/ldifs/ldap_system.py:542
-msgid "supportedAuthPasswordSchemes"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:576
-#: attribute_aggregator/ldifs/ldap_system.py:550
-#, fuzzy
-msgid "description"
-msgstr "Inscription"
-
-#: attribute_aggregator/mapping.py:584
-#: attribute_aggregator/ldifs/ldap_system.py:558
-msgid "seeAlso"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:591 attribute_aggregator/ldifs/ldap.py:4
-msgid "carLicense"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:599 attribute_aggregator/ldifs/ldap.py:12
-msgid "departmentNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:607 attribute_aggregator/ldifs/ldap.py:20
-msgid "displayName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:615 attribute_aggregator/ldifs/ldap.py:28
-msgid "employeeNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:623 attribute_aggregator/ldifs/ldap.py:36
-msgid "employeeType"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:631 attribute_aggregator/ldifs/ldap.py:44
-msgid "jpegPhoto"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:639 attribute_aggregator/ldifs/ldap.py:52
-msgid "preferredLanguage"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:647 attribute_aggregator/ldifs/ldap.py:60
-#, fuzzy
-msgid "userSMIMECertificate"
-msgstr "Certificats SSL"
-
-#: attribute_aggregator/mapping.py:655 attribute_aggregator/ldifs/ldap.py:68
-msgid "userPKCS12"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:664 attribute_aggregator/ldifs/ldap.py:77
-msgid "gecos"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:672 attribute_aggregator/ldifs/ldap.py:85
-msgid "homeDirectory"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:680 attribute_aggregator/ldifs/ldap.py:93
-msgid "loginShell"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:688 attribute_aggregator/ldifs/ldap.py:101
-msgid "shadowLastChange"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:696 attribute_aggregator/ldifs/ldap.py:109
-msgid "shadowMin"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:704 attribute_aggregator/ldifs/ldap.py:117
-msgid "shadowMax"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:712 attribute_aggregator/ldifs/ldap.py:125
-msgid "shadowWarning"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:720 attribute_aggregator/ldifs/ldap.py:133
-msgid "shadowInactive"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:728 attribute_aggregator/ldifs/ldap.py:141
-msgid "shadowExpire"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:736 attribute_aggregator/ldifs/ldap.py:149
-msgid "shadowFlag"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:744 attribute_aggregator/ldifs/ldap.py:157
-msgid "memberUid"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:752 attribute_aggregator/ldifs/ldap.py:165
-msgid "memberNisNetgroup"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:760 attribute_aggregator/ldifs/ldap.py:173
-msgid "nisNetgroupTriple"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:768 attribute_aggregator/ldifs/ldap.py:181
-#, fuzzy
-msgid "ipServicePort"
-msgstr "Services"
-
-#: attribute_aggregator/mapping.py:776 attribute_aggregator/ldifs/ldap.py:189
-msgid "ipServiceProtocolSUPname"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:783 attribute_aggregator/ldifs/ldap.py:196
-msgid "ipProtocolNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:791 attribute_aggregator/ldifs/ldap.py:204
-msgid "oncRpcNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:799 attribute_aggregator/ldifs/ldap.py:212
-msgid "ipHostNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:807 attribute_aggregator/ldifs/ldap.py:220
-msgid "ipNetworkNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:815 attribute_aggregator/ldifs/ldap.py:228
-msgid "ipNetmaskNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:823 attribute_aggregator/ldifs/ldap.py:236
-#, fuzzy
-msgid "macAddress"
-msgstr "Adresse email"
-
-#: attribute_aggregator/mapping.py:831 attribute_aggregator/ldifs/ldap.py:244
-msgid "bootParameter"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:839 attribute_aggregator/ldifs/ldap.py:252
-msgid "bootFile"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:847 attribute_aggregator/ldifs/ldap.py:260
-msgid "nisMapNameSUPname"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:854 attribute_aggregator/ldifs/ldap.py:267
-msgid "nisMapEntry"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:863 attribute_aggregator/ldifs/ldap.py:276
-#, fuzzy
-msgid "knowledgeInformation"
-msgstr "Plus d'informations"
-
-#: attribute_aggregator/mapping.py:871 attribute_aggregator/ldifs/ldap.py:284
-#, fuzzy
-msgid "sn surname"
-msgstr "Identifiant"
-
-#: attribute_aggregator/mapping.py:892 attribute_aggregator/ldifs/ldap.py:292
-msgid "serialNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:900 attribute_aggregator/ldifs/ldap.py:300
-msgid "c countryName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:908 attribute_aggregator/ldifs/ldap.py:308
-msgid "l localityName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:928 attribute_aggregator/ldifs/ldap.py:316
-msgid "st stateOrProvinceName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:948 attribute_aggregator/ldifs/ldap.py:324
-msgid "street streetAddress"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:968 attribute_aggregator/ldifs/ldap.py:332
-msgid "o organizationName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:977 attribute_aggregator/ldifs/ldap.py:340
-msgid "ou organizationalUnitName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:985 attribute_aggregator/ldifs/ldap.py:348
-msgid "title"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:992 attribute_aggregator/ldifs/ldap.py:355
-msgid "searchGuide"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1000 attribute_aggregator/ldifs/ldap.py:363
-msgid "businessCategory"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1008 attribute_aggregator/ldifs/ldap.py:371
-msgid "postalAddress"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1017 attribute_aggregator/ldifs/ldap.py:379
-msgid "postalCode"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1037 attribute_aggregator/ldifs/ldap.py:387
-msgid "postOfficeBox"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1045 attribute_aggregator/ldifs/ldap.py:395
-msgid "physicalDeliveryOfficeName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1053 attribute_aggregator/ldifs/ldap.py:403
-msgid "telephoneNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1074 attribute_aggregator/ldifs/ldap.py:411
-msgid "telexNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1082 attribute_aggregator/ldifs/ldap.py:419
-msgid "teletexTerminalIdentifier"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1090 attribute_aggregator/ldifs/ldap.py:427
-msgid "fax facsimileTelephoneNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1098 attribute_aggregator/ldifs/ldap.py:435
-msgid "x121Address"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1106 attribute_aggregator/ldifs/ldap.py:443
-msgid "internationaliSDNNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1114 attribute_aggregator/ldifs/ldap.py:451
-msgid "registeredAddress"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1122 attribute_aggregator/ldifs/ldap.py:459
-msgid "destinationIndicator"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1130 attribute_aggregator/ldifs/ldap.py:467
-msgid "preferredDeliveryMethod"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1138 attribute_aggregator/ldifs/ldap.py:475
-msgid "presentationAddress"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1146 attribute_aggregator/ldifs/ldap.py:483
-msgid "supportedApplicationContext"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1154 attribute_aggregator/ldifs/ldap.py:491
-msgid "member"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1161 attribute_aggregator/ldifs/ldap.py:498
-msgid "owner"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1168 attribute_aggregator/ldifs/ldap.py:505
-msgid "roleOccupant"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1175 attribute_aggregator/ldifs/ldap.py:512
-msgid "userCertificate"
-msgstr "userCertificate"
-
-#: attribute_aggregator/mapping.py:1183 attribute_aggregator/ldifs/ldap.py:520
-msgid "cACertificate"
-msgstr "cACertificate"
-
-#: attribute_aggregator/mapping.py:1191 attribute_aggregator/ldifs/ldap.py:528
-msgid "authorityRevocationList"
-msgstr "authorityRevocationList"
-
-#: attribute_aggregator/mapping.py:1199 attribute_aggregator/ldifs/ldap.py:536
-msgid "certificateRevocationList"
-msgstr "certificateRevocationList"
-
-#: attribute_aggregator/mapping.py:1207 attribute_aggregator/ldifs/ldap.py:544
-msgid "crossCertificatePair"
-msgstr "crossCertificatePair"
-
-#: attribute_aggregator/mapping.py:1215 attribute_aggregator/ldifs/ldap.py:552
-msgid "gn givenName"
-msgstr "gn givenName"
-
-#: attribute_aggregator/mapping.py:1236 attribute_aggregator/ldifs/ldap.py:560
-msgid "initials"
-msgstr "initials"
-
-#: attribute_aggregator/mapping.py:1243 attribute_aggregator/ldifs/ldap.py:567
-msgid "generationQualifier"
-msgstr "generationQualifier"
-
-#: attribute_aggregator/mapping.py:1250 attribute_aggregator/ldifs/ldap.py:574
-msgid "x500UniqueIdentifier"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1258 attribute_aggregator/ldifs/ldap.py:582
-msgid "dnQualifier"
-msgstr "dnQualifier"
-
-#: attribute_aggregator/mapping.py:1266 attribute_aggregator/ldifs/ldap.py:590
-msgid "enhancedSearchGuide"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1274 attribute_aggregator/ldifs/ldap.py:598
-msgid "protocolInformation"
-msgstr "protocolInformation"
-
-#: attribute_aggregator/mapping.py:1282 attribute_aggregator/ldifs/ldap.py:606
-msgid "uniqueMember"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1290 attribute_aggregator/ldifs/ldap.py:614
-msgid "houseIdentifier"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1298 attribute_aggregator/ldifs/ldap.py:622
-msgid "supportedAlgorithms"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1306 attribute_aggregator/ldifs/ldap.py:630
-msgid "deltaRevocationList"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1314 attribute_aggregator/ldifs/ldap.py:638
-msgid "dmdName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1321 attribute_aggregator/ldifs/ldap.py:645
-msgid "pseudonym"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1328 attribute_aggregator/ldifs/ldap.py:652
-msgid "mail rfc822Mailbox"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1336 attribute_aggregator/ldifs/ldap.py:660
-msgid "dc domainComponent"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1344 attribute_aggregator/ldifs/ldap.py:668
-msgid "associatedDomain"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1352 attribute_aggregator/ldifs/ldap.py:676
-msgid "email pkcs9email emailAddress"
-msgstr "email pkcs9email emailAddress"
-
-#: attribute_aggregator/mapping.py:1374 attribute_aggregator/ldifs/ldap.py:685
-msgid "textEncodedORAddress"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1382 attribute_aggregator/ldifs/ldap.py:693
-msgid "info"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1390 attribute_aggregator/ldifs/ldap.py:701
-msgid "drink favouriteDrink"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1398 attribute_aggregator/ldifs/ldap.py:709
-msgid "roomNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1406 attribute_aggregator/ldifs/ldap.py:717
-msgid "photo"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1414 attribute_aggregator/ldifs/ldap.py:725
-msgid "userClass"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1422 attribute_aggregator/ldifs/ldap.py:733
-msgid "host"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1430 attribute_aggregator/ldifs/ldap.py:741
-msgid "manager"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1438 attribute_aggregator/ldifs/ldap.py:749
-msgid "documentIdentifier"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1446 attribute_aggregator/ldifs/ldap.py:757
-msgid "documentTitle"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1454 attribute_aggregator/ldifs/ldap.py:765
-msgid "documentVersion"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1462 attribute_aggregator/ldifs/ldap.py:773
-msgid "documentAuthor"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1470 attribute_aggregator/ldifs/ldap.py:781
-msgid "documentLocation"
-msgstr "documentLocation"
-
-#: attribute_aggregator/mapping.py:1478 attribute_aggregator/ldifs/ldap.py:789
-msgid "homePhone homeTelephoneNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1498 attribute_aggregator/ldifs/ldap.py:797
-msgid "secretary"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1506 attribute_aggregator/ldifs/ldap.py:805
-msgid "otherMailbox"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1513 attribute_aggregator/ldifs/ldap.py:812
-msgid "aRecord"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1521 attribute_aggregator/ldifs/ldap.py:820
-msgid "mDRecord"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1529 attribute_aggregator/ldifs/ldap.py:828
-msgid "mXRecord"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1537 attribute_aggregator/ldifs/ldap.py:836
-msgid "nSRecord"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1545 attribute_aggregator/ldifs/ldap.py:844
-msgid "sOARecord"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1553 attribute_aggregator/ldifs/ldap.py:852
-msgid "cNAMERecord"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1561 attribute_aggregator/ldifs/ldap.py:860
-msgid "associatedName"
-msgstr "associatedName"
-
-#: attribute_aggregator/mapping.py:1569 attribute_aggregator/ldifs/ldap.py:868
-msgid "homePostalAddress"
-msgstr "homePostalAddress"
-
-#: attribute_aggregator/mapping.py:1577 attribute_aggregator/ldifs/ldap.py:876
-msgid "personalTitle"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1585 attribute_aggregator/ldifs/ldap.py:884
-msgid "mobile mobileTelephoneNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1605 attribute_aggregator/ldifs/ldap.py:892
-msgid "pager pagerTelephoneNumber"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1613 attribute_aggregator/ldifs/ldap.py:900
-msgid "co friendlyCountryName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1633 attribute_aggregator/ldifs/ldap.py:908
-msgid "uniqueIdentifier"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1641 attribute_aggregator/ldifs/ldap.py:916
-msgid "organizationalStatus"
-msgstr "organizationalStatus"
-
-#: attribute_aggregator/mapping.py:1649 attribute_aggregator/ldifs/ldap.py:924
-msgid "janetMailbox"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1657 attribute_aggregator/ldifs/ldap.py:932
-msgid "mailPreferenceOption"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1665 attribute_aggregator/ldifs/ldap.py:940
-msgid "buildingName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1673 attribute_aggregator/ldifs/ldap.py:948
-msgid "dSAQuality"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1681 attribute_aggregator/ldifs/ldap.py:956
-msgid "singleLevelQuality"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1689 attribute_aggregator/ldifs/ldap.py:964
-msgid "subtreeMinimumQuality"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1697 attribute_aggregator/ldifs/ldap.py:972
-msgid "subtreeMaximumQuality"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1705 attribute_aggregator/ldifs/ldap.py:980
-msgid "personalSignature"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1713 attribute_aggregator/ldifs/ldap.py:988
-msgid "dITRedirect"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1721 attribute_aggregator/ldifs/ldap.py:996
-msgid "audio"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1729
-#: attribute_aggregator/ldifs/ldap.py:1004
-msgid "documentPublisher"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1738
-#: attribute_aggregator/ldifs/ldap.py:1013
-msgid "mailLocalAddress"
-msgstr "mailLocalAddress"
-
-#: attribute_aggregator/mapping.py:1746
-#: attribute_aggregator/ldifs/ldap.py:1021
-msgid "mailHost"
-msgstr "mailHost"
-
-#: attribute_aggregator/mapping.py:1754
-#: attribute_aggregator/ldifs/ldap.py:1029
-msgid "mailRoutingAddress"
-msgstr "mailRoutingAddress"
-
-#: attribute_aggregator/mapping.py:1762
-#: attribute_aggregator/ldifs/ldap.py:1037
-msgid "rfc822MailMember"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1770
-#: attribute_aggregator/ldifs/eduPerson.py:5
-msgid "eduPersonAffiliation"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1779
-#: attribute_aggregator/ldifs/eduPerson.py:14
-msgid "eduPersonNickname"
-msgstr "eduPersonNickname"
-
-#: attribute_aggregator/mapping.py:1788
-#: attribute_aggregator/ldifs/eduPerson.py:23
-msgid "eduPersonOrgDN"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1797
-#: attribute_aggregator/ldifs/eduPerson.py:32
-msgid "eduPersonOrgUnitDN"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1806
-#: attribute_aggregator/ldifs/eduPerson.py:41
-msgid "eduPersonPrimaryAffiliation"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1815
-#: attribute_aggregator/ldifs/eduPerson.py:50
-msgid "eduPersonPrincipalName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1824
-#: attribute_aggregator/ldifs/eduPerson.py:59
-msgid "eduPersonEntitlement"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1833
-#: attribute_aggregator/ldifs/eduPerson.py:68
-msgid "eduPersonPrimaryOrgUnitDN"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1842
-#: attribute_aggregator/ldifs/eduPerson.py:77
-msgid "eduPersonScopedAffiliation"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1851
-#: attribute_aggregator/ldifs/eduPerson.py:86
-msgid "eduPersonTargetedID"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1860
-#: attribute_aggregator/ldifs/eduPerson.py:95
-msgid "eduPersonAssurance"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1869 attribute_aggregator/ldifs/eduOrg.py:5
-msgid "eduOrgHomePageURI"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1878
-#: attribute_aggregator/ldifs/eduOrg.py:14
-msgid "eduOrgIdentityAuthNPolicyURI"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1887
-#: attribute_aggregator/ldifs/eduOrg.py:23
-msgid "eduOrgLegalName"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1896
-#: attribute_aggregator/ldifs/eduOrg.py:32
-msgid "eduOrgSuperiorURI"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1905
-#: attribute_aggregator/ldifs/eduOrg.py:41
-msgid "eduOrgWhitePagesURI"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1915
-msgid "supannListeRouge"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1925
-msgid "supannActivite"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1935
-msgid "supannOrganisme"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1945
-msgid "supannCivilite"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1955
-msgid "supannAffectation"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1965
-msgid "supannCodeEntite"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1975
-msgid "supannCodeEntiteParent"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1985
-msgid "supannEntiteAffectation"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:1995
-msgid "supannCodeINE"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2005
-msgid "supannEtuId"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2015
-msgid "supannEmpId"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2025
-msgid "supannAutreTelephone"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2035
-msgid "supannEntiteAffectationPrincipale"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2045
-msgid "supannEtablissement"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2055
-msgid "supannMailPerso"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2065
-msgid "supannTypeEntite"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2075
-msgid "supannParrainDN"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2085
-msgid "supannGroupeDateFin"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2095
-msgid "supannGroupeAdminDN"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2105
-msgid "supannAliasLogin"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2115
-msgid "supannRole"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2125
-msgid "supannGroupeLecteurDN"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2135
-msgid "supannRoleGenerique"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2145
-msgid "supannRoleEntite"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2155
-msgid "supannEtuAnneeInscription"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2165
-msgid "supannEtuCursusAnnee"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2175
-msgid "supannEtuDiplome"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2185
-msgid "supannEtuElementPedagogique"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2195
-msgid "supannEtuEtape"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2205
-msgid "supannEtuInscription"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2215
-msgid "supannEtuRegimeInscription"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2225
-msgid "supannEtuSecteurDisciplinaire"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2235
-msgid "supannEtuTypeDiplome"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2245
-msgid "supannAutreMail"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2255
-msgid "supannEmpCorps"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2265
-msgid "supannTypeEntiteAffectation"
-msgstr ""
-
-#: attribute_aggregator/mapping.py:2275
-msgid "supannRefId"
-msgstr ""
-
-#: attribute_aggregator/models.py:95
-msgid "Attribute Source"
-msgstr ""
-
-#: attribute_aggregator/models.py:99
-msgid "alias in source"
-msgstr ""
-
-#: attribute_aggregator/models.py:100
-msgid "aliases in source"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:96
-msgid "String"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:97
-msgid "Boolean"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:98
-msgid "Integer"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:99
-msgid "Double"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:100
-msgid "Time"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:101
-msgid "Date"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:102
-msgid "Date and Time"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:109
-#: auth2_auth/auth2_ssl/forms.py:35
-msgid "email address"
-msgstr "Adresse email"
-
-#: attribute_aggregator/xacml_constants.py:110
-msgid "IP address"
-msgstr "IP address"
-
-#: attribute_aggregator/xacml_constants.py:168
-#: attribute_aggregator/xacml_constants.py:187
-msgid "String equality"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:169
-#: attribute_aggregator/xacml_constants.py:188
-msgid "String equality ignoring case"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:170
-#: attribute_aggregator/xacml_constants.py:189
-msgid "Boolean equality"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:171
-#: attribute_aggregator/xacml_constants.py:190
-msgid "Integer equality"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:172
-#: attribute_aggregator/xacml_constants.py:191
-msgid "Double equality"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:173
-#: attribute_aggregator/xacml_constants.py:192
-msgid "Date equality"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:174
-#: attribute_aggregator/xacml_constants.py:193
-msgid "Time equality"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:175
-#: attribute_aggregator/xacml_constants.py:194
-msgid "DateTime equality"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:180
-#: attribute_aggregator/xacml_constants.py:199
-msgid "email equality"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:181
-#: attribute_aggregator/xacml_constants.py:200
-msgid "IP address equality"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:245
-#: attribute_aggregator/xacml_constants.py:256
-msgid "Integer 1 greater than integer 2"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:246
-#: attribute_aggregator/xacml_constants.py:257
-msgid "Integer 1 greater than or equal integer 2"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:247
-#: attribute_aggregator/xacml_constants.py:258
-msgid "Integer 1 less than integer 2"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:248
-#: attribute_aggregator/xacml_constants.py:259
-msgid "Integer 1 less than or equal integer 2"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:249
-#: attribute_aggregator/xacml_constants.py:260
-msgid "Double 1 greater than double 2"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:250
-#: attribute_aggregator/xacml_constants.py:261
-msgid "Double 1 greater than or equal double 2"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:251
-#: attribute_aggregator/xacml_constants.py:262
-msgid "Double 1 less than double 2"
-msgstr ""
-
-#: attribute_aggregator/xacml_constants.py:252
-#: attribute_aggregator/xacml_constants.py:263
-msgid "Double 1 less than or equal double 2"
-msgstr ""
-
-#: auth2_auth/backend.py:17
+#: attribute_aggregator/models.py:49 attribute_aggregator/models.py:114
+#: idp/models.py:131
+msgid "Name"
+msgstr "Nom"
+
+#: attribute_aggregator/models.py:52
+msgid "Namespace"
+msgstr "Espace de nom"
+
+#: attribute_aggregator/models.py:83
+msgid "Server"
+msgstr "Serveur"
+
+#: attribute_aggregator/models.py:86 attribute_aggregator/models.py:119
+msgid "User"
+msgstr "Utilisateur"
+
+#: attribute_aggregator/models.py:89 auth2_auth/backend.py:17
 #: auth2_auth/templates/auth/login_password_profile.html:2
 #: templates/authopenid/complete.html:71 vendor/registration/forms.py:41
 msgid "Password"
 msgstr "Mot de passe"
+
+#: attribute_aggregator/models.py:92
+msgid "Base"
+msgstr "Base"
+
+#: attribute_aggregator/models.py:95
+msgid "Port"
+msgstr "Port"
+
+#: attribute_aggregator/models.py:98
+msgid "LDAPS"
+msgstr "LDAPS"
+
+#: attribute_aggregator/models.py:101
+msgid "Certificate"
+msgstr "Certificat"
+
+#: attribute_aggregator/models.py:104
+msgid "Is it used for authentication?"
+msgstr "Est-elle utilisée pour l'authentification ?"
+
+#: attribute_aggregator/models.py:117
+msgid "Attribute Source"
+msgstr "Source d'attributs"
+
+#: attribute_aggregator/models.py:123
+msgid "alias in source"
+msgstr "alias utilisateur par source"
+
+#: attribute_aggregator/models.py:124
+msgid "aliases in source"
+msgstr "alias utilisateur par source"
 
 #: auth2_auth/models.py:23
 #, python-format
@@ -1328,7 +115,7 @@ msgstr ""
 
 #: auth2_auth/auth2_oath/frontend.py:39
 msgid "One time password"
-msgstr "Mot de passe One-time"
+msgstr "Mot de passe à usage unique"
 
 #: auth2_auth/auth2_oath/templates/oath/totp_profile.html:5
 msgid "Time based one-time password"
@@ -1363,7 +150,7 @@ msgid ""
 "This kind of authentication is actually not possible, because you do not "
 "have any secret setup."
 msgstr ""
-"Ce moyen d'authentification n'est pas disponible actuellement, car vous "
+"Ce moyen d'authentification n'est pas disponible actuellement car vous "
 "n'avez pas encore généré de secret."
 
 #: auth2_auth/auth2_oath/templates/oath/totp_profile.html:21
@@ -1373,6 +160,10 @@ msgstr "Générer un nouveau secret"
 #: auth2_auth/auth2_openid/templates/auth/openid_profile.html:6
 msgid "Associate your account with an OpenID"
 msgstr "Associer votre compte avec un OpenID"
+
+#: auth2_auth/auth2_ssl/forms.py:35
+msgid "email address"
+msgstr "Adresse email"
 
 #: auth2_auth/auth2_ssl/forms.py:52
 msgid "This username is already taken.             Please choose another."
@@ -1395,19 +186,19 @@ msgstr ""
 "Echec de l'authentification cliente SSL. Votre certificat n'est pas valide."
 
 #: auth2_auth/auth2_ssl/login_ssl.py:78 auth2_auth/auth2_ssl/login_ssl.py:95
-#: auth2_auth/auth2_ssl/login_ssl.py:108 auth2_auth/auth2_ssl/login_ssl.py:166
+#: auth2_auth/auth2_ssl/login_ssl.py:108 auth2_auth/auth2_ssl/login_ssl.py:162
 msgid "SSL Client Authentication failed. Internal server error."
 msgstr "Echec de l'authentification SSL. Erreur interne du serveur."
 
-#: auth2_auth/auth2_ssl/login_ssl.py:230
+#: auth2_auth/auth2_ssl/login_ssl.py:226
 msgid "No certificate name provided for deletion."
 msgstr "Aucun nom de certificat fourni pour la suppression."
 
-#: auth2_auth/auth2_ssl/login_ssl.py:247
+#: auth2_auth/auth2_ssl/login_ssl.py:243
 msgid "Successful certificate deletion."
 msgstr "Succès de la suppression du certificat."
 
-#: auth2_auth/auth2_ssl/login_ssl.py:256
+#: auth2_auth/auth2_ssl/login_ssl.py:252
 msgid "Certificate deletion failed."
 msgstr "Échec de suppression du certificat"
 
@@ -1422,7 +213,7 @@ msgstr "Supprimer"
 
 #: auth2_auth/auth2_ssl/templates/ssl/profile.html:17
 msgid "Add a certificate?"
-msgstr "ajouter un certificat ?"
+msgstr "Ajouter un certificat ?"
 
 #: auth2_auth/auth2_ssl/templates/ssl/profile.html:19
 msgid "Add"
@@ -1458,16 +249,15 @@ msgstr "Anonyme"
 
 #: authsaml2/saml2_endpoints.py:116 authsaml2/saml2_endpoints.py:122
 msgid "sso: Service provider not configured"
-msgstr "sso: Fournisseur de service non configuré"
+msgstr ""
 
 #: authsaml2/saml2_endpoints.py:128
-#, fuzzy
-msgid "sso: so: No SAML2 identity provider selected"
-msgstr "Aucun fournisseur d'identités SAML2 sélectionné"
+msgid "sso: No SAML2 identity provider selected"
+msgstr ""
 
 #: authsaml2/saml2_endpoints.py:136
 msgid "sso: The provider does not exist"
-msgstr "sso: Le fournisseur n'existe pas"
+msgstr ""
 
 #: authsaml2/saml2_endpoints.py:141
 msgid "sso: Unable to create Login object"
@@ -1479,6 +269,7 @@ msgid "sso: %s does not have any supported SingleSignOn endpoint"
 msgstr ""
 
 #: authsaml2/saml2_endpoints.py:156
+#, python-format
 msgid "sso: initAuthnRequest %s"
 msgstr ""
 
@@ -1874,7 +665,7 @@ msgstr "Ajouter une fédération ?"
 #: authsaml2/templates/auth/saml2/account_linking.html:32
 #: authsaml2/templates/auth/saml2/login_form.html:5
 #: templates/auth/account_linking_ssl.html:37 templates/auth/login.html:5
-#: templates/auth/login_form.html:5 templates/auth/login_form_oath.html:13
+#: templates/auth/login_form.html:5 templates/auth/login_form_oath.html:15
 #: templates/auth/login_form_openid.html:15
 #: templates/auth/login_form_ssl.html:8
 #: templates/registration/activate.html:14 templates/registration/login.html:5
@@ -1935,6 +726,10 @@ msgstr "adresse email"
 msgid "nickname"
 msgstr "surnom"
 
+#: idp/models.py:70
+msgid "Website"
+msgstr "Site Web"
+
 #: idp/models.py:71
 msgid "Company"
 msgstr "Société"
@@ -1947,52 +742,110 @@ msgstr "Téléphone"
 msgid "Postal address"
 msgstr "Adresse postale"
 
-#: idp/models.py:107
+#: idp/models.py:94
+msgid "Attribute name"
+msgstr "Nom de l'attribut"
+
+#: idp/models.py:100 idp/models.py:185
+msgid "Output name format"
+msgstr "Format du nom de l'attribut en sortie"
+
+#: idp/models.py:106 idp/models.py:192
+msgid "Output namespace"
+msgstr "Espace de nom de sortie"
+
+#: idp/models.py:110
+msgid "Required"
+msgstr "Requis"
+
+#: idp/models.py:113
+msgid "Attribute source"
+msgstr "Source d'attributs"
+
+#: idp/models.py:117
 msgid "attribute of a list (SSO Login)"
 msgstr "attribute d'une liste (Login SSO)"
 
-#: idp/models.py:108
+#: idp/models.py:118
 msgid "attributes of lists (SSO Login)"
 msgstr "les attributs d'une liste (Login SSO)"
 
-#: idp/models.py:126
+#: idp/models.py:134
+msgid "Attributes"
+msgstr "Attributs"
+
+#: idp/models.py:139
 msgid "attribute list (SSO Login)"
 msgstr "liste d'attributs (Login SSO)"
 
-#: idp/models.py:127
+#: idp/models.py:140
 msgid "attribute lists (SSO Login)"
 msgstr "listes d'attributs (Login SSO)"
 
-#: idp/models.py:135 saml/models.py:171 saml/models.py:250 saml/models.py:305
-#: saml/models.py:378 saml/models.py:398
+#: idp/models.py:148 saml/models.py:171 saml/models.py:252 saml/models.py:309
+#: saml/models.py:382 saml/models.py:402
 msgid "Enabled"
 msgstr "Activé"
 
-#: idp/models.py:137
+#: idp/models.py:150
 msgid "Ask the user consent before forwarding attributes"
-msgstr "Demander le consentement de l'utilisateur afin d'envoyer des attributs"
+msgstr ""
+"Demander le consentement de l'utilisateur avant d'envoyer des attributs"
 
-#: idp/models.py:140
+#: idp/models.py:153
 msgid "Allow the user to select the forwarding attributes"
 msgstr "Permettre à l'utilisateur de séléctioner les attributs à envoyer"
 
-#: idp/models.py:205
+#: idp/models.py:160
+msgid "Pull attributes list"
+msgstr "Liste des attributs des sources locales"
+
+#: idp/models.py:169
+msgid "Forward pushed attributes"
+msgstr "Faire suivre les attributs poussés"
+
+#: idp/models.py:179
+msgid "Map forwarded pushed attributes"
+msgstr "Mapper les attributs poussés à faire suivre"
+
+#: idp/models.py:200
+msgid "Filter by source the forwarded pushed attributes"
+msgstr "Filtrer par source les attributs poussés à faire suivre"
+
+#: idp/models.py:208
+msgid "Filter by attribute names the forwarded pushed attributes"
+msgstr "Filtrer par attribut les attributs poussés à faire suivre"
+
+#: idp/models.py:216
+msgid "Filter by source and per attribute the forwarded pushed attributes"
+msgstr ""
+"Filtrer par source et par attribut les attributs poussés à faire suivre"
+
+#: idp/models.py:224
+msgid "Map filtered attributes"
+msgstr "Mapper les attributs filtrés"
+
+#: idp/models.py:231
+msgid "Send an error when a required attribute is missing"
+msgstr "envoyer une erreur lorsqu'un attribut requis est manquant"
+
+#: idp/models.py:238
 msgid "attribute options policy"
 msgstr "regle d'options d'attributs"
 
-#: idp/models.py:206
+#: idp/models.py:239
 msgid "attribute options policies"
 msgstr "regles d'options d'attributs"
 
-#: idp/views.py:94
+#: idp/views.py:93
 msgid "Local logout..."
 msgstr "Déconnexion locale"
 
-#: idp/views.py:102
+#: idp/views.py:101
 msgid "Logging out from all your services"
 msgstr "Déconnexion de tous vos services"
 
-#: idp/views.py:108 templates/registration/logout.html:9
+#: idp/views.py:107 templates/registration/logout.html:9
 msgid "Logged out"
 msgstr "Déconnecté"
 
@@ -2000,10 +853,10 @@ msgstr "Déconnecté"
 msgid "Trust this site?"
 msgstr "Faire confiance à ce site ?"
 
-#: idp/saml/backend.py:64
+#: idp/saml/backend.py:71
 #, python-format
 msgid "Sending logout to %(name)s...."
-msgstr ""
+msgstr "Envoi de la deconnexion à %(name)s...."
 
 #: idp/saml/idff12_endpoints.py:84
 #, python-format
@@ -2020,7 +873,7 @@ msgstr ""
 msgid "ID-FFv1.2: provider %r unknown"
 msgstr ""
 
-#: idp/saml/idff12_endpoints.py:190 idp/saml/saml2_endpoints.py:697
+#: idp/saml/idff12_endpoints.py:190 idp/saml/saml2_endpoints.py:708
 msgid "Authentication response"
 msgstr "Réponse d'authentification"
 
@@ -2034,67 +887,67 @@ msgstr ""
 msgid "ID-FFv1.2: default nameIdPolicy unsupported %r"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:303
+#: idp/saml/saml2_endpoints.py:314
 #, python-format
 msgid ""
 "SAMLv2 Single Sign On: invalid message for WebSSO profile with HTTP-Redirect "
 "binding: %r"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:307
+#: idp/saml/saml2_endpoints.py:318
 msgid ""
 "SAMLv2 Single Sign On: the request cannot be answered because no valid "
 "protocol binding could be found"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:323
+#: idp/saml/saml2_endpoints.py:334
 #, python-format
 msgid "sso: fail to load unknown provider %s"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:329
+#: idp/saml/saml2_endpoints.py:340
 msgid "sso: No SP policy defined"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:422
+#: idp/saml/saml2_endpoints.py:433
 msgid "continue_sso: error loading login"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:425
+#: idp/saml/saml2_endpoints.py:436
 #, python-format
 msgid "continue_sso: unknown provider %s"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:531 idp/saml/saml2_endpoints.py:791
+#: idp/saml/saml2_endpoints.py:542 idp/saml/saml2_endpoints.py:802
 #, python-format
 msgid "Provider %s is unknown"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:536
+#: idp/saml/saml2_endpoints.py:547
 msgid "No service provider policy defined"
 msgstr "Aucun règlement applicable à ce fournisseur de service n'a été trouvé"
 
-#: idp/saml/saml2_endpoints.py:778
+#: idp/saml/saml2_endpoints.py:789
 msgid "Error trying to initiate a single sign on"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:782
+#: idp/saml/saml2_endpoints.py:793
 msgid "A provider identifier was not provided"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:810
+#: idp/saml/saml2_endpoints.py:821
 msgid "idp_sso: No SP policy defined"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:821
+#: idp/saml/saml2_endpoints.py:832
 msgid "Server error"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:1173 idp/saml/saml2_endpoints.py:1182
+#: idp/saml/saml2_endpoints.py:1184 idp/saml/saml2_endpoints.py:1193
 msgid "Logout response"
 msgstr ""
 
-#: idp/saml/saml2_endpoints.py:1176
+#: idp/saml/saml2_endpoints.py:1187
 msgid "Invalid logout request"
 msgstr ""
 
@@ -2134,7 +987,7 @@ msgstr "Authentic"
 msgid "Services"
 msgstr "Services"
 
-#: idp/templates/idp/homepage.html:35
+#: idp/templates/idp/homepage.html:44
 msgid "Administration"
 msgstr "Administration"
 
@@ -2148,11 +1001,11 @@ msgstr ""
 
 #: saml/models.py:24
 msgid "Bad metadata file"
-msgstr ""
+msgstr "Fichier de metadonnées incorrect"
 
 #: saml/models.py:78
 msgid "Use the default from the metadata file"
-msgstr ""
+msgstr "Utilisation des valeurs par défaut du fichier de métadonnées"
 
 #: saml/models.py:79 saml/models.py:121
 msgid "Artifact binding"
@@ -2164,7 +1017,7 @@ msgstr ""
 
 #: saml/models.py:86
 msgid "None"
-msgstr ""
+msgstr "Aucun"
 
 #: saml/models.py:89
 msgid "Persistent"
@@ -2176,7 +1029,7 @@ msgstr ""
 
 #: saml/models.py:95
 msgid "Email (only supported by SAMLv2)"
-msgstr ""
+msgstr "Email (seulement supporté en SAML2)"
 
 #: saml/models.py:122
 msgid "POST binding"
@@ -2192,19 +1045,19 @@ msgstr ""
 
 #: saml/models.py:133
 msgid "Let authentic decides which signatures to check"
-msgstr ""
+msgstr "Laisser authentic decider quelles signatures vérifier"
 
 #: saml/models.py:134
 msgid "Always check signatures"
-msgstr ""
+msgstr "Vérifier toutes les signatures"
 
 #: saml/models.py:135
 msgid "Does not check signatures"
-msgstr ""
+msgstr "Ne pas vérifier les signatures"
 
 #: saml/models.py:141
 msgid "How to verify signatures Authentication Request ?"
-msgstr ""
+msgstr "Comment vérifier les signatures des requêtes d'authentification"
 
 #: saml/models.py:152
 msgid "Account linking by authentication"
@@ -2222,21 +1075,28 @@ msgstr "Requerir l'authentification"
 msgid "Open a session"
 msgstr "Etablir une session"
 
+#: saml/models.py:170 saml/models.py:251 saml/models.py:308
+msgid "name"
+msgstr "nom"
+
 #: saml/models.py:173
 msgid "Do not send a nameId Policy"
 msgstr "Ne pas envoyer une nameId Policy"
 
-#: saml/models.py:179
-msgid ""
-"This IdP falsely sends a transient NameID             which is in fact "
-"persistent"
-msgstr ""
+#: saml/models.py:175
+msgid "Requested NameID format"
+msgstr "Format du NameID demandé"
 
-#: saml/models.py:182
+#: saml/models.py:181
+msgid "This IdP falsely sends a transient NameID which is in fact persistent"
+msgstr ""
+"Cet IdP envoie un nameID transient qui doit être considéré comme persistent"
+
+#: saml/models.py:183
 msgid "Allow IdP to create an identity"
-msgstr ""
+msgstr "Autoriser l'IdP à créer une identité"
 
-#: saml/models.py:184
+#: saml/models.py:185
 msgid ""
 "Binding for Authnresponse             (taken from metadata by the IdP if not "
 "enabled)"
@@ -2244,173 +1104,208 @@ msgstr ""
 "Transport pour les réponses d'authentification (extrait des métadonnées du "
 "fournisseur de service si non activé)"
 
-#: saml/models.py:191
+#: saml/models.py:188
+msgid "Binding for the SSO responses"
+msgstr "Binding pour les reponses au SSO"
+
+#: saml/models.py:192
 msgid ""
 "HTTP method for single logout request             (taken from metadata if "
 "not enabled)"
 msgstr ""
-"Tranpsport pour les requêtes de déconnexion (extrait des métadonnées du "
+"Transport pour les requêtes de déconnexion (extrait des métadonnées du "
 "fournisseur de service si non activé)"
 
-#: saml/models.py:199
+#: saml/models.py:195
+msgid "HTTP binding for the SLO requests"
+msgstr "Binding HTTP pour les requêtes de SLO"
+
+#: saml/models.py:200
 msgid ""
 "HTTP method for federation termination request             (taken from "
 "metadata if not enabled)"
 msgstr ""
-"Tranpsport pour les requêtes de suppression de fédération (extrait des "
+"Transport pour les requêtes de suppression de fédération (extrait des "
 "métadonnées du fournisseur de service si non activé)"
 
-#: saml/models.py:206
-msgid "Require the user consent be given at account linking"
-msgstr "Requerir que le consentement utilisateur soit donné lors de la liason de compte"
+#: saml/models.py:203
+msgid "HTTP method for the SLO requests"
+msgstr "Méthode HTTP pour les requêtes de SLO"
 
-#: saml/models.py:209
+#: saml/models.py:208
+msgid "Require the user consent be given at account linking"
+msgstr ""
+"Requerir que le consentement utilisateur soit donné lors de la liaison de "
+"compte"
+
+#: saml/models.py:211
 msgid "Force authentication"
 msgstr "Forcer l'authentification"
 
-#: saml/models.py:211
+#: saml/models.py:213
 msgid "Passive authentication"
 msgstr "Authentification sans action de l'utilisateur"
 
-#: saml/models.py:213
+#: saml/models.py:215
 msgid "Want AuthnRequest signed"
 msgstr "Les requêtes d'authentification doivent être signées"
 
-#: saml/models.py:229 saml/models.py:275
+#: saml/models.py:218
+msgid "Behavior with persistent NameID"
+msgstr "Comportement avec un NameID persistent"
+
+#: saml/models.py:223
+msgid "Behavior with transient NameID"
+msgstr "Comportement avec un NameID transient"
+
+#: saml/models.py:229
+msgid "Return URL after a successful authentication"
+msgstr "URL de retour après un authentification valide"
+
+#: saml/models.py:231 saml/models.py:279
 msgid "Accept to receive Single Logout requests"
 msgstr "Accepter les requêtes de déconnexion"
 
-#: saml/models.py:232 saml/models.py:278
+#: saml/models.py:234 saml/models.py:282
 msgid "Forward Single Logout requests"
 msgstr "Faire suivre les requêtes de déconnexion"
 
-#: saml/models.py:236
+#: saml/models.py:238
 msgid "identity provider options policy"
 msgstr "règlement des options de fournisseur d'identités"
 
-#: saml/models.py:237
+#: saml/models.py:239
 msgid "identity provider options policies"
 msgstr "règlements des options de fournisseur d'identités"
 
 #: saml/models.py:254
+msgid "Prefered assertion consumer binding"
+msgstr "Binding du consommateur d'assertion préféré"
+
+#: saml/models.py:257
 msgid "Encrypt NameID"
 msgstr "Encrypter le NameID"
 
-#: saml/models.py:256
+#: saml/models.py:259
 msgid "Encrypt Assertion"
 msgstr "Encrypter l'assertion"
 
-#: saml/models.py:258
-msgid "AuthnRequest signed"
-msgstr "AuthnRequest signée"
+#: saml/models.py:261
+msgid "Authentication request signed"
+msgstr "Requête d'authentification signée"
 
-#: saml/models.py:260
+#: saml/models.py:263
 msgid "Allow IdP initiated SSO"
-msgstr "Autorisé le SSO initié par l'IdP"
+msgstr "Autoriser le SSO initié par l'IdP"
 
-#: saml/models.py:273
+#: saml/models.py:270
+msgid "NameID formats accepted"
+msgstr "Formats de NameID acceptés"
+
+#: saml/models.py:277
 msgid "Ask user for consent when creating a federation"
 msgstr "Demander le consentement utilisateur à la création d'une fédération"
 
-#: saml/models.py:282
+#: saml/models.py:286
 msgid "service provider options policy"
 msgstr "règlement des options de fournisseur de services"
 
-#: saml/models.py:283
+#: saml/models.py:287
 msgid "service provider options policies"
 msgstr "règlement des options de fournisseur de services"
 
-#: saml/models.py:312
+#: saml/models.py:316
 msgid "Default message to display to the user when access is denied"
 msgstr ""
 
-#: saml/models.py:313
+#: saml/models.py:317
 msgid "You are not authorized to access the service."
 msgstr "Vous n'etes pas autorise à acceder a ce service."
 
-#: saml/models.py:316
+#: saml/models.py:320
 msgid "authorization policy"
 msgstr ""
 
-#: saml/models.py:317
+#: saml/models.py:321
 msgid "authorization policies"
 msgstr ""
 
-#: saml/models.py:326
+#: saml/models.py:330
 msgid "Internal nickname for the service provider"
 msgstr "Nom local du fournisseur de service"
 
-#: saml/models.py:380
+#: saml/models.py:384
 msgid ""
 "The following options policy will apply except if a policy for all service "
 "provider is defined."
 msgstr ""
 
-#: saml/models.py:381
+#: saml/models.py:385
 msgid "SP Options Policy"
 msgstr "Règlement des options de SP"
 
-#: saml/models.py:383
+#: saml/models.py:387
 msgid "Protocol policy"
-msgstr ""
+msgstr "Règlement du protocole"
 
-#: saml/models.py:385
+#: saml/models.py:389
 msgid ""
 "The following attribute policy will apply except if a policy for all service "
 "provider is defined."
 msgstr ""
 
-#: saml/models.py:388
+#: saml/models.py:392
 msgid "Attribute policy"
 msgstr "Règlement sur les attributs"
 
-#: saml/models.py:400
+#: saml/models.py:404
 msgid ""
 "The following options policy will apply except if a policy for all identity "
 "provider is defined."
 msgstr ""
 
-#: saml/models.py:401
+#: saml/models.py:405
 msgid "IdP Options Policy"
 msgstr "Règlement des options d'IdP"
 
-#: saml/models.py:403
+#: saml/models.py:407
 msgid ""
 "The following authorization policy will apply except if a policy for all "
 "identity provider is defined."
 msgstr ""
 
-#: saml/models.py:404
+#: saml/models.py:408
 msgid "Authorization Policy"
 msgstr ""
 
-#: saml/models.py:531
+#: saml/models.py:535
 msgid "Liberty federation"
 msgstr "Fédération liberty"
 
-#: saml/models.py:532
+#: saml/models.py:536
 msgid "Liberty federations"
 msgstr "Fédérations liberty"
 
-#: saml/models.py:550
+#: saml/models.py:554
 msgid "Qualifier"
 msgstr "Qualifiant"
 
-#: saml/models.py:552
+#: saml/models.py:556
 msgid "NameIDFormat"
 msgstr "Format pour le NameID"
 
-#: saml/models.py:554
+#: saml/models.py:558
 msgid "NameID"
 msgstr ""
 
-#: saml/models.py:556
+#: saml/models.py:560
 msgid "SPNameQualifier"
 msgstr ""
 
 #: saml/templates/saml/post_form.html:11
 msgid "You should be automatically redirected to the identity provider."
-msgstr "Vous devriez être automatiquement redirigé vers le fournisseur d'identités."
+msgstr ""
+"Vous devriez être automatiquement redirigé vers le fournisseur d'identités."
 
 #: saml/templates/saml/post_form.html:12
 msgid ""
@@ -2430,7 +1325,7 @@ msgstr "Erreur: page non trouvée"
 
 #: templates/404.html:10
 msgid "The page you requested has not been found on this server."
-msgstr ""
+msgstr "La page demandée n'existe pas sur ce serveur."
 
 #: templates/500.html:4
 msgid "Error: server error (500)"
@@ -2442,9 +1337,14 @@ msgstr "Erreur du serveur"
 
 #: templates/500.html:10
 msgid "We're sorry but a server error has occurred."
-msgstr ""
+msgstr "Nous nous excusons mais une erreur est intervenue."
+
+#: templates/base.html:20
+msgid "Versatile Identity Management Server"
+msgstr "Serveur de gestion d'identité polyvalent"
 
 #: templates/base.html:29
+#, python-format
 msgid ""
 "\n"
 "             You are authenticated as %(username)s.\n"
@@ -2489,38 +1389,52 @@ msgstr "Page des traces"
 #: templates/auth/account_linking_ssl.html:5
 #: templates/auth/account_linking_ssl.html:9
 msgid "Log in to link your certificate with an existing account"
-msgstr ""
+msgstr "connectez-vous pour lier votre certificat avec un compte existant"
 
 #: templates/auth/account_linking_ssl.html:33
 msgid "Create me a new account"
 msgstr "Me créer un nouveau compte"
 
-#: templates/auth/login_form.html:7 templates/auth/login_form_oath.html:15
+#: templates/auth/login_form.html:7 templates/auth/login_form_oath.html:17
 #: templates/auth/login_form_openid.html:21
 #: templates/auth/login_form_ssl.html:10
 #: templates/authopenid/dissociate.html:32
 msgid "Cancel"
 msgstr "Annuler"
 
-#: templates/auth/login_form.html:13 templates/auth/login_form_oath.html:21
+#: templates/auth/login_form.html:13 templates/auth/login_form_oath.html:23
 #: templates/registration/login.html:26
 msgid "Forgot password?"
 msgstr "Mot de passe oublié ?"
 
-#: templates/auth/login_form.html:13 templates/auth/login_form_oath.html:21
+#: templates/auth/login_form.html:13 templates/auth/login_form_oath.html:23
 #: templates/registration/login.html:26
 msgid "Reset it!"
 msgstr "Le réinitialiser !"
 
-#: templates/auth/login_form.html:14 templates/auth/login_form_oath.html:22
+#: templates/auth/login_form.html:14 templates/auth/login_form_oath.html:24
 #: templates/registration/login.html:27
 msgid "Not a member?"
 msgstr "Pas un membre ?"
 
-#: templates/auth/login_form.html:14 templates/auth/login_form_oath.html:22
+#: templates/auth/login_form.html:14 templates/auth/login_form_oath.html:24
 #: templates/registration/login.html:27
 msgid "Register!"
 msgstr "S'inscrire !"
+
+#: templates/auth/login_form_oath.html:5
+msgid ""
+"\n"
+"Once you have created your account, log in with an other authentication "
+"method.\n"
+"Then, in account management, follow the instructions to deploy the\n"
+"One Time password authentication method.\n"
+msgstr ""
+"\n"
+"Une fois votre compte créé, connectez-vous à l'aide d'une autre méthode.\n"
+"Alors, dans l'interface de gestion de votre compte, suivez les instructions "
+"pour déployer la\n"
+"méthode d'authentification basée sur le mot de passe à usage unique.\n"
 
 #: templates/auth/login_form_openid.html:12
 #: templates/authopenid/associate.html:42
@@ -2750,7 +1664,7 @@ msgstr "Aucun"
 
 #: templates/interaction/consent_federation.html:4
 msgid "Consent page for federation"
-msgstr "Page de consentement pour la federation"
+msgstr "Page de consentement pour la fédération"
 
 #: templates/profiles/create_profile.html:9
 #: templates/profiles/edit_profile.html:9
@@ -2907,179 +1821,5 @@ msgstr "profile d'inscription"
 msgid "registration profiles"
 msgstr "profiles d'inscription"
 
-#~ msgid ""
-#~ "\n"
-#~ "    The entity you choose here, to log into Identity Hub, will not learn "
-#~ "the Website you are visiting.\n"
-#~ "    Identity Hub relies on this entity to benefit from another session "
-#~ "and to extend the\n"
-#~ "    single sign on experience.\n"
-#~ "    "
-#~ msgstr ""
-#~ "\n"
-#~ "    L'entité que vous choisissez danc cette liste, pour vous connectez "
-#~ "sur Identity Hub, ne connaitra pas les sites que vous visitez.\n"
-#~ "    Identity Hub ne s'appuit sur celle-ci que pour bénéficier d'une "
-#~ "session existante\n"
-#~ "    et ainsi propager l'expérience d'authentification unique.\n"
-#~ "    "
-
-#~ msgid "Choose where…"
-#~ msgstr "Choisissez où..."
-
-#~ msgid "More information"
-#~ msgstr "Plus d'informations"
-
-#~ msgid "Close"
-#~ msgstr "Fermer"
-
-#~ msgid "Which organization?"
-#~ msgstr "Quelle organisation?"
-
-#~ msgid "Give its name"
-#~ msgstr "Donnez son nom"
-
-#~ msgid "or choose it up in the lists:"
-#~ msgstr "ou choisissez en un dans les listes :"
-
-#~ msgid "Others"
-#~ msgstr "Autres"
-
-#~ msgid "Prior"
-#~ msgstr "Préalablement"
-
-#~ msgid "Explicit"
-#~ msgstr "Explicite"
-
-#~ msgid "Implicit"
-#~ msgstr "Implicite"
-
-#~ msgid "Unavailable"
-#~ msgstr "Indisponible"
-
-#~ msgid "Ask user consent"
-#~ msgstr "Demander le consentement à l'utilisateur"
-
-#~ msgid "What is"
-#~ msgstr "Qu'est ce que"
-
-#~ msgid "Technology"
-#~ msgstr "Technologie"
-
-#~ msgid "is powered by"
-#~ msgstr "est mis sur orbite par"
-
-#~ msgid "is based on the Authentic2 software"
-#~ msgstr "est basé sur le logiciel Authentic2"
-
-#~ msgid ""
-#~ "\n"
-#~ "<li>Authentic2 is a django application (written Python).</li>\n"
-#~ "<li>Authentic2 is under GNU GPLv2 license.</li>\n"
-#~ "<li>Authentic2 is a plateform dedicated to identity management.</li>\n"
-#~ "<li>Authentic supports many standards including SAML2, OpenID, CAS, X509, "
-#~ "OATH OTP.</li>\n"
-#~ msgstr ""
-#~ "\n"
-#~ "<li>Authentic2 est une application django (écrite en Python).</li>\n"
-#~ "<li>Authentic2 est sous licence GNU GPLv2.</li>\n"
-#~ "<li>Authentic2 est une plateforme dédié à la gestion d'identité.</li>\n"
-#~ "<li>Authentic supporte plusieurs standards dont SAML2, OpenID, CAS, X509, "
-#~ "OATH OTP.</li>\n"
-
-#~ msgid "You can dowload the source and software on"
-#~ msgstr "Vous pouvez télécharger les sources et le logiciel sur"
-
-#~ msgid "More information on the"
-#~ msgstr "Plus d'informations sur le"
-
-#~ msgid "Authentic2 project website"
-#~ msgstr "site du projet Authentic2"
-
-#~ msgid ""
-#~ "\n"
-#~ "<strong>Identity-Hub is a public service for anybody who needs want some "
-#~ "identity management functionnalities.</strong>\n"
-#~ msgstr ""
-#~ "\n"
-#~ "<strong>Identity-Hub est un service accessible publiquement pour tous "
-#~ "ceux qui ont besoin de fonctionnalités de gestion de leur identité en "
-#~ "ligne.</strong>\n"
-
-#~ msgid "Hint"
-#~ msgstr "Astuce"
-
-#~ msgid "Look for a field with the logo"
-#~ msgstr "Recherchez un champ avec le logo"
-
-#~ msgid "Not registered ?"
-#~ msgstr "Pas de compte ?"
-
-#~ msgid "Create an account !"
-#~ msgstr "Créez votre compte !"
-
-#, fuzzy
-#~ msgid "Delegation"
-#~ msgstr "Inscription"
-
-#~ msgid "Or enter your OpenID:"
-#~ msgstr "Ou entrez un OpenID :"
-
-#~ msgid "Do you accept to send these attributes to "
-#~ msgstr "Acceptez-vous de transmettre ces attributs a "
-
-#, fuzzy
-#~ msgid ""
-#~ "Your OpenID identity can only contain letters, numbers, underscores and "
-#~ "carets"
-#~ msgstr ""
-#~ "Votre nom d'utilisateur peut contenir des lettres et des chiffres mais "
-#~ "aucun espace."
-
-#, fuzzy
-#~ msgid ""
-#~ "\n"
-#~ "You can connect on every website OpenID-enabled relying on Identity Hub\n"
-#~ "only using this URL: <strong><em>your_identifier</em>.identity-hub.net</"
-#~ "strong>\n"
-#~ msgstr ""
-#~ "\n"
-#~ "Avec Identity Hub vous pouvez vous connecter sur tous les sites "
-#~ "supportant OpenID\n"
-#~ "en utilisant cette URL: <strong><em>votre_identifiant</em>.identity-hub."
-#~ "net.</strong>\n"
-
-#, fuzzy
-#~ msgid ""
-#~ "\n"
-#~ "On Identity hub you can log in with many secure methods. It includes\n"
-#~ "SAML2 which allows you to connect relying on <strong>your enterprise or "
-#~ "your university</strong> (Click on the Delegation link below).\n"
-#~ msgstr ""
-#~ "\n"
-#~ "Plusieurs méthodes sécurisées vous permettent de vous authentifier sur "
-#~ "Identity Hub.\n"
-#~ "Cela inclut la technologie SAML2 pour vous appuyez sur <strong>votre "
-#~ "entreprise ou votre université.</strong> Utilisez le lien <em>Délégation</"
-#~ "em> ci-dessous.\n"
-
-#~ msgid "Log out"
-#~ msgstr "Déconnexion"
-
-#~ msgid "Federate your identity"
-#~ msgstr "Fédérer votre identité"
-
-#~ msgid "Defederate your identity"
-#~ msgstr "Défédérer votre identité"
-
-#~ msgid "Login with SSL"
-#~ msgstr "S'identifier avec SSL"
-
-#~ msgid "Login with OpenID"
-#~ msgstr "S'identifier avec OpenID"
-
-#~ msgid "User"
-#~ msgstr "Identifiant"
-
-#~ msgid "Logged in"
-#~ msgstr "Identifié"
+#~ msgid "AuthnRequest signed"
+#~ msgstr "AuthnRequest signée"
