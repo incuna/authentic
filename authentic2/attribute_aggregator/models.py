@@ -45,8 +45,12 @@ ATTRIBUTES_NS = [('Default', 'Default')] \
 
 
 class AttributeSource(models.Model):
-    name = models.CharField(max_length = 200, unique=True)
-    namespace = models.CharField(max_length = 100,
+    name = models.CharField(
+        verbose_name = _("Name"),
+        max_length = 200, unique=True)
+    namespace = models.CharField(
+        verbose_name = _("Namespace"),
+        max_length = 100,
         choices = ATTRIBUTES_NS, default = ATTRIBUTES_NS[0])
 
     def __unicode__(self):
@@ -75,14 +79,30 @@ def get_all_sources():
 
 
 class LdapSource(AttributeSource):
-    server = models.CharField(max_length=200, unique=True)
-    user = models.CharField(max_length=200, blank=True, null=True)
-    password = models.CharField(max_length=200, blank=True, null=True)
-    base = models.CharField(max_length=200)
-    port = models.IntegerField(default=389)
-    ldaps = models.BooleanField(default=False)
-    certificate = models.TextField(blank=True)
-    is_auth_backend = models.BooleanField(default=False)
+    server = models.CharField(
+        verbose_name = _("Server"),
+        max_length=200, unique=True)
+    user = models.CharField(
+        verbose_name = _("User"),
+        max_length=200, blank=True, null=True)
+    password = models.CharField(
+        verbose_name = _("Password"),
+        max_length=200, blank=True, null=True)
+    base = models.CharField(
+        verbose_name = _("Base"),
+        max_length=200)
+    port = models.IntegerField(
+        verbose_name = _("Port"),
+        default=389)
+    ldaps = models.BooleanField(
+        verbose_name = _("LDAPS"),
+        default=False)
+    certificate = models.TextField(
+        verbose_name = _("Certificate"),
+        blank=True)
+    is_auth_backend = models.BooleanField(
+        verbose_name = _("Is it used for authentication?"),
+        default=False)
 
     def __init__(self, *args, **kwargs):
         super(LdapSource, self).__init__(*args, **kwargs)
@@ -90,10 +110,14 @@ class LdapSource(AttributeSource):
 
 
 class UserAliasInSource(models.Model):
-    name = models.CharField(max_length = 200)
+    name = models.CharField(
+        verbose_name = _("Name"),
+        max_length = 200)
     source = models.ForeignKey(AttributeSource,
         verbose_name = _('Attribute Source'))
-    user = models.ForeignKey(User, related_name='user_alias_in_source')
+    user = models.ForeignKey(User,
+        verbose_name = _("User"),
+        related_name='user_alias_in_source')
 
     class Meta:
         verbose_name = _('alias in source')
