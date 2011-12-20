@@ -24,7 +24,7 @@ The Documentation is under the licence Creative Commons `CC BY-SA 2.0 <http://cr
 
 - `Authentic2 project site <http://dev.entrouvert.org/projects/authentic>`_
 - `Authentic2 roadmap <http://dev.entrouvert.org/projects/authentic/roadmap>`_
-- `Documentation in PDF <http://dev.entrouvert.org/attachments/148/Authentic2.pdf>`_
+- `Documentation in PDF <https://dev.entrouvert.org/attachments/158/Authentic2.pdf>`_
 
 Documentation content
 =====================
@@ -37,6 +37,8 @@ Documentation content
    download
 
    installation
+
+   settings
 
    auth_ldap
 
