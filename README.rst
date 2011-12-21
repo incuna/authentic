@@ -37,7 +37,7 @@ Dependencies
 
 You must install the following packages to use Authentic
 
- * Python Lasso binding 2.3.5::
+ * Python Lasso binding 2.3.6::
 
    From sources: http://lasso.entrouvert.org/download
    Debian based distribution: apt-get install python-lasso
@@ -87,7 +87,7 @@ You should see the following output::
   Validating models...
   0 errors found
 
-  Django version 1.2, using settings 'authentic.settings'
+  Django version 1.3, using settings 'authentic.settings'
   Development server is running at http://127.0.0.1:8000/
   Quit the server with CONTROL-C.
 
