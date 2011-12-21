@@ -1,12 +1,12 @@
-=====================================
-Authentic2 - Versatile Identity Server
-=====================================
+=======================================
+Authentic 2 - Versatile Identity Server
+=======================================
 
-Authentic2 is a versatile identity provider aiming to address a broad
+Authentic 2 is a versatile identity provider aiming to address a broad
 range of needs, from simple to complex setups; it has support for many
 protocols and can bridge between them.
 
-Authentic2 is under the GNU AGPL version 3 licence.
+Authentic 2 is under the GNU AGPL version 3 licence.
 
 It has support for SAMLv2 thanks to Lasso, a free (GNU GPL)
 implementation of the Liberty Alliance specifications.
@@ -41,7 +41,7 @@ You must install the following packages to use Authentic
 
    From sources: http://lasso.entrouvert.org/download
    Debian based distribution: apt-get install python-lasso
- 
+
  * Django 1.3::
 
    From sources: http://www.djangoproject.com/download/1.3/tarball/
@@ -158,7 +158,7 @@ How to authenticate users against an LDAP server with anonymous binding ?
  # Lookup user under the branch o=base and by mathcing their uid against the
  # received login name
  AUTH_LDAP_USER_SEARCH = LDAPSearch("o=base",
-     ldap.SCOPE_SUBTREE, "(uid=%(user)s)") 
+     ldap.SCOPE_SUBTREE, "(uid=%(user)s)")
 
 How to allow members of an LDAP group to manage Authentic ?
 -----------------------------------------------------------
@@ -187,7 +187,7 @@ documentation.
 SAML 2.0
 ========
 
-How to I authenticate against Authentic2 with a SAMLv2 service provider ?
+How to I authenticate against Authentic 2 with a SAMLv2 service provider ?
 ------------------------------------------------------------------------
 
  http[s]://your.domain.com/idp/saml2/metadata
@@ -205,7 +205,7 @@ assertion consumer or encryption for the NameID or the Assertion element.
 CAS
 ===
 
-How to use Authentic2 as a CAS 1.0 or CAS 2.0 identity provider ?
+How to use Authentic 2 as a CAS 1.0 or CAS 2.0 identity provider ?
 -----------------------------------------------------------------
 
 1. Activate CAS IdP support in settings.py::
@@ -265,7 +265,7 @@ Roadmap
    as URLs.
  - Extended CAS 2.0, with SAML attribute inside the CAS 2.0 validated ticket.
  - A virtual LDAP directory based on the OpenLDAP socket backend would remove
-   the need for a real LDAP directory to pass user attributes to CAS relying 
+   the need for a real LDAP directory to pass user attributes to CAS relying
    parties.
  - WS-Trust token service endpoint
  - Email forwarder, so that relying parties never get the real user email.
