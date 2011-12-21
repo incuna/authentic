@@ -242,7 +242,7 @@ Authentic 2 behaves as an attribute provider:
 Authentic requests (e.g. by soap) are not yet supported.
 
 When Authentic 2 behaves as an attribute provider at SSO login
-_____________________________________________________________
+______________________________________________________________
 
 At a SSO request, just before responding to the service provider, the saml2
 idp module sends the signal 'add_attributes_to_response' giving the SP entity
