@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 #
 '''
-   Setup script for Authentic2
+   Setup script for Authentic 2
 
    It started as a copy of ReviewBoard setup.py file, thanks to them, and for
 '''
@@ -22,7 +22,7 @@ def ls_r(directory, target):
 distutils.core.setup(name="authentic2",
       version=authentic2.VERSION,
       license="AGPLv3 or later",
-      description="Authentic2, a versatile identity server",
+      description="Authentic 2, a versatile identity server",
       url="http://dev.entrouvert.org/projects/authentic/",
       author="Entr'ouvert",
       author_email="authentic-devel@lists.labs.libre-entreprise.org",
