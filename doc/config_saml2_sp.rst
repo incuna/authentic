@@ -4,22 +4,22 @@
 Configure SAML 2.0 service providers
 ====================================
 
-How do I authenticate against Authentic2 with a SAML2 service provider?
+How do I authenticate against Authentic 2 with a SAML2 service provider?
 =======================================================================
 
-1. Declare Authentic2 as a SAML2 identity provider on your SAML2 service provider using the SAML2 identity provider metadata of Authentic2.
+1. Declare Authentic 2 as a SAML2 identity provider on your SAML2 service provider using the SAML2 identity provider metadata of Authentic 2.
 
 Go to http[s]://your.domain.com/idp/saml2/metadata
 
-2. Add and configure a SAML2 service provider in Authentic2 using the metadata of the service provider.
+2. Add and configure a SAML2 service provider in Authentic 2 using the metadata of the service provider.
 
-How do I add and configure a SAML2 service provider in Authentic2?
+How do I add and configure a SAML2 service provider in Authentic 2?
 ==================================================================
 
 You first need to create a new SAML2 service provider entry. This requires the
 SAML2 metadata of the service provider.
 
-If your service provider is Authentic2, the metadata are available at:
+If your service provider is Authentic 2, the metadata are available at:
 
     http[s]://your.domain.com/authsaml2/metadata
 

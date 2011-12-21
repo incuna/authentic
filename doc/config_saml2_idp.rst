@@ -1,29 +1,29 @@
 .. _config_saml2_idp:
 
-=================================================================
-Configure Authentic2 as a SAML2 service provider or a SAML2 proxy
-=================================================================
+==================================================================
+Configure Authentic 2 as a SAML2 service provider or a SAML2 proxy
+==================================================================
 
-**The configuration to make Authentic2 a SAML2 service provider or a SAML2
-proxy is the same. The difference comes from that Authentic2 is may be
+**The configuration to make Authentic 2 a SAML2 service provider or a SAML2
+proxy is the same. The difference comes from that Authentic 2 is may be
 configured or not as a SAML2 identity provider.**
 
 How do I authenticate against a third SAML2 identity provider?
 ==============================================================
 
-1. Declare Authentic2 as a SAML2 service provider on your SAML2 identity provider using the SAML2 service provider metadata of Authentic2.
+1. Declare Authentic 2 as a SAML2 service provider on your SAML2 identity provider using the SAML2 service provider metadata of Authentic 2.
 
 Go to http[s]://your.domain.com/authsaml2/metadata
 
-2. Add and configure a SAML2 identity provider entry in Authentic2 using the metadata of the identity provider.
+2. Add and configure a SAML2 identity provider entry in Authentic 2 using the metadata of the identity provider.
 
-How do I add and configure a SAML2 identity provider in Authentic2?
-===================================================================
+How do I add and configure a SAML2 identity provider in Authentic 2?
+====================================================================
 
 You first need to create a SAML2 identity provider entry with the SAML2
 metadata of the identity provider. Then, you configure it.
 
-If your identity provider is Authentic2, the metadata are available at:
+If your identity provider is Authentic 2, the metadata are available at:
 
     http[s]://your.domain.com/idp/saml2/metadata
 

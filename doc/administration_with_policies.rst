@@ -1,11 +1,11 @@
 .. _administration_with_policies:
 
-=========================================================
-How global policies are used in Authentic2 administration
-=========================================================
+==========================================================
+How global policies are used in Authentic 2 administration
+==========================================================
 
 The policy management with global policies is nearly used for any kind of
-policy in Authentic2.
+policy in Authentic 2.
 
 For each kind of these policies, the system takes in account two special
 global policies named 'Default' and 'All':

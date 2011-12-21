@@ -1,11 +1,11 @@
 .. _config_cas_sp:
 
-====================================
-Configure Authentic2 as a CAS server
-====================================
+=====================================
+Configure Authentic 2 as a CAS server
+=====================================
 
-How to use Authentic2 as a CAS 1.0 or CAS 2.0 identity provider ?
------------------------------------------------------------------
+How to use Authentic 2 as a CAS 1.0 or CAS 2.0 identity provider ?
+------------------------------------------------------------------
 
 1. Activate CAS IdP support in settings.py::
 

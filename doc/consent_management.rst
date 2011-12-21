@@ -1,8 +1,8 @@
 .. _consent_management:
 
-================================
-Consent Management in Authentic2
-================================
+=================================
+Consent Management in Authentic 2
+=================================
 
 What is the SAML2 federation consent aka account linking consent?
 =================================================================

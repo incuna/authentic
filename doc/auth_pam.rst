@@ -1,8 +1,8 @@
 .. _auth_pam:
 
-=====================================
-Authentication on Authentic2 with PAM
-=====================================
+======================================
+Authentication on Authentic 2 with PAM
+======================================
 
 This module is copied from https://bitbucket.org/wnielson/django-pam/ by Weston
 Nielson and the pam ctype module by Chris Atlee http://atlee.ca/software/pam/.

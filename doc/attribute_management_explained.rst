@@ -235,13 +235,13 @@ exists, obsolete data are removed at loading.
 When authentic 2 deals with attributes and needs mapping?
 ---------------------------------------------------------
 
-Authentic2 behaves as an attribute provider:
+Authentic 2 behaves as an attribute provider:
 * At the SSO login
 * When an attribute request is received
 
 Authentic requests (e.g. by soap) are not yet supported.
 
-When Authentic2 behaves as an attribute provider at SSO login
+When Authentic 2 behaves as an attribute provider at SSO login
 _____________________________________________________________
 
 At a SSO request, just before responding to the service provider, the saml2
@@ -433,6 +433,6 @@ This is currently implemented only for the SAML2 service provider module of
 authentic2. Authsaml2, the SP module, parse the assertion and put the
 attributes in the session.
 
-Then, Authentic2 can be used as a SAML2 proxy forwarding attributes in
+Then, Authentic 2 can be used as a SAML2 proxy forwarding attributes in
 assertion, eventually doing a namespace mapping. For this, the option
 forward attributes in sesion must be set (by default False).

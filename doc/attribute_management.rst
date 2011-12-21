@@ -1,25 +1,25 @@
 .. _attribute_management:
 
-==================================
-Attribute Management in Authentic2
-==================================
+===================================
+Attribute Management in Authentic 2
+===================================
 
 Summary
 =======
 
 Attribute management currently allows to configure attribute policies
 associated with SAML2 service providers to define attributes that are
-pushed in SAML2 successful authentication response delivered by Authentic2.
+pushed in SAML2 successful authentication response delivered by Authentic 2.
 
 User attributes can be taken from LDAP directories, the user Django
-profile or taken from the user Django session if Authentic2 is also configured
+profile or taken from the user Django session if Authentic 2 is also configured
 as a SAML2 service provider.
 
-Indeed, when Authentic2 acts also as a SAML2 service provider,
+Indeed, when Authentic 2 acts also as a SAML2 service provider,
 attributes contained in the SAML2 assertion received from third IdP are put in
 the user session.
 
-Attributes can thus be proxyfied during SSO with Authentic2
+Attributes can thus be proxyfied during SSO with Authentic 2
 configured as a SAML2 proxy.
 
 *If there is no attribute policy associate with a service provider, no
@@ -111,11 +111,11 @@ ___________________________________________________
 
 To find the user in a LDAP directory, authentic2 must know its distinguished
 name (DN). If this LDAP has been used when the user has authenticated,
-Authentic2 learn the user DN. Nothing has to be done from this point of view.
+Authentic 2 learn the user DN. Nothing has to be done from this point of view.
 
 However, if it is expected that user attributes be taken in a directory that
 is not used by the user for authentication, it is necessary to manually
-indicate to Authentic2 what is the user DN in the directory. For this, a
+indicate to Authentic 2 what is the user DN in the directory. For this, a
 user alias in source is created for the user:
 
 1. Go to http[s]://your.domain.com/admin/attribute_aggregator/useraliasinsource/add/
@@ -291,7 +291,7 @@ ________________________________________________________________________________
 
 The system needs to 'recognise the attributes' to perform the mapping.
 For this, you need to indicate the namespace of attributes received per source
-if the namespace is not the one of Authentic2 (X500/LDAP and extensions edu*
+if the namespace is not the one of Authentic 2 (X500/LDAP and extensions edu*
 and supann).
 
 In other words if the source provides attributes in a different namespace, you
@@ -322,7 +322,7 @@ ________________________________________________________________________________
 The system needs to 'recognise the attributes' to filter the attributes
 according to a list of attributes.
 For this, you need to indicate the namespace of attributes received per source
-if the namespace is not the one of Authentic2 (X500/LDAP and extensions edu*
+if the namespace is not the one of Authentic 2 (X500/LDAP and extensions edu*
 and supann).
 
 In other words if the source provides attributes in a different namespace, you

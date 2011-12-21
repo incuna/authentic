@@ -1,23 +1,23 @@
 .. _saml2_slo:
 
-======================================
-Single Logout Management in Authentic2
-======================================
+=======================================
+Single Logout Management in Authentic 2
+=======================================
 
 Explanation
 ===========
 
-Authentic2 implements the single logout profile of SAML2 (SLO). Single Logout is
+Authentic 2 implements the single logout profile of SAML2 (SLO). Single Logout is
 used to realise to close user session on distributed applications. The Single
 Logout is managed by the IdP. However, its exists many profiles all supported
-by Authentic2:
+by Authentic 2:
 
 - SLO IdP initiated by SOAP
 - SLO IdP initiated by Redirect
 - SLO SP initiated by SOAP
 - SLO SP initiated by Redirect
 
-Then, Authentic2 acting as an IdP but also as a SP (for proxying), a
+Then, Authentic 2 acting as an IdP but also as a SP (for proxying), a
 logout request can be received from:
 
 - the logout button on the user interface;
@@ -28,16 +28,16 @@ The configuration by policy allows to refuse SLO request coming from a SP or
 an IdP.
 
 **The the SLO request is accepted or comes from the user interface, at the end
-of the process the local session on Authentic2 will always be closed.**
+of the process the local session on Authentic 2 will always be closed.**
 
 During the process of treatment of the logout request, when the logout request
 comes from a SP, if the local session was established through a third SAML2 IdP,
-Authentic2 sends it a logout request (SLO proxying). Then, Authentic2
+Authentic 2 sends it a logout request (SLO proxying). Then, Authentic 2
 sends logout resuests to all service providers with an active session but the
 requesting service provider.
 
 During the process of treatment of the logout request, when the logout request
-comes from an IdP, Authentic2 sends logout resuests to all service providers
+comes from an IdP, Authentic 2 sends logout resuests to all service providers
 with an active session.
 
 The configuration by policy allows to select which IdP and SP to logout
@@ -117,7 +117,7 @@ How deactivate the SLO?
 =======================
 
 There is no real deactivation process. When it is possible and authorized,
-Authentic2 send logout requests when a logout request is received.
+Authentic 2 send logout requests when a logout request is received.
 
 If an options policy is not found for the source or the destination of the
 logout request, the logout requests are not accepted nor forwarded.
