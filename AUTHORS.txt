@@ -1,4 +1,4 @@
-Mickaël Atès <mates@entrouvert.com>
+Mikaël Ates <mates@entrouvert.com>
 Benjamin Dauvergne <bdauvergne@entrouvert.com>
 Frédéric Peters <fpeters@entrouvert.com>
 Jérôme Schneider <jschneider@entrouvert.com>
