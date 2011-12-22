@@ -1,6 +1,8 @@
 recursive-include data *
 recursive-include tests *.db *.py
 recursive-include static *.css *.js *.ico *.gif *.png *.jpg
+recursive-include authentic2/idp/static *.css *.js *.ico *.gif *.png *.jpg
+recursive-include authentic2/auth2_auth/auth2_openid/static *.css *.js *.ico *.gif *.png *.jpg
 recursive-include authentic2 README fixtures/*.json templates/*.html templates/*/*.html js/*.js templates/*/*/*.html locale/*/*/*.po xrds.xml *.txt yadis.xrdf
 include doc/*.rst
 include doc/pictures/*
