@@ -2,8 +2,6 @@
 #
 '''
    Setup script for Authentic 2
-
-   It started as a copy of ReviewBoard setup.py file, thanks to them, and for
 '''
 import distutils.core
 import authentic2
@@ -22,7 +20,7 @@ def ls_r(directory, target):
 distutils.core.setup(name="authentic2",
       version=authentic2.VERSION,
       license="AGPLv3 or later",
-      description="Authentic 2, a versatile identity server",
+      description="Authentic 2, a versatile identity management server",
       url="http://dev.entrouvert.org/projects/authentic/",
       author="Entr'ouvert",
       author_email="authentic-devel@lists.labs.libre-entreprise.org",
@@ -30,6 +28,8 @@ distutils.core.setup(name="authentic2",
       maintainer_email="bdauvergne@entrouvert.com",
       packages=[ 'authentic2',
             'authentic2/admin_log_view',
+            'authentic2/attribute_aggregator',
+            'authentic2/attribute_aggregator/migrations',
             'authentic2/auth2_auth',
             'authentic2/auth2_auth/auth2_oath',
             'authentic2/auth2_auth/auth2_ssl',
@@ -45,6 +45,7 @@ distutils.core.setup(name="authentic2",
             'authentic2/idp/management',
             'authentic2/idp/management/commands',
             'authentic2/idp/migrations',
+            'authentic2/nonce',
             'authentic2/saml',
             'authentic2/saml/management',
             'authentic2/saml/management/commands',
@@ -60,9 +61,9 @@ distutils.core.setup(name="authentic2",
             ],
       package_data={ '': ['fixtures/*.json',
           'templates/*.html','templates/*/*.html','js/*.js'] },
-      data_files=list(ls_r('media', 'share/authentic2/')),
+      data_files=list(ls_r('static', 'share/authentic2/')),
       requires=[
-          'django (>=1.2.0)',
+          'django (>=1.3.0)',
           'registration (>=0.7)',
           'debug_toolbar',
           'django_authopenid (>=1.0)',
