@@ -1,0 +1,23 @@
+NEWS
+====
+
+2.0.0 - December 22nd 2011
+--------------------------
+
+Main Features:
+
+* SAML 2.0 Identity provider
+* ID-FF 1.2 Identity provider
+* OpenID provider
+* CAS server
+* SAML 2.0 Service provider
+* ID-FF 1.2 Service provider
+* OpenID relying party
+* Protocol proxying
+* Authentication by simple password
+* Authentication by one-time password OATH and google-authenticator
+* Authentication by self-signed X509 certificates avoer SSL/TLS
+* Authentication on LDAP
+* Authentication on PAM
+* Attribute management for attributes in SAML2 authentication requests
+* Attribute namespace mapping
