@@ -590,7 +590,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.16.840.1.113730.3.1.1",
     "display_name": _("carLicense"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/inetorgperson.ldif
@@ -598,7 +598,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.16.840.1.113730.3.1.2",
     "display_name": _("departmentNumber"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/inetorgperson.ldif
@@ -622,7 +622,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.16.840.1.113730.3.1.4",
     "display_name": _("employeeType"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/inetorgperson.ldif
@@ -630,7 +630,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.60",
     "display_name": _("jpegPhoto"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.28)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.28",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/inetorgperson.ldif
@@ -646,7 +646,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.16.840.1.113730.3.1.40",
     "display_name": _("userSMIMECertificate"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.5)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.5",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/inetorgperson.ldif
@@ -654,7 +654,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.16.840.1.113730.3.1.216",
     "display_name": _("userPKCS12"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.5)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.5",
 },
 
 
@@ -743,7 +743,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "1.3.6.1.1.1.1.12",
     "display_name": _("memberUid"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/nis.ldif
@@ -751,7 +751,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "1.3.6.1.1.1.1.13",
     "display_name": _("memberNisNetgroup"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/nis.ldif
@@ -759,7 +759,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "1.3.6.1.1.1.1.14",
     "display_name": _("nisNetgroupTriple"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.1.1.0.0)",
+    "syntax": "1.3.6.1.1.1.0.0",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/nis.ldif
@@ -798,7 +798,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "1.3.6.1.1.1.1.19",
     "display_name": _("ipHostNumber"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26{128})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26{128}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/nis.ldif
@@ -822,7 +822,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "1.3.6.1.1.1.1.22",
     "display_name": _("macAddress"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26{128})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26{128}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/nis.ldif
@@ -830,7 +830,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "1.3.6.1.1.1.1.23",
     "display_name": _("bootParameter"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.1.1.0.1)",
+    "syntax": "1.3.6.1.1.1.0.1",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/nis.ldif
@@ -838,7 +838,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "1.3.6.1.1.1.1.24",
     "display_name": _("bootFile"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/nis.ldif
@@ -862,7 +862,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.2",
     "display_name": _("knowledgeInformation"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{32768})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{32768}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -891,7 +891,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.5",
     "display_name": _("serialNumber"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.44{64})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.44{64}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -991,7 +991,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.14",
     "display_name": _("searchGuide"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.25)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.25",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -999,7 +999,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.15",
     "display_name": _("businessCategory"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{128})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{128}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1008,7 +1008,7 @@ ATTRIBUTE_MAPPING = {
     "display_name": _("postalAddress"),
     "profile_field_name": 'postal_address',
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.41)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.41",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1016,7 +1016,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.17",
     "display_name": _("postalCode"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{40})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{40}",
     "namespaces": {
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims": {
             "identifiers":
@@ -1036,7 +1036,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.18",
     "display_name": _("postOfficeBox"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{40})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{40}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1044,7 +1044,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.19",
     "display_name": _("physicalDeliveryOfficeName"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{128})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{128}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1053,7 +1053,7 @@ ATTRIBUTE_MAPPING = {
     "display_name": _("telephoneNumber"),
     "profile_field_name": 'phone',
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.50{32})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.50{32}",
     "namespaces": {
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims": {
             "identifiers":
@@ -1073,7 +1073,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.21",
     "display_name": _("telexNumber"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.52)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.52",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1081,7 +1081,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.22",
     "display_name": _("teletexTerminalIdentifier"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.51)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.51",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1097,7 +1097,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.24",
     "display_name": _("x121Address"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.36{15})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.36{15}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1105,7 +1105,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.25",
     "display_name": _("internationaliSDNNumber"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.36{16})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.36{16}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1113,7 +1113,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.26",
     "display_name": _("registeredAddress"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.41)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.41",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1121,7 +1121,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.27",
     "display_name": _("destinationIndicator"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.44{128})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.44{128}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1145,7 +1145,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.30",
     "display_name": _("supportedApplicationContext"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.38)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.38",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1174,7 +1174,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.36",
     "display_name": _("userCertificate"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.8)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.8",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1182,7 +1182,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.37",
     "display_name": _("cACertificate"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.8)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.8",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1190,7 +1190,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.38",
     "display_name": _("authorityRevocationList"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.9)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.9",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1198,7 +1198,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.39",
     "display_name": _("certificateRevocationList"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.9)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.9",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1206,7 +1206,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.40",
     "display_name": _("crossCertificatePair"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.10)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.10",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1249,7 +1249,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.45",
     "display_name": _("x500UniqueIdentifier"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.6)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.6",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1257,7 +1257,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.46",
     "display_name": _("dnQualifier"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.44)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.44",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1265,7 +1265,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.47",
     "display_name": _("enhancedSearchGuide"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.21)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.21",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1273,7 +1273,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.48",
     "display_name": _("protocolInformation"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.42)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.42",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1281,7 +1281,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.50",
     "display_name": _("uniqueMember"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.34)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.34",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1289,7 +1289,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.51",
     "display_name": _("houseIdentifier"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{32768})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{32768}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1297,7 +1297,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.52",
     "display_name": _("supportedAlgorithms"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.49)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.49",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1305,7 +1305,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.5.4.53",
     "display_name": _("deltaRevocationList"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.9)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.9",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1343,7 +1343,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.37",
     "display_name": _("associatedDomain"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
@@ -1373,7 +1373,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.2",
     "display_name": _("textEncodedORAddress"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1381,7 +1381,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.4",
     "display_name": _("info"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{2048})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{2048}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1397,7 +1397,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.6",
     "display_name": _("roomNumber"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1405,7 +1405,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.7",
     "display_name": _("photo"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.23{25000})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.23{25000}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1413,7 +1413,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.8",
     "display_name": _("userClass"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1421,7 +1421,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.9",
     "display_name": _("host"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1429,7 +1429,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.10",
     "display_name": _("manager"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.12)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.12",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1437,7 +1437,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.11",
     "display_name": _("documentIdentifier"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1445,7 +1445,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.12",
     "display_name": _("documentTitle"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1453,7 +1453,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.13",
     "display_name": _("documentVersion"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1461,7 +1461,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.14",
     "display_name": _("documentAuthor"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.12)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.12",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1469,7 +1469,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.15",
     "display_name": _("documentLocation"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1497,7 +1497,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.21",
     "display_name": _("secretary"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.12)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.12",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1512,7 +1512,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.26",
     "display_name": _("aRecord"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1520,7 +1520,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.27",
     "display_name": _("mDRecord"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1528,7 +1528,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.28",
     "display_name": _("mXRecord"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1536,7 +1536,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.29",
     "display_name": _("nSRecord"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1544,7 +1544,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.30",
     "display_name": _("sOARecord"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1552,7 +1552,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.31",
     "display_name": _("cNAMERecord"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1560,7 +1560,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.38",
     "display_name": _("associatedName"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.12)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.12",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1568,7 +1568,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.39",
     "display_name": _("homePostalAddress"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.41)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.41",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1576,7 +1576,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.40",
     "display_name": _("personalTitle"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1632,7 +1632,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.44",
     "display_name": _("uniqueIdentifier"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1640,7 +1640,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.45",
     "display_name": _("organizationalStatus"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1648,7 +1648,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.46",
     "display_name": _("janetMailbox"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1656,7 +1656,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.47",
     "display_name": _("mailPreferenceOption"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.27)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.27",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1664,7 +1664,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.48",
     "display_name": _("buildingName"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1712,7 +1712,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.54",
     "display_name": _("dITRedirect"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.12)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.12",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1720,7 +1720,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.55",
     "display_name": _("audio"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.4{25000})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.4{25000}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/cosine.ldif
@@ -1728,7 +1728,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "0.9.2342.19200300.100.1.56",
     "display_name": _("documentPublisher"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.15)",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.15",
 },
 
 
@@ -1737,7 +1737,7 @@ ATTRIBUTE_MAPPING = {
     "oid": "2.16.840.1.113730.3.1.13",
     "display_name": _("mailLocalAddress"),
     "type": "http://www.w3.org/2001/XMLSchema#string",
-    "syntax": "1.3.6.1.4.1.1466.115.121.1.26{256})",
+    "syntax": "1.3.6.1.4.1.1466.115.121.1.26{256}",
 },
 
 #Extracted from openldap schema /etc/ldap/schema/misc.ldif
