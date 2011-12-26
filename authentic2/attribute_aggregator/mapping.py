@@ -868,7 +868,7 @@ ATTRIBUTE_MAPPING = {
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
 "sn": {
     "oid": "2.5.4.4",
-    "display_name": "sn surname",
+    "display_name": _("Last name") + "(sn surname)",
     "alias": ['surname'],
     "profile_field_name": 'last_name',
     "type": "http://www.w3.org/2001/XMLSchema#string",
@@ -965,7 +965,7 @@ ATTRIBUTE_MAPPING = {
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
 "o": {
     "oid": "2.5.4.10",
-    "display_name": "o organizationName",
+    "display_name": _("Organization") + "(o organizationName)",
     "alias": ['organizationName'],
     "profile_field_name": 'company',
     "type": "http://www.w3.org/2001/XMLSchema#string",
@@ -1005,7 +1005,7 @@ ATTRIBUTE_MAPPING = {
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
 "postalAddress": {
     "oid": "2.5.4.16",
-    "display_name": "postalAddress",
+    "display_name": _("Postal address") + "(postalAddress)",
     "profile_field_name": 'postal_address',
     "type": "http://www.w3.org/2001/XMLSchema#string",
     "syntax": "1.3.6.1.4.1.1466.115.121.1.41",
@@ -1050,7 +1050,7 @@ ATTRIBUTE_MAPPING = {
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
 "telephoneNumber": {
     "oid": "2.5.4.20",
-    "display_name": "telephoneNumber",
+    "display_name": _("Phone") + "(telephoneNumber)",
     "profile_field_name": 'phone',
     "type": "http://www.w3.org/2001/XMLSchema#string",
     "syntax": "1.3.6.1.4.1.1466.115.121.1.50{32}",
@@ -1212,7 +1212,7 @@ ATTRIBUTE_MAPPING = {
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
 "gn": {
     "oid": "2.5.4.42",
-    "display_name": "gn givenName",
+    "display_name": _("First name") + "(gn givenName)",
     "alias": ['givenName'],
     "profile_field_name": 'first_name',
     "type": "http://www.w3.org/2001/XMLSchema#string",
@@ -1349,7 +1349,7 @@ ATTRIBUTE_MAPPING = {
 #Extracted from openldap schema /etc/ldap/schema/core.ldif
 "email": {
     "oid": "1.2.840.113549.1.9.1",
-    "display_name": "email pkcs9email emailAddress",
+    "display_name": _("Email Address") + "(email pkcs9email emailAddress)",
     "alias": ['pkcs9email', 'emailAddress'],
     "profile_field_name": 'email',
     "type": "http://www.w3.org/2001/XMLSchema#string",
