@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-20 14:39+0100\n"
+"POT-Creation-Date: 2011-12-23 19:15+0100\n"
 "PO-Revision-Date: 2010-06-01 11:03+0200\n"
 "Last-Translator: Mikaël Ates <mates@entrouvert.com>\n"
 "Language-Team: None\n"
@@ -35,8 +35,32 @@ msgstr "Anglais"
 msgid "French"
 msgstr "Français"
 
+#: attribute_aggregator/mapping.py:871 idp/models.py:67
+msgid "Last name"
+msgstr "Nom de famille"
+
+#: attribute_aggregator/mapping.py:968
+msgid "Organization"
+msgstr "Organisation"
+
+#: attribute_aggregator/mapping.py:1008 idp/models.py:79
+msgid "Postal address"
+msgstr "Adresse postale"
+
+#: attribute_aggregator/mapping.py:1053 idp/models.py:77
+msgid "Phone"
+msgstr "Téléphone"
+
+#: attribute_aggregator/mapping.py:1215 idp/models.py:63
+msgid "First name"
+msgstr "Prénom"
+
+#: attribute_aggregator/mapping.py:1352
+msgid "Email Address"
+msgstr "Adresse email"
+
 #: attribute_aggregator/models.py:49 attribute_aggregator/models.py:114
-#: idp/models.py:131
+#: idp/models.py:135
 msgid "Name"
 msgstr "Nom"
 
@@ -710,130 +734,114 @@ msgstr "Continuer la déconnexion"
 msgid "User consent for attributes propagation"
 msgstr "Consentement utilisateur pour la propagation des attributs"
 
-#: idp/models.py:62
-msgid "first name"
-msgstr "Prénom"
-
-#: idp/models.py:65
-msgid "last name"
-msgstr "Nom de famille"
-
-#: idp/models.py:68
-msgid "e-mail address"
-msgstr "adresse email"
-
-#: idp/models.py:69
-msgid "nickname"
-msgstr "surnom"
-
 #: idp/models.py:70
+msgid "Email address"
+msgstr "Adresse email"
+
+#: idp/models.py:72
+msgid "Nickname"
+msgstr "Surnom"
+
+#: idp/models.py:73
 msgid "Website"
 msgstr "Site Web"
 
-#: idp/models.py:71
+#: idp/models.py:75
 msgid "Company"
 msgstr "Société"
 
-#: idp/models.py:73
-msgid "Phone"
-msgstr "Téléphone"
-
-#: idp/models.py:75
-msgid "Postal address"
-msgstr "Adresse postale"
-
-#: idp/models.py:94
+#: idp/models.py:98
 msgid "Attribute name"
 msgstr "Nom de l'attribut"
 
-#: idp/models.py:100 idp/models.py:185
+#: idp/models.py:104 idp/models.py:189
 msgid "Output name format"
 msgstr "Format du nom de l'attribut en sortie"
 
-#: idp/models.py:106 idp/models.py:192
+#: idp/models.py:110 idp/models.py:196
 msgid "Output namespace"
 msgstr "Espace de nom de sortie"
 
-#: idp/models.py:110
+#: idp/models.py:114
 msgid "Required"
 msgstr "Requis"
 
-#: idp/models.py:113
+#: idp/models.py:117
 msgid "Attribute source"
 msgstr "Source d'attributs"
 
-#: idp/models.py:117
+#: idp/models.py:121
 msgid "attribute of a list (SSO Login)"
 msgstr "attribute d'une liste (Login SSO)"
 
-#: idp/models.py:118
+#: idp/models.py:122
 msgid "attributes of lists (SSO Login)"
 msgstr "les attributs d'une liste (Login SSO)"
 
-#: idp/models.py:134
+#: idp/models.py:138
 msgid "Attributes"
 msgstr "Attributs"
 
-#: idp/models.py:139
+#: idp/models.py:143
 msgid "attribute list (SSO Login)"
 msgstr "liste d'attributs (Login SSO)"
 
-#: idp/models.py:140
+#: idp/models.py:144
 msgid "attribute lists (SSO Login)"
 msgstr "listes d'attributs (Login SSO)"
 
-#: idp/models.py:148 saml/models.py:171 saml/models.py:252 saml/models.py:309
+#: idp/models.py:152 saml/models.py:171 saml/models.py:252 saml/models.py:309
 #: saml/models.py:382 saml/models.py:402
 msgid "Enabled"
 msgstr "Activé"
 
-#: idp/models.py:150
+#: idp/models.py:154
 msgid "Ask the user consent before forwarding attributes"
 msgstr ""
 "Demander le consentement de l'utilisateur avant d'envoyer des attributs"
 
-#: idp/models.py:153
+#: idp/models.py:157
 msgid "Allow the user to select the forwarding attributes"
 msgstr "Permettre à l'utilisateur de séléctioner les attributs à envoyer"
 
-#: idp/models.py:160
+#: idp/models.py:164
 msgid "Pull attributes list"
 msgstr "Liste des attributs des sources locales"
 
-#: idp/models.py:169
+#: idp/models.py:173
 msgid "Forward pushed attributes"
 msgstr "Faire suivre les attributs poussés"
 
-#: idp/models.py:179
+#: idp/models.py:183
 msgid "Map forwarded pushed attributes"
 msgstr "Mapper les attributs poussés à faire suivre"
 
-#: idp/models.py:200
+#: idp/models.py:204
 msgid "Filter by source the forwarded pushed attributes"
 msgstr "Filtrer par source les attributs poussés à faire suivre"
 
-#: idp/models.py:208
+#: idp/models.py:212
 msgid "Filter by attribute names the forwarded pushed attributes"
 msgstr "Filtrer par attribut les attributs poussés à faire suivre"
 
-#: idp/models.py:216
+#: idp/models.py:220
 msgid "Filter by source and per attribute the forwarded pushed attributes"
 msgstr ""
 "Filtrer par source et par attribut les attributs poussés à faire suivre"
 
-#: idp/models.py:224
+#: idp/models.py:228
 msgid "Map filtered attributes"
 msgstr "Mapper les attributs filtrés"
 
-#: idp/models.py:231
+#: idp/models.py:235
 msgid "Send an error when a required attribute is missing"
 msgstr "envoyer une erreur lorsqu'un attribut requis est manquant"
 
-#: idp/models.py:238
+#: idp/models.py:242
 msgid "attribute options policy"
 msgstr "regle d'options d'attributs"
 
-#: idp/models.py:239
+#: idp/models.py:243
 msgid "attribute options policies"
 msgstr "regles d'options d'attributs"
 
@@ -1820,6 +1828,3 @@ msgstr "profile d'inscription"
 #: vendor/registration/models.py:175
 msgid "registration profiles"
 msgstr "profiles d'inscription"
-
-#~ msgid "AuthnRequest signed"
-#~ msgstr "AuthnRequest signée"
