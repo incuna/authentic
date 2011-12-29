@@ -64,10 +64,8 @@ distutils.core.setup(name="authentic2",
       data_files=list(ls_r('static', 'share/authentic2/')),
       requires=[
           'django (>=1.3.0)',
-          'registration (>=0.7)',
-          'debug_toolbar',
-          'django_authopenid (>=1.0)',
-          'django_profiles (>=0.2)',
-          'south'
+          'south',
+          'django-authopenid (>=1.0)',
+          'django-profiles (>=0.2)',
       ],
 )

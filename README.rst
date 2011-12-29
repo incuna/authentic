@@ -46,11 +46,6 @@ You must install the following packages to use Authentic
 
    From sources: http://www.djangoproject.com/download/1.3/tarball/
 
- * Django-registration 0.8-alpha-1::
-
-    From sources: http://bitbucket.org/ubernostrum/django-registration/downloads
-    Debian based distribution: apt-get install python-django-registration
-
  * Django-authopenid 0.9.6::
 
    From sources: http://bitbucket.org/benoitc/django-authopenid/downloads
@@ -65,13 +60,11 @@ You must install the following packages to use Authentic
 
 You install all the django libraries quickly using pip::
 
-   pip install django django-profiles django-registration \
-               django-debug-toolbar django-authopenid south
+   pip install django django-profiles django-authopenid south
 
 or easy_install::
 
-   easy_install django django-profiles django-registration \
-                django-debug-toolbar django-authopenid south
+   easy_install django django-profiles django-authopenid south
 
 Quick Start
 -----------
