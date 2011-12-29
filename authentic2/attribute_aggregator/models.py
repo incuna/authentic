@@ -26,6 +26,10 @@ from cPickle import loads, dumps
 from django.utils.translation import ugettext as _
 from django.db import models
 from django.contrib.auth.models import User
+try:
+    import ldap
+except ImportError:
+    ldap = None
 
 from authentic2.attribute_aggregator.signals import any_attributes_call, \
     listed_attributes_call, listed_attributes_with_source_call
@@ -77,37 +81,36 @@ def get_all_sources():
     except:
         return None
 
+if ldap:
+    class LdapSource(AttributeSource):
+        server = models.CharField(
+            verbose_name = _("Server"),
+            max_length=200, unique=True)
+        user = models.CharField(
+            verbose_name = _("User"),
+            max_length=200, blank=True, null=True)
+        password = models.CharField(
+            verbose_name = _("Password"),
+            max_length=200, blank=True, null=True)
+        base = models.CharField(
+            verbose_name = _("Base"),
+            max_length=200)
+        port = models.IntegerField(
+            verbose_name = _("Port"),
+            default=389)
+        ldaps = models.BooleanField(
+            verbose_name = _("LDAPS"),
+            default=False)
+        certificate = models.TextField(
+            verbose_name = _("Certificate"),
+            blank=True)
+        is_auth_backend = models.BooleanField(
+            verbose_name = _("Is it used for authentication?"),
+            default=False)
 
-class LdapSource(AttributeSource):
-    server = models.CharField(
-        verbose_name = _("Server"),
-        max_length=200, unique=True)
-    user = models.CharField(
-        verbose_name = _("User"),
-        max_length=200, blank=True, null=True)
-    password = models.CharField(
-        verbose_name = _("Password"),
-        max_length=200, blank=True, null=True)
-    base = models.CharField(
-        verbose_name = _("Base"),
-        max_length=200)
-    port = models.IntegerField(
-        verbose_name = _("Port"),
-        default=389)
-    ldaps = models.BooleanField(
-        verbose_name = _("LDAPS"),
-        default=False)
-    certificate = models.TextField(
-        verbose_name = _("Certificate"),
-        blank=True)
-    is_auth_backend = models.BooleanField(
-        verbose_name = _("Is it used for authentication?"),
-        default=False)
-
-    def __init__(self, *args, **kwargs):
-        super(LdapSource, self).__init__(*args, **kwargs)
-        self.namespace = "X500"
-
+        def __init__(self, *args, **kwargs):
+            super(LdapSource, self).__init__(*args, **kwargs)
+            self.namespace = "X500"
 
 class UserAliasInSource(models.Model):
     name = models.CharField(

@@ -1,10 +1,8 @@
 from django.contrib import admin
-from models import UserConsentAttributes
 from django.conf import settings
 
-from authentic2.idp.models import AttributeItem, AttributeList, AttributePolicy
-from authentic2.attribute_aggregator.models import AttributeSource, \
-    LdapSource, UserAliasInSource
+from models import AttributeItem, AttributeList, AttributePolicy, \
+    UserConsentAttributes
 
 
 class AttributeListAdmin(admin.ModelAdmin):
@@ -43,30 +41,10 @@ class AttributePolicyAdmin(admin.ModelAdmin):
     )
 
 
-class LdapSourceAdmin(admin.ModelAdmin):
-    fieldsets = (
-            (None, {
-                'fields' : (
-                    'name',
-                    'server',
-                    'user',
-                    'password',
-                    'base',
-                    'port',
-                    'ldaps',
-                    'certificate',
-                    'is_auth_backend',
-                )
-            }),
-    )
-
 
 admin.site.register(AttributeItem)
 admin.site.register(AttributeList, AttributeListAdmin)
 admin.site.register(AttributePolicy, AttributePolicyAdmin)
-admin.site.register(AttributeSource)
-admin.site.register(LdapSource, LdapSourceAdmin)
-admin.site.register(UserAliasInSource)
 
 if settings.DEBUG:
     admin.site.register(UserConsentAttributes)

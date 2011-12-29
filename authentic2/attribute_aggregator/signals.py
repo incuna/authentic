@@ -18,7 +18,10 @@
 '''
 
 
-import ldap_sources
+try:
+    import ldap_sources
+except ImportError:
+    ldap_sources = None
 import user_profile
 
 from django.dispatch import Signal
@@ -29,9 +32,10 @@ listed_attributes_call = Signal(providing_args = ["user", "definitions"])
 listed_attributes_with_source_call = Signal(providing_args = \
     ["user", "definitions", "source"])
 
-any_attributes_call.connect(ldap_sources.get_attributes)
-listed_attributes_call.connect(ldap_sources.get_attributes)
-listed_attributes_with_source_call.connect(ldap_sources.get_attributes)
+if ldap_sources:
+    any_attributes_call.connect(ldap_sources.get_attributes)
+    listed_attributes_call.connect(ldap_sources.get_attributes)
+    listed_attributes_with_source_call.connect(ldap_sources.get_attributes)
 
 any_attributes_call.connect(user_profile.get_attributes)
 listed_attributes_call.connect(user_profile.get_attributes)
