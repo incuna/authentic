@@ -138,9 +138,12 @@ documentation, see http://packages.python.org/django-auth-ldap/.
 How to authenticate users against an LDAP server with anonymous binding ?
 -------------------------------------------------------------------------
 
-1. Install the django_auth_ldap module for Django::
+1. Install the django_auth_ldap module for Django, for this you need
+   python-ldap, python-ldap needs python developement headers to be installed
+   but is usually packaged by most distributions::
 
  pip install django_auth_ldap
+
 
 2. Configure your local_settings.py file for authenticating against LDAP.
    The next lines must be added::
