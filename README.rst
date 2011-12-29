@@ -40,7 +40,7 @@ You must install the following packages to use Authentic
  * Python Lasso binding 2.3.6::
 
    From sources: http://lasso.entrouvert.org/download
-   Debian based distribution: apt-get install python-lasso
+   Debian based distribution: http://deb.entrouvert.org/
 
  * Django 1.3::
 
