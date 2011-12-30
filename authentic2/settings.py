@@ -4,7 +4,7 @@ import os
 
 gettext_noop = lambda s: s
 
-DEBUG = True
+DEBUG = False
 USE_DEBUG_TOOLBAR = DEBUG
 STATIC_SERVE = DEBUG
 TEMPLATE_DEBUG = DEBUG
