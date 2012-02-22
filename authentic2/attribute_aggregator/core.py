@@ -260,11 +260,18 @@ def load_or_create_user_profile(user=None, no_cleanup=False):
                     % user)
                 profile = UserAttributeProfile.objects.get(user=user)
             except ObjectDoesNotExist:
-                profile = UserAttributeProfile(user=user)
-                profile.save()
-                logger.info('load_or_create_user_profile: \
-                    profile with id %s for user %s created' \
-                    % (str(profile.id), user))
+                try:
+                    profile = UserAttributeProfile(user=user)
+                    profile.save()
+                    logger.info('load_or_create_user_profile: \
+                        profile with id %s for user %s created' \
+                        % (str(profile.id), user))
+                except:
+                    profile = UserAttributeProfile()
+                    profile.save()
+                    logger.debug('load_or_create_user_profile: \
+                        profile with id %s for an anonymous user created' \
+                        % str(profile.id))
             else:
                 if no_cleanup:
                     logger.debug('load_or_create_user_profile: Existing user \
