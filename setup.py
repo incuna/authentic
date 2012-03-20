@@ -62,10 +62,4 @@ distutils.core.setup(name="authentic2",
       package_data={ '': ['fixtures/*.json',
           'templates/*.html','templates/*/*.html','js/*.js'] },
       data_files=list(ls_r('static', 'share/authentic2/')),
-      requires=[
-          'django (>=1.3.0)',
-          'south',
-          'django-authopenid (>=1.0)',
-          'django-profiles (>=0.2)',
-      ],
 )
