@@ -23,7 +23,7 @@ admin.site.register(AttributeSource)
 admin.site.register(UserAliasInSource)
 
 try:
-    from model import LdapSource
+    from models import LdapSource
     admin.site.register(LdapSource, LdapSourceAdmin)
 except ImportError:
     pass
