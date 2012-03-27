@@ -20,7 +20,7 @@ class Service(object):
 class SamlBackend(object):
     def service_list(self, request):
         q = models.LibertyServiceProvider.objects.filter(enabled = True)
-        list = []
+        ls = []
         for service_provider in q:
             liberty_provider = service_provider.liberty_provider
             policy = common.get_sp_options_policy(liberty_provider)
@@ -41,7 +41,9 @@ class SamlBackend(object):
                     actions.append(('logout', 'POST',
                         '/idp/%s/idp_slo/' % protocol,
                         (( 'provider_id', entity_id ),)))
-        return list
+                ls.append(Service(url=None, name=liberty_provider.name,
+                    actions=actions))
+        return ls
 
     def logout_list(self, request):
         all_sessions = models.LibertySession.objects.filter(
