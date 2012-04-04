@@ -1,5 +1,3 @@
-import collections
-
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.template import RequestContext
@@ -44,8 +42,6 @@ def consent_attributes(request, nonce = '', next = None, provider_id = None):
         attributes = []
         next = request.GET.get('next', '')
         if 'attributes_to_send' in request.session:
-            request.session['attributes_to_send'] = \
-                collections.OrderedDict(request.session['attributes_to_send'])
             i = 0
             for key, values in request.session['attributes_to_send'].items():
                 name = None
