@@ -459,12 +459,13 @@ def provide_attributes_at_sso(request, user, audience, **kwargs):
                     namespace_out = attribute_policy.output_namespace
                     name_format_out = attribute_policy.output_name_format
                 for definition in definitions:
-                    d = p.get_freshest_data_of_definition(definition)
-                    add_data_to_dic(attributes,
-                        d.definition,
-                        d.get_values(),
-                        name_format_out,
-                        namespace_out)
+                    data = p.get_freshest_data_of_definition(definition)
+                    if data:
+                        add_data_to_dic(attributes,
+                            data.definition,
+                            data.get_values(),
+                            name_format_out,
+                            namespace_out)
 
     logger.debug('provide_attributes_at_sso: attributes returned are \
         %s' % str(attributes))
