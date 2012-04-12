@@ -66,6 +66,13 @@ or easy_install::
 
    easy_install django django-profiles django-authopenid south
 
+In DEBUG mode (Default mode)
+____________________________
+
+ * Django Debug Toolbar::
+
+   Download at https://github.com/django-debug-toolbar/django-debug-toolbar
+
 Quick Start
 -----------
 
