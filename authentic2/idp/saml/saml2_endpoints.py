@@ -468,32 +468,35 @@ def sso_after_process_request(request, login, consent_obtained = False,
 
     logger.debug('sso_after_process_request: named Id format is %s' %nid_format)
 
-    # TODO: If the sp ask for persistent, refuse login creting a transient
-
     # XXX: if not passive and (not user.is_authenticated() or (force_authn and not did_auth)):
     if not passive and (user.is_anonymous() or (force_authn and not did_auth)):
         logger.info('sso_after_process_request: login required')
         return need_login(request, login, save, nid_format)
 
-    # Transient user
-    # If the SP asks for persistent, reject
-    transient = False
+    '''Deal with transient users'''
+    transient_user = False
     # XXX: Deal with all kind of transient users
     type(SAML2TransientUser)
     if isinstance(request.user, SAML2TransientUser):
         logger.debug('sso_after_process_request: the user is transient')
-        transient = True
-    if transient and login.request.nameIdPolicy.format == lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
+        transient_user = True
+    if transient_user and login.request.nameIdPolicy.format == lasso.SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT:
         logger.info('sso_after_process_request: access denied, the user is transient and the sp ask for persistent')
         set_saml2_response_responder_status_code(login.response,
                 lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
         return finish_sso(request, login)
     # If the sp does not allow create, reject
-    if transient and login.request.nameIdPolicy.allowCreate == 'false':
+    if transient_user and login.request.nameIdPolicy.allowCreate == 'false':
         logger.info('sso_after_process_request: access denied, we created a transient user and allow creation is not authorized by the SP')
         set_saml2_response_responder_status_code(login.response,
                 lasso.SAML2_STATUS_CODE_REQUEST_DENIED)
         return finish_sso(request, login)
+
+    '''Do not ask consent for federation if a transient nameID is provided'''
+    transient = False
+    if login.request.nameIdPolicy.format == \
+            lasso.SAML2_NAME_IDENTIFIER_FORMAT_TRANSIENT:
+        transient = True
 
     decisions = idp_signals.authorize_service.send(sender=None,
          request=request, user=request.user, audience=login.remoteProviderId)
