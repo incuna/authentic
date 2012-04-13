@@ -690,37 +690,58 @@ def sso_after_response(request, login, relay_state = None, provider=None):
         and (policy is None \
              or not policy.transient_is_persistent):
         logger.info('sso_after_response: Transient nameID')
-        if policy.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
-            return error_page(request,
-                _('sso_after_response: \
-                Transient access policy not yet implemented'),
-                logger=logger)
-        if policy.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
-            logger.info('sso_after_response: \
-                Opening session for transient with nameID')
-            logger.debug('sso_after_response: \
-                nameID %s' %login.nameIdentifier.dump())
-            user = authenticate(name_id=login.nameIdentifier)
-            if not user:
-                return error_page(request,
-                    _('sso_after_response: \
-                    No backend for temporary federation is configured'),
-                    logger=logger)
-            auth_login(request, user)
-            logger.debug('sso_after_response: django session opened')
-            session_not_on_or_after = get_session_not_on_or_after(login.assertion)
-            if session_not_on_or_after:
-                request.session.set_expiry(session_not_on_or_after)
-                logger.debug('sso_after_response: session set to expire on %s by SessionNotOnOrAfter attribute', session_not_on_or_after)
-            signals.auth_login.send(sender=None,
-                request=request, attributes=attributes)
-            logger.debug('sso_after_response: successful login signal sent')
-            if request.session.test_cookie_worked():
-                request.session.delete_test_cookie()
-            save_session(request, login, kind=LIBERTY_SESSION_DUMP_KIND_SP)
-            logger.info('sso_after_response: \
-                login processing ended with success - redirect to target')
-            return HttpResponseRedirect(url)
+        if policy.handle_transient in ('AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH',
+                'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION'):
+
+            if policy.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_ASK_AUTH':
+                if not request.user.is_authenticated():
+                    return HttpResponseRedirect(url)
+                    logger.info('sso_after_response: Account linking required')
+                    save_session(request, login, kind=LIBERTY_SESSION_DUMP_KIND_SP)
+                    logger.debug('sso_after_response: \
+                        Register identity dump in session')
+                    save_federation_temp(request, login, attributes=attributes)
+                    maintain_liberty_session_on_service_provider(request, login)
+                    return render_to_response('auth/saml2/account_linking.html',
+                            context_instance=RequestContext(request))
+                logger.debug('sso_after_response: django session opened')
+                session_not_on_or_after = get_session_not_on_or_after(login.assertion)
+                if session_not_on_or_after:
+                    request.session.set_expiry(session_not_on_or_after)
+                    logger.debug('sso_after_response: session set to expire on %s by SessionNotOnOrAfter attribute', session_not_on_or_after)
+                if request.session.test_cookie_worked():
+                    request.session.delete_test_cookie()
+                save_session(request, login, kind=LIBERTY_SESSION_DUMP_KIND_SP)
+                logger.info('sso_after_response: \
+                    login processing ended with success - redirect to target')
+                return HttpResponseRedirect(url)
+
+            if policy.handle_transient == 'AUTHSAML2_UNAUTH_TRANSIENT_OPEN_SESSION':
+                logger.info('sso_after_response: \
+                    Opening session for transient with nameID')
+                logger.debug('sso_after_response: \
+                    nameID %s' %login.nameIdentifier.dump())
+                user = authenticate(name_id=login.nameIdentifier)
+                if not user:
+                    return error_page(request,
+                        _('sso_after_response: \
+                        No backend for temporary federation is configured'),
+                        logger=logger)
+                auth_login(request, user)
+                logger.debug('sso_after_response: django session opened')
+                session_not_on_or_after = get_session_not_on_or_after(login.assertion)
+                if session_not_on_or_after:
+                    request.session.set_expiry(session_not_on_or_after)
+                    logger.debug('sso_after_response: session set to expire on %s by SessionNotOnOrAfter attribute', session_not_on_or_after)
+                signals.auth_login.send(sender=None,
+                    request=request, attributes=attributes)
+                logger.debug('sso_after_response: successful login signal sent')
+                if request.session.test_cookie_worked():
+                    request.session.delete_test_cookie()
+                save_session(request, login, kind=LIBERTY_SESSION_DUMP_KIND_SP)
+                logger.info('sso_after_response: \
+                    login processing ended with success - redirect to target')
+                return HttpResponseRedirect(url)
         return error_page(request, _('sso_after_response: \
             Transient access policy: Configuration error'),
             logger=logger)
