@@ -341,6 +341,7 @@ if IDP_SAML2:
 
 if IDP_OPENID:
     INSTALLED_APPS += ('authentic2.idp.idp_openid',)
+    TEMPLATE_CONTEXT_PROCESSORS += ('authentic2.idp.idp_openid.context_processors.openid_meta',)
 
 if IDP_CAS:
     INSTALLED_APPS += ('authentic2.idp.idp_cas',)

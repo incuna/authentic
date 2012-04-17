@@ -1,4 +1,4 @@
-{% load i18n %}{% load openid %} <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+{% load i18n %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ STATIC_URL }}jquery/css/jquery-ui.custom.css" />
     <link rel="stylesheet" href="{{ STATIC_URL }}ulx/css/ulx.css" />
     <title>{% block title %}User test{% endblock %}</title>
-    {% openid_meta %}
+    {{ openid_meta }}
     {% block extra_scripts %}
     {% endblock %}
 </head>
