@@ -73,7 +73,7 @@ def cache_and_validate(timeout, hashing=hashlib.md5):
                 else:
                     content = f(request, *args, **kwargs)
                     if old_content == content.content:
-                        data = (now, last_modified, etag, old_content)
+                        data = (now, last_modified, etag, mime_type, old_content)
                         return data
             else:
                 content = f(request, *args, **kwargs)
