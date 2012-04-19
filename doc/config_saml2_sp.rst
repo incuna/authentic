@@ -57,8 +57,8 @@ See below about configuring the service provider with policies:
    :width: 800 px
    :align: center
 
-Configure the SAML2 service provider options
---------------------------------------------
+Apply a SAML2 service provider options policy
+---------------------------------------------
 
 The SAML2 options of the service provider are configured using sp options
 policies.

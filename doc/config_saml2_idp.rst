@@ -61,11 +61,11 @@ See below about configuring the identity provider with policies:
    :width: 800 px
    :align: center
 
-Configure the SAML2 identity provider options
----------------------------------------------
+Apply a SAML2 identity provider options policy
+----------------------------------------------
 
 The SAML2 options of the identity provider are configured using idp options
-policies.
+policies. For the explanation of the options see the following section.
 
 See the *administration with policy principle* page :ref:`administration_with_policies`.
 
@@ -110,6 +110,39 @@ initiated.
 .. image:: pictures/error_no_idp_options.png
    :width: 800 px
    :align: center
+
+SAML2 identity provider options explained
+-----------------------------------------
+
+Behavior with persistent nameID
+_______________________________
+
+This option applies when an assertion with a persistent nameID is received and
+the nameID is not recognized as an existing federation.
+
+Two values are possible: "Create new account" and "Account linking by authentication".
+
+The value "Create new account" makes Authentic 2 create a user account associated
+to the nameID received.
+
+The value "Account linking by authentication" makes Authentic 2 ask the user to
+authenticate with an existing account to associate the nameID to this account.
+
+Behavior with transient nameID
+_______________________________
+
+This option applies when an assertion with a transient nameID is received and
+there isn't a session opened for the user yet.
+
+Two values are possible: "Open a session" and "Ask authentication".
+
+The value "Open a session" makes Authentic 2 open a session.
+
+The value "Ask authentication" makes Authentic 2 ask for a user authentication,
+even when a valid assertion is received. That may have sense for instance if
+the SSO login is used only to receive signed attributes for users with existing
+accounts.
+
 
 How to refresh the metadata of an identity provider hosted at a Well-Known Location?
 ====================================================================================
