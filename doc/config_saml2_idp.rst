@@ -64,7 +64,7 @@ See below about configuring the identity provider with policies:
 Configure the SAML2 identity provider options
 ---------------------------------------------
 
-The SAML2 options of the service provider are configured using sp options
+The SAML2 options of the identity provider are configured using idp options
 policies.
 
 See the *administration with policy principle* page :ref:`administration_with_policies`.
@@ -75,39 +75,44 @@ Go to:
 
     http[s]://your.domain.com/admin/saml/idpoptionssppolicy/add/
 
-.. image:: pictures/sp_options_regular.png
+Configure your policy and save:
+
+.. image:: pictures/idp_options_regular.png
    :width: 800 px
    :align: center
 
-.. image:: pictures/sp_options_regular_saved.png
+.. image:: pictures/idp_options_regular_saved.png
    :width: 800 px
    :align: center
 
-.. image:: pictures/sp_options_regular_modify_sp.png
+Apply the policy to the identity provider:
+
+.. image:: pictures/idp_options_regular_modify_sp.png
    :width: 800 px
    :align: center
 
-Exemple with a policy 'Default':
+Example with a policy 'Default':
 
-.. image:: pictures/sp_options_default.png
+.. image:: pictures/idp_options_default.png
    :width: 800 px
    :align: center
 
-Exemple with a policy 'All':
+Example with a policy 'All':
 
-.. image:: pictures/sp_options_all.png
+.. image:: pictures/idp_options_all.png
    :width: 800 px
    :align: center
 
 If no policy is found for the configuration of the SAML2 options of an identity
-provider, the following error is displayed when a SSO request is initiated.
+provider, the following error is displayed to the users when a SSO request is
+initiated.
 
 .. image:: pictures/error_no_idp_options.png
    :width: 800 px
    :align: center
 
-How to refresh metadata of an identity provider hosted at a Well-Known Location?
---------------------------------------------------------------------------------
+How to refresh the metadata of an identity provider hosted at a Well-Known Location?
+====================================================================================
 
 The Well-Known Location (WKL) means that the entity Id of the provider is a
 URL at which the provider metadata are hosted.
@@ -124,6 +129,6 @@ the menu 'Update metadata', then click on 'Go'.
    :align: center
 
 How to create in bulk identity providers with the sync-metadata script?
------------------------------------------------------------------------
+=======================================================================
 
 See the page explaining the use of the script sync-metadata :ref:`sync-metadata_script`.
