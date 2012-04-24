@@ -4,10 +4,10 @@
 Download
 ========
 
-1. Pypi: http://pypi.python.org/pypi/authentic2/1.9.0
+1. Obtain the last archive on Pypi:
 
-2. Git repository: http://repos.entrouvert.org/authentic.git
+   http://pypi.python.org/pypi/authentic2/2.0.1
 
-3. `Browse source <http://dev.entrouvert.org/projects/authentic/repository>`_
+2. Obtain the last stable source on the Git repository:
 
-
+   git clone http://repos.entrouvert.org/authentic.git
