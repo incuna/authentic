@@ -51,6 +51,10 @@ LANGUAGES = (
     ('fr', gettext_noop('French')),
 )
 
+LOCALE_PATHS = (
+    os.path.join(_PROJECT_PATH, 'authentic2/locale')
+)
+
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale
 USE_L10N = True
