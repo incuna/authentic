@@ -14,9 +14,9 @@ You must install the following packages to use Authentic
    From sources: http://lasso.entrouvert.org/download
    Debian based distribution: http://deb.entrouvert.org/
 
-- Django 1.3:
+- Django 1.4:
 
-   From sources: http://www.djangoproject.com/download/1.3/tarball/
+   From sources: http://www.djangoproject.com/download/1.4/tarball/
 
 - Django-authopenid 0.9.6:
 
@@ -41,6 +41,8 @@ or easy_install::
 **Dependencies in DEBUG mode (Default mode)**
 
 - Django Debug Toolbar:
+
+   From sources:: https://github.com/django-debug-toolbar/django-debug-toolbar
 
 Using pip::
 
