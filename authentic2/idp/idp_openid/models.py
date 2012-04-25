@@ -23,7 +23,7 @@ class Association(models.Model):
     server_url = models.CharField(max_length=2047, blank=False)
     handle = models.CharField(max_length=255, blank=False)
     secret = PickledObjectField()
-    issued = models.DateTimeField(auto_now_add=True,
+    issued = models.DateTimeField(editable=False,
             verbose_name="Issue time for this association, as seconds \
 since EPOCH")
     lifetime = models.IntegerField(
@@ -38,6 +38,7 @@ be expired")
 
     def save(self, *args, **kwargs):
         '''Overload default save() method to compute the expire field'''
+        self.issued = datetime.datetime.today()
         self.expire = self.issued + datetime.timedelta(seconds=self.lifetime)
         super(Association, self).save(*args, **kwargs)
 
