@@ -22,7 +22,7 @@ class TrustedRoot(models.Model):
 class Association(models.Model):
     server_url = models.CharField(max_length=2047, blank=False)
     handle = models.CharField(max_length=255, blank=False)
-    secret = PickledObjectField()
+    secret = PickledObjectField(editable=False)
     issued = models.DateTimeField(editable=False,
             verbose_name="Issue time for this association, as seconds \
 since EPOCH")
