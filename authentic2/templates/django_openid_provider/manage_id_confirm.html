@@ -7,6 +7,7 @@
 
 {% block content %}
     <form action = "/openid/manageid_confirm/" id = "form" method = "post">
+    {% csrf_token %}
             <p>Are you sure, you want to delete <strong> {{ id }} </strong> and these trusted site:</p>
         {% for i in trust %}
             {{ i }}

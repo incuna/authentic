@@ -25,13 +25,13 @@
 
     <h2>{% trans "Dissociate OpenID URL" %}</h2>
     <form name="fopenid" action="{% url user-dissociate %}" method="post">
+    {% csrf_token %}
     <input type="hidden" name="next" value="{{ next }}" />
 	{{ form.openid_url }}
         <p>Confirm to dissociate {% for a_oi in a_openids %} {{ a_oi }} <input type="hidden" name="a_openids_remove" value="{{ a_oi }}" /> {% endfor %} from your account</p>
         <div class="submit-row "><input name="bdissociate" type="submit" value="{% trans "Dissociate OpenID" %}">
         <input name="bdissociate_cancel" type="submit" value="{% trans "Cancel" %}"></div>
-		
-</form>	
-</div>	
-{% endblock %}
 
+</form>
+</div>
+{% endblock %}

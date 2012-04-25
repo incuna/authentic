@@ -25,23 +25,23 @@
 	{% endblocktrans %}
 	</div>
 
-		
+
 	{% if form1.errors %}
 	<p class="errors">{% trans "Please correct errors below:" %}
-		{% if form1.username.errors %} 
+		{% if form1.username.errors %}
             <ul class="errorlist">{{ form1.username.errors|join:", " }}</ul>
 		{% endif %}
-        {% if form1.email.errors %} 
+        {% if form1.email.errors %}
             <ul class="errorlist">{{ form1.email.errors|join:", " }}</ul>
 		{% endif %}
     </p>
 	{% endif %}
 	{% if form2.errors %}
 	<p class="errors">{% trans "Please correct errors below:" %}
-		{% if form2.username.errors %} 
+		{% if form2.username.errors %}
             <ul class="errorlist">{{ form2.username.errors|join:", " }}</ul>
 		{% endif %}
-		{% if form2.password.errors %} 
+		{% if form2.password.errors %}
             <ul class="errorlist">{{ form2.password.errors|join:", " }}</ul>
         {% endif %}
 	</p>
@@ -49,6 +49,7 @@
 
 	<div class="login">
         <form name="fregister" action="{% url user_register %}" method="POST">
+            {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}" />
 			<fieldset>
 				<legend>{% trans "A new account" %}</legend>
@@ -60,10 +61,11 @@
 		</form>
 	</div>
 
-	
+
 
 	<div class="login">
         <form name="fverify" action="{% url user_register %}" method="POST">
+            {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}" />
 			<fieldset>
 				<legend>{% trans "An existing account" %}</legend>
@@ -74,6 +76,3 @@
 		</form>
 	</div>
 {% endblock %}
-
-	
-

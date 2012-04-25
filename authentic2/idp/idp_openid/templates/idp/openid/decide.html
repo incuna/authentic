@@ -23,7 +23,7 @@
 {% endifequal %}
 {% ifequal trust_root_valid "DISCOVERY_FAILED" %}
   <p>The site <tt>{{ trust_root|escape }}</tt> has requested verification
-  of your OpenID.  However, <tt>{{ trust_root|escape }}</tt> does not 
+  of your OpenID.  However, <tt>{{ trust_root|escape }}</tt> does not
   implement OpenID 2.0's relying party verification mechanism.  Please use
   extra caution in deciding whether to release information to this party,
   and ask <tt>{{ trust_root|escape }}</tt> to implement relying party
@@ -32,7 +32,8 @@
 
 <!-- trust_root_valid is {{ trust_root_valid }} -->
 
-<form method="post" action="{% url openid-provider-decide %}">{% csrf_token %}
+<form method="post" action="{% url openid-provider-decide %}">
+{% csrf_token %}
 {% if required %}
 <p>
 It requires the following attributes:

@@ -17,6 +17,7 @@
 <legend>{% trans "Your trusted site" %} </legend>
 <p>Check the trusted site that you want to remove and click on remove to remove these trusted site from these </p>
  <form action="." id="form" method="post">
+ {% csrf_token %}
  {% for key, value in openids.items %}
     <p> <h4> {{ uri }}{{ oipath }}/{{ value.caption }}/ </h4>
     <ul class="NoBullet">
@@ -34,4 +35,3 @@
  </form>
  </fieldset>
 {% endblock %}
-

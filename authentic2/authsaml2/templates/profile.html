@@ -22,6 +22,7 @@
 <p>
 <h5>{% trans "Add a federation?" %}</h5>
 <form method="post" action="">
+{% csrf_token %}
 {{ form.as_p }}
 <input type="submit" name="{{ submit_name }}" value="{% trans "Log in" %}"/>
 </form>

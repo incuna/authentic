@@ -25,6 +25,7 @@
 You can change your default OpenID by clicking on "Make Default"
 </p>
 <form action="." id="form1" method="post">
+{% csrf_token %}
 {% for key,value in openids.items %}
 <p>  <h4> {{ uri }}{{ oipath }}/{{ value.caption }}/
     {% if value.Default %}
@@ -51,6 +52,7 @@ You can change your default OpenID by clicking on "Make Default"
 <legend>{% trans "Add a new OpenID identity" %} </legend>
 <p>
 <form action = "/openid/addopenid/" id = "form2" method = "post">
+    {% csrf_token %}
     <p> Leave blank to create an anonymous OpenID</p>
     {{ uri }}{{ oipath }}/{{ form.openid }}/
     {{ form.Default }}

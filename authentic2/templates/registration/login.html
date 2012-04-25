@@ -16,6 +16,7 @@
 {% endif %}
 
 <form id="login-form" method="post" action=".">
+   {% csrf_token %}
    {{ form.as_p }}
 
   <input type="submit" value="{% trans 'Log in' %}" class="submit" />
@@ -39,6 +40,7 @@
 </div>
 <div>
 <form>
+    {% csrf_token %}
     <select name="list_providers" size="1" onChange="redirect_from_list(this.form)">
     <option selected="selected">{% trans "Tell me where!" %}</option>
     {% for p in providers_list %}

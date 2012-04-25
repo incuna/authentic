@@ -14,10 +14,10 @@
 {% endif %}
 {% if form2.errors %}
 <div class="errors"><p>{% trans "Please correct errors below:" %}
-	{% if form2.username.errors %} 
+	{% if form2.username.errors %}
 		<span class="error">{{ form2.username.errors|join:", " }}</span>
 	{% endif %}
-	{% if form2.password.errors %} 
+	{% if form2.password.errors %}
 		<span class="error">{{ form2.password.errors|join:", " }}</span>
 	{% endif %}
 </p></div>
@@ -32,6 +32,7 @@
 <div class="login">
 
 <form id="openid_form" name="openid_form" action="{% url user_signin %}" method="post">
+    {% csrf_token %}
     <input type="hidden" name="action" value="verify" />
     <input type="hidden" name="next" value="{{ next }}" />
     <div id="openid_choice">
@@ -43,8 +44,8 @@
        <label for="id_openid_url">{% trans "OpenId URL :" %}</label>{{ form1.openid_url }}
        <input name="openid_submit" type="submit" value="{% trans "Sign in with OpenID" %}">
     </div>
-</form>	
-</div>	
+</form>
+</div>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -56,6 +57,5 @@ $(document).ready(function() {
 });
 </script>
 <!-- /Simple OpenID Selector -->
-    
-{% endblock %}
 
+{% endblock %}

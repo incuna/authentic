@@ -24,6 +24,7 @@
 <div class="login">
 <h2>{% trans "Dissociate OpenID URL" %}</h2>
 <form name = "fopenid" action = "." method= "post" />
+        {% csrf_token %}
         <ul class = "NoBullet">
         {% for a_openid in associated_openids %}
         <li><input type = "checkbox" name = "a_openids" value = {{ a_openid }} /> {{ a_openid }} </li>
@@ -36,6 +37,7 @@
 
 <h2>{% trans "Add a new OpenID account" %}</h2>
 <form name="openid_form" id="openid_form" action="." method="post">
+    {% csrf_token %}
     <input type="hidden" name="action" value="verify" />
     <input type="hidden" name="next" value="{{ next }}" />
 		<div id="openid_choice">
@@ -46,7 +48,7 @@
             <label for="id_openid_url">{% trans "OpenId URL :" %}</label> {{ form.openid_url }}
             <input name="openid_submit" type="submit" value="{% trans "Add OpenID" %}">
 		</div>
-</form>	
+</form>
 {% endblock %}
 
 {% block extra_scripts %}
