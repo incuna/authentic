@@ -113,7 +113,8 @@ Configure the SAML2 service provider protocol options
 This kind of policy does not use the policy management using global policies.
 
 You should use the default option except if your service provider is a
-Shibboleth service provider.
+Shibboleth service provider, then you should use the option "Shibboleth SP
+(AuthnRequest Signature: Does not check signatures)".
 
 Configure the attribute policy of the service provider
 ------------------------------------------------------
