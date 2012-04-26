@@ -19,9 +19,12 @@ from django.template.loader import render_to_string
 from django.utils.encoding import smart_unicode
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.generic.simple import redirect_to
+from django.contrib import messages
+
 from openid.consumer.consumer import Consumer, SUCCESS, CANCEL, FAILURE, SETUP_NEEDED
 from openid.consumer.discover import DiscoveryFailure
 from openid.yadis import xri
+
 from authentic2.auth2_auth.auth2_openid import *
 
 OPENID_PROVIDER = ['https://me.yahoo.com//','http://openid.aol.com/','http://.myopenid.com/',
@@ -302,7 +305,7 @@ def associate(request, template_name='authopenid/associate.html',
     else:
         form = openid_form(request.user)
 
-    msg = request.user.get_and_delete_messages()
+    msg = messages.get_messages(request)
     return render_to_response('authopenid/associate.html', {
         'form': form,
         redirect_field_name: redirect_to,
