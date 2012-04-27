@@ -1,6 +1,36 @@
 NEWS
 ====
 
+2.0.1 - April 27th 2012
+--------------------------
+
+48 commits, 97 files changed, 1456 insertions, 1112 deletions
+
+Changes:
+* Authentic2 now runs with Django1.4. Deprecated functions removal is still
+  in progress.
+* CsrfMiddleware is not used anymore.
+* Debug is the default mode.
+* Limit dependency of attribute aggregator on python-ldap.
+* Modification of the attribute aggregator mapping file.
+* The private key from Lasso dumps is not logged anymore.
+
+Features:
+* As a SAML2 IdP, the user consent for federation when a transient nameID is
+  served is not asked anymore.
+* As a SAML2 SP, it is now possible to ask another authentication when a
+  transient nameID is received.
+
+Bugs:
+* Fix in cache_and_validate.
+* Fix service provider list on homepage.
+* Fix in attribute aggregator profile creation.
+
+Other:
+* Beginning of a pep8 review.
+* Documentation updated.
+* Translation updated.
+
 2.0.0 - December 22nd 2011
 --------------------------
 
