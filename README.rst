@@ -284,8 +284,8 @@ Roadmap
 Copyright
 ---------
 
-Authentic is copyrighted by Entr'ouvert and is licensed through the GNU General
-Public Licence, version 2 or later. A copy of the whole license text is
+Authentic is copyrighted by Entr'ouvert and is licensed through the GNU Affero
+General Public Licence, version 3 or later. A copy of the whole license text is
 available in the COPYING file.
 
 The OpenID IdP originates in the project django_openid_provider by Roman
