@@ -31,7 +31,6 @@ class SamlBackend(object):
                     protocol = 'idff12'
                 else:
                     protocol = 'saml2'
-                name = liberty_provider.name
                 actions.append(('login', 'POST',
                     '/idp/%s/idp_sso/' % protocol,
                     (('provider_id', entity_id ),)))
