@@ -247,9 +247,15 @@ IDP_CAS = False
 # CAS_TICKET_EXPIRATION = 240
 
 # Logging settings
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
+    'filters': {
+        'cleaning': {
+            '()':  'authentic2.utils.CleanLogMessage',
+        },
+    },
     'formatters': {
         'verbose': {
             'format': '[%(asctime)s] %(levelname)-8s %(name)s.%(message)s',
@@ -264,22 +270,26 @@ LOGGING = {
         'console': {
             'level':'DEBUG',
             'class':'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'verbose',
+            'filters': ['cleaning'],
         },
         'local_file': {
             'level':'DEBUG',
             'class':'logging.FileHandler',
             'formatter': 'verbose',
             'filename': os.path.join(_PROJECT_PATH, 'log.log'),
+            'filters': ['cleaning'],
         },
         'syslog': {
             'level':'INFO',
             'class':'logging.handlers.SysLogHandler',
+            'filters': ['cleaning'],
         },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True,
+            'filters': ['cleaning'],
         }
     },
     'loggers': {

@@ -3,6 +3,16 @@ import lasso
 import x509utils
 import base64
 import binascii
+import re
+
+def filter_attribute_private_key(message):
+    return re.sub(r' (\w+:)?(PrivateKey=")([&#;\w/ +-=])+(")', '', message)
+
+def filter_element_private_key(message):
+    return re.sub(r'(<saml)(p)?(:PrivateKeyFile>-----BEGIN RSA PRIVATE KEY-----)'
+        '([&#;\w/+=\s])+'
+        '(-----END RSA PRIVATE KEY-----</saml)(p)?(:PrivateKeyFile>)',
+        '', message)
 
 def bool2xs(boolean):
     '''Convert a boolean value to XSchema boolean representation'''

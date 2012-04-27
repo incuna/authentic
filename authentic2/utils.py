@@ -1,10 +1,22 @@
 import time
 import hashlib
 import datetime as dt
+import logging
 
 from django.views.decorators.http import condition
 from django.conf import settings
 from django.http import HttpResponse
+
+from authentic2.saml.saml2utils import filter_attribute_private_key, \
+    filter_element_private_key
+
+
+class CleanLogMessage(logging.Filter):
+    def filter(self, record):
+        record.msg = filter_attribute_private_key(record.msg)
+        record.msg = filter_element_private_key(record.msg)
+        return True
+
 
 class MWT(object):
     """Memoize With Timeout"""
