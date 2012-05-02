@@ -1,0 +1,5 @@
+Django==1.3
+
+django-authopenid
+django-profiles
+South==0.7.4

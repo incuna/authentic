@@ -1,0 +1,49 @@
+
+
+# Install Lasso
+
+sudo vim /etc/apt/sources.list
+
+# Add appropriate sources
+deb http://deb.entrouvert.org/ karmic main
+deb-src http://deb.entrouvert.org/ karmic main
+
+# Add the key
+wget http://deb.entrouvert.org/entrouvert.gpg
+sudo apt-key add entrouvert.gpg
+
+# Install the package
+sudo aptitude install liblasso3-dev python-lasso
+
+# If using virtual env you may need to link to the python bindings
+# Find where the files were installed with
+
+dpkg -L python-lasso
+
+# Create links to the files
+ln -s /usr/lib/python2.6/dist-packages/{_lasso.so,lasso.py} venv/lib/python2.6/site-packages/
+
+
+
+# Install python packages
+
+pip install -r requirements.txt
+
+# Create the dataabse
+
+python authentic2/manage.py syncdb --all
+python authentic2/manage.py migrate --list
+
+
+
+# Generate keys
+
+openssl genrsa -des3 -out signature.key 2048
+
+mv signature.key signature.orig.key
+
+openssl rsa -in signature.orig.key -out signature.key
+
+openssl req -new -key signature.key -out signature.csr
+
+openssl x509 -req -days 365 -in signature.csr -signkey signature.key -out signature.crt

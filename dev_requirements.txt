@@ -1,0 +1,4 @@
+-r requirements.txt
+
+django-debug-toolbar==0.9.4
+Werkzeug==0.8.2
