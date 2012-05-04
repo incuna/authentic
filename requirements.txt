@@ -1,5 +1,8 @@
 Django==1.3
 
-django-authopenid
-django-profiles
+django-authopenid==1.0.1
+django-profiles==0.2
+django-registration==0.8
+python-openid==2.2.5
+gunicorn==0.13.4
 South==0.7.4
