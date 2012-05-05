@@ -1,5 +1,3 @@
-
-
 # Install Lasso
 
 sudo vim /etc/apt/sources.list
@@ -11,6 +9,9 @@ deb-src http://deb.entrouvert.org/ karmic main
 # Add the key
 wget http://deb.entrouvert.org/entrouvert.gpg
 sudo apt-key add entrouvert.gpg
+
+# Update the sources
+sudo aptitude update
 
 # Install the package
 sudo aptitude install liblasso3-dev python-lasso
